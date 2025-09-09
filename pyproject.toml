@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mutants"
+version = "0.0.0"
+description = "Skeleton for Mutants (no game code)"
+requires-python = ">=3.11"
+
+[project.urls]
+homepage = "https://github.com/your-org-or-user/your-repo"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+packages = [
+  "mutants",
+  "mutants.io",
+  "mutants.handlers",
+  "mutants.registries",
+  "mutants.services",
+  "mutants.data"
+]
