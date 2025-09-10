@@ -1,22 +1,27 @@
 # src/mutants/bootstrap/lazyinit.py
 """
-Lazy init for player live state.
+Lazy init for player live state and item state.
 
 Behavior:
-- If state/playerlivestate.json exists and is valid, load and return it.
-- If missing or invalid, read class templates, instantiate the 5 classes with
-  derived fields, atomically write state/playerlivestate.json, then return it.
+- Player state:
+  * If state/playerlivestate.json exists and is valid, load and return it.
+  * If missing/invalid, read class templates, build entries with derived fields,
+    atomically write state/playerlivestate.json, then return it.
+- Item state:
+  * ensure_item_state() creates state/items/ and an empty instances.json if missing
+    (catalog.json is author-edited and not created here).
 
 Notes:
 - Templates are expected at package data: mutants/data/startingclasstemplates.json
   (or pass a filesystem fallback path to ensure_player_state).
-- Starting Armour Class is computed from DEX-only (fill in your real formula).
+- Starting Armour Class is computed from DEX only using 10-point buckets:
+  0–9 -> 0, 10–19 -> 1, 20–29 -> 2, ...
 """
 
 from __future__ import annotations
+
 import json
 import os
-import tempfile
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -43,6 +48,9 @@ def compute_ac_from_dex(dex: int) -> int:
 # ---------- IO helpers ----------
 
 def atomic_write_json(path: Path, data: Any) -> None:
+    """
+    Write JSON atomically: .tmp -> fsync -> replace.
+    """
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_suffix(path.suffix + ".tmp")
     with tmp.open("w", encoding="utf-8") as f:
@@ -51,6 +59,8 @@ def atomic_write_json(path: Path, data: Any) -> None:
         os.fsync(f.fileno())
     os.replace(tmp, path)
 
+
+# ---------- Item state bootstrap ----------
 
 def ensure_item_state(state_dir: str = "state") -> None:
     """
@@ -62,21 +72,10 @@ def ensure_item_state(state_dir: str = "state") -> None:
 
     instances_path = items_dir / "instances.json"
     if not instances_path.exists():
-        # Write an empty list atomically
-        tmp = Path(tempfile.mkstemp(prefix="instances.json.", dir=str(items_dir))[1])
-        try:
-            with tmp.open("w", encoding="utf-8") as f:
-                json.dump([], f, ensure_ascii=False, indent=2)
-                f.flush()
-                os.fsync(f.fileno())
-            os.replace(tmp, instances_path)
-        finally:
-            if tmp.exists():
-                try:
-                    tmp.unlink()
-                except OSError:
-                    pass
+        atomic_write_json(instances_path, [])
 
+
+# ---------- Template loading ----------
 
 def load_templates(pkg: str = "mutants.data",
                    resource_name: str = "startingclasstemplates.json",
@@ -93,7 +92,7 @@ def load_templates(pkg: str = "mutants.data",
         raise
 
 
-# ---------- Construction ----------
+# ---------- Player construction ----------
 
 def make_player_from_template(t: Dict[str, Any], make_active: bool = False) -> Dict[str, Any]:
     cls = t["class"]
@@ -163,21 +162,17 @@ def ensure_player_state(state_dir: str = "state",
                         active_first_class: str = "Thief") -> Dict[str, Any]:
     """
     Ensure playerlivestate.json exists; create from templates if missing.
-    Returns a dict: {"schema_version": 1, "players": [...], "active_id": "..."}.
+    Returns a dict like: {"schema_version": 1, "players": [...], "active_id": "..."}.
     """
     out_path = Path(state_dir) / out_name
 
-    # Load if present and valid; otherwise rebuild.
+    # Load if present and minimally valid; otherwise rebuild.
     if out_path.exists():
         try:
             data = json.loads(out_path.read_text(encoding="utf-8"))
-            if not isinstance(data, dict):
-                raise ValueError("not a JSON object")
-            if data.get("schema_version") != 1:
-                raise ValueError(f"unexpected schema_version={data.get('schema_version')}")
-            if "players" not in data or "active_id" not in data:
-                raise ValueError("missing required keys: players/active_id")
-            return data
+            if isinstance(data, dict) and "players" in data and "active_id" in data:
+                return data
+            raise ValueError("missing required keys: players/active_id")
         except Exception as e:
             print(f"[warn] {out_path} invalid or unreadable ({e}); rebuilding from templates...", flush=True)
             # Move the bad file aside so we don't overwrite it.
@@ -209,5 +204,7 @@ def ensure_player_state(state_dir: str = "state",
 
 
 if __name__ == "__main__":
+    # Ensure basic item state alongside player state when run directly.
+    ensure_item_state()
     st = ensure_player_state()
     print(f"playerlivestate.json ready with {len(st.get('players', []))} classes; active_id={st.get('active_id')}")
