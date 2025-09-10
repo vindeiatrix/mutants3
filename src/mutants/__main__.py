@@ -3,9 +3,13 @@
 from __future__ import annotations
 import json, os
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, Callable
 
 from mutants.bootstrap.lazyinit import ensure_player_state
+from mutants.data.room_headers import ROOM_HEADERS
+from mutants.registries.world import load_year
+from mutants.ui.renderer import render
+from mutants.commands.move import register as register_move
 
 STATE_DIR = "state"
 PLAYER_STATE_FILE = "playerlivestate.json"
@@ -56,21 +60,41 @@ def cmd_where(state: Dict[str, Any]) -> None:
     print(f"Year {p.get('pos',[2000,0,0])[0]} at ({x},{y})")
 
 def help_text() -> None:
-    print("Commands: list, whoami, switch <class|id>, where, rename <name>, save, help, exit")
+    print(
+        "Commands: north/n, south/s, east/e, west/w, look, "
+        "list, whoami, switch <class|id>, where, rename <name>, save, help, exit"
+    )
 
 def main() -> None:
     state = ensure_player_state()
+    ctx = {
+        "player_state": state,
+        "world_loader": load_year,
+        "monsters": None,
+        "items": None,
+        "headers": ROOM_HEADERS,
+        "render": lambda vm: render(vm),
+    }
+    dispatch: Dict[str, Callable[[str], None]] = {}
+    register_move(dispatch, ctx)
+
     help_text()
+    dispatch["look"]("")
     while True:
         try:
             raw = input("> ").strip()
         except (EOFError, KeyboardInterrupt):
             print("\nbye"); break
-        if not raw: 
+        if not raw:
             continue
         parts = raw.split(maxsplit=1)
         cmd = parts[0].lower()
         arg = parts[1] if len(parts) > 1 else ""
+
+        fn = dispatch.get(cmd)
+        if fn:
+            fn(arg)
+            continue
 
         if cmd in ("exit", "quit"): break
         elif cmd == "help": help_text()
