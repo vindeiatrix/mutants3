@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Iterable, Any
 
 DEFAULT_INSTANCES_PATH = "state/items/instances.json"
+FALLBACK_INSTANCES_PATH = "state/instances.json"  # auto-fallback if the new path isn't used yet
 
 def _atomic_write_json(path: Path, data: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -79,10 +80,12 @@ class ItemsInstances:
             self._dirty = False
 
 def load_instances(path: str = DEFAULT_INSTANCES_PATH) -> ItemsInstances:
-    p = Path(path)
-    if not p.exists():
-        return ItemsInstances(path, [])
-    with p.open("r", encoding="utf-8") as f:
+    primary = Path(path)
+    fallback = Path(FALLBACK_INSTANCES_PATH)
+    target = primary if primary.exists() else (fallback if fallback.exists() else primary)
+    if not target.exists():
+        return ItemsInstances(str(target), [])
+    with target.open("r", encoding="utf-8") as f:
         try:
             data = json.load(f)
         except json.JSONDecodeError:
@@ -93,4 +96,4 @@ def load_instances(path: str = DEFAULT_INSTANCES_PATH) -> ItemsInstances:
         items = data
     else:
         items = []
-    return ItemsInstances(path, items)
+    return ItemsInstances(str(target), items)
