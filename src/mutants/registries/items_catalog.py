@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Iterable, Any
 
 DEFAULT_CATALOG_PATH = "state/items/catalog.json"
+FALLBACK_CATALOG_PATH = "state/catalog.json"  # auto-fallback if the new path isn't used yet
 
 class ItemsCatalog:
     def __init__(self, items: List[Dict[str, Any]]):
@@ -22,18 +23,22 @@ class ItemsCatalog:
     def list_spawnable(self) -> List[Dict[str, Any]]:
         return [it for it in self._items_list if it.get("spawnable", "no") == "yes"]
 
-def load_catalog(path: str = DEFAULT_CATALOG_PATH) -> ItemsCatalog:
-    p = Path(path)
-    if not p.exists():
-        raise FileNotFoundError(f"Missing catalog at {p}")
+def _read_items_from_file(p: Path) -> List[Dict[str, Any]]:
     with p.open("r", encoding="utf-8") as f:
         data = json.load(f)
-
     if isinstance(data, dict) and "items" in data:
-        items = data["items"]
-    elif isinstance(data, list):
-        items = data
-    else:
-        raise ValueError('catalog.json must be a list of items or {"items": [...]}')
+        return data["items"]
+    if isinstance(data, list):
+        return data
+    raise ValueError('catalog.json must be a list of items or {"items": [...]}')
 
+def load_catalog(path: str = DEFAULT_CATALOG_PATH) -> ItemsCatalog:
+    primary = Path(path)
+    fallback = Path(FALLBACK_CATALOG_PATH)
+    if primary.exists():
+        items = _read_items_from_file(primary)
+    elif fallback.exists():
+        items = _read_items_from_file(fallback)
+    else:
+        raise FileNotFoundError(f"Missing catalog: tried {primary} then {fallback}")
     return ItemsCatalog(items)
