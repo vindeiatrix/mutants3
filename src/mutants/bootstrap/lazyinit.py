@@ -29,8 +29,14 @@ except ImportError:  # pragma: no cover
 # ---------- Domain helpers ----------
 
 def compute_ac_from_dex(dex: int) -> int:
-    """TODO: Replace with your actual DEX → AC rule. Placeholder uses DEX directly."""
-    return int(dex)
+    """
+    Map DEX to AC in 10-point buckets:
+    0–9 -> 0, 10–19 -> 1, 20–29 -> 2, ...
+    """
+    try:
+        return max(0, int(dex) // 10)
+    except (TypeError, ValueError):
+        return 0
 
 
 # ---------- IO helpers ----------
