@@ -1,38 +1,43 @@
-"""ANSI styling helpers for the UI renderer."""
+"""Token definitions and helpers for styling the UI."""
 from __future__ import annotations
 
 from typing import Dict, List, Tuple
 
-from . import constants as c
-
 Segment = Tuple[str, str]
 
-# Basic BBS-style palette
-BBS_PALETTE: Dict[str, str] = {
-    c.HEADER: "\x1b[1;37m",  # bright white
-    c.COMPASS_LABEL: "\x1b[36m",  # cyan
-    c.COORDS: "\x1b[37m",  # white
-    c.DIR: "\x1b[33m",  # yellow
-    c.DESC_CONT: "\x1b[37m",
-    c.DESC_TERRAIN: "\x1b[31m",  # red
-    c.DESC_BOUNDARY: "\x1b[35m",  # magenta
-    c.DESC_GATE_OPEN: "\x1b[32m",  # green
-    c.DESC_GATE_CLOSED: "\x1b[33m",  # yellow
-    c.DESC_GATE_LOCKED: "\x1b[31m",  # red
-    c.LABEL: "\x1b[35m",
-    c.ITEM: "\x1b[36m",
-    c.MONSTER: "\x1b[31m",
-    c.SHADOWS_LABEL: "\x1b[90m",  # dark gray
-}
-
-# Monochrome palette used for tests (no colors)
-MONO_PALETTE: Dict[str, str] = {token: "" for token in BBS_PALETTE.keys()}
+# Token names
+HEADER = "HEADER"
+COMPASS_LABEL = "COMPASS_LABEL"
+COORDS = "COORDS"
+DIR = "DIR"
+DESC_CONT = "DESC_CONT"
+DESC_TERRAIN = "DESC_TERRAIN"
+DESC_BOUNDARY = "DESC_BOUNDARY"
+DESC_GATE_OPEN = "DESC_GATE_OPEN"
+DESC_GATE_CLOSED = "DESC_GATE_CLOSED"
+DESC_GATE_LOCKED = "DESC_GATE_LOCKED"
+LABEL = "LABEL"
+ITEM = "ITEM"
+MONSTER = "MONSTER"
+SHADOWS_LABEL = "SHADOWS_LABEL"
+FEED_SYS_OK = "FEED_SYS_OK"
+FEED_SYS_WARN = "FEED_SYS_WARN"
+FEED_SYS_ERR = "FEED_SYS_ERR"
+FEED_MOVE = "FEED_MOVE"
+FEED_BLOCK = "FEED_BLOCK"
+FEED_COMBAT = "FEED_COMBAT"
+FEED_CRIT = "FEED_CRIT"
+FEED_TAUNT = "FEED_TAUNT"
+FEED_LOOT = "FEED_LOOT"
+FEED_SPELL = "FEED_SPELL"
+FEED_DEBUG = "FEED_DEBUG"
+RESET = "RESET"
 
 
 def resolve_segments(segments: List[Segment], palette: Dict[str, str]) -> str:
-    """Resolve a list of segments into a single ANSI string using *palette*."""
+    """Resolve segments into an ANSI string using *palette*."""
     pieces: List[str] = []
-    reset = "\x1b[0m"
+    reset = palette.get(RESET, "\x1b[0m")
     for token, text in segments:
         color = palette.get(token, "")
         if color:
@@ -43,7 +48,7 @@ def resolve_segments(segments: List[Segment], palette: Dict[str, str]) -> str:
 
 
 def tagged_string(segments: List[Segment]) -> str:
-    """Convert segments into a debug string with XML-like tags."""
+    """Convert segments into a debug string with tags."""
     out: List[str] = []
     for token, text in segments:
         if token:
