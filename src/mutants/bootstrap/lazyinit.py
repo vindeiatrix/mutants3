@@ -1,33 +1,39 @@
 # src/mutants/bootstrap/lazyinit.py
 """
 Lazy init for player live state.
-- If state/playerlivestate.json exists: load and return it.
-- If not: read class templates, instantiate the 5 classes with derived fields,
-  and atomically write state/playerlivestate.json, then return it.
+
+Behavior:
+- If state/playerlivestate.json exists and is valid, load and return it.
+- If missing or invalid, read class templates, instantiate the 5 classes with
+  derived fields, atomically write state/playerlivestate.json, then return it.
 
 Notes:
 - Templates are expected at package data: mutants/data/startingclasstemplates.json
-  (If you haven’t yet, include JSON as package-data in pyproject, or pass a filesystem fallback.)
-- Starting Armour Class is computed from DEX-only (fill in your real formula in compute_ac_from_dex).
+  (or pass a filesystem fallback path to ensure_player_state).
+- Starting Armour Class is computed from DEX-only (fill in your real formula).
 """
 
 from __future__ import annotations
-import json, os
+import json
+import os
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 try:
-    from importlib.resources import files  # py3.9+
+    from importlib.resources import files  # Python 3.9+
 except ImportError:  # pragma: no cover
-    # Fallback for very old Python
     import importlib_resources  # type: ignore
     files = importlib_resources.files  # type: ignore
 
 
+# ---------- Domain helpers ----------
+
 def compute_ac_from_dex(dex: int) -> int:
-    """TODO: Replace with your actual DEX→AC rule. For now, uses DEX directly."""
+    """TODO: Replace with your actual DEX → AC rule. Placeholder uses DEX directly."""
     return int(dex)
 
+
+# ---------- IO helpers ----------
 
 def atomic_write_json(path: Path, data: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -43,8 +49,7 @@ def load_templates(pkg: str = "mutants.data",
                    resource_name: str = "startingclasstemplates.json",
                    fs_fallback: Optional[Path] = None) -> List[Dict[str, Any]]:
     """
-    Load starting class templates from package data.
-    If package data isn’t available, optionally fall back to a filesystem path.
+    Load starting class templates from package data; fall back to a filesystem path if provided.
     """
     try:
         text = (files(pkg) / resource_name).read_text(encoding="utf-8")  # type: ignore[arg-type]
@@ -54,6 +59,8 @@ def load_templates(pkg: str = "mutants.data",
             return json.loads(fs_fallback.read_text(encoding="utf-8"))
         raise
 
+
+# ---------- Construction ----------
 
 def make_player_from_template(t: Dict[str, Any], make_active: bool = False) -> Dict[str, Any]:
     cls = t["class"]
@@ -69,13 +76,10 @@ def make_player_from_template(t: Dict[str, Any], make_active: bool = False) -> D
             inventory.append({"item_id": it, "qty": 1})
         elif isinstance(it, dict):
             inventory.append({"item_id": it.get("item_id"), "qty": int(it.get("qty", 1))})
-        else:
-            # ignore malformed
-            continue
 
     entry = {
         "id": f"player_{cls.lower()}",
-        "name": cls,                     # default to class name; you can rename later
+        "name": cls,                     # default to class name; can be renamed later
         "class": cls,
         "is_active": bool(make_active),
         "pos": t.get("start_pos", [2000, 0, 0]),
@@ -116,6 +120,8 @@ def make_player_from_template(t: Dict[str, Any], make_active: bool = False) -> D
     return entry
 
 
+# ---------- Public API ----------
+
 def ensure_player_state(state_dir: str = "state",
                         out_name: str = "playerlivestate.json",
                         templates_pkg: str = "mutants.data",
@@ -123,10 +129,12 @@ def ensure_player_state(state_dir: str = "state",
                         fs_fallback: Optional[str] = None,
                         active_first_class: str = "Thief") -> Dict[str, Any]:
     """
-        # Ensure playerlivesate.json exists; create from templates if missing.
-    # Returns the loaded (or newly created) state dict:
-    #   { "schema_version": 1, "players": [...], "active_id": "player_thief" }
+    Ensure playerlivestate.json exists; create from templates if missing.
+    Returns a dict: {"schema_version": 1, "players": [...], "active_id": "..."}.
+    """
     out_path = Path(state_dir) / out_name
+
+    # Load if present and valid; otherwise rebuild.
     if out_path.exists():
         try:
             data = json.loads(out_path.read_text(encoding="utf-8"))
@@ -152,7 +160,7 @@ def ensure_player_state(state_dir: str = "state",
         fs_fallback=Path(fs_fallback) if fs_fallback else None
     )
 
-    # Build entries; mark exactly one active (by class name match, fallback to first)
+    # Build entries; mark exactly one active (match class, else first)
     players: List[Dict[str, Any]] = []
     active_id: Optional[str] = None
     for i, t in enumerate(templates):
@@ -162,16 +170,11 @@ def ensure_player_state(state_dir: str = "state",
             active_id = p["id"]
         players.append(p)
 
-    state = {
-        "schema_version": 1,
-        "players": players,
-        "active_id": active_id
-    }
+    state = {"schema_version": 1, "players": players, "active_id": active_id}
     atomic_write_json(out_path, state)
     return state
 
 
 if __name__ == "__main__":
-    # Manual run: create state if missing and print a brief summary.
     st = ensure_player_state()
     print(f"playerlivestate.json ready with {len(st.get('players', []))} classes; active_id={st.get('active_id')}")
