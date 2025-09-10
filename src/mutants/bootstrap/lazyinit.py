@@ -16,6 +16,7 @@ Notes:
 from __future__ import annotations
 import json
 import os
+import tempfile
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -49,6 +50,32 @@ def atomic_write_json(path: Path, data: Any) -> None:
         f.flush()
         os.fsync(f.fileno())
     os.replace(tmp, path)
+
+
+def ensure_item_state(state_dir: str = "state") -> None:
+    """
+    Ensure state/items/ exists and instances.json exists (empty list if missing).
+    Does NOT create catalog.json; you will author that by hand.
+    """
+    items_dir = Path(state_dir) / "items"
+    items_dir.mkdir(parents=True, exist_ok=True)
+
+    instances_path = items_dir / "instances.json"
+    if not instances_path.exists():
+        # Write an empty list atomically
+        tmp = Path(tempfile.mkstemp(prefix="instances.json.", dir=str(items_dir))[1])
+        try:
+            with tmp.open("w", encoding="utf-8") as f:
+                json.dump([], f, ensure_ascii=False, indent=2)
+                f.flush()
+                os.fsync(f.fileno())
+            os.replace(tmp, instances_path)
+        finally:
+            if tmp.exists():
+                try:
+                    tmp.unlink()
+                except OSError:
+                    pass
 
 
 def load_templates(pkg: str = "mutants.data",
