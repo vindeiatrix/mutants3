@@ -18,3 +18,7 @@ def log_cmd(arg: str, ctx) -> None:
     # unknown subcommand -> show tail
     for line in sink.tail(50):
         print(line)
+
+
+def register(dispatch, ctx) -> None:
+    dispatch.register("log", lambda arg: log_cmd(arg, ctx))

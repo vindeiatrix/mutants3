@@ -54,3 +54,14 @@ def move(dir_code: str, ctx: Dict[str, Any]) -> None:
     p["pos"][1] = x + dx
     p["pos"][2] = y + dy
     ctx["feedback_bus"].push("MOVE/OK", f"You head {DIR_WORD[dir_code]}.")
+
+
+def register(dispatch, ctx) -> None:
+    dispatch.register("north", lambda arg: move("N", ctx))
+    dispatch.alias("n", "north")
+    dispatch.register("south", lambda arg: move("S", ctx))
+    dispatch.alias("s", "south")
+    dispatch.register("east", lambda arg: move("E", ctx))
+    dispatch.alias("e", "east")
+    dispatch.register("west", lambda arg: move("W", ctx))
+    dispatch.alias("w", "west")

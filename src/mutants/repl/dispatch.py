@@ -2,26 +2,30 @@ from __future__ import annotations
 
 from typing import Callable, Dict
 
-from mutants.ui.feedback import FeedbackBus
-
 
 class Dispatch:
-    def __init__(self, bus: FeedbackBus) -> None:
+    def __init__(self, bus) -> None:
         self._cmds: Dict[str, Callable[[str], None]] = {}
-        self._aliases: Dict[str, str] = {}
-        self.bus = bus
+        self._alias: Dict[str, str] = {}
+        self._bus = bus
 
     def register(self, name: str, fn: Callable[[str], None]) -> None:
-        self._cmds[name] = fn
+        self._cmds[name.lower()] = fn
 
     def alias(self, alias_name: str, canonical: str) -> None:
-        self._aliases[alias_name] = canonical
+        self._alias[alias_name.lower()] = canonical.lower()
 
-    def call(self, token: str, arg: str) -> bool:
-        name = self._aliases.get(token, token)
-        fn = self._cmds.get(name)
-        if fn:
-            fn(arg)
-            return True
-        self.bus.push("SYSTEM/WARN", f"Unknown command: {token}")
-        return False
+    def list_commands(self) -> Dict[str, str]:
+        # returns canonical->"has_aliases?" or any metadata you like later
+        return dict(self._cmds)
+
+    def call(self, token: str, arg: str = "") -> bool:
+        token = (token or "").strip().lower()
+        token = self._alias.get(token, token)
+        fn = self._cmds.get(token)
+        if not fn:
+            if token:
+                self._bus.push("SYSTEM/WARN", f"Unknown command: {token}")
+            return False
+        fn(arg)
+        return True

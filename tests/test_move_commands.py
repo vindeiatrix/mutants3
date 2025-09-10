@@ -1,6 +1,7 @@
 import pytest
 
 from mutants.app import context
+from mutants.app.context import render_frame
 from mutants.commands.move import move
 from mutants.commands.look import look_cmd
 
@@ -14,12 +15,13 @@ def active(state):
 
 
 def make_ctx():
-    return context.build()
+    return context.build_context()
 
 
 def test_look_renders_room(capsys):
     ctx = make_ctx()
     look_cmd("", ctx)
+    render_frame(ctx)
     out = capsys.readouterr().out
     assert "Graffiti lines the city walls." in out
 

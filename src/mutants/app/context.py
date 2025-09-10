@@ -15,7 +15,7 @@ from mutants.ui.themes import Theme, load_theme
 DEFAULT_THEME_PATH = Path("state/ui/themes/bbs.json")
 
 
-def build() -> Dict[str, Any]:
+def build_context() -> Dict[str, Any]:
     """Build the application context."""
     state = ensure_player_state()
     bus = FeedbackBus()
@@ -34,6 +34,10 @@ def build() -> Dict[str, Any]:
         "renderer": renderer.render,
     }
     return ctx
+
+
+# Backwards compatibility
+build = build_context
 
 
 def _active(state: Dict[str, Any]) -> Dict[str, Any]:
@@ -114,4 +118,3 @@ def render_frame(ctx: Dict[str, Any]) -> None:
     )
     for line in lines:
         print(line)
-    print("> ", end="")
