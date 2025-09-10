@@ -123,19 +123,35 @@ def ensure_player_state(state_dir: str = "state",
                         fs_fallback: Optional[str] = None,
                         active_first_class: str = "Thief") -> Dict[str, Any]:
     """
-    Ensure playerlivesate.json exists; create from templates if missing.
-    Returns the loaded (or newly created) state dict:
-      { "schema_version": 1, "players": [...], "active_id": "player_thief" }
-    """
+        # Ensure playerlivesate.json exists; create from templates if missing.
+    # Returns the loaded (or newly created) state dict:
+    #   { "schema_version": 1, "players": [...], "active_id": "player_thief" }
     out_path = Path(state_dir) / out_name
     if out_path.exists():
-        return json.loads(out_path.read_text(encoding="utf-8"))
+        try:
+            data = json.loads(out_path.read_text(encoding="utf-8"))
+            if not isinstance(data, dict):
+                raise ValueError("not a JSON object")
+            if data.get("schema_version") != 1:
+                raise ValueError(f"unexpected schema_version={data.get('schema_version')}")
+            if "players" not in data or "active_id" not in data:
+                raise ValueError("missing required keys: players/active_id")
+            return data
+        except Exception as e:
+            print(f"[warn] {out_path} invalid or unreadable ({e}); rebuilding from templates...", flush=True)
+            # Move the bad file aside so we don't overwrite it.
+            try:
+                bad_path = out_path.with_suffix(out_path.suffix + ".bad")
+                os.replace(out_path, bad_path)
+            except Exception:
+                pass
 
     templates = load_templates(
         pkg=templates_pkg,
         resource_name=templates_resource,
         fs_fallback=Path(fs_fallback) if fs_fallback else None
     )
+
     # Build entries; mark exactly one active (by class name match, fallback to first)
     players: List[Dict[str, Any]] = []
     active_id: Optional[str] = None
