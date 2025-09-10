@@ -1,0 +1,48 @@
+{
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": [
+      "monster_id", "name", "stats", "hp_max", "armour_class", "level",
+      "innate_attack", "spawn_years", "spawnable", "taunt"
+    ],
+    "properties": {
+      "monster_id": {"type":"string"},
+      "name": {"type":"string"},
+      "stats": {
+        "type":"object",
+        "required":["str","int","wis","dex","con","cha"],
+        "properties": {
+          "str":{"type":"integer"}, "int":{"type":"integer"},
+          "wis":{"type":"integer"}, "dex":{"type":"integer"},
+          "con":{"type":"integer"}, "cha":{"type":"integer"}
+        }
+      },
+      "hp_max": {"type":"integer","minimum":1},
+      "armour_class": {"type":"integer","minimum":0},
+      "level": {"type":"integer","minimum":1},
+      "ions_min": {"type":"integer","minimum":0},
+      "ions_max": {"type":"integer","minimum":0},
+      "riblets_min": {"type":"integer","minimum":0},
+      "riblets_max": {"type":"integer","minimum":0},
+      "exp_bonus": {"type":"integer"},
+      "innate_attack": {
+        "type":"object",
+        "required":["name","power_base","power_per_level"],
+        "properties":{
+          "name":{"type":"string"},
+          "power_base":{"type":"integer"},
+          "power_per_level":{"type":"integer"},
+          "message":{"type":"string"}
+        }
+      },
+      "spells": {"type":"array", "items":{"type":"string"}},
+      "starter_items": {"type":"array","maxItems":4,"items":{"type":"string"}},
+      "starter_armour": {"type":["string","null"]},
+      "spawn_years": {"type":"array","minItems":2,"maxItems":2,"items":{"type":"integer"}},
+      "spawnable": {"type":"boolean"},
+      "taunt": {"type":"string"}
+    },
+    "additionalProperties": false
+  }
+}
