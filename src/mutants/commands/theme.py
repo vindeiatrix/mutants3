@@ -18,3 +18,7 @@ def theme_cmd(arg: str, ctx) -> None:
         return
     ctx["theme"] = theme
     ctx["feedback_bus"].push("SYSTEM/OK", f"Theme switched to {name}.")
+
+
+def register(dispatch, ctx) -> None:
+    dispatch.register("theme", lambda arg: theme_cmd(arg, ctx))

@@ -1,7 +1,9 @@
 from __future__ import annotations
 
-from mutants.app.context import render_frame
-
-
 def look_cmd(_arg: str, ctx) -> None:
-    render_frame(ctx)
+    # The REPL loop re-renders after each command; look is a no-op.
+    pass
+
+
+def register(dispatch, ctx) -> None:
+    dispatch.register("look", lambda arg: look_cmd(arg, ctx))
