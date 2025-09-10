@@ -20,5 +20,6 @@ packages = [
   "mutants.registries",
   "mutants.services",
   "mutants.data",
+  "mutants.schemas",
   "mutants.ui"
 ]
