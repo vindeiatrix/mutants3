@@ -2,20 +2,12 @@
 """
 Lazy init for player live state and item state.
 
-Behavior:
 - Player state:
-  * If state/playerlivestate.json exists and is valid, load and return it.
-  * If missing/invalid, read class templates, build entries with derived fields,
-    atomically write state/playerlivestate.json, then return it.
+  * If state/playerlivestate.json exists and is minimally valid, load and return it.
+  * If missing/invalid, build from templates, write atomically, return it.
 - Item state:
   * ensure_item_state() creates state/items/ and an empty instances.json if missing
     (catalog.json is author-edited and not created here).
-
-Notes:
-- Templates are expected at package data: mutants/data/startingclasstemplates.json
-  (or pass a filesystem fallback path to ensure_player_state).
-- Starting Armour Class is computed from DEX only using 10-point buckets:
-  0–9 -> 0, 10–19 -> 1, 20–29 -> 2, ...
 """
 
 from __future__ import annotations
@@ -26,8 +18,8 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 try:
-    from importlib.resources import files  # Python 3.9+
-except ImportError:  # pragma: no cover
+    from importlib.resources import files  # py3.9+
+except Exception:  # pragma: no cover
     import importlib_resources  # type: ignore
     files = importlib_resources.files  # type: ignore
 
@@ -35,10 +27,7 @@ except ImportError:  # pragma: no cover
 # ---------- Domain helpers ----------
 
 def compute_ac_from_dex(dex: int) -> int:
-    """
-    Map DEX to AC in 10-point buckets:
-    0–9 -> 0, 10–19 -> 1, 20–29 -> 2, ...
-    """
+    """Map DEX to AC in 10-point buckets: 0–9→0, 10–19→1, 20–29→2, ..."""
     try:
         return max(0, int(dex) // 10)
     except (TypeError, ValueError):
@@ -48,9 +37,7 @@ def compute_ac_from_dex(dex: int) -> int:
 # ---------- IO helpers ----------
 
 def atomic_write_json(path: Path, data: Any) -> None:
-    """
-    Write JSON atomically: .tmp -> fsync -> replace.
-    """
+    """Write JSON atomically: .tmp -> fsync -> replace."""
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_suffix(path.suffix + ".tmp")
     with tmp.open("w", encoding="utf-8") as f:
@@ -80,9 +67,7 @@ def ensure_item_state(state_dir: str = "state") -> None:
 def load_templates(pkg: str = "mutants.data",
                    resource_name: str = "startingclasstemplates.json",
                    fs_fallback: Optional[Path] = None) -> List[Dict[str, Any]]:
-    """
-    Load starting class templates from package data; fall back to a filesystem path if provided.
-    """
+    """Load starting class templates from package data; fallback to a filesystem path if provided."""
     try:
         text = (files(pkg) / resource_name).read_text(encoding="utf-8")  # type: ignore[arg-type]
         return json.loads(text)
@@ -100,7 +85,7 @@ def make_player_from_template(t: Dict[str, Any], make_active: bool = False) -> D
     dex = int(stats.get("dex", 0))
     hp_max = int(t.get("hp_max_start", 0))
 
-    # Normalize inventory_start entries to objects with item_id/qty
+    # Normalize inventory_start entries to {"item_id", "qty"}
     inv_raw = t.get("inventory_start", [])
     inventory: List[Dict[str, Any]] = []
     for it in inv_raw:
@@ -109,13 +94,12 @@ def make_player_from_template(t: Dict[str, Any], make_active: bool = False) -> D
         elif isinstance(it, dict):
             inventory.append({"item_id": it.get("item_id"), "qty": int(it.get("qty", 1))})
 
-    entry = {
+    return {
         "id": f"player_{cls.lower()}",
         "name": cls,                     # default to class name; can be renamed later
         "class": cls,
         "is_active": bool(make_active),
         "pos": t.get("start_pos", [2000, 0, 0]),
-
         "stats": {
             "str": int(stats.get("str", 0)),
             "int": int(stats.get("int", 0)),
@@ -124,32 +108,23 @@ def make_player_from_template(t: Dict[str, Any], make_active: bool = False) -> D
             "con": int(stats.get("con", 0)),
             "cha": int(stats.get("cha", 0)),
         },
-
         "hp": {"current": hp_max, "max": hp_max},
         "exhaustion": int(t.get("exhaustion_start", 0)),
         "exp_points": int(t.get("exp_start", 0)),
         "level": int(t.get("level_start", 1)),
         "riblets": int(t.get("riblets_start", 0)),
         "ions": int(t.get("ions_start", 0)),
-
         "armour": {
             "wearing": t.get("armour_start", None),
             "armour_class": compute_ac_from_dex(dex),  # DEX-only at start
         },
         "readied_spell": t.get("readied_spell_start", None),
         "target_monster_id": None,
-
         "inventory": inventory,
         "carried_weight": 0,
-
-        "conditions": {
-            "poisoned": False,
-            "encumbered": False,
-            "ion_starving": False
-        },
+        "conditions": {"poisoned": False, "encumbered": False, "ion_starving": False},
         "notes": t.get("notes", "")
     }
-    return entry
 
 
 # ---------- Public API ----------
@@ -162,7 +137,7 @@ def ensure_player_state(state_dir: str = "state",
                         active_first_class: str = "Thief") -> Dict[str, Any]:
     """
     Ensure playerlivestate.json exists; create from templates if missing.
-    Returns a dict like: {"schema_version": 1, "players": [...], "active_id": "..."}.
+    Returns a dict like: {"players": [...], "active_id": "..."}.
     """
     out_path = Path(state_dir) / out_name
 
@@ -175,7 +150,6 @@ def ensure_player_state(state_dir: str = "state",
             raise ValueError("missing required keys: players/active_id")
         except Exception as e:
             print(f"[warn] {out_path} invalid or unreadable ({e}); rebuilding from templates...", flush=True)
-            # Move the bad file aside so we don't overwrite it.
             try:
                 bad_path = out_path.with_suffix(out_path.suffix + ".bad")
                 os.replace(out_path, bad_path)
@@ -188,7 +162,6 @@ def ensure_player_state(state_dir: str = "state",
         fs_fallback=Path(fs_fallback) if fs_fallback else None
     )
 
-    # Build entries; mark exactly one active (match class, else first)
     players: List[Dict[str, Any]] = []
     active_id: Optional[str] = None
     for i, t in enumerate(templates):
@@ -198,13 +171,12 @@ def ensure_player_state(state_dir: str = "state",
             active_id = p["id"]
         players.append(p)
 
-    state = {"schema_version": 1, "players": players, "active_id": active_id}
+    state = {"players": players, "active_id": active_id}
     atomic_write_json(out_path, state)
     return state
 
 
 if __name__ == "__main__":
-    # Ensure basic item state alongside player state when run directly.
     ensure_item_state()
     st = ensure_player_state()
     print(f"playerlivestate.json ready with {len(st.get('players', []))} classes; active_id={st.get('active_id')}")
