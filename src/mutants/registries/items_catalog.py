@@ -1,5 +1,5 @@
 from __future__ import annotations
-import json, os
+import json
 from pathlib import Path
 from typing import Dict, List, Optional, Iterable, Any
 
@@ -7,7 +7,6 @@ DEFAULT_CATALOG_PATH = "state/items/catalog.json"
 
 class ItemsCatalog:
     def __init__(self, items: List[Dict[str, Any]]):
-        # index by item_id
         self._items_list = items
         self._by_id: Dict[str, Dict[str, Any]] = {it["item_id"]: it for it in items}
 
@@ -20,8 +19,8 @@ class ItemsCatalog:
             raise KeyError(f"Unknown item_id: {item_id}")
         return it
 
-    def list_spawnable(self) -> Iterable[Dict[str, Any]]:
-        return (it for it in self._items_list if it.get("spawnable", "no") == "yes")
+    def list_spawnable(self) -> List[Dict[str, Any]]:
+        return [it for it in self._items_list if it.get("spawnable", "no") == "yes"]
 
 def load_catalog(path: str = DEFAULT_CATALOG_PATH) -> ItemsCatalog:
     p = Path(path)
@@ -29,6 +28,7 @@ def load_catalog(path: str = DEFAULT_CATALOG_PATH) -> ItemsCatalog:
         raise FileNotFoundError(f"Missing catalog at {p}")
     with p.open("r", encoding="utf-8") as f:
         data = json.load(f)
+
     if isinstance(data, dict) and "items" in data:
         items = data["items"]
     elif isinstance(data, list):
@@ -36,5 +36,4 @@ def load_catalog(path: str = DEFAULT_CATALOG_PATH) -> ItemsCatalog:
     else:
         raise ValueError('catalog.json must be a list of items or {"items": [...]}')
 
-    # No validation; assume fields are correct.
     return ItemsCatalog(items)
