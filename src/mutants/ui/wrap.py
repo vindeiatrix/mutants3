@@ -4,8 +4,7 @@ from __future__ import annotations
 import re
 from typing import List, Tuple
 
-from . import constants as c
-from .styles import Segment
+from .styles import ITEM, Segment
 
 ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
 
@@ -33,7 +32,7 @@ def wrap_segments(segments: List[Segment], width: int) -> List[List[Segment]]:
             current_len = 0
 
         # skip leading spaces
-        if token == c.ITEM and text == " " and current_len == 0:
+        if token == ITEM and text == " " and current_len == 0:
             continue
 
         if current and current[-1][0] == token:
