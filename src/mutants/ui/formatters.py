@@ -100,3 +100,56 @@ def format_shadows(dirs: List[str]) -> Segments | None:
             words.append(_dir_word(d))
     text = ", ".join(words)
     return [(SHADOWS_LABEL, f"You see shadows to the {text}.")]
+
+# --- Group-aware string formatters ---------------------------------------
+from . import groups as UG
+from . import styles as st
+
+
+def format_compass_line(vm) -> str:
+    """Return compass line, colored via group mapping."""
+    text = vm.get("compass_str", "")
+    return st.colorize_text(text, group=UG.COMPASS_LINE)
+
+
+def format_direction_line_colored(dir_key: str, edge: dict) -> str:
+    """Return a direction line colored by open/blocked groups."""
+    word = _dir_word(dir_key) if dir_key in {"N", "S", "E", "W"} else dir_key
+    base = edge.get("base", 0)
+    if base == 0:
+        desc = "area continues."
+        group = UG.DIR_OPEN
+    elif base == 1:
+        desc = "terrain blocks the way."
+        group = UG.DIR_BLOCKED
+    elif base == 2:
+        desc = "boundary."
+        group = UG.DIR_BLOCKED
+    elif base == 3:
+        state = edge.get("gate_state", 0)
+        if state == 0:
+            desc = "open gate."
+            group = UG.DIR_OPEN
+        elif state == 1:
+            desc = "closed gate."
+            group = UG.DIR_BLOCKED
+        else:
+            key = edge.get("key_type")
+            if key is not None:
+                desc = f"locked gate (key {key})."
+            else:
+                desc = "locked gate."
+            group = UG.DIR_BLOCKED
+    else:
+        desc = ""
+        group = UG.DIR_OPEN
+    return st.colorize_text(f"{word:<5} - {desc}", group=group)
+
+
+def format_room_title(title: str) -> str:
+    return st.colorize_text(title, group=UG.ROOM_TITLE)
+
+
+def format_room_desc(desc: str) -> str:
+    return st.colorize_text(desc, group=UG.ROOM_DESC)
+
