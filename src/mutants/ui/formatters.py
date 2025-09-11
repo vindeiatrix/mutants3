@@ -71,7 +71,7 @@ def format_direction_segments(dir_name: str, edge: EdgeDesc) -> Segments:
     return segments
 
 
-def format_monsters_here(monsters: List[Thing]) -> List[Segments]:
+def format_monsters_here_tokens(monsters: List[Thing]) -> List[Segments]:
     lines: List[Segments] = []
     for m in monsters:
         lines.append([(MONSTER, f"{m['name']} is here.")])
@@ -137,6 +137,40 @@ def format_ground_list(items: list) -> list:
         line += "."
     wrapped = textwrap.fill(line, width=UC.UI_WRAP_WIDTH)
     return wrapped.splitlines() if wrapped else []
+
+
+def format_monsters_here(names: list[str]) -> str:
+    """
+    Monsters presence line(s):
+      - 1 name: "<Name> is here."
+      - 2+ names: "A, B, and C are here with you." (always include comma before 'and')
+    """
+    clean = []
+    for n in names:
+        if isinstance(n, dict):
+            n = n.get("name", "")
+        s = str(n).strip()
+        if s:
+            clean.append(s)
+    if not clean:
+        return ""
+    if len(clean) == 1:
+        text = f"{clean[0]} is here."
+    elif len(clean) == 2:
+        text = f"{clean[0]}, and {clean[1]} are here with you."
+    else:
+        text = f"{', '.join(clean[:-1])}, and {clean[-1]} are here with you."
+    return st.colorize_text(text, group=UG.FEEDBACK_INFO)
+
+
+def format_cue_line(text: str) -> str:
+    """
+    Print a single cue line verbatim (caller handles separator placement).
+    Examples from originals include:
+      - "You see shadows to the south."
+      - "You hear loud sounds of yelling and screaming to the west."
+    """
+    return st.colorize_text(str(text).rstrip(), group=UG.FEEDBACK_INFO)
 
 
 def format_room_title(title: str) -> str:
