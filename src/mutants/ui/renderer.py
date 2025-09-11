@@ -11,6 +11,9 @@ from .viewmodels import RoomVM
 from .wrap import wrap_list
 import os
 import logging
+from ..engine import edge_resolver as ER
+from ..registries import dynamics as dyn
+from ..app import context as appctx
 
 SegmentLine = List[st.Segment]
 
@@ -58,6 +61,8 @@ def render_token_lines(
     DEV = os.environ.get("MUTANTS_DEV") == "1"
     logger = logging.getLogger(__name__)
 
+    # Validate directions against the passability engine to prevent drift.
+    # (We keep the existing VM feed, but drop any direction the resolver blocks.)
     for d in c.DIR_ORDER:
         edge = dirs_open.get(d)
         if not edge:
@@ -69,6 +74,28 @@ def render_token_lines(
             else:
                 logger.warning("ui: dropped non-open edge in dirs_open: %s", d)
             continue
+        # Cross-check with resolver (single source of truth for movement).
+        player = getattr(appctx, "player", None)
+        world = getattr(appctx, "world", None)
+        if player is not None and world is not None:
+            try:
+                year = getattr(player, "year")
+                x = getattr(player, "x")
+                y = getattr(player, "y")
+                dec = ER.resolve(world, dyn, year, x, y, d, actor={})
+                if not dec.passable:
+                    if DEV:
+                        assert False, f"ui: resolver blocked direction {d} at ({x},{y})"
+                    else:
+                        logger.warning(
+                            "ui: dropped dir %s (resolver blocked) cur=%r nbr=%r",
+                            d,
+                            dec.cur_raw,
+                            dec.nbr_raw,
+                        )
+                    continue
+            except Exception as e:
+                logger.warning("ui: resolver check failed for dir %s: %s", d, e)
         lines.append(fmt.format_direction_segments(d, edge))
 
     sep_line = [("", UC.SEPARATOR_LINE)]
@@ -143,6 +170,8 @@ def render(
     DEV = os.environ.get("MUTANTS_DEV") == "1"
     logger = logging.getLogger(__name__)
 
+    # Validate directions against the passability engine to prevent drift.
+    # (We keep the existing VM feed, but drop any direction the resolver blocks.)
     for d in c.DIR_ORDER:
         edge = dirs_open.get(d)
         if not edge:
@@ -153,6 +182,28 @@ def render(
             else:
                 logger.warning("ui: dropped non-open edge in dirs_open: %s", d)
             continue
+        # Cross-check with resolver (single source of truth for movement).
+        player = getattr(appctx, "player", None)
+        world = getattr(appctx, "world", None)
+        if player is not None and world is not None:
+            try:
+                year = getattr(player, "year")
+                x = getattr(player, "x")
+                y = getattr(player, "y")
+                dec = ER.resolve(world, dyn, year, x, y, d, actor={})
+                if not dec.passable:
+                    if DEV:
+                        assert False, f"ui: resolver blocked direction {d} at ({x},{y})"
+                    else:
+                        logger.warning(
+                            "ui: dropped dir %s (resolver blocked) cur=%r nbr=%r",
+                            d,
+                            dec.cur_raw,
+                            dec.nbr_raw,
+                        )
+                    continue
+            except Exception as e:
+                logger.warning("ui: resolver check failed for dir %s: %s", d, e)
         lines.append(fmt.format_direction_line(d, edge))
 
     if not lines or lines[-1] != UC.SEPARATOR_LINE:

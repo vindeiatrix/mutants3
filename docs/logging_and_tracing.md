@@ -29,6 +29,16 @@ You’ll see output like:
 N: wall of ice. | passable=False | base=base:ice; overlay=barrier:blastable
 ```
 
+- Verify edges across the map (quick symmetry/consistency check):
+
+```
+logs verify edges
+
+logs verify edges 200 # sample more tiles
+```
+
+This samples random open tiles in your current year and checks the resolver’s two-sided decision (cur→dir vs neighbor→opp). It logs any mismatches to state/logs/game.log as VERIFY/EDGE lines and prints a short summary in-game.
+
 ## What Tracing Logs
 
 When `move` tracing is on, each attempt adds a single line to `state/logs/game.log`, e.g.:

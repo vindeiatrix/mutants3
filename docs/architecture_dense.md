@@ -88,6 +88,10 @@ VM → Formatters (build strings + **group**) → Styles (resolve color by group
 * **Layers** (priority high→low): actor modifiers → dynamic overlays → gates/locks → base terrain. Base values may be **strings** or **numbers**; unknown/missing defaults to **boundary/blocked**.
 * **Descriptors**: normalized to the closed set `{area continues., wall of ice., ion force field., open gate., closed gate.}`.
 * **Dynamic registry**: `registries/dynamics.py` stores per-edge overlays in `state/world/dynamics.json` with TTL; spells/rods write here, resolver reads it.
+* **UI guard**: Renderer validates each direction row through the resolver; in `MUTANTS_DEV=1` a blocked direction triggers an assertion; otherwise it is dropped with a warning log.
+
+#### Verification Tooling
+* **Edge sampler**: `logs verify edges [count]` samples random open tiles (current year) and checks resolver symmetry (**cur→dir** vs **neighbor→opp**). Mismatches are logged as `VERIFY/EDGE` warnings in `state/logs/game.log`, and a summary is shown in the feedback area.
 
 ## Tracing & WHY
 * **Toggles**: `state/runtime/trace.json` stores `{"move":bool,"ui":bool}` toggled via `logs trace move on|off`.

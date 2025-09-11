@@ -84,5 +84,11 @@ Movement decisions and (optionally) direction descriptors are determined by a si
 - **Base terrain** (world edge `base`), **gates** (open/closed), then **dynamic overlays** (temporary barriers/blasted edges from `state/world/dynamics.json`), and **actor modifiers** (e.g., rods/keys).
 It returns `passable` and a canonical descriptor (one of: `area continues.`, `wall of ice.`, `ion force field.`, `open gate.`, `closed gate.`), plus an internal reason chain for debugging.
 
+### UI direction guard (dev-safe)
+The renderer now cross-checks each printed direction with the same passability resolver. If the resolver says a direction is blocked, the UI silently drops that row (and in `MUTANTS_DEV=1` asserts), keeping UI and movement in lockstep.
+
 ## In-game tracing
 Use `logs trace move on|off` (and later `logs trace ui on|off`) to toggle a lightweight trace. With move tracing on, each attempted move logs a one-line JSON decision to `state/logs/game.log`. Use `why <dir>` to print the current tile’s decision chain and descriptor for that direction.
+
+### Edge sampler
+`logs verify edges [count]` randomly samples open tiles in the current year and checks **cur→dir** vs **neighbor→opp** symmetry with the resolver, logging any mismatches to the game log and printing a summary in-game.
