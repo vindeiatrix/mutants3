@@ -26,6 +26,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from mutants.io.atomic import atomic_write_json
+from mutants.bootstrap.runtime import discover_world_years, read_config
 
 try:
     from importlib.resources import files  # Python 3.9+
@@ -175,12 +176,20 @@ def ensure_player_state(state_dir: str = "state",
         fs_fallback=Path(fs_fallback) if fs_fallback else None
     )
 
+    years = discover_world_years()
+    if not years:
+        years = [int(read_config().get("default_world_year", 2000))]
+
     # Build entries; mark exactly one active (match class, else first)
     players: List[Dict[str, Any]] = []
     active_id: Optional[str] = None
     for i, t in enumerate(templates):
         make_active = (t.get("class") == active_first_class) or (active_id is None and i == 0)
         p = make_player_from_template(t, make_active=make_active)
+        start_year = p["pos"][0]
+        if start_year not in years:
+            nearest = min(years, key=lambda y: abs(y - int(start_year)))
+            p["pos"][0] = nearest
         if make_active:
             active_id = p["id"]
         players.append(p)

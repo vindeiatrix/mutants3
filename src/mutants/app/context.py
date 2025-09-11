@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, List
 
 from mutants.bootstrap.lazyinit import ensure_player_state
+from mutants.bootstrap.runtime import ensure_runtime
 from mutants.data.room_headers import ROOM_HEADERS
 from mutants.registries.world import load_year
 from mutants.ui import renderer
@@ -17,9 +18,12 @@ DEFAULT_THEME_PATH = Path("state/ui/themes/bbs.json")
 
 def build_context() -> Dict[str, Any]:
     """Build the application context."""
+    info = ensure_runtime()
     state = ensure_player_state()
+    cfg = info.get("config", {})
     bus = FeedbackBus()
-    theme = load_theme(str(DEFAULT_THEME_PATH))
+    theme_path = cfg.get("theme_path", str(DEFAULT_THEME_PATH))
+    theme = load_theme(str(theme_path))
     sink = LogSink()
     bus.subscribe(sink.handle)
     ctx: Dict[str, Any] = {
@@ -32,6 +36,7 @@ def build_context() -> Dict[str, Any]:
         "logsink": sink,
         "theme": theme,
         "renderer": renderer.render,
+        "config": cfg,
     }
     return ctx
 
@@ -57,7 +62,8 @@ def build_room_vm(
 ) -> Dict[str, Any]:
     """Build a room view model for the active player."""
     p = _active(state)
-    year, x, y = p.get("pos", [2000, 0, 0])
+    pos = p.get("pos") or [0, 0, 0]
+    year, x, y = pos[0], pos[1], pos[2]
     world = world_loader(year)
     tile = world.get_tile(x, y)
 

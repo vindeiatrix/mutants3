@@ -58,6 +58,18 @@
 - **Monsters (instances)**: `state/monsters/instances.json`; registry `registries/monsters_instances.py` (create_instance, targets, save).
 - **Player state**: ensured by `bootstrap/lazyinit.py` (DEX→AC via `dex // 10`).
 
+## Bootstrap & Discovery (no hard-coded years)
+
+- `bootstrap/runtime.ensure_runtime()` runs at startup (from `app/context.py`):
+  - ensures `state/` dirs
+  - ensures `items/instances.json` and `monsters/instances.json`
+  - ensures `state/ui/themes/bbs.json` and `mono.json` (JSON themes)
+  - discovers world years from `state/world/*.json`
+  - if none exist, **creates a minimal world** using `state/config.json` or defaults (`default_world_year=2000`, `default_world_size=30`)
+- `registries/world.list_years()` reports available years; `load_nearest_year(y)` picks the closest.
+- `bootstrap/lazyinit.ensure_player_state()` maps template `start_pos[0]` to the **nearest** existing year, so templates can always say `2000` without going stale.
+- All modules read `player.pos[0]` at runtime; no code assumes `2000`.
+
 ## IO helpers
 - `io/atomic.py` — `atomic_write_json()` and `read_json()` (tmp → fsync → replace).
 

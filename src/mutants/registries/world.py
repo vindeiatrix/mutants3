@@ -27,6 +27,7 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 from mutants.io.atomic import atomic_write_json
+from mutants.bootstrap.runtime import discover_world_years
 
 WORLD_DIR = Path("state/world")
 
@@ -339,6 +340,18 @@ def load_year(year: int) -> YearWorld:
     if _default_world_registry is None:
         _default_world_registry = WorldRegistry()
     return _default_world_registry.load_year(year)
+
+
+def list_years() -> list[int]:
+    return discover_world_years()
+
+
+def load_nearest_year(target: int):
+    years = list_years()
+    if not years:
+        raise FileNotFoundError("No world years found under state/world")
+    best = min(years, key=lambda y: abs(y - int(target)))
+    return load_year(best)
 
 def save_all() -> None:
     global _default_world_registry

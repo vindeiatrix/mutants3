@@ -25,7 +25,7 @@ def _active(state: Dict[str, Any]) -> Dict[str, Any]:
 def move(dir_code: str, ctx: Dict[str, Any]) -> None:
     """Attempt to move the active player in direction *dir_code*."""
     p = _active(ctx["player_state"])
-    year, x, y = p.get("pos", [2000, 0, 0])
+    year, x, y = p.get("pos", [0, 0, 0])
     world = ctx["world_loader"](year)
     tile = world.get_tile(x, y)
     if not tile:
