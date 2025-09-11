@@ -1,0 +1,5 @@
+yellow - everything else (including cardinal directions under compass and preceeding direction description ie north, south, east west)
+green - compass
+blue - direction description under compass (ie area continues.), ground items
+red - ion conversion, monster kill/loot messages, monster "crumbling to dust" after kill and loot messages, weapon crack, armor crack, monster entering or leaving current tile, "blinding flash" message when shooting ranged weapon, monster casting "..arms in the air frantically...beings to chant" messages, spell damage descriptions (ie A swarm of meteors are suddenly released...), finished memorizing spell messages, all room headers
+white -  class selection menu, loot falling from monster, inventory list, monster names in room renders (from look or look [direction], monster taunt messages, monster native attack description (ie Critter-750 bites you!)
