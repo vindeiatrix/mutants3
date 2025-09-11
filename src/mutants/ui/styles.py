@@ -56,3 +56,82 @@ def tagged_string(segments: List[Segment]) -> str:
         else:
             out.append(text)
     return "".join(out)
+
+from typing import Optional
+import json
+import os
+
+# Back-compat: add group-aware color resolver without removing existing APIs.
+_COLORS_CACHE: Optional[Dict[str, str]] = None
+_DEFAULT_COLOR: str = "white"
+_COLOR_FILE_ENV = "MUTANTS_UI_COLORS_PATH"
+
+
+def _colors_path() -> str:
+    p = os.environ.get(_COLOR_FILE_ENV)
+    if p:
+        return p
+    return os.path.join(os.getcwd(), "state", "ui", "colors.json")
+
+
+def _load_colors_map() -> Dict[str, str]:
+    global _COLORS_CACHE, _DEFAULT_COLOR
+    if _COLORS_CACHE is not None:
+        return _COLORS_CACHE
+    path = _colors_path()
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        _DEFAULT_COLOR = data.get("defaults", "white")
+        mapping = data.get("map", {})
+        _COLORS_CACHE = {str(k): str(v) for (k, v) in mapping.items()}
+        return _COLORS_CACHE
+    except FileNotFoundError:
+        _COLORS_CACHE = {}
+        _DEFAULT_COLOR = "white"
+        return _COLORS_CACHE
+
+
+def resolve_color_for_group(group: Optional[str]) -> str:
+    """Resolve a color name for a semantic UI group with dotted fallback."""
+    if not group:
+        return _DEFAULT_COLOR
+    m = _load_colors_map()
+    if group in m:
+        return m[group]
+    parts = group.split(".")
+    while len(parts) > 1:
+        parts = parts[:-1]
+        wildcard = ".".join(parts) + ".*"
+        if wildcard in m:
+            return m[wildcard]
+    return _DEFAULT_COLOR
+
+
+_COLOR_NAME_TO_ANSI = {
+    "black": "\x1b[30m",
+    "red": "\x1b[31m",
+    "green": "\x1b[32m",
+    "yellow": "\x1b[33m",
+    "blue": "\x1b[34m",
+    "magenta": "\x1b[35m",
+    "cyan": "\x1b[36m",
+    "white": "\x1b[37m",
+}
+
+
+def _apply_color_name(text: str, color_name: str) -> str:
+    color = _COLOR_NAME_TO_ANSI.get(color_name.lower())
+    reset = "\x1b[0m"
+    if color:
+        return f"{color}{text}{reset}"
+    return text
+
+
+def colorize_text(text: str, *, group: Optional[str] = None, color: Optional[str] = None) -> str:
+    color_name = color or resolve_color_for_group(group)
+    try:
+        return _apply_color_name(text, color_name)
+    except Exception:
+        return text
+

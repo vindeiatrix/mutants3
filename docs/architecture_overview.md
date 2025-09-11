@@ -24,6 +24,7 @@ This repeats each turn.
 - **Commands**: `commands/*.py` (movement, theme, logs, etc.).
 - **App context**: `app/context.py` (wires player state, world loader, renderer, theme, feedback bus).
 - **UI**: `ui/renderer.py` (layout), `ui/formatters.py` (phrasing), `ui/themes.py` (loads colors), `ui/styles.py` (token names), `ui/wrap.py` (80-col lists).
+- **Color Groups** (new): text fragments are tagged with semantic groups like `compass.line`, `dir.open`, `dir.blocked`, `room.title`, `room.desc`. A single JSON file (`state/ui/colors.json`) maps each group to a color name so palette tweaks require no code edits. `styles.resolve_color_for_group(group)` handles dotted fallback (`compass.line` → `compass.*` → default).
 - **Feedback & logs**: `ui/feedback.py` (message queue), `ui/logsink.py` (ring buffer + `state/logs/game.log`).
 - **Registries**: `registries/world.py` (maps), `registries/items_*`, `registries/monsters_*`.
 - **Bootstrap**: `bootstrap/lazyinit.py` (player), `bootstrap/runtime.py` (state dirs/files, themes, world discovery or minimal world creation).

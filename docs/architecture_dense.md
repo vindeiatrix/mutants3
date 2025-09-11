@@ -36,6 +36,7 @@
 - **ViewModel**: `ui/viewmodels.py` — RoomVM shape consumed by renderer.
 - **Formatters**: `ui/formatters.py` — text → tokenized segments (no ANSI).
 - **Styles**: `ui/styles.py` — token names + resolver (`resolve_segments`, `tagged_string`).
+- **Color Groups**: every formatted text fragment can declare a `group` (dotted string). `styles.resolve_color_for_group(group)` looks up `state/ui/colors.json` with fallback: exact → `prefix.*` → `defaults` → `"white"`. Existing color-by-name calls still work via `styles.colorize_text`.
 - **Themes**: `ui/themes.py` — loads JSON `state/ui/themes/<name>.json` → `Theme { palette, width }` (no code changes needed to tweak colors).
 - **Wrap**: `ui/wrap.py` — ANSI-aware 80-col wrapping (only list sections wrap).
 - **Renderer**: `ui/renderer.py` — orchestrates lines in fixed order:

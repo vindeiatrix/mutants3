@@ -83,17 +83,68 @@ def render_token_lines(
     return lines
 
 
+def render_tokenized(
+    vm: RoomVM,
+    feedback_events: Optional[List[dict]] = None,
+    width: int = c.WIDTH,
+    palette: Dict[str, str] | None = None,
+) -> List[str]:
+    """Legacy renderer that resolves tokens via *palette*."""
+    if palette is None:
+        palette = {}
+    lines = render_token_lines(vm, feedback_events, width)
+    return [styles.resolve_segments(segs, palette) for segs in lines]
+
+
 def render(
     vm: RoomVM,
     feedback_events: Optional[List[dict]] = None,
     width: int = c.WIDTH,
     palette: Dict[str, str] | None = None,
 ) -> List[str]:
-    """Render *vm* to a list of ANSI strings."""
-    if palette is None:
-        palette = {}
-    lines = render_token_lines(vm, feedback_events, width)
-    return [styles.resolve_segments(segs, palette) for segs in lines]
+    """Render *vm* to ANSI strings using group-based colors."""
+    lines: List[str] = []
+    header = vm.get("header")
+    if header:
+        lines.append(fmt.format_room_title(header))
+
+    coords = vm.get("coords", {})
+    compass_str = f"Compass: ({coords.get('x',0)}E : {coords.get('y',0)}N)"
+    vm_local = {"compass_str": compass_str}
+    lines.append(fmt.format_compass_line(vm_local))
+
+    dirs = vm.get("dirs", {})
+    for d in c.DIR_ORDER:
+        edge = dirs.get(d, {"base": 0})
+        lines.append(fmt.format_direction_line_colored(d, edge))
+
+    monsters = vm.get("monsters_here", [])
+    for m in monsters:
+        name = m.get("name", "?")
+        lines.append(f"{name} is here.")
+
+    items = vm.get("ground_items", [])
+    for it in items:
+        name = it.get("name", "?")
+        lines.append(f"A {name}.")
+
+    events = vm.get("events", [])
+    lines.extend(events)
+
+    shadows = vm.get("shadows", [])
+    if shadows:
+        dirs_words = []
+        for d in ["E", "S", "W", "N"]:
+            if d in shadows:
+                dirs_words.append(fmt._dir_word(d))  # type: ignore[attr-defined]
+        if dirs_words:
+            lines.append(f"You see shadows to the {', '.join(dirs_words)}.")
+
+    if feedback_events:
+        for ev in feedback_events:
+            lines.append(ev.get("text", ""))
+
+    return lines
 
 
 def token_debug_lines(
