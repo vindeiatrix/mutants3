@@ -52,6 +52,12 @@ VM → Formatters (build strings + **group**) → Styles (resolve color by group
 * **Guardrail:** With `MUTANTS_DEV=1`, the renderer asserts if a non-open edge appears in `dirs_open`; otherwise it logs a warning and drops it. This prevents downstream refactors (formatting/color) from resurrecting blocked rows.
 * **Separation of concerns:** Movement failures should surface via feedback lines (e.g., “You’re blocked!”) rather than as direction rows.
 
+### UI Contract: Ground Block
+* **Trigger:** VM sets `has_ground=True` and provides non-empty `ground_items: List[str]`.
+* **Rendering:** Renderer prints one fixed header `On the ground lies:` followed by a comma-separated list of items, wrapped to **80 columns**, with a trailing period. See `uicontract.py` constants: `GROUND_HEADER`, `UI_WRAP_WIDTH`.
+* **Separators:** Exactly one `***` before and one `***` after the ground block. The post-direction separator is reused if already present.
+* **Guardrail:** If `has_ground=True` but `ground_items` is empty, the renderer asserts under `MUTANTS_DEV=1` or logs-and-drops in normal runs.
+
 ### Locked Literals and Descriptors
 * Canonical literals and descriptors live in `src/mutants/ui/uicontract.py`:
   - `COMPASS_PREFIX = "Compass: "`

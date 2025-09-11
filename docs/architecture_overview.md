@@ -44,6 +44,13 @@ We lock the navigation frame now to prevent regressions:
 - A single separator line `***` is emitted **once** after the directions block (no doubles).
 - Compass uses the canonical prefix **`Compass: `** (no plus signs on non-negative values).
 
+### Ground Block (locked behavior)
+When the VM indicates items are present on the ground, the renderer prints a **Ground block**:
+- Header literal: **`On the ground lies:`** (see `uicontract.py`).
+- A comma-separated list of items, wrapped to **80 columns**, ending with a period.
+- The block is surrounded by single `***` separators: one before (after directions) and one after.
+The VM must set `has_ground=True` **only** when `ground_items` is non-empty; otherwise the renderer drops the block and warns (or asserts in dev).
+
 ## Future-proofing choices
 - No hard-coded year: world **discovery** + **nearest year** when needed.
 - Themes are JSON so you can change colors without code.
