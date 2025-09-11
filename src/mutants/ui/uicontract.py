@@ -7,6 +7,10 @@ COMPASS_PREFIX = "Compass: "
 DIR_LINE_FMT = "{:<5} - {}"
 SEPARATOR_LINE = "***"
 
+# Ground block (header + list) and layout width
+GROUND_HEADER = "On the ground lies:"
+UI_WRAP_WIDTH = 80
+
 # Canonical direction descriptors (the full set used by the original game).
 DESC_AREA_CONTINUES = "area continues."
 DESC_WALL_OF_ICE = "wall of ice."
@@ -27,6 +31,8 @@ __all__ = [
     "COMPASS_PREFIX",
     "DIR_LINE_FMT",
     "SEPARATOR_LINE",
+    "GROUND_HEADER",
+    "UI_WRAP_WIDTH",
     "DESC_AREA_CONTINUES",
     "DESC_WALL_OF_ICE",
     "DESC_ION_FORCE_FIELD",

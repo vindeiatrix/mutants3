@@ -158,15 +158,29 @@ def render(
     if not lines or lines[-1] != UC.SEPARATOR_LINE:
         lines.append(UC.SEPARATOR_LINE)
 
+    # ---- Ground Block (optional) ----
+    has_ground = bool(vm.get("has_ground", False))
+    ground_items = vm.get("ground_items") or []
+    if has_ground:
+        if not ground_items:
+            if DEV:
+                assert False, "ui: has_ground=True but ground_items is empty"
+            else:
+                logger.warning(
+                    "ui: dropping empty ground block (has_ground=True, no items)"
+                )
+        else:
+            if not lines or lines[-1] != UC.SEPARATOR_LINE:
+                lines.append(UC.SEPARATOR_LINE)
+            lines.append(fmt.format_ground_header())
+            for ln in fmt.format_ground_list(ground_items):
+                lines.append(ln)
+            lines.append(UC.SEPARATOR_LINE)
+
     monsters = vm.get("monsters_here", [])
     for m in monsters:
         name = m.get("name", "?")
         lines.append(f"{name} is here.")
-
-    items = vm.get("ground_items", [])
-    for it in items:
-        name = it.get("name", "?")
-        lines.append(f"A {name}.")
 
     events = vm.get("events", [])
     lines.extend(events)

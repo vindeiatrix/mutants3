@@ -100,6 +100,7 @@ def format_shadows(dirs: List[str]) -> Segments | None:
 # --- Group-aware string formatters ---------------------------------------
 from . import groups as UG
 from . import styles as st
+import textwrap
 
 
 def format_compass_line(vm) -> str:
@@ -119,6 +120,23 @@ def format_direction_line(dir_key: str, edge: dict) -> str:
         desc = edge.get("desc", "")
         group = UG.DIR_BLOCKED
     return st.colorize_text(UC.DIR_LINE_FMT.format(word, desc), group=group)
+
+
+def format_ground_header() -> str:
+    """Fixed header for the ground block."""
+    return st.colorize_text(UC.GROUND_HEADER, group=UG.HEADER)
+
+
+def format_ground_list(items: list) -> list:
+    """
+    Comma-separated item list, wrapped to 80 cols, ends with a period.
+    Returns a list of lines (already wrapped).
+    """
+    line = ", ".join(str(x).strip() for x in items if str(x).strip())
+    if line and not line.endswith("."):
+        line += "."
+    wrapped = textwrap.fill(line, width=UC.UI_WRAP_WIDTH)
+    return wrapped.splitlines() if wrapped else []
 
 
 def format_room_title(title: str) -> str:
