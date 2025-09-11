@@ -82,6 +82,17 @@ VM → Formatters (build strings + **group**) → Styles (resolve color by group
 - `ui/logsink.py` — **Ring buffer** + optional file append to `state/logs/game.log` (ISO timestamp, KIND, TEXT).
 - Renderer styles feedback lines by **kind→token** mapping in the theme (e.g., `FEED_BLOCK` bold yellow).
 
+## Passability & Dynamic Overlays
+* **Resolver**: `engine/edge_resolver.py` is the canonical decision point (`resolve(world, dynamics, year,x,y,dir, actor)` → `EdgeDecision`), used by movement and future UI.
+* **Layers** (priority high→low): actor modifiers → dynamic overlays → gates/locks → base terrain.
+* **Descriptors**: normalized to the closed set `{area continues., wall of ice., ion force field., open gate., closed gate.}`.
+* **Dynamic registry**: `registries/dynamics.py` stores per-edge overlays in `state/world/dynamics.json` with TTL; spells/rods write here, resolver reads it.
+
+## Tracing & WHY
+* **Toggles**: `state/runtime/trace.json` stores `{"move":bool,"ui":bool}` toggled via `logs trace move on|off`.
+* **Log format**: `MOVE/DECISION {"pos":"(xE : yN)","dir":"S","passable":false,"desc":"ion force field.","why":[["base","base:force"],["overlay","barrier:blastable"]]}`.
+* **WHY command**: `why <dir>` prints a human-readable line for the current tile and direction using the same resolver.
+
 ## Registries (game data & live state)
 - **World**: `registries/world.py` — YearWorld from `state/world/<year>.json`. Mirrored edge mutations (never modify `base=2` boundary). Atomic `save()`.
 - **Items (base)**: `state/items/catalog.json`; loader `registries/items_catalog.py`.
