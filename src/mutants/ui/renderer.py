@@ -5,28 +5,30 @@ from typing import Dict, List, Optional
 
 from . import constants as c
 from . import formatters as fmt
-from . import styles
+from . import styles as st
 from .viewmodels import RoomVM
 from .wrap import wrap_list
+import os
+import logging
 
-SegmentLine = List[styles.Segment]
+SegmentLine = List[st.Segment]
 
 
 def _feedback_token(kind: str) -> str:
     mapping = {
-        "SYSTEM/OK": styles.FEED_SYS_OK,
-        "SYSTEM/WARN": styles.FEED_SYS_WARN,
-        "SYSTEM/ERR": styles.FEED_SYS_ERR,
-        "MOVE/OK": styles.FEED_MOVE,
-        "MOVE/BLOCKED": styles.FEED_BLOCK,
-        "COMBAT/HIT": styles.FEED_COMBAT,
-        "COMBAT/CRIT": styles.FEED_CRIT,
-        "COMBAT/TAUNT": styles.FEED_TAUNT,
-        "LOOT/PICKUP": styles.FEED_LOOT,
-        "LOOT/DROP": styles.FEED_LOOT,
-        "SPELL/CAST": styles.FEED_SPELL,
-        "SPELL/FAIL": styles.FEED_SPELL,
-        "DEBUG": styles.FEED_DEBUG,
+        "SYSTEM/OK": st.FEED_SYS_OK,
+        "SYSTEM/WARN": st.FEED_SYS_WARN,
+        "SYSTEM/ERR": st.FEED_SYS_ERR,
+        "MOVE/OK": st.FEED_MOVE,
+        "MOVE/BLOCKED": st.FEED_BLOCK,
+        "COMBAT/HIT": st.FEED_COMBAT,
+        "COMBAT/CRIT": st.FEED_CRIT,
+        "COMBAT/TAUNT": st.FEED_TAUNT,
+        "LOOT/PICKUP": st.FEED_LOOT,
+        "LOOT/DROP": st.FEED_LOOT,
+        "SPELL/CAST": st.FEED_SPELL,
+        "SPELL/FAIL": st.FEED_SPELL,
+        "DEBUG": st.FEED_DEBUG,
     }
     for prefix, token in mapping.items():
         if kind.startswith(prefix):
@@ -44,13 +46,29 @@ def render_token_lines(
     coords = vm["coords"]
     lines.append(fmt.format_compass(coords["x"], coords["y"]))
 
-    # Show only open/continuous directions (plain tiles): omit obstacles.
-    dirs = vm.get("dirs", {})
+    # Directions list must be OPEN-ONLY by construction.
+    # Prefer vm["dirs_open"] if present; otherwise derive from vm["dirs"].
+    raw_dirs = vm.get("dirs", {}) or {}
+    dirs_open = vm.get("dirs_open")
+    if dirs_open is None:
+        # Derive open-only dict (base == 0 means "area continues"/open).
+        dirs_open = {k: v for k, v in raw_dirs.items() if v.get("base", 0) == 0}
+
+    DEV = os.environ.get("MUTANTS_DEV") == "1"
+    logger = logging.getLogger(__name__)
+
     for d in c.DIR_ORDER:
-        edge = dirs.get(d, {"base": 0})
-        # Plain/open edges have base == 0; blocked/gates/boundaries are non-zero.
-        if edge.get("base", 0) == 0:
-            lines.append(fmt.format_direction_line(d, edge))
+        edge = dirs_open.get(d)
+        if not edge:
+            continue
+        # Guardrail: if something non-open leaked in, drop it and warn (or assert in dev).
+        if edge.get("base", 0) != 0:
+            if DEV:
+                assert False, f"ui: non-open edge leaked into dirs_open: {d}"
+            else:
+                logger.warning("ui: dropped non-open edge in dirs_open: %s", d)
+            continue
+        lines.append(fmt.format_direction_line(d, edge))
 
     lines.append([("", "***")])
 
@@ -93,7 +111,7 @@ def render_tokenized(
     if palette is None:
         palette = {}
     lines = render_token_lines(vm, feedback_events, width)
-    return [styles.resolve_segments(segs, palette) for segs in lines]
+    return [st.resolve_segments(segs, palette) for segs in lines]
 
 
 def render(
@@ -113,9 +131,25 @@ def render(
     vm_local = {"compass_str": compass_str}
     lines.append(fmt.format_compass_line(vm_local))
 
-    dirs = vm.get("dirs", {})
+    # Directions list must be OPEN-ONLY by construction.
+    raw_dirs = vm.get("dirs", {}) or {}
+    dirs_open = vm.get("dirs_open")
+    if dirs_open is None:
+        dirs_open = {k: v for k, v in raw_dirs.items() if v.get("base", 0) == 0}
+
+    DEV = os.environ.get("MUTANTS_DEV") == "1"
+    logger = logging.getLogger(__name__)
+
     for d in c.DIR_ORDER:
-        edge = dirs.get(d, {"base": 0})
+        edge = dirs_open.get(d)
+        if not edge:
+            continue
+        if edge.get("base", 0) != 0:
+            if DEV:
+                assert False, f"ui: non-open edge leaked into dirs_open: {d}"
+            else:
+                logger.warning("ui: dropped non-open edge in dirs_open: %s", d)
+            continue
         lines.append(fmt.format_direction_line_colored(d, edge))
 
     monsters = vm.get("monsters_here", [])
@@ -152,6 +186,6 @@ def token_debug_lines(
 ) -> List[str]:
     """Return token-debug strings for testing."""
     return [
-        styles.tagged_string(line)
+        st.tagged_string(line)
         for line in render_token_lines(vm, feedback_events, width)
     ]
