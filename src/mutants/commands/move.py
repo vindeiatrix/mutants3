@@ -37,23 +37,24 @@ def move(dir_code: str, ctx: Dict[str, Any]) -> None:
 
     msg = None
     if base == BASE_BOUNDARY:
-        msg = "A boundary blocks your way."
+        msg = "You're blocked!"
     elif base == BASE_TERRAIN:
-        msg = "Terrain blocks your way."
+        msg = "You're blocked!"
     elif base == BASE_GATE:
         if gate_state == GATE_CLOSED:
-            msg = "The gate is closed."
+            msg = "You're blocked!"
         elif gate_state == GATE_LOCKED:
-            msg = "The gate is locked."
+            msg = "You're blocked!"
 
     if msg:
-        ctx["feedback_bus"].push("MOVE/BLOCKED", msg)
+        # Use a single canonical blocked message, per original game logs.
+        ctx["feedback_bus"].push("MOVE/BLOCKED", "You're blocked!")
         return
 
     dx, dy = DELTA[dir_code]
     p["pos"][1] = x + dx
     p["pos"][2] = y + dy
-    ctx["feedback_bus"].push("MOVE/OK", f"You head {DIR_WORD[dir_code]}.")
+    # Do not echo success movement like "You head north." Original shows next room immediately.
 
 
 def register(dispatch, ctx) -> None:

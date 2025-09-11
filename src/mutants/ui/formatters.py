@@ -48,8 +48,8 @@ def _dir_word(name: str) -> str:
 
 def format_direction_line(dir_name: str, edge: EdgeDesc) -> Segments:
     word = _dir_word(dir_name)
-    pad = c.DIR_LABEL_PAD - len(word)
-    segments: Segments = [(DIR, word), ("", " " * pad + "  - ")]
+    # Match original logs: exactly two spaces before the dash (no label padding).
+    segments: Segments = [(DIR, word), ("", "  - ")]
 
     base = edge.get("base", 0)
     if base == 0:

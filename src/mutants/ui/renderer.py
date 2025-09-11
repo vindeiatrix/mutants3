@@ -44,10 +44,12 @@ def render_token_lines(
     coords = vm["coords"]
     lines.append(fmt.format_compass(coords["x"], coords["y"]))
 
+    # Show only "relevant" directions (non-open): gates/boundaries/terrain.
     dirs = vm.get("dirs", {})
     for d in c.DIR_ORDER:
         edge = dirs.get(d, {"base": 0})
-        lines.append(fmt.format_direction_line(d, edge))
+        if edge.get("base", 0) != 0:
+            lines.append(fmt.format_direction_line(d, edge))
 
     lines.append([("", "***")])
 
@@ -64,9 +66,8 @@ def render_token_lines(
 
     events = vm.get("events", [])
     if events:
-        lines.append([("", "***")])
         for ev in events:
-            lines.append([( "", ev)])
+            lines.append([("", ev)])
 
     shadows = vm.get("shadows", [])
     shadow_line = fmt.format_shadows(shadows)
@@ -74,7 +75,6 @@ def render_token_lines(
         lines.append(shadow_line)
 
     if feedback_events:
-        lines.append([("", "***")])
         for ev in feedback_events:
             token = _feedback_token(ev.get("kind", ""))
             lines.append([(token, ev.get("text", ""))])
