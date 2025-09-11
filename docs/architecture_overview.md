@@ -51,6 +51,14 @@ When the VM indicates items are present on the ground, the renderer prints a **G
 - The block is surrounded by single `***` separators: one before (after directions) and one after.
 The VM must set `has_ground=True` **only** when `ground_items` is non-empty; otherwise the renderer drops the block and warns (or asserts in dev).
 
+### Monsters & Cues (after Ground)
+- **Monsters present:** a single line is emitted:
+  - One monster: `"<Name> is here."`
+  - Multiple monsters: `"<A>, <B>, and <C> are here with you."` (comma before `and`)
+  A single `***` separator precedes this block and another follows it.
+- **Cues:** each cue (e.g., `You see shadows to the south.`) prints as a single line; a `***` separator appears **between** multiple cue lines. The VM supplies `cues_lines` already worded; the UI does not invent text.
+Placement is fixed: **Room → Compass → Directions → `***` → Ground (optional) → `***` → Monsters (optional) → `***` → Cues (optional)**. This matches the original captures’ section order. 
+
 ## Future-proofing choices
 - No hard-coded year: world **discovery** + **nearest year** when needed.
 - Themes are JSON so you can change colors without code.

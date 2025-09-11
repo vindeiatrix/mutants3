@@ -58,6 +58,14 @@ VM → Formatters (build strings + **group**) → Styles (resolve color by group
 * **Separators:** Exactly one `***` before and one `***` after the ground block. The post-direction separator is reused if already present.
 * **Guardrail:** If `has_ground=True` but `ground_items` is empty, the renderer asserts under `MUTANTS_DEV=1` or logs-and-drops in normal runs.
 
+### UI Contract: Monsters & Cues
+* **Monsters:** If `vm["monsters_here"]` is non-empty, render:
+  - 1 name → `"<Name> is here."`
+  - 2+ names → `"<A>, <B>, and <C> are here with you."` (serial-comma style)
+  Precede with a single `***` and append a single `***` after.
+* **Cues:** If `vm["cues_lines"]` has entries, print each string as a line; insert a single `***` **between** cue lines (not after the last). The UI does not synthesize wording—strings come from the VM.
+* **Placement:** This block appears **after** the Ground block and adheres to the single-separator rule to avoid doubles, matching the originals. 
+
 ### Locked Literals and Descriptors
 * Canonical literals and descriptors live in `src/mutants/ui/uicontract.py`:
   - `COMPASS_PREFIX = "Compass: "`

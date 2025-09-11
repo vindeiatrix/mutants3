@@ -77,7 +77,7 @@ def render_token_lines(
 
     # Monsters present
     monsters = vm.get("monsters_here", [])
-    for segs in fmt.format_monsters_here(monsters):
+    for segs in fmt.format_monsters_here_tokens(monsters):
         lines.append(segs)
 
     items = vm.get("ground_items", [])
@@ -177,22 +177,25 @@ def render(
                 lines.append(ln)
             lines.append(UC.SEPARATOR_LINE)
 
-    monsters = vm.get("monsters_here", [])
-    for m in monsters:
-        name = m.get("name", "?")
-        lines.append(f"{name} is here.")
+    # ---- Monsters block (optional, after Ground) ----
+    monsters = vm.get("monsters_here") or []
+    if monsters:
+        if not lines or lines[-1] != UC.SEPARATOR_LINE:
+            lines.append(UC.SEPARATOR_LINE)
+        mline = fmt.format_monsters_here(monsters)
+        if mline:
+            lines.append(mline)
+            lines.append(UC.SEPARATOR_LINE)
 
-    events = vm.get("events", [])
-    lines.extend(events)
-
-    shadows = vm.get("shadows", [])
-    if shadows:
-        dirs_words = []
-        for d in ["E", "S", "W", "N"]:
-            if d in shadows:
-                dirs_words.append(fmt._dir_word(d))  # type: ignore[attr-defined]
-        if dirs_words:
-            lines.append(f"You see shadows to the {', '.join(dirs_words)}.")
+    # ---- Cues block (optional, after Monsters) ----
+    cues = vm.get("cues_lines") or []
+    if cues:
+        if not lines or lines[-1] != UC.SEPARATOR_LINE:
+            lines.append(UC.SEPARATOR_LINE)
+        for idx, cue in enumerate(cues):
+            lines.append(fmt.format_cue_line(cue))
+            if idx < len(cues) - 1 and lines[-1] != UC.SEPARATOR_LINE:
+                lines.append(UC.SEPARATOR_LINE)
 
     if feedback_events:
         for ev in feedback_events:
