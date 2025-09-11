@@ -84,7 +84,8 @@ VM → Formatters (build strings + **group**) → Styles (resolve color by group
 
 ## Passability & Dynamic Overlays
 * **Resolver**: `engine/edge_resolver.py` is the canonical decision point (`resolve(world, dynamics, year,x,y,dir, actor)` → `EdgeDecision`), used by movement and future UI.
-* **Layers** (priority high→low): actor modifiers → dynamic overlays → gates/locks → base terrain.
+* **Two-sided composition**: the resolver reads **both** the current tile’s edge and the **neighbor tile’s opposite edge** (OOB/missing ⇒ boundary). A move is allowed **only if both sides permit** (or an open gate exists and neither side blocks).
+* **Layers** (priority high→low): actor modifiers → dynamic overlays → gates/locks → base terrain. Base values may be **strings** or **numbers**; unknown/missing defaults to **boundary/blocked**.
 * **Descriptors**: normalized to the closed set `{area continues., wall of ice., ion force field., open gate., closed gate.}`.
 * **Dynamic registry**: `registries/dynamics.py` stores per-edge overlays in `state/world/dynamics.json` with TTL; spells/rods write here, resolver reads it.
 

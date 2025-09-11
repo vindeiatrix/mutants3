@@ -36,9 +36,11 @@ def move(dir_code: str, ctx: Dict[str, Any]) -> None:
             "dir": dir_code.upper(),
             "passable": dec.passable,
             "desc": dec.descriptor,
+            "cur": {"base": dec.cur_raw.get("base"), "gate_state": dec.cur_raw.get("gate_state")},
+            "nbr": {"base": dec.nbr_raw.get("base"), "gate_state": dec.nbr_raw.get("gate_state")},
             "why": dec.reason_chain,
         }
-        logger.info("MOVE/DECISION %s", json.dumps(payload))
+        logger.info("MOVE/DECISION - %s", json.dumps(payload))
         sink = ctx.get("logsink")
         if sink is not None and hasattr(sink, "handle"):
             sink.handle({"ts": "", "kind": "MOVE/DECISION", "text": json.dumps(payload)})
