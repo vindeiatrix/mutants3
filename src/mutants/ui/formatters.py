@@ -22,6 +22,7 @@ from .styles import (
     Segment,
 )
 from .viewmodels import EdgeDesc, Thing
+from . import uicontract as UC
 
 Segments = List[Segment]
 
@@ -46,30 +47,25 @@ def _dir_word(name: str) -> str:
     }[name]
 
 
-def format_direction_line(dir_name: str, edge: EdgeDesc) -> Segments:
+def format_direction_segments(dir_name: str, edge: EdgeDesc) -> Segments:
     word = _dir_word(dir_name)
-    # Match original logs: exactly two spaces before the dash (no label padding).
     segments: Segments = [(DIR, word), ("", "  - ")]
 
     base = edge.get("base", 0)
     if base == 0:
-        segments.append((DESC_CONT, "area continues."))
+        segments.append((DESC_CONT, UC.DESC_AREA_CONTINUES))
     elif base == 1:
-        segments.append((DESC_TERRAIN, "terrain blocks the way."))
+        segments.append((DESC_TERRAIN, UC.DESC_WALL_OF_ICE))
     elif base == 2:
-        segments.append((DESC_BOUNDARY, "boundary."))
+        segments.append((DESC_BOUNDARY, UC.DESC_ION_FORCE_FIELD))
     elif base == 3:
         state = edge.get("gate_state", 0)
         if state == 0:
-            segments.append((DESC_GATE_OPEN, "open gate."))
+            segments.append((DESC_GATE_OPEN, UC.DESC_OPEN_GATE))
         elif state == 1:
-            segments.append((DESC_GATE_CLOSED, "closed gate."))
+            segments.append((DESC_GATE_CLOSED, UC.DESC_CLOSED_GATE))
         elif state == 2:
-            key = edge.get("key_type")
-            if key is not None:
-                segments.append((DESC_GATE_LOCKED, f"locked gate (key {key})."))
-            else:
-                segments.append((DESC_GATE_LOCKED, "locked gate."))
+            segments.append((DESC_GATE_LOCKED, UC.DESC_CLOSED_GATE))
     else:
         segments.append((DESC_CONT, ""))
     return segments
@@ -112,38 +108,17 @@ def format_compass_line(vm) -> str:
     return st.colorize_text(text, group=UG.COMPASS_LINE)
 
 
-def format_direction_line_colored(dir_key: str, edge: dict) -> str:
+def format_direction_line(dir_key: str, edge: dict) -> str:
     """Return a direction line colored by open/blocked groups."""
     word = _dir_word(dir_key) if dir_key in {"N", "S", "E", "W"} else dir_key
-    base = edge.get("base", 0)
-    if base == 0:
-        desc = "area continues."
+    is_open = edge.get("base", 0) == 0
+    if is_open:
+        desc = UC.DESC_AREA_CONTINUES
         group = UG.DIR_OPEN
-    elif base == 1:
-        desc = "terrain blocks the way."
-        group = UG.DIR_BLOCKED
-    elif base == 2:
-        desc = "boundary."
-        group = UG.DIR_BLOCKED
-    elif base == 3:
-        state = edge.get("gate_state", 0)
-        if state == 0:
-            desc = "open gate."
-            group = UG.DIR_OPEN
-        elif state == 1:
-            desc = "closed gate."
-            group = UG.DIR_BLOCKED
-        else:
-            key = edge.get("key_type")
-            if key is not None:
-                desc = f"locked gate (key {key})."
-            else:
-                desc = "locked gate."
-            group = UG.DIR_BLOCKED
     else:
-        desc = ""
-        group = UG.DIR_OPEN
-    return st.colorize_text(f"{word:<5} - {desc}", group=group)
+        desc = edge.get("desc", "")
+        group = UG.DIR_BLOCKED
+    return st.colorize_text(UC.DIR_LINE_FMT.format(word, desc), group=group)
 
 
 def format_room_title(title: str) -> str:
