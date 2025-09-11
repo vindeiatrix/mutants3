@@ -43,6 +43,15 @@
   Header → Compass → N/S/E/W → `***` → in-room (monsters, ground wrapped) → `***` + feedback lines (if any).
   Renderer uses `Theme.palette` + `Theme.width`.
 
+### Data Flow (UI)
+VM → Formatters (build strings + **group**) → Styles (resolve color by group) → Renderer (layout/output)
+
+### UI Contract: Direction List Is Open-Only
+* **Invariant:** The direction list must show only *open/continuous* exits (“area continues.”) and must not show blocked entries (terrain/boundary/gates).
+* **Implementation (minimal):** The renderer iterates `vm["dirs_open"]` when present; if not present, it filters `vm["dirs"]` to open-only (`edge.base == 0`) before rendering.
+* **Guardrail:** With `MUTANTS_DEV=1`, the renderer asserts if a non-open edge appears in `dirs_open`; otherwise it logs a warning and drops it. This prevents downstream refactors (formatting/color) from resurrecting blocked rows.
+* **Separation of concerns:** Movement failures should surface via feedback lines (e.g., “You’re blocked!”) rather than as direction rows.
+
 ## Feedback and logs (diagnostics)
 - `ui/feedback.py` — **Feedback Bus** (structured events):
   - `.push(kind, text, **meta)`; `.drain()`; `.subscribe(listener)`.

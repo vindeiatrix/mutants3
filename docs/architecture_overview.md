@@ -30,6 +30,13 @@ This repeats each turn.
 - **Bootstrap**: `bootstrap/lazyinit.py` (player), `bootstrap/runtime.py` (state dirs/files, themes, world discovery or minimal world creation).
 - **Runtime data**: `state/world/<year>.json`, `state/items/*.json`, `state/monsters/*.json`, `state/ui/themes/*.json`, `state/logs/game.log`.
 
+## Renderer/UI stack (80-col BBS look)
+
+The UI is composed of a view model → formatters → styles/themes → renderer; the feedback bus and logsink feed the bottom block and `state/logs/game.log`.
+
+### UI Contract (minimal lock: open-only directions)
+To prevent regressions, the **direction list is open-only by construction**. The renderer iterates `dirs_open` (if provided by the VM) or derives an open-only view from `dirs` and **never** renders blocked entries (terrain/boundary/gates). A tiny dev guard (`MUTANTS_DEV=1`) asserts if a blocked edge leaks into `dirs_open`; in non-dev it logs and drops the line. This keeps "`west  - terrain blocks the way.`" from reappearing in the direction list, while movement failures are surfaced via feedback, not as direction rows.
+
 ## Future-proofing choices
 - No hard-coded year: world **discovery** + **nearest year** when needed.
 - Themes are JSON so you can change colors without code.
