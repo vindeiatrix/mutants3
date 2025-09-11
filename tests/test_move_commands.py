@@ -33,7 +33,8 @@ def test_move_north_updates_position_and_feedback():
     move("N", ctx)
     assert p["pos"] == [2000, 0, 1]
     events = ctx["feedback_bus"].drain()
-    assert any(ev["kind"] == "MOVE/OK" for ev in events)
+    # No movement echo; success should not emit MOVE/OK.
+    assert not any(ev["kind"] == "MOVE/OK" for ev in events)
 
 
 def test_boundary_blocks_movement():
@@ -43,4 +44,4 @@ def test_boundary_blocks_movement():
     move("E", ctx)
     assert p["pos"] == [2000, 14, 0]
     events = ctx["feedback_bus"].drain()
-    assert any(ev["kind"] == "MOVE/BLOCKED" for ev in events)
+    assert any(ev["kind"] == "MOVE/BLOCKED" and ev["text"] == "You're blocked!" for ev in events)
