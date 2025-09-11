@@ -5,12 +5,34 @@ from typing import Any, Dict, Iterable, List
 
 from mutants.bootstrap.lazyinit import ensure_player_state
 from mutants.bootstrap.runtime import ensure_runtime
-from mutants.data.room_headers import ROOM_HEADERS
+from mutants.data.room_headers import ROOM_HEADERS, STORE_FOR_SALE_IDX
 from mutants.registries.world import load_year
 from mutants.ui import renderer
 from mutants.ui.feedback import FeedbackBus
 from mutants.ui.logsink import LogSink
 from mutants.ui.themes import Theme, load_theme
+
+# --- store-aware header resolution ------------------------------------------
+def _store_price(year: int) -> int:
+    """
+    store_price(year) = 25000 * (1 + (year-2000)/100)
+    Examples: 2000→25,000; 2100→50,000.
+    """
+    return int(25000 * (1 + (int(year) - 2000) / 100.0))
+
+
+def _resolve_header_text(tile: dict, year: int) -> str:
+    """
+    Use the store header if and only if store_id is not None; otherwise use
+    header_idx from the tile. Substitute {PRICE} for store tiles.
+    """
+    is_store = tile.get("store_id") is not None
+    idx = STORE_FOR_SALE_IDX if is_store else int(tile.get("header_idx", 0))
+    text = ROOM_HEADERS[idx] if 0 <= idx < len(ROOM_HEADERS) else ""
+    if idx == STORE_FOR_SALE_IDX:
+        text = text.replace("{PRICE}", f"{_store_price(year):,}")
+    return text
+# ---------------------------------------------------------------------------
 
 # Paths
 DEFAULT_THEME_PATH = Path("state/ui/themes/bbs.json")
@@ -67,8 +89,7 @@ def build_room_vm(
     world = world_loader(year)
     tile = world.get_tile(x, y)
 
-    idx = int(tile.get("header_idx", 0)) if tile else 0
-    header = list(headers)[idx] if 0 <= idx < len(list(headers)) else ""
+    header = _resolve_header_text(tile or {}, year)
 
     dirs: Dict[str, Dict[str, Any]] = {}
     if tile:

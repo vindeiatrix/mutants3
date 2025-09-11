@@ -7,6 +7,10 @@ century-based price (no comma separators) when the tile is a for-sale store.
 
 STORE_FOR_SALE_TEMPLATE = "A sign reads: FOR SALE $ {PRICE}"
 
+# The store-for-sale header occupies a known index in ROOM_HEADERS.
+# Update this constant if you reorder ROOM_HEADERS.
+STORE_FOR_SALE_IDX = 0
+
 ROOM_HEADERS = [
     STORE_FOR_SALE_TEMPLATE,
     "You see rubble everywhere.",
@@ -27,6 +31,3 @@ ROOM_HEADERS = [
     "Broken glass covers the road.",
     "City Trading Centre.",
 ]
-
-# Optional convenience: fixed index for tools/world-builder
-STORE_FOR_SALE_IDX = 0
