@@ -1,5 +1,3 @@
-Instruction Header (for Assistant when generating a Codex task)
-
 Author the task in strict, deterministic form. Use unified diff patches with ample context (no “insert above/below” prose). Provide exact file paths. Only modify files explicitly patched. Keep edits idempotent and avoid any unrelated refactors or formatting.
 
 Output must follow this structure, in order:
