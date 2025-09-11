@@ -86,7 +86,7 @@ class RendererExamplesTest(unittest.TestCase):
         lines = renderer.token_debug_lines(EX_B)
         expected = [
             "<HEADER>The market square is littered with debris.</HEADER>",
-            "<COMPASS_LABEL>Compass:</COMPASS_LABEL> <COORDS>(3E : 0N)</COORDS>",
+            "<COMPASS_LABEL>Compass:</COMPASS_LABEL> <COORDS>(+3E : +0N)</COORDS>",
             "<DIR>north</DIR>  - <DESC_TERRAIN>terrain blocks the way.</DESC_TERRAIN>",
             "<DIR>south</DIR>  - <DESC_CONT>area continues.</DESC_CONT>",
             "<DIR>east</DIR>   - <DESC_GATE_CLOSED>closed gate.</DESC_GATE_CLOSED>",
@@ -107,7 +107,7 @@ class RendererExamplesTest(unittest.TestCase):
         lines = renderer.token_debug_lines(EX_C)
         expected = [
             "<HEADER>A cold draft flows through the alley.</HEADER>",
-            "<COMPASS_LABEL>Compass:</COMPASS_LABEL> <COORDS>(0E : 5N)</COORDS>",
+            "<COMPASS_LABEL>Compass:</COMPASS_LABEL> <COORDS>(+0E : +5N)</COORDS>",
             "<DIR>north</DIR>  - <DESC_CONT>area continues.</DESC_CONT>",
             "<DIR>south</DIR>  - <DESC_GATE_LOCKED>locked gate (key 4).</DESC_GATE_LOCKED>",
             "<DIR>east</DIR>   - <DESC_CONT>area continues.</DESC_CONT>",
