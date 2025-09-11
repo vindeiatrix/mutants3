@@ -3,6 +3,8 @@ import json, re
 from pathlib import Path
 from typing import Dict, List, Optional, Iterable
 from mutants.io.atomic import atomic_write_json
+from . import daily_litter
+import logging
 
 STATE = Path("state")
 WORLD_DIR = STATE / "world"
@@ -32,6 +34,12 @@ def ensure_runtime() -> Dict:
         size = int(cfg.get("default_world_size", 30))
         create_minimal_world(year=year, size=size)
         years = [year]
+
+    try:
+        daily_litter.run_daily_litter_reset()
+    except Exception as e:
+        logging.getLogger(__name__).warning("daily_litter skipped: %s", e)
+
     return {"config": cfg, "years": sorted(years), "themes_created": created_themes}
 
 def discover_world_years() -> List[int]:

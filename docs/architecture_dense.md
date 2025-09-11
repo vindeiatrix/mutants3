@@ -101,6 +101,16 @@ VM → Formatters (build strings + **group**) → Styles (resolve color by group
 - `registries/world.list_years()` reports available years; `load_nearest_year(y)` picks the closest.
 - `bootstrap/lazyinit.ensure_player_state()` maps template `start_pos[0]` to the **nearest** existing year, so templates can always say `2000` without going stale.
 - All modules read `player.pos[0]` at runtime; no code assumes `2000`.
+ 
+## Daily Litter Spawn System
+* **Inputs**: `state/items/catalog.json` (items with `"spawnable": true` and optional `"spawn": {"weight": int, "cap_per_year": int}`) and `state/items/spawn_rules.json` (`daily_target_per_year`, `max_ground_per_tile`).
+* **Algorithm** (per day):
+  1. Remove instances where `origin == "daily_litter"`.
+  2. For each year, build a weighted pool of spawnable items that have not hit `cap_per_year` (counts include existing ground items).
+  3. Choose random open tiles; skip any tile already at capacity (default six items) and place until the daily target is met.
+  4. Save instances, record today in `state/runtime/spawn_epoch.json`, log a summary line.
+* **Determinism**: RNG seeded by `YYYY-MM-DD` keeps placement stable within the day.
+* **Safety**: runs once at bootstrap; missing files/worlds merely log and skip.
 
 ## IO helpers
 - `io/atomic.py` — `atomic_write_json()` and `read_json()` (tmp → fsync → replace).
@@ -112,6 +122,7 @@ VM → Formatters (build strings + **group**) → Styles (resolve color by group
 - `state/playerlivestate.json`
 - `state/ui/themes/bbs.json`, `state/ui/themes/mono.json`
 - `state/logs/game.log`
+- `state/runtime/spawn_epoch.json`
 
 ## Flow examples
 - **look** → dispatch → render_room: VM from context → renderer prints.

@@ -1,0 +1,400 @@
+from __future__ import annotations
+
+"""Daily litter spawn/reset system.
+
+Runs once per calendar day during bootstrap:
+* removes items previously spawned by this system (``origin == "daily_litter"``)
+* spawns weighted items on open tiles without exceeding per-item caps or
+  per-tile capacity
+
+The module is intentionally defensive and makes a best effort if files are
+missing or in unexpected shapes. All randomness is seeded by the date string so
+placements remain deterministic for the day.
+"""
+
+import json
+import logging
+import os
+import random
+from datetime import datetime
+from typing import Dict, List, Optional, Tuple
+
+
+LOG = logging.getLogger(__name__)
+
+ROOT = os.getcwd()
+STATE_DIR = os.path.join(ROOT, "state")
+ITEMS_DIR = os.path.join(STATE_DIR, "items")
+RUNTIME_DIR = os.path.join(STATE_DIR, "runtime")
+WORLD_DIR = os.path.join(STATE_DIR, "world")
+
+CATALOG_PATH = os.path.join(ITEMS_DIR, "catalog.json")
+INSTANCES_PATH = os.path.join(ITEMS_DIR, "instances.json")
+SPAWN_RULES_PATH = os.path.join(ITEMS_DIR, "spawn_rules.json")
+EPOCH_PATH = os.path.join(RUNTIME_DIR, "spawn_epoch.json")
+
+ORIGIN_FIELD = "origin"
+ORIGIN_DAILY = "daily_litter"
+EPOCH_FIELD = "spawn_epoch"
+
+MAX_PER_TILE_DEFAULT = 6
+DAILY_TARGET_DEFAULT = 120
+
+
+# ---------------------------------------------------------------------------
+# small helpers
+
+def _today_str() -> str:
+    return datetime.now().strftime("%Y-%m-%d")
+
+
+def _mkdir_p(path: str) -> None:
+    os.makedirs(path, exist_ok=True)
+
+
+def _load_json(path: str, default):
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return default
+
+
+def _save_json_atomic(path: str, data) -> None:
+    """Write JSON using the project atomic writer when available."""
+    try:
+        from ..io import atomic as atomic_io  # type: ignore
+        if hasattr(atomic_io, "atomic_write_json"):
+            atomic_io.atomic_write_json(path, data)  # type: ignore[attr-defined]
+            return
+        if hasattr(atomic_io, "write_json_atomic"):
+            atomic_io.write_json_atomic(path, data)  # type: ignore[attr-defined]
+            return
+    except Exception:
+        pass
+    tmp = f"{path}.tmp"
+    with open(tmp, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
+    os.replace(tmp, path)
+
+
+# ---------------------------------------------------------------------------
+# catalog / rules loading
+
+def _load_spawn_rules() -> Dict:
+    rules = _load_json(SPAWN_RULES_PATH, None)
+    if rules is None:
+        rules = {
+            "daily_target_per_year": DAILY_TARGET_DEFAULT,
+            "max_ground_per_tile": MAX_PER_TILE_DEFAULT,
+        }
+        _mkdir_p(os.path.dirname(SPAWN_RULES_PATH))
+        _save_json_atomic(SPAWN_RULES_PATH, rules)
+    return rules
+
+
+def _load_spawnables_from_catalog() -> Dict[str, Dict]:
+    """Return mapping item_id -> {weight:int, cap_per_year:int|None}."""
+    cat = _load_json(CATALOG_PATH, {})
+    spawnables: Dict[str, Dict] = {}
+
+    items_obj = cat.get("items", cat) if isinstance(cat, dict) else cat
+    if isinstance(items_obj, dict):
+        iterable = items_obj.items()
+    elif isinstance(items_obj, list):
+        iterable = [(x.get("id") or x.get("item_id"), x) for x in items_obj]
+    else:
+        iterable = []
+
+    for item_id, meta in iterable:
+        if not item_id or not isinstance(meta, dict):
+            continue
+        if not meta.get("spawnable"):
+            continue
+        spawn_cfg = meta.get("spawn", {})
+        weight = int(spawn_cfg.get("weight", 1))
+        cap = spawn_cfg.get("cap_per_year")
+        cap = int(cap) if cap is not None else None
+        if weight > 0:
+            spawnables[str(item_id)] = {"weight": weight, "cap_per_year": cap}
+    return spawnables
+
+
+# ---------------------------------------------------------------------------
+# instances I/O helpers
+
+def _load_instances_list() -> List[Dict]:
+    data = _load_json(INSTANCES_PATH, [])
+    if isinstance(data, list):
+        return data
+    if isinstance(data, dict):
+        if isinstance(data.get("instances"), list):
+            return data["instances"]
+        if all(isinstance(v, dict) for v in data.values()):
+            return list(data.values())
+    return []
+
+
+def _save_instances_list(instances: List[Dict]) -> None:
+    existing = _load_json(INSTANCES_PATH, None)
+    if isinstance(existing, dict) and isinstance(existing.get("instances"), list):
+        existing["instances"] = instances
+        _save_json_atomic(INSTANCES_PATH, existing)
+    else:
+        _save_json_atomic(INSTANCES_PATH, instances)
+
+
+# ---------------------------------------------------------------------------
+# world helpers
+
+def _list_years() -> List[int]:
+    years: List[int] = []
+    try:
+        for fn in os.listdir(WORLD_DIR):
+            if fn.endswith(".json"):
+                years.append(int(os.path.splitext(fn)[0]))
+    except FileNotFoundError:
+        pass
+    return sorted(years)
+
+
+def _collect_open_tiles_for_year(year: int) -> List[Tuple[int, int]]:
+    """Best-effort list of open tile coordinates for a year."""
+    try:
+        from ..registries.world import WorldRegistry  # type: ignore
+        w = WorldRegistry()
+        for meth in ("iter_open_tiles", "open_coords", "iter_open_coords"):
+            if hasattr(w, meth):
+                coords = list(getattr(w, meth)(year))  # type: ignore[arg-type]
+                if coords:
+                    return [(int(x), int(y)) for (x, y) in coords]
+        for meth in ("iter_tiles", "tiles"):
+            if hasattr(w, meth):
+                coords: List[Tuple[int, int]] = []
+                for t in getattr(w, meth)(year):  # type: ignore[arg-type]
+                    if isinstance(t, tuple) and len(t) >= 3:
+                        x, y, tile = t[0], t[1], t[2]
+                    elif isinstance(t, dict):
+                        x, y, tile = t.get("x"), t.get("y"), t
+                    else:
+                        continue
+                    base = int(tile.get("base", 0)) if isinstance(tile, dict) else 0
+                    if base == 0:
+                        coords.append((int(x), int(y)))
+                if coords:
+                    return coords
+    except Exception:
+        pass
+
+    world_path = os.path.join(WORLD_DIR, f"{year}.json")
+    data = _load_json(world_path, {})
+    coords: List[Tuple[int, int]] = []
+    tiles = data.get("tiles") or data.get("grid") or []
+    if isinstance(tiles, list):
+        for t in tiles:
+            if isinstance(t, dict) and int(t.get("base", 0)) == 0:
+                coords.append((int(t.get("x", 0)), int(t.get("y", 0))))
+    return coords
+
+
+# ---------------------------------------------------------------------------
+# misc helpers
+
+def _tile_key(year: int, x: int, y: int) -> str:
+    return f"{year}:{x}:{y}"
+
+
+def _instance_pos_key(inst: Dict) -> Optional[Tuple[int, int, int]]:
+    try:
+        if all(k in inst for k in ("year", "x", "y")):
+            return int(inst["year"]), int(inst["x"]), int(inst["y"])
+        if isinstance(inst.get("pos"), dict):
+            p = inst["pos"]
+            if all(k in p for k in ("year", "x", "y")):
+                return int(p["year"]), int(p["x"]), int(p["y"])
+    except Exception:
+        return None
+    return None
+
+
+def _instance_item_id(inst: Dict) -> Optional[str]:
+    for k in ("item_id", "catalog_id", "id"):
+        v = inst.get(k)
+        if isinstance(v, str):
+            return v
+    return None
+
+
+def _remove_yesterdays_daily_litter(instances: List[Dict]) -> List[Dict]:
+    return [i for i in instances if i.get(ORIGIN_FIELD) != ORIGIN_DAILY]
+
+
+def _count_per_tile(instances: List[Dict]) -> Dict[str, int]:
+    counts: Dict[str, int] = {}
+    for inst in instances:
+        pos = _instance_pos_key(inst)
+        if not pos:
+            continue
+        year, x, y = pos
+        key = _tile_key(year, x, y)
+        counts[key] = counts.get(key, 0) + 1
+    return counts
+
+
+def _count_item_per_year(instances: List[Dict]) -> Dict[int, Dict[str, int]]:
+    per_year: Dict[int, Dict[str, int]] = {}
+    for inst in instances:
+        pos = _instance_pos_key(inst)
+        item_id = _instance_item_id(inst)
+        if not pos or not item_id:
+            continue
+        year = pos[0]
+        per_year.setdefault(year, {})
+        per_year[year][item_id] = per_year[year].get(item_id, 0) + 1
+    return per_year
+
+
+def _new_instance_dict(item_id: str, year: int, x: int, y: int, epoch: str, seq: int) -> Dict:
+    return {
+        "iid": f"dl_{epoch.replace('-', '')}_{seq}",
+        "item_id": item_id,
+        "year": year,
+        "x": x,
+        "y": y,
+        ORIGIN_FIELD: ORIGIN_DAILY,
+        EPOCH_FIELD: epoch,
+    }
+
+
+# ---------------------------------------------------------------------------
+# main entry
+
+def run_daily_litter_reset() -> None:
+    _mkdir_p(RUNTIME_DIR)
+    epoch = _load_json(EPOCH_PATH, {})
+    today = _today_str()
+    if epoch.get("last_reset") == today:
+        return
+
+    rules = _load_spawn_rules()
+    daily_target = int(rules.get("daily_target_per_year", DAILY_TARGET_DEFAULT))
+    max_per_tile = int(rules.get("max_ground_per_tile", MAX_PER_TILE_DEFAULT))
+
+    random.seed(today)
+
+    instances = _load_instances_list()
+    instances = _remove_yesterdays_daily_litter(instances)
+
+    per_tile = _count_per_tile(instances)
+    per_year_item = _count_item_per_year(instances)
+
+    spawnables = _load_spawnables_from_catalog()
+    if not spawnables:
+        LOG.info("daily_litter: no spawnable items; skipping")
+        _save_instances_list(instances)
+        _save_json_atomic(EPOCH_PATH, {"last_reset": today})
+        return
+
+    years = _list_years()
+    if not years:
+        LOG.info("daily_litter: no world years found; skipping")
+        _save_instances_list(instances)
+        _save_json_atomic(EPOCH_PATH, {"last_reset": today})
+        return
+
+    def build_weighted_pool(year: int) -> List[Tuple[str, int]]:
+        pool: List[Tuple[str, int]] = []
+        for item_id, cfg in spawnables.items():
+            cap = cfg.get("cap_per_year")
+            already = per_year_item.get(year, {}).get(item_id, 0)
+            if cap is not None and already >= cap:
+                continue
+            w = int(cfg.get("weight", 1))
+            if w > 0:
+                pool.append((item_id, w))
+        return pool
+
+    summary: Dict[int, Dict[str, int]] = {}
+
+    for year in years:
+        tiles = _collect_open_tiles_for_year(year)
+        if not tiles:
+            LOG.warning("daily_litter: no open tiles for year %s", year)
+            continue
+
+        pool = build_weighted_pool(year)
+        if not pool:
+            summary[year] = {}
+            continue
+
+        items, weights = zip(*pool)
+        cumulative: List[int] = []
+        s = 0
+        for w in weights:
+            s += w
+            cumulative.append(s)
+        total_weight = s
+
+        spawned: Dict[str, int] = {}
+        attempts = 0
+        max_attempts = daily_target * 20
+        seq = 0
+
+        while sum(spawned.values()) < daily_target and attempts < max_attempts:
+            attempts += 1
+            if not items:
+                break
+            r = random.randint(1, total_weight)
+            lo, hi, pick = 0, len(cumulative) - 1, 0
+            while lo <= hi:
+                mid = (lo + hi) // 2
+                if r <= cumulative[mid]:
+                    pick = mid
+                    hi = mid - 1
+                else:
+                    lo = mid + 1
+            item_id = items[pick]
+
+            cap = spawnables[item_id].get("cap_per_year")
+            already = per_year_item.get(year, {}).get(item_id, 0) + spawned.get(item_id, 0)
+            if cap is not None and already >= cap:
+                pool = build_weighted_pool(year)
+                if not pool:
+                    break
+                items, weights = zip(*pool)
+                cumulative = []
+                s = 0
+                for w in weights:
+                    s += w
+                    cumulative.append(s)
+                total_weight = s
+                continue
+
+            x, y = tiles[random.randrange(0, len(tiles))]
+            key = _tile_key(year, x, y)
+            if per_tile.get(key, 0) >= max_per_tile:
+                continue
+
+            seq += 1
+            inst = _new_instance_dict(item_id, year, x, y, today, seq)
+            instances.append(inst)
+            per_tile[key] = per_tile.get(key, 0) + 1
+            spawned[item_id] = spawned.get(item_id, 0) + 1
+
+        summary[year] = spawned
+
+    _mkdir_p(os.path.dirname(INSTANCES_PATH))
+    _save_instances_list(instances)
+    _mkdir_p(RUNTIME_DIR)
+    _save_json_atomic(EPOCH_PATH, {"last_reset": today})
+
+    for year, counts in summary.items():
+        parts = [f"{k}\u00d7{v}" for k, v in sorted(counts.items()) if v]
+        LOG.info(
+            "daily_litter %s year %s: spawned %d items%s",
+            today,
+            year,
+            sum(counts.values()),
+            f" ({', '.join(parts)})" if parts else "",
+        )
+

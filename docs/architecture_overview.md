@@ -65,6 +65,13 @@ The VM must set `has_ground=True` **only** when `ground_items` is non-empty; oth
 - **Cues:** each cue (e.g., `You see shadows to the south.`) prints as a single line; a `***` separator appears **between** multiple cue lines. The VM supplies `cues_lines` already worded; the UI does not invent text.
 Placement is fixed: **Room → Compass → Directions → `***` → Ground (optional) → `***` → Monsters (optional) → `***` → Cues (optional)**. This matches the original captures’ section order. 
 
+## Daily Litter Spawns (once-per-day reset)
+At startup (once per calendar day), the game performs a **litter reset**:
+- Removes only items previously spawned by the system (`origin: "daily_litter"`).
+- Spawns a fixed number per year (`state/items/spawn_rules.json: daily_target_per_year`) of catalog items marked `"spawnable": true`, using per-item weights and optional per-year caps.
+- Placement rules: open tiles only and never more than six items per tile; capped items (already at limit for a year) are skipped.
+- The reset is deterministic for the day (seeded by date) and runs only at startup, so no mid-day pop-in.
+
 ## Future-proofing choices
 - No hard-coded year: world **discovery** + **nearest year** when needed.
 - Themes are JSON so you can change colors without code.
