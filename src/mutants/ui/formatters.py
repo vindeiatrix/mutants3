@@ -31,10 +31,9 @@ def format_header(text: str) -> Segments:
 
 
 def format_compass(x: int, y: int) -> Segments:
-    # Display coordinates without '+' for non-negative values (match BBS logs)
-    east = f"{x}E"
-    north = f"{y}N"
-    return [(c.COMPASS_LABEL, "Compass:"), ("", " "), (c.COORDS, f"({east} : {north})")]
+    east = f"{x:+d}E"
+    north = f"{y:+d}N"
+    return [(COMPASS_LABEL, "Compass:"), ("", " "), (COORDS, f"({east} : {north})")]
 
 
 def _dir_word(name: str) -> str:
