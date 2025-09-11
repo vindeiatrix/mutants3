@@ -44,11 +44,12 @@ def render_token_lines(
     coords = vm["coords"]
     lines.append(fmt.format_compass(coords["x"], coords["y"]))
 
-    # Show only "relevant" directions (non-open): gates/boundaries/terrain.
+    # Show only open/continuous directions (plain tiles): omit obstacles.
     dirs = vm.get("dirs", {})
     for d in c.DIR_ORDER:
         edge = dirs.get(d, {"base": 0})
-        if edge.get("base", 0) != 0:
+        # Plain/open edges have base == 0; blocked/gates/boundaries are non-zero.
+        if edge.get("base", 0) == 0:
             lines.append(fmt.format_direction_line(d, edge))
 
     lines.append([("", "***")])
