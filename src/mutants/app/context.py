@@ -11,6 +11,7 @@ from mutants.ui import renderer
 from mutants.ui.feedback import FeedbackBus
 from mutants.ui.logsink import LogSink
 from mutants.ui.themes import Theme, load_theme
+from mutants.ui import styles as st
 
 # --- store-aware header resolution ------------------------------------------
 def _store_price(year: int) -> int:
@@ -46,6 +47,16 @@ def build_context() -> Dict[str, Any]:
     bus = FeedbackBus()
     theme_path = cfg.get("theme_path", str(DEFAULT_THEME_PATH))
     theme = load_theme(str(theme_path))
+    # Apply theme settings to styles (palette path + ANSI toggle)
+    if theme.colors_path:
+        cp = Path(theme.colors_path)
+        if not cp.is_absolute():
+            cp = Path.cwd() / cp
+        st.set_colors_map_path(str(cp))
+    else:
+        st.set_colors_map_path(None)
+    st.reload_colors_map()
+    st.set_ansi_enabled(theme.ansi_enabled)
     sink = LogSink()
     bus.subscribe(sink.handle)
     ctx: Dict[str, Any] = {

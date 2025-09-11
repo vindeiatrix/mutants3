@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from mutants.ui.themes import load_theme
+from mutants.ui import styles as st
 
 
 def theme_cmd(arg: str, ctx) -> None:
@@ -17,6 +18,18 @@ def theme_cmd(arg: str, ctx) -> None:
         ctx["feedback_bus"].push("SYSTEM/ERR", f"Theme not found: {name}")
         return
     ctx["theme"] = theme
+
+    # Wire theme to palette + ANSI
+    if theme.colors_path:
+        cp = Path(theme.colors_path)
+        if not cp.is_absolute():
+            cp = Path.cwd() / cp
+        st.set_colors_map_path(str(cp))
+    else:
+        st.set_colors_map_path(None)
+    st.reload_colors_map()
+    st.set_ansi_enabled(theme.ansi_enabled)
+
     ctx["feedback_bus"].push("SYSTEM/OK", f"Theme switched to {name}.")
 
 
