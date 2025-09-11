@@ -3,7 +3,8 @@
 This game now uses **semantic color groups** instead of hard-coded color names at print sites. Every piece of text is tagged with a *group* (e.g., `compass.line`, `dir.open`, `room.title`). A single JSON file maps these groups to one of the five colors used by the game: **yellow, green, blue, red, white**.
 
 ## TL;DR
-Edit **`state/ui/colors.json`** and change the color names in the `"map"` section. No code changes are required.
+Edit **`state/ui/colors.json`** and change the color names in the `"map"` section. No code changes are required.  
+Alternatively, use the **`theme`** command to swap palettes or turn ANSI on/off at runtime.
 
 ```json
 {
@@ -42,13 +43,30 @@ If you want to make all compass-related text green, set:
 
 ## Advanced: Per-Theme Overrides
 
-By default, colors load from `state/ui/colors.json`. You can point to an alternate file via the environment variable:
+By default, colors load from `state/ui/colors.json`. You can now point to an alternate file **per theme** (preferred), or via environment variables:
 
 ```bash
 export MUTANTS_UI_COLORS_PATH=/abs/path/to/my_colors.json
 ```
 
-The file format is identical to `colors.json`. This is useful for quick A/B tests of palettes.
+Or define it in a theme:
+
+```json
+{
+  "name": "mytheme",
+  "width": 80,
+  "ansi_enabled": true,
+  "colors_path": "state/ui/colors_mytheme.json"
+}
+```
+
+Then switch at runtime:
+
+```
+theme mytheme
+```
+
+The file format is identical to `colors.json`. This is useful for quick A/B tests of palettes. Set "ansi_enabled": false in a theme (e.g., mono) to disable all color codes for clean transcripts.
 
 ## Safety Tips
 

@@ -64,13 +64,20 @@ import os
 # Back-compat: add group-aware color resolver without removing existing APIs.
 _COLORS_CACHE: Optional[Dict[str, str]] = None
 _DEFAULT_COLOR: str = "white"
-_COLOR_FILE_ENV = "MUTANTS_UI_COLORS_PATH"
+_COLOR_FILE_ENV = "MUTANTS_UI_COLORS_PATH"  # optional override via env
+_COLORS_PATH_OVERRIDE: Optional[str] = None  # programmatic override via theme
+_ANSI_ENABLED: bool = True  # allow theme to disable ANSI for clean transcripts
 
 
 def _colors_path() -> str:
+    # 1) explicit programmatic override (theme)
+    if _COLORS_PATH_OVERRIDE:
+        return _COLORS_PATH_OVERRIDE
+    # 2) environment
     p = os.environ.get(_COLOR_FILE_ENV)
     if p:
         return p
+    # 3) default location
     return os.path.join(os.getcwd(), "state", "ui", "colors.json")
 
 
@@ -90,6 +97,29 @@ def _load_colors_map() -> Dict[str, str]:
         _COLORS_CACHE = {}
         _DEFAULT_COLOR = "white"
         return _COLORS_CACHE
+
+
+def set_colors_map_path(path: Optional[str]) -> None:
+    """
+    Programmatically override the colors.json path (used by theme switching).
+    Pass None to clear the override and fall back to env/defaults.
+    """
+    global _COLORS_PATH_OVERRIDE, _COLORS_CACHE
+    _COLORS_PATH_OVERRIDE = path
+    _COLORS_CACHE = None  # force reload on next resolve
+
+
+def reload_colors_map() -> None:
+    """Drop cache and reload immediately (useful after set_colors_map_path)."""
+    global _COLORS_CACHE
+    _COLORS_CACHE = None
+    _ = _load_colors_map()
+
+
+def set_ansi_enabled(enabled: bool) -> None:
+    """Enable/disable ANSI coloring globally (themes can toggle this)."""
+    global _ANSI_ENABLED
+    _ANSI_ENABLED = bool(enabled)
 
 
 def resolve_color_for_group(group: Optional[str]) -> str:
@@ -129,6 +159,9 @@ def _apply_color_name(text: str, color_name: str) -> str:
 
 
 def colorize_text(text: str, *, group: Optional[str] = None, color: Optional[str] = None) -> str:
+    # If ANSI is globally disabled, return text unchanged.
+    if not _ANSI_ENABLED:
+        return text
     color_name = color or resolve_color_for_group(group)
     try:
         return _apply_color_name(text, color_name)

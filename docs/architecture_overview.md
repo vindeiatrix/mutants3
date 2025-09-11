@@ -35,7 +35,13 @@ This repeats each turn.
 The UI is composed of a view model → formatters → styles/themes → renderer; the feedback bus and logsink feed the bottom block and `state/logs/game.log`.
 
 ### Color Groups (new)
-All text is emitted with a **semantic color group** (e.g., `compass.line`, `dir.open`, `dir.blocked`, `room.title`, `room.desc`). The renderer does **not** pick colors directly. Instead, `src/mutants/ui/styles.py` resolves `group → color` using `state/ui/colors.json`. Changing the color for an entire category is now a one-file edit; “green only for compass” is enforced by mapping `compass.*` to green.
+All text is emitted with a **semantic color group** (e.g., `compass.line`, `dir.open`, `dir.blocked`, `room.title`, `room.desc`). The renderer does **not** pick colors directly. Instead, `src/mutants/ui/styles.py` resolves `group → color` using a colors map (default `state/ui/colors.json`).
+
+### Themes (useful now)
+The `theme` command now switches two visual aspects at runtime:
+- **Palette source** via `colors_path` in the theme JSON (e.g., `state/ui/colors.json`). The theme command updates the active palette immediately.
+- **ANSI on/off** via `ansi_enabled`. When false, all colorization is bypassed for clean transcripts and diffable logs.
+`bbs` enables ANSI with the standard palette; `mono` disables ANSI (monochrome). Width/layout remain locked at 80 cols by design.
 
 ### UI Contract (navigation frame, minimal lock-in)
 We lock the navigation frame now to prevent regressions:

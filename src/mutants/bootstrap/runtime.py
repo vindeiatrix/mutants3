@@ -68,26 +68,29 @@ def ensure_theme_files(default_theme: str = "bbs") -> Dict[str, bool]:
     bbs = THEMES_DIR / "bbs.json"
     mono = THEMES_DIR / "mono.json"
     if not bbs.exists():
-        atomic_write_json(bbs, _default_bbs_theme())
+        atomic_write_json(bbs, _bbs_theme())
         created["bbs"] = True
     if not mono.exists():
-        atomic_write_json(mono, {"WIDTH": 80})
+        atomic_write_json(mono, _mono_theme())
         created["mono"] = True
     return created
 
-def _default_bbs_theme() -> Dict[str, str]:
-    # Keep tokens minimal; renderer tolerates missing tokens by treating them as unstyled.
+
+def _bbs_theme() -> Dict[str, str]:
     return {
-        "WIDTH": 80,
-        "HEADER":"\u001b[1;37m","COMPASS_LABEL":"\u001b[36m","COORDS":"\u001b[37m",
-        "DIR":"\u001b[36m","DESC_CONT":"\u001b[37m","DESC_TERRAIN":"\u001b[33m",
-        "DESC_BOUNDARY":"\u001b[2;37m","DESC_GATE_OPEN":"\u001b[32m",
-        "DESC_GATE_CLOSED":"\u001b[33m","DESC_GATE_LOCKED":"\u001b[1;31m",
-        "LABEL":"\u001b[1;37m","ITEM":"\u001b[37m","MONSTER":"\u001b[35m","SHADOWS_LABEL":"\u001b[34m",
-        "FEED_SYS_OK":"\u001b[32m","FEED_SYS_WARN":"\u001b[33m","FEED_SYS_ERR":"\u001b[1;31m",
-        "FEED_MOVE":"\u001b[36m","FEED_BLOCK":"\u001b[33m","FEED_COMBAT":"\u001b[1;35m",
-        "FEED_CRIT":"\u001b[95m","FEED_TAUNT":"\u001b[90m","FEED_LOOT":"\u001b[32m",
-        "FEED_SPELL":"\u001b[36m","FEED_DEBUG":"\u001b[2;37m","RESET":"\u001b[0m"
+        "name": "bbs",
+        "width": 80,
+        "ansi_enabled": True,
+        "colors_path": "state/ui/colors.json",
+    }
+
+
+def _mono_theme() -> Dict[str, str]:
+    return {
+        "name": "mono",
+        "width": 80,
+        "ansi_enabled": False,
+        "colors_path": "state/ui/colors.json",
     }
 
 def create_minimal_world(year: int, size: int = 30) -> None:
