@@ -3,14 +3,11 @@ from dataclasses import dataclass
 from typing import Dict, List, Optional, Tuple
 import time
 
-from mutants.registries import world as W
-
 DESC_AREA = "area continues."
 DESC_ICE = "wall of ice."
 DESC_FORCE = "ion force field."
 DESC_GATE_OPEN = "open gate."
 DESC_GATE_CLOSED = "closed gate."
-
 CANON = {DESC_AREA, DESC_ICE, DESC_FORCE, DESC_GATE_OPEN, DESC_GATE_CLOSED}
 
 
@@ -19,87 +16,129 @@ class EdgeDecision:
     passable: bool
     descriptor: str
     reason_chain: List[Tuple[str, str]]
+    cur_raw: Dict
+    nbr_raw: Dict
 
 
-def _base_to_descriptor(base: int) -> Tuple[bool, str, str]:
-    if base == W.BASE_OPEN:
-        return True, DESC_AREA, "base:open"
-    if base == W.BASE_TERRAIN:
-        return False, DESC_ICE, "base:terrain"
-    if base == W.BASE_BOUNDARY:
-        return False, DESC_FORCE, "base:boundary"
-    if base == W.BASE_GATE:
-        return True, DESC_GATE_OPEN, "base:gate"
-    return False, DESC_FORCE, f"base:unknown({base})"
+def _normalize_base_kind(v) -> str:
+    """
+    Map mixed schema 'base' values (ints/strings) to a canonical kind:
+      open|terrain|0  -> "open"
+      boundary|None   -> "boundary"
+      ice|1           -> "ice"
+      force|2         -> "force"
+      gate|3          -> "gate"
+      unknown         -> "boundary" (conservative)
+    """
+    if isinstance(v, int):
+        return {0: "open", 1: "ice", 2: "force", 3: "gate"}.get(v, "boundary")
+    if isinstance(v, str):
+        s = v.strip().lower()
+        return {
+            "open": "open",
+            "terrain": "open",
+            "boundary": "boundary",
+            "ice": "ice",
+            "force": "force",
+            "ion": "force",
+            "gate": "gate",
+        }.get(s, "boundary")
+    return "boundary"
 
 
-def _gate_state_to_descriptor(gate_state: int) -> Tuple[Optional[bool], str, str]:
-    if gate_state == W.GATE_OPEN:
-        return True, DESC_GATE_OPEN, "gate:open"
-    if gate_state == W.GATE_CLOSED:
-        return False, DESC_GATE_CLOSED, "gate:closed"
-    if gate_state == W.GATE_LOCKED:
-        return False, DESC_GATE_CLOSED, "gate:locked"
-    return None, "", "gate:none"
+def _gate_state_norm(v) -> int:
+    """
+    Normalize gate_state to 0:none, 1:open, 2:closed (conservative default=2 if ambiguous when base == gate).
+    Accepts ints or strings ('open'/'closed').
+    """
+    if isinstance(v, int):
+        return v if v in (0, 1, 2) else 2
+    if isinstance(v, str):
+        s = v.strip().lower()
+        if s == "open":
+            return 1
+        if s == "closed":
+            return 2
+        return 2
+    return 0
+
+
+_DELTA = {"n": (0, 1), "s": (0, -1), "e": (1, 0), "w": (-1, 0)}
+_OPP = {"n": "s", "s": "n", "e": "w", "w": "e"}
 
 
 def resolve(world, dynamics, year: int, x: int, y: int, dir_key: str, actor: Optional[Dict] = None) -> EdgeDecision:
+    """
+    Compute final passability+descriptor for edge (year,x,y,dir_key) by composing BOTH sides:
+    current tile's `dir_key` edge AND neighbor tile's opposite edge (bounds-checked).
+    Conservative defaults: missing/unknown ⇒ boundary/blocked.
+    """
+    dk = dir_key.lower()
+    dx, dy = _DELTA.get(dk, (0, 0))
+    opp = _OPP.get(dk, dk)
+    du = dk.upper()
+    opp_u = opp.upper()
     reasons: List[Tuple[str, str]] = []
 
-    edge: Dict = {}
-    try:
-        tile = world.get_tile(x, y)
-        if tile:
-            edge = tile.get("edges", {}).get(dir_key, {}) or {}
-    except Exception:
-        edge = {}
+    def _get_tile(_x, _y):
+        try:
+            if hasattr(world, "get_tile"):
+                try:
+                    return world.get_tile(year, _x, _y)  # type: ignore[arg-type]
+                except TypeError:
+                    return world.get_tile(_x, _y)  # type: ignore[arg-type]
+            if hasattr(world, "tile"):
+                try:
+                    return world.tile(year, _x, _y)
+                except TypeError:
+                    return world.tile(_x, _y)
+        except Exception:
+            return None
+        return None
 
-    base_code = int(edge.get("base", W.BASE_BOUNDARY))
-    passable, desc, bref = _base_to_descriptor(base_code)
-    reasons.append(("base", bref))
+    cur_tile = _get_tile(x, y) or {}
+    nbr_tile = _get_tile(x + dx, y + dy) or {}
+    cur_edges = (cur_tile.get("edges") or {}) if isinstance(cur_tile, dict) else {}
+    nbr_edges = (nbr_tile.get("edges") or {}) if isinstance(nbr_tile, dict) else {}
+    cur_edge = (cur_edges.get(du) or {}) if isinstance(cur_edges, dict) else {}
+    nbr_edge = (nbr_edges.get(opp_u) or {}) if isinstance(nbr_edges, dict) else {}
 
-    if base_code == W.BASE_GATE:
-        gate_state = int(edge.get("gate_state", W.GATE_OPEN))
-        gs = _gate_state_to_descriptor(gate_state)
-        if gs[0] is not None:
-            passable, desc = bool(gs[0]), gs[1]
-            reasons.append(("gate", gs[2]))
+    cur_kind = _normalize_base_kind(cur_edge.get("base", None))
+    nbr_kind = _normalize_base_kind(nbr_edge.get("base", None))
+    cur_gs = _gate_state_norm(cur_edge.get("gate_state", 0))
+    nbr_gs = _gate_state_norm(nbr_edge.get("gate_state", 0))
 
-    # Static spell blocks
-    spell_block = int(edge.get("spell_block", 0))
-    if spell_block == 1:
-        passable = False
-        desc = DESC_ICE
-        reasons.append(("spell", "spell:ice"))
-    elif spell_block == 2:
-        passable = False
-        desc = DESC_FORCE
-        reasons.append(("spell", "spell:ion"))
+    reasons.append(("cur.base", cur_kind))
+    reasons.append(("nbr.base", nbr_kind))
+    if cur_kind == "gate":
+        reasons.append(("cur.gate", "open" if cur_gs == 1 else "closed" if cur_gs == 2 else "none"))
+    if nbr_kind == "gate":
+        reasons.append(("nbr.gate", "open" if nbr_gs == 1 else "closed" if nbr_gs == 2 else "none"))
 
-    # Dynamic overlays
+    cur_overlay = None
     try:
         if dynamics is not None and hasattr(dynamics, "overlay_for"):
-            ov = dynamics.overlay_for(year, x, y, dir_key, now=int(time.time()))
-            if ov:
-                kind = ov.get("kind")
+            cur_overlay = dynamics.overlay_for(year, x, y, du, now=int(time.time()))
+            if cur_overlay:
+                kind = cur_overlay.get("kind")
                 if kind == "barrier":
-                    hard = bool(ov.get("hard", False))
-                    passable = False
-                    desc = DESC_FORCE if hard else DESC_ICE
-                    reasons.append(("overlay", f"barrier:{'hard' if hard else 'blastable'}"))
+                    reasons.append(("overlay", f"barrier:{'hard' if cur_overlay.get('hard') else 'blastable'}"))
+                    cur_kind = "force" if cur_overlay.get("hard") else "ice"
                 elif kind == "blasted":
-                    passable = True
-                    desc = DESC_AREA
                     reasons.append(("overlay", "blasted"))
+                    cur_kind = "open"
     except Exception:
         pass
 
-    if actor:
-        rod = actor.get("has_passage_rod")
-        if rod and any(r[0] == "overlay" and r[1].startswith("barrier:blastable") for r in reasons):
-            passable = True
-            desc = DESC_AREA
-            reasons.append(("actor", "passage_rod"))
+    if cur_kind == "boundary" or nbr_kind == "boundary":
+        return EdgeDecision(False, DESC_FORCE, reasons, cur_edge, nbr_edge)
+    if (cur_kind == "gate" and cur_gs != 1) or (nbr_kind == "gate" and nbr_gs != 1):
+        return EdgeDecision(False, DESC_GATE_CLOSED, reasons, cur_edge, nbr_edge)
+    if cur_kind == "ice" or nbr_kind == "ice":
+        return EdgeDecision(False, DESC_ICE, reasons, cur_edge, nbr_edge)
+    if cur_kind == "force" or nbr_kind == "force":
+        return EdgeDecision(False, DESC_FORCE, reasons, cur_edge, nbr_edge)
+    if (cur_kind == "gate" and cur_gs == 1) or (nbr_kind == "gate" and nbr_gs == 1):
+        return EdgeDecision(True, DESC_GATE_OPEN, reasons, cur_edge, nbr_edge)
+    return EdgeDecision(True, DESC_AREA, reasons, cur_edge, nbr_edge)
 
-    desc = desc if desc in CANON else (DESC_AREA if passable else DESC_FORCE)
-    return EdgeDecision(passable=passable, descriptor=desc, reason_chain=reasons)
