@@ -52,6 +52,14 @@ VM → Formatters (build strings + **group**) → Styles (resolve color by group
 * **Guardrail:** With `MUTANTS_DEV=1`, the renderer asserts if a non-open edge appears in `dirs_open`; otherwise it logs a warning and drops it. This prevents downstream refactors (formatting/color) from resurrecting blocked rows.
 * **Separation of concerns:** Movement failures should surface via feedback lines (e.g., “You’re blocked!”) rather than as direction rows.
 
+### Locked Literals and Descriptors
+* Canonical literals and descriptors live in `src/mutants/ui/uicontract.py`:
+  - `COMPASS_PREFIX = "Compass: "`
+  - `DIR_LINE_FMT = "{:<5} - {}"`
+  - `SEPARATOR_LINE = "***"`
+  - Direction descriptors (closed set): `area continues.`, `wall of ice.`, `ion force field.`, `open gate.`, `closed gate.`
+* The formatter normalizes open edges to `area continues.`; any future non-open wording must come from the same closed set.
+
 ## Feedback and logs (diagnostics)
 - `ui/feedback.py` — **Feedback Bus** (structured events):
   - `.push(kind, text, **meta)`; `.drain()`; `.subscribe(listener)`.

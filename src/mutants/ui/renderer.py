@@ -5,6 +5,7 @@ from typing import Dict, List, Optional
 
 from . import constants as c
 from . import formatters as fmt
+from . import uicontract as UC
 from . import styles as st
 from .viewmodels import RoomVM
 from .wrap import wrap_list
@@ -68,9 +69,11 @@ def render_token_lines(
             else:
                 logger.warning("ui: dropped non-open edge in dirs_open: %s", d)
             continue
-        lines.append(fmt.format_direction_line(d, edge))
+        lines.append(fmt.format_direction_segments(d, edge))
 
-    lines.append([("", "***")])
+    sep_line = [("", UC.SEPARATOR_LINE)]
+    if not lines or lines[-1] != sep_line:
+        lines.append(sep_line)
 
     # Monsters present
     monsters = vm.get("monsters_here", [])
@@ -150,7 +153,10 @@ def render(
             else:
                 logger.warning("ui: dropped non-open edge in dirs_open: %s", d)
             continue
-        lines.append(fmt.format_direction_line_colored(d, edge))
+        lines.append(fmt.format_direction_line(d, edge))
+
+    if not lines or lines[-1] != UC.SEPARATOR_LINE:
+        lines.append(UC.SEPARATOR_LINE)
 
     monsters = vm.get("monsters_here", [])
     for m in monsters:

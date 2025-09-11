@@ -34,8 +34,15 @@ This repeats each turn.
 
 The UI is composed of a view model → formatters → styles/themes → renderer; the feedback bus and logsink feed the bottom block and `state/logs/game.log`.
 
-### UI Contract (minimal lock: open-only directions)
-To prevent regressions, the **direction list is open-only by construction**. The renderer iterates `dirs_open` (if provided by the VM) or derives an open-only view from `dirs` and **never** renders blocked entries (terrain/boundary/gates). A tiny dev guard (`MUTANTS_DEV=1`) asserts if a blocked edge leaks into `dirs_open`; in non-dev it logs and drops the line. This keeps "`west  - terrain blocks the way.`" from reappearing in the direction list, while movement failures are surfaced via feedback, not as direction rows.
+### Color Groups (new)
+All text is emitted with a **semantic color group** (e.g., `compass.line`, `dir.open`, `dir.blocked`, `room.title`, `room.desc`). The renderer does **not** pick colors directly. Instead, `src/mutants/ui/styles.py` resolves `group → color` using `state/ui/colors.json`. Changing the color for an entire category is now a one-file edit; “green only for compass” is enforced by mapping `compass.*` to green.
+
+### UI Contract (navigation frame, minimal lock-in)
+We lock the navigation frame now to prevent regressions:
+- **Direction descriptors** are a closed set of five strings: `area continues.`, `wall of ice.`, `ion force field.`, `open gate.`, `closed gate.`; see `src/mutants/ui/uicontract.py`.
+- **Rendered direction lines** are currently **open-only** (plain tiles) and use the exact format `"{dir:<5} - {desc}"` with two spaces before the dash. The open descriptor is always **`area continues.`**.
+- A single separator line `***` is emitted **once** after the directions block (no doubles).
+- Compass uses the canonical prefix **`Compass: `** (no plus signs on non-negative values).
 
 ## Future-proofing choices
 - No hard-coded year: world **discovery** + **nearest year** when needed.
