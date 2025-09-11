@@ -2,14 +2,13 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
-from mutants.registries.world import (
-    BASE_BOUNDARY,
-    BASE_GATE,
-    BASE_TERRAIN,
-    DELTA,
-    GATE_CLOSED,
-    GATE_LOCKED,
-)
+import logging
+
+from mutants.registries.world import DELTA
+from mutants.engine import edge_resolver as ER
+from mutants.registries import dynamics as dyn
+from mutants.app import trace as traceflags
+import json
 
 DIR_WORD = {"N": "north", "S": "south", "E": "east", "W": "west"}
 
@@ -27,27 +26,24 @@ def move(dir_code: str, ctx: Dict[str, Any]) -> None:
     p = _active(ctx["player_state"])
     year, x, y = p.get("pos", [0, 0, 0])
     world = ctx["world_loader"](year)
-    tile = world.get_tile(x, y)
-    if not tile:
-        return
 
-    edge = tile["edges"].get(dir_code, {"base": 0, "gate_state": 0})
-    base = edge.get("base", 0)
-    gate_state = edge.get("gate_state", 0)
+    dec = ER.resolve(world, dyn, year, x, y, dir_code, actor={})
 
-    msg = None
-    if base == BASE_BOUNDARY:
-        msg = "You're blocked!"
-    elif base == BASE_TERRAIN:
-        msg = "You're blocked!"
-    elif base == BASE_GATE:
-        if gate_state == GATE_CLOSED:
-            msg = "You're blocked!"
-        elif gate_state == GATE_LOCKED:
-            msg = "You're blocked!"
+    if traceflags.get_flag("move"):
+        logger = logging.getLogger(__name__)
+        payload = {
+            "pos": f"({x}E : {y}N)",
+            "dir": dir_code.upper(),
+            "passable": dec.passable,
+            "desc": dec.descriptor,
+            "why": dec.reason_chain,
+        }
+        logger.info("MOVE/DECISION %s", json.dumps(payload))
+        sink = ctx.get("logsink")
+        if sink is not None and hasattr(sink, "handle"):
+            sink.handle({"ts": "", "kind": "MOVE/DECISION", "text": json.dumps(payload)})
 
-    if msg:
-        # Use a single canonical blocked message, per original game logs.
+    if not dec.passable:
         ctx["feedback_bus"].push("MOVE/BLOCKED", "You're blocked!")
         return
 

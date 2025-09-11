@@ -79,3 +79,10 @@ At startup (once per calendar day), the game performs a **litter reset**:
 - Adding more years/monsters/items just means dropping more JSON—no code edits.
 
 That’s the system in a nutshell. If it prints weird, try `theme mono`; if commands seem ignored, check `log`; and if a template’s start year doesn’t exist, the runtime will map it for you.
+## Passability Engine (single source of truth)
+Movement decisions and (optionally) direction descriptors are determined by a single resolver at `src/mutants/engine/edge_resolver.py`. It layers:
+- **Base terrain** (world edge `base`), **gates** (open/closed), then **dynamic overlays** (temporary barriers/blasted edges from `state/world/dynamics.json`), and **actor modifiers** (e.g., rods/keys).
+It returns `passable` and a canonical descriptor (one of: `area continues.`, `wall of ice.`, `ion force field.`, `open gate.`, `closed gate.`), plus an internal reason chain for debugging.
+
+## In-game tracing
+Use `logs trace move on|off` (and later `logs trace ui on|off`) to toggle a lightweight trace. With move tracing on, each attempted move logs a one-line JSON decision to `state/logs/game.log`. Use `why <dir>` to print the current tile’s decision chain and descriptor for that direction.
