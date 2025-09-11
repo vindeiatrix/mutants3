@@ -71,7 +71,9 @@ class RendererExamplesTest(unittest.TestCase):
         expected = [
             "<HEADER>Broken glass covers the road.</HEADER>",
             "<COMPASS_LABEL>Compass:</COMPASS_LABEL> <COORDS>(-1E : -2N)</COORDS>",
-            "<DIR>east</DIR>  - <DESC_GATE_OPEN>open gate.</DESC_GATE_OPEN>",
+            "<DIR>north</DIR>  - <DESC_CONT>area continues.</DESC_CONT>",
+            "<DIR>south</DIR>  - <DESC_CONT>area continues.</DESC_CONT>",
+            "<DIR>west</DIR>  - <DESC_CONT>area continues.</DESC_CONT>",
             "***",
             "<LABEL>On the ground lies:</LABEL>",
             "<ITEM>A Broken-Weapon.</ITEM>",
@@ -84,9 +86,7 @@ class RendererExamplesTest(unittest.TestCase):
         expected = [
             "<HEADER>The market square is littered with debris.</HEADER>",
             "<COMPASS_LABEL>Compass:</COMPASS_LABEL> <COORDS>(3E : 0N)</COORDS>",
-            "<DIR>north</DIR>  - <DESC_TERRAIN>terrain blocks the way.</DESC_TERRAIN>",
-            "<DIR>east</DIR>  - <DESC_GATE_CLOSED>closed gate.</DESC_GATE_CLOSED>",
-            "<DIR>west</DIR>  - <DESC_BOUNDARY>boundary.</DESC_BOUNDARY>",
+            "<DIR>south</DIR>  - <DESC_CONT>area continues.</DESC_CONT>",
             "***",
             "<MONSTER>Ghoul is here.</MONSTER>",
             "<MONSTER>Sasquatch-331 is here.</MONSTER>",
@@ -103,7 +103,9 @@ class RendererExamplesTest(unittest.TestCase):
         expected = [
             "<HEADER>A cold draft flows through the alley.</HEADER>",
             "<COMPASS_LABEL>Compass:</COMPASS_LABEL> <COORDS>(0E : 5N)</COORDS>",
-            "<DIR>south</DIR>  - <DESC_GATE_LOCKED>locked gate (key 4).</DESC_GATE_LOCKED>",
+            "<DIR>north</DIR>  - <DESC_CONT>area continues.</DESC_CONT>",
+            "<DIR>east</DIR>  - <DESC_CONT>area continues.</DESC_CONT>",
+            "<DIR>west</DIR>  - <DESC_CONT>area continues.</DESC_CONT>",
             "***",
             "<SHADOWS_LABEL>You see shadows to the west.</SHADOWS_LABEL>",
         ]
