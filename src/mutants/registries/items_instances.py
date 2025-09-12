@@ -134,6 +134,17 @@ def _load_instances_raw() -> List[Dict[str, Any]]:
     return items
 
 
+def _save_instances_raw(instances: List[Dict[str, Any]]) -> None:
+    """Persist *instances* to disk preserving original JSON shape."""
+    path = Path(DEFAULT_INSTANCES_PATH)
+    try:
+        with path.open("r", encoding="utf-8") as f:
+            orig = json.load(f)
+    except Exception:
+        orig = []
+    payload = {"instances": instances} if isinstance(orig, dict) and "instances" in orig else instances
+    atomic_write_json(path, payload)
+
 def _pos_of(inst: Dict[str, Any]) -> Optional[Tuple[int, int, int]]:
     if isinstance(inst.get("pos"), dict):
         p = inst["pos"]
@@ -220,7 +231,7 @@ def _cache() -> List[Dict[str, Any]]:
 def save_instances() -> None:
     """Persist the cached instances list back to disk."""
     data = _cache()
-    atomic_write_json(DEFAULT_INSTANCES_PATH, data)
+    _save_instances_raw(data)
 
 def list_instances_at(year: int, x: int, y: int) -> List[Dict[str, Any]]:
     raw = _cache()
@@ -261,4 +272,23 @@ def set_position(iid: str, year: int, x: int, y: int) -> None:
             inst["x"] = int(x)
             inst["y"] = int(y)
             break
+
+
+def create_and_save_instance(item_id: str, year: int, x: int, y: int, origin: str = "debug_add") -> str:
+    """Create a new instance at (year,x,y) and persist it. Returns iid."""
+    raw = _cache()
+    seq = len(raw) + 1
+    iid = f"dbg_{year}_{x}_{y}_{seq}"
+    inst = {
+        "iid": iid,
+        "item_id": str(item_id),
+        "pos": {"year": int(year), "x": int(x), "y": int(y)},
+        "year": int(year),
+        "x": int(x),
+        "y": int(y),
+        "origin": origin,
+    }
+    raw.append(inst)
+    _save_instances_raw(raw)
+    return iid
 

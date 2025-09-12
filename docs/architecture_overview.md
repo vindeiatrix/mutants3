@@ -34,6 +34,10 @@ This repeats each turn.
 
 The UI is composed of a view model → formatters → styles/themes → renderer; the feedback bus and logsink feed the bottom block and `state/logs/game.log`.
 
+### Wrapping rules (80 columns)
+- UI text wraps at **80 columns** and never splits inside hyphenated tokens like `Ion-Decay`.
+- Inventory output (`inv`) shares the same wrapping helper as the ground list so hyphenated names stay intact across lines.
+
 ### Color Groups (new)
 All text is emitted with a **semantic color group** (e.g., `compass.line`, `dir.open`, `dir.blocked`, `room.title`, `room.desc`). The renderer does **not** pick colors directly. Instead, `src/mutants/ui/styles.py` resolves `group → color` using a colors map (default `state/ui/colors.json`).
 
