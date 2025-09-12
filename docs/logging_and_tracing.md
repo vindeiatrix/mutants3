@@ -71,49 +71,44 @@ logs tail [N]  # default 100
 
 Prints the last `N` lines of `state/logs/game.log`.
 
-### UI Trace (ground & wrap diagnostics)
+### Diagnosing text wrapping
 
-Enable:
+Enable tracing:
 
 ```
 logs trace ui on
 ```
 
-Disable:
-
-```
-logs trace ui off
-```
-
-When ON, the renderer logs both the **raw ground line** and the **post-wrap lines** with the active wrapper options:
-
-- `SYSTEM/INFO - UI/GROUND raw="On the ground lies: A Nuclear-Decay, A Bottle-Cap, …"`
-- `SYSTEM/INFO - UI/GROUND wrap width=80 opts={...} lines=["…", "…"]`
-
-You can also run a synthetic wrap probe:
+Run a synthetic probe:
 
 ```
 logs probe wrap --count 16 --width 80
 ```
 
-This logs:
-- `SYSTEM/INFO - UI/PROBE raw=…`
-- `SYSTEM/INFO - UI/PROBE wrap width=80 opts={...} lines=[...]`
-- `SYSTEM/OK - UI/WRAP/OK` on success, or `SYSTEM/WARN - UI/WRAP/BAD_SPLIT ...` if a hyphen split is detected.
-
-Inspect logs from in-game:
+Create a long ground list to force wrapping and inspect the logged payload:
 
 ```
+debug add item nuclear_decay 12
+debug add item bottle_cap 12
+look
 logs tail 200
 ```
 
-…or from the shell:
+When tracing is on, the renderer logs both the **raw ground line** and the
+**post-wrap lines** with the active wrapper options, for example:
+
+- `SYSTEM/INFO - UI/GROUND raw="On the ground lies: A Nuclear-Decay, …"`
+- `SYSTEM/INFO - UI/GROUND wrap width=80 opts={...} lines=["…", "…"]`
+
+Terminal panes narrower than 80 columns may visually re-wrap the output and
+split at ASCII `-`, but the `lines=[...]` payload is authoritative and should
+never show a hyphen or article split after this change.
+
+Disable tracing when done:
 
 ```
-grep -n "UI/PROBE\|UI/GROUND\|UI/WRAP" state/logs/game.log
+logs trace ui off
 ```
-
-**Note on terminal width:** The game wraps to **80 columns** internally. If your terminal is narrower than 80, your terminal may hard-wrap the already-wrapped lines; that visual wrap can split at hyphens even when the internal lines are correct. Always check the `UI/GROUND wrap … lines=[…]` payload to see our **internal** wrap result.
 
 ## Debug helpers
 - **Add items to current tile** (for quick setup while testing):
