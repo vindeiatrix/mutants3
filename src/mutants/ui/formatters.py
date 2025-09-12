@@ -24,6 +24,7 @@ from .styles import (
 from .viewmodels import EdgeDesc, Thing
 from . import uicontract as UC
 from . import item_display as idisp
+from .textutils import harden_final_display
 
 Segments = List[Segment]
 
@@ -102,9 +103,8 @@ def format_shadows(dirs: List[str]) -> Segments | None:
 # --- Group-aware string formatters ---------------------------------------
 from . import groups as UG
 from . import styles as st
-import textwrap
 import json
-from .wrap import WRAP_DEBUG_OPTS
+from .wrap import wrap_list, WRAP_DEBUG_OPTS
 from ..app.trace import is_ui_trace_enabled
 
 
@@ -136,19 +136,21 @@ def format_ground_items(item_ids: list[str]) -> list[str]:
     """Return wrapped ground item lines for *item_ids* using canonical rules."""
     if not item_ids:
         return []
-    line = idisp.render_ground_list(item_ids)
+    names = [idisp.canonical_name(i) for i in item_ids]
+    numbered = idisp.number_duplicates(names)
+    display = [harden_final_display(idisp.with_article(n)) for n in numbered]
     fb = None
     if is_ui_trace_enabled():
         from ..app.context import current_context
         ctx = current_context()
         fb = ctx.get("feedback_bus") if ctx else None
     if fb:
+        raw = "On the ground lies: " + ", ".join(display) + "."
         fb.push(
             "SYSTEM/INFO",
-            f'UI/GROUND raw={json.dumps(line, ensure_ascii=False)}',
+            f'UI/GROUND raw={json.dumps(raw, ensure_ascii=False)}',
         )
-    wrapped = textwrap.fill(line, width=UC.UI_WRAP_WIDTH)
-    lines = wrapped.splitlines() if wrapped else []
+    lines = wrap_list(display, width=UC.UI_WRAP_WIDTH)
     if fb:
         fb.push(
             "SYSTEM/INFO",

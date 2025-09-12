@@ -2,7 +2,7 @@ from __future__ import annotations
 import json, os
 from ..ui import item_display as idisp
 from ..ui import wrap as uwrap
-from ..ui import render_items as ritems
+from ..ui.textutils import harden_final_display
 
 
 def _player_file() -> str:
@@ -21,15 +21,13 @@ def inv_cmd(arg: str, ctx):
     inv = list(p.get("inventory") or [])
     names = [idisp.canonical_name_from_iid(i) for i in inv]
     numbered = idisp.number_duplicates(names)
-    with_articles = [idisp.with_article(n) for n in numbered]
-    display = [ritems.harden_display_nonbreak(s) for s in with_articles]
+    display = [harden_final_display(idisp.with_article(n)) for n in numbered]
     bus = ctx["feedback_bus"]
     if not display:
         bus.push("SYSTEM/OK", "You are carrying nothing.")
         return
     bus.push("SYSTEM/OK", "You are carrying:")
-    line = ", ".join(display) + "."
-    for ln in uwrap.wrap(line):
+    for ln in uwrap.wrap_list(display):
         bus.push("SYSTEM/OK", ln)
 
 

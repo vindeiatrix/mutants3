@@ -100,9 +100,11 @@ When tracing is on, the renderer logs both the **raw ground line** and the
 - `SYSTEM/INFO - UI/GROUND raw="On the ground lies: A Nuclear-Decay, …"`
 - `SYSTEM/INFO - UI/GROUND wrap width=80 opts={...} lines=["…", "…"]`
 
-Terminal panes narrower than 80 columns may visually re-wrap the output and
-split at ASCII `-`, but the `lines=[...]` payload is authoritative and should
-never show a hyphen or article split after this change.
+Final display strings replace ASCII `-` with U+2011 (no-break hyphen) and bind
+leading articles with U+00A0 (non-breaking space). These code points may not be
+obvious in your terminal, but they prevent hyphen or article splits. Terminal
+panes narrower than 80 columns may visually re-wrap the output and split at
+ASCII `-`, but the `lines=[...]` payload is authoritative.
 
 Disable tracing when done:
 
