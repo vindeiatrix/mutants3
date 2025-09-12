@@ -63,6 +63,34 @@ logs verify getdrop
 
 Executes a deterministic core path through the transfer layer (seeded RNG) to exercise overflow/swap logic. For full end-to-end checks, use manual play with ground at capacity and inventory near the cap.
 
+- **Enable UI tracing** (logs ground raw/wrapped lines when rendering):
+
+```
+logs trace ui on
+```
+
+Disable:
+
+```
+logs trace ui off
+```
+
+- **Probe the wrapper with hyphenated items**:
+
+```
+logs probe wrap [--count N] [--width W]
+```
+
+Synthesizes a long hyphenated ground list and logs wrapping diagnostics. Emits `UI/WRAP/BAD_SPLIT` if a hyphen is split across lines.
+
+- **Tail log file inside the game**:
+
+```
+logs tail [N]  # default 100
+```
+
+Prints the last `N` lines of `state/logs/game.log`.
+
 ## Debug helpers
 - **Add items to current tile** (for quick setup while testing):
   ```
@@ -86,9 +114,9 @@ This comes from the **Passability Engine**, which layers:
 
 The first matching layer decides `passable` and the **descriptor**; `why` records the chain.
 
-## Toggling UI Traces (optional future)
+## Toggling UI Traces
 
-We reserved `logs trace ui on|off` for future UI-side traces (e.g., direction list reasoning). It writes similar one-liners with a `UI/DECISION` prefix.
+`logs trace ui on|off` toggles UI-side tracing. When enabled, ground rendering logs the raw items string and the wrapped lines with the effective wrapper options. Use this to diagnose hyphen wrapping behavior.
 
 ## Files Used
 
