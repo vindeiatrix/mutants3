@@ -82,6 +82,12 @@ At startup (once per calendar day), the game performs a **litter reset**:
 - The **items registry** exposes `list_at(year,x,y)` which reads `state/items/instances.json` (recognizing both nested `pos` and flat `year/x/y` shapes) and resolves display names via the catalog.
 - The **room VM** sets `has_ground` and `ground_item_ids`; the renderer formats names with the **Item Display** rules (Title Case, hyphens, `A/An`, duplicate numbering) and shows the Ground block when non-empty.
 
+### Inventory & Transfers
+- Inventory is an **ordered list of instance IDs** in `state/playerlivestate.json`; worn armor lives separately and isn't counted.
+- `get <prefix>` picks the **first matching** ground item (by display-name prefix). If this pushes inventory over **10**, a random inventory item falls to the ground (overflow, swapping with a random ground item if the tile already has six).
+- `drop <prefix>` drops the first matching inventory item (pickup order, excluding worn armor). If ground exceeds **6**, a random ground item pops into inventory and may drop another if inventory would exceed 10.
+- `inv` prints inventory with the same naming rules as the ground list.
+
 ## Item Display (canonical names)
 - Display names come from the catalog (`display_name`/`name`) or are derived from the item ID by replacing `_` with `-` and Title-Casing each part (e.g., `ion_decay` → `Ion-Decay`).
 - The ground list prefixes each name with `A`/`An` (vowel heuristic) and numbers duplicates as ` (1)`, ` (2)`, … for subsequent identical items.

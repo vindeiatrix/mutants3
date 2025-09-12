@@ -136,6 +136,13 @@ VM → Formatters (build strings + **group**) → Styles (resolve color by group
 * **Articles**: `A`/`An` chosen by first alphabetic character (vowel heuristic).
 * **Duplicate numbering**: for identical base names on the same tile, append `" (n)"` to the 2nd, 3rd, … occurrence.
 
+### Systems
+
+#### Item Transfers (Get/Drop)
+* **Service**: `services/item_transfer.py` centralizes rules and persistence for moving items **ground ↔ inventory**. It enforces **first-match only** (prefix by display name), **INV_CAP=10**, **GROUND_CAP=6**, and the overflow behavior (random item swap) for player commands. Worn armor is excluded from inventory operations.
+* **Ordering**: Ground display and “first-match” selection use a **stable insertion order** grouped by first-seen display name so duplicates appear adjacent. Inventory order is pickup order (FIFO).
+* **Persistence**: Inventory is stored in `state/playerlivestate.json` as `inventory: [iid,...]`. Ground is represented by setting/clearing `pos` on instances in `state/items/instances.json`. All writes use atomic saves.
+
 ## IO helpers
 - `io/atomic.py` — `atomic_write_json()` and `read_json()` (tmp → fsync → replace).
 

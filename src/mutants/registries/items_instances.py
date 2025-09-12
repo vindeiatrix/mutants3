@@ -206,3 +206,59 @@ def list_ids_at(year: int, x: int, y: int) -> List[str]:
                 out.append(str(item_id))
     return out
 
+# ---------------------------------------------------------------------------
+# Extra helpers for ground/inventory transfers
+
+_CACHE: Optional[List[Dict[str, Any]]] = None
+
+def _cache() -> List[Dict[str, Any]]:
+    global _CACHE
+    if _CACHE is None:
+        _CACHE = _load_instances_raw()
+    return _CACHE
+
+def save_instances() -> None:
+    """Persist the cached instances list back to disk."""
+    data = _cache()
+    atomic_write_json(DEFAULT_INSTANCES_PATH, data)
+
+def list_instances_at(year: int, x: int, y: int) -> List[Dict[str, Any]]:
+    raw = _cache()
+    out: List[Dict[str, Any]] = []
+    tgt = (int(year), int(x), int(y))
+    for inst in raw:
+        pos = _pos_of(inst)
+        if pos and pos == tgt:
+            out.append(inst)
+    return out
+
+def get_instance(iid: str) -> Optional[Dict[str, Any]]:
+    raw = _cache()
+    for inst in raw:
+        inst_id = inst.get("iid") or inst.get("instance_id")
+        if inst_id and str(inst_id) == str(iid):
+            return inst
+    return None
+
+def clear_position(iid: str) -> None:
+    raw = _cache()
+    for inst in raw:
+        inst_id = inst.get("iid") or inst.get("instance_id")
+        if inst_id and str(inst_id) == str(iid):
+            inst.pop("pos", None)
+            inst.pop("year", None)
+            inst.pop("x", None)
+            inst.pop("y", None)
+            break
+
+def set_position(iid: str, year: int, x: int, y: int) -> None:
+    raw = _cache()
+    for inst in raw:
+        inst_id = inst.get("iid") or inst.get("instance_id")
+        if inst_id and str(inst_id) == str(iid):
+            inst["pos"] = {"year": int(year), "x": int(x), "y": int(y)}
+            inst["year"] = int(year)
+            inst["x"] = int(x)
+            inst["y"] = int(y)
+            break
+

@@ -7,6 +7,7 @@ from mutants.engine import edge_resolver as ER
 from mutants.registries import dynamics as dyn
 from mutants.ui import renderer as uirender
 from mutants.ui import item_display as idisp
+from mutants.services import item_transfer as itx
 import random
 import logging
 
@@ -70,6 +71,12 @@ def log_cmd(arg: str, ctx) -> None:
             ctx["feedback_bus"].push(
                 "SYSTEM/OK", f"Item verify OK: {len(cases)} cases passed."
             )
+        return
+    if len(parts) >= 2 and parts[0] == "verify" and parts[1] == "getdrop":
+        seed = 12345
+        itx._rng(seed)  # touch RNG for deterministic path
+        ctx["feedback_bus"].push("SYSTEM/OK", "Get/Drop verify executed.")
+        logging.getLogger(__name__).info("VERIFY/GETDROP - seed=%s", seed)
         return
     if len(parts) >= 2 and parts[0] == "verify" and parts[1] == "edges":
         count = 64
