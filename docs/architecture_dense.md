@@ -39,9 +39,7 @@
 - **Color Groups**: every formatted text fragment can declare a `group` (dotted string). `styles.resolve_color_for_group(group)` looks up `state/ui/colors.json` with fallback: exact → `prefix.*` → `defaults` → `"white"`. Existing color-by-name calls still work via `styles.colorize_text`.
 - **Themes**: `ui/themes.py` — loads JSON `state/ui/themes/<name>.json` → `Theme { palette, width }` (no code changes needed to tweak colors).
 - **Wrap**: `ui/wrap.py` — ANSI-aware 80-col wrapping (only list sections wrap).
-- **Renderer**: `ui/renderer.py` — orchestrates lines in fixed order:
-  Header → Compass → N/S/E/W → `***` → in-room (monsters, ground wrapped) → `***` + feedback lines (if any).
-  Renderer uses `Theme.palette` + `Theme.width`.
+- **Renderer**: `ui/renderer.py` — builds ordered blocks then joins them with a single `***` **between** blocks only (no leading/trailing or double separators).  Blocks: core (room/compass/directions), ground, monsters, cues. Renderer uses `Theme.palette` + `Theme.width`.
 
 ### Data Flow (UI)
 VM → Formatters (build strings + **group**) → Styles (resolve color by group) → Renderer (layout/output)
@@ -92,6 +90,7 @@ VM → Formatters (build strings + **group**) → Styles (resolve color by group
 
 #### Verification Tooling
 * **Edge sampler**: `logs verify edges [count]` samples random open tiles (current year) and checks resolver symmetry (**cur→dir** vs **neighbor→opp**). Mismatches are logged as `VERIFY/EDGE` warnings in `state/logs/game.log`, and a summary is shown in the feedback area.
+* **Separator joiner**: `logs verify separators` runs synthetic scenarios to ensure the renderer never emits leading/trailing or consecutive `***` lines. Failures log `VERIFY/SEPARATORS` warnings.
 
 ## Tracing & WHY
 * **Toggles**: `state/runtime/trace.json` stores `{"move":bool,"ui":bool}` toggled via `logs trace move on|off`.

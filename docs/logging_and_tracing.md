@@ -39,6 +39,14 @@ logs verify edges 200 # sample more tiles
 
 This samples random open tiles in your current year and checks the resolver’s two-sided decision (cur→dir vs neighbor→opp). It logs any mismatches to state/logs/game.log as VERIFY/EDGE lines and prints a short summary in-game.
 
+- Verify separator rules (no trailing/leading, no doubles):
+
+```
+logs verify separators
+```
+
+This runs several scenarios through the renderer’s block joiner. If issues are found, they are logged as VERIFY/SEPARATORS - ... in state/logs/game.log, and a warning is shown in-game.
+
 ## What Tracing Logs
 
 When `move` tracing is on, each attempt adds a single line to `state/logs/game.log`, e.g.:

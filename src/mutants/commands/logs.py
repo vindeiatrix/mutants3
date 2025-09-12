@@ -5,6 +5,7 @@ from typing import List
 from mutants.app import trace as traceflags
 from mutants.engine import edge_resolver as ER
 from mutants.registries import dynamics as dyn
+from mutants.ui import renderer as uirender
 import random
 import logging
 
@@ -29,6 +30,20 @@ def log_cmd(arg: str, ctx) -> None:
         traceflags.set_flag(name, on)
         state = "enabled" if on else "disabled"
         ctx["feedback_bus"].push("SYSTEM/OK", f"Trace {name} {state}.")
+        return
+    if len(parts) >= 2 and parts[0] == "verify" and parts[1] == "separators":
+        ok, failures = uirender.verify_separators_scenarios()
+        if failures:
+            for f in failures:
+                logging.getLogger(__name__).warning("VERIFY/SEPARATORS - %s", f)
+            ctx["feedback_bus"].push(
+                "SYSTEM/WARN",
+                f"Separator verify found {len(failures)} issue(s). See game.log.",
+            )
+        else:
+            ctx["feedback_bus"].push(
+                "SYSTEM/OK", f"Separator verify OK: {ok} scenarios passed."
+            )
         return
     if len(parts) >= 2 and parts[0] == "verify" and parts[1] == "edges":
         count = 64
