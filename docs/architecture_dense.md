@@ -41,6 +41,10 @@
 - **Wrap**: `ui/wrap.py` — ANSI-aware 80-col wrapping (only list sections wrap).
 - **Renderer**: `ui/renderer.py` — builds ordered blocks then joins them with a single `***` **between** blocks only (no leading/trailing or double separators).  Blocks: core (room/compass/directions), ground, monsters, cues. Renderer uses `Theme.palette` + `Theme.width`.
 
+#### Wrapping implementation
+* `ui/wrap.py` exposes `wrap(text, width=80)` using `textwrap.TextWrapper` with `break_on_hyphens=False` and `break_long_words=False` so names like `Ion-Decay` never split.
+* Inventory and ground lists call this helper before emitting lines to ensure consistent 80-col behavior.
+
 ### Data Flow (UI)
 VM → Formatters (build strings + **group**) → Styles (resolve color by group) → Renderer (layout/output)
 

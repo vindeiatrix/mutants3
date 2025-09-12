@@ -2,11 +2,14 @@
 from __future__ import annotations
 
 import re
-from typing import List, Tuple
+from typing import List
+from textwrap import TextWrapper
 
 from .styles import ITEM, Segment
 
 ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
+
+DEFAULT_WIDTH = 80
 
 
 def visible_len(s: str) -> int:
@@ -61,3 +64,15 @@ def wrap_list(items: List[List[Segment]], width: int) -> List[List[Segment]]:
             else:
                 segments.append((token, text + "."))
     return wrap_segments(segments, width)
+
+
+def wrap(text: str, width: int = DEFAULT_WIDTH) -> List[str]:
+    """Return wrapped lines of *text* without breaking on hyphens."""
+    w = TextWrapper(
+        width=width,
+        break_on_hyphens=False,
+        break_long_words=False,
+        replace_whitespace=False,
+        drop_whitespace=False,
+    )
+    return w.wrap(text)

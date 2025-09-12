@@ -63,6 +63,13 @@ logs verify getdrop
 
 Executes a deterministic core path through the transfer layer (seeded RNG) to exercise overflow/swap logic. For full end-to-end checks, use manual play with ground at capacity and inventory near the cap.
 
+## Debug helpers
+- **Add items to current tile** (for quick setup while testing):
+  ```
+  debug add item <item_id> [count]
+  ```
+  Places one or more instances of `<item_id>` at your current coordinates. Useful to check wrapping of hyphenated names and inventory/ground overflow behavior quickly.
+
 ## What Tracing Logs
 
 When `move` tracing is on, each attempt adds a single line to `state/logs/game.log`, e.g.:

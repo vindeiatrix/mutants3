@@ -27,11 +27,8 @@ def inv_cmd(arg: str, ctx):
         return
     bus.push("SYSTEM/OK", "You are carrying:")
     line = ", ".join(with_articles) + "."
-    try:
-        for ln in uwrap.wrap(line):
-            bus.push("SYSTEM/OK", ln)
-    except Exception:
-        bus.push("SYSTEM/OK", line)
+    for ln in uwrap.wrap(line):
+        bus.push("SYSTEM/OK", ln)
 
 
 def register(dispatch, ctx) -> None:
