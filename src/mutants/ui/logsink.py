@@ -26,7 +26,7 @@ class LogSink:
                 f.flush()
                 os.fsync(f.fileno())
 
-    def tail(self, n: int = 50) -> List[str]:
+    def tail(self, n: int = 100) -> List[str]:
         return self.buffer[-n:]
 
     def clear(self) -> None:

@@ -8,8 +8,40 @@ from mutants.registries import dynamics as dyn
 from mutants.ui import renderer as uirender
 from mutants.ui import item_display as idisp
 from mutants.services import item_transfer as itx
+from mutants.ui.wrap import wrap_segments, WRAP_DEBUG_OPTS
 import random
 import logging
+import json
+
+
+def _probe_wrap(count: int = 12, width: int = 80) -> None:
+    """Generate a hyphenated list and log wrapping diagnostics."""
+
+    logger = logging.getLogger(__name__)
+    hy = "\u2011"  # non-breaking hyphen
+    samples = [
+        f"A Nuclear{hy}Decay",
+        f"A Bottle{hy}Cap",
+        f"A Cigarette{hy}Butt",
+        f"A Light{hy}Spear",
+    ]
+    items = [samples[i % len(samples)] for i in range(count)]
+    raw = "On the ground lies: " + ", ".join(items) + "."
+    lines = wrap_segments([raw], width=width)
+    logger.info("UI/PROBE raw=%s", json.dumps(raw, ensure_ascii=False))
+    logger.info(
+        "UI/PROBE wrap width=%d opts=%s lines=%s",
+        width,
+        json.dumps(WRAP_DEBUG_OPTS, sort_keys=True),
+        json.dumps(lines, ensure_ascii=False),
+    )
+    bad = False
+    for a, b in zip(lines, lines[1:]):
+        if a.endswith("-") and b[:1].isalpha():
+            bad = True
+            logger.warning("UI/WRAP/BAD_SPLIT at line='%s' next='%s'", a, b)
+    if not bad:
+        logger.info("UI/WRAP/OK")
 
 
 def _active(state):
@@ -87,8 +119,28 @@ def log_cmd(arg: str, ctx) -> None:
                 pass
         _verify_edges(count, ctx)
         return
+    if len(parts) >= 2 and parts[0] == "probe" and parts[1] == "wrap":
+        count = 12
+        width = 80
+        it = iter(parts[2:])
+        for tok in it:
+            if tok == "--count":
+                try:
+                    count = int(next(it))
+                except StopIteration:
+                    pass
+            elif tok == "--width":
+                try:
+                    width = int(next(it))
+                except StopIteration:
+                    pass
+        _probe_wrap(count=count, width=width)
+        ctx["feedback_bus"].push(
+            "SYSTEM/OK", f"Wrap probe logged (count={count}, width={width})."
+        )
+        return
     if not parts or parts[0] == "tail":
-        n = int(parts[1]) if len(parts) > 1 else 50
+        n = int(parts[1]) if len(parts) > 1 else 100
         for line in sink.tail(n):
             print(line)
         return
@@ -97,7 +149,7 @@ def log_cmd(arg: str, ctx) -> None:
         ctx["feedback_bus"].push("SYSTEM/OK", "Logs cleared.")
         return
     # unknown subcommand -> show tail
-    for line in sink.tail(50):
+    for line in sink.tail(100):
         print(line)
 
 

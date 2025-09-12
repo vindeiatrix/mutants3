@@ -29,3 +29,26 @@ def set_flag(name: str, value: bool) -> None:
 
 def get_flag(name: str) -> bool:
     return bool(_load().get(name, False))
+
+
+# Convenience helpers for common flags
+
+
+def is_move_trace_enabled() -> bool:
+    """Return True if move tracing is enabled."""
+    return get_flag("move")
+
+
+def set_move_trace_enabled(val: bool) -> None:
+    """Enable or disable move tracing."""
+    set_flag("move", bool(val))
+
+
+def is_ui_trace_enabled() -> bool:
+    """Return True if UI tracing is enabled."""
+    return get_flag("ui")
+
+
+def set_ui_trace_enabled(val: bool) -> None:
+    """Enable or disable UI tracing."""
+    set_flag("ui", bool(val))
