@@ -10,7 +10,7 @@ from . import styles as st
 from .viewmodels import RoomVM
 from .wrap import wrap_list, WRAP_DEBUG_OPTS
 from . import item_display as idisp
-from . import render_items as ritems
+from .textutils import harden_final_display
 import os
 import logging
 import json
@@ -116,8 +116,10 @@ def render_token_lines(
         lines.append(fmt.format_ground_label())
         names = [idisp.canonical_name(t if isinstance(t, str) else str(t)) for t in ids]
         numbered = idisp.number_duplicates(names)
-        display = [idisp.with_article(n) for n in numbered]
-        display = [ritems.harden_display_nonbreak(s) for s in display]
+        display = [
+            harden_final_display(idisp.with_article(n))
+            for n in numbered
+        ]
         if is_ui_trace_enabled():
             raw = "On the ground lies: " + ", ".join(display) + "."
         wrapped_lines = wrap_list(display, width)
