@@ -39,6 +39,8 @@ def _resolve_header_text(tile: dict, year: int) -> str:
 # Paths
 DEFAULT_THEME_PATH = Path("state/ui/themes/bbs.json")
 
+_CURRENT_CTX: Dict[str, Any] | None = None
+
 
 def build_context() -> Dict[str, Any]:
     """Build the application context."""
@@ -72,11 +74,17 @@ def build_context() -> Dict[str, Any]:
         "renderer": renderer.render,
         "config": cfg,
     }
+    global _CURRENT_CTX
+    _CURRENT_CTX = ctx
     return ctx
 
 
 # Backwards compatibility
 build = build_context
+
+
+def current_context() -> Dict[str, Any] | None:
+    return _CURRENT_CTX
 
 
 def _active(state: Dict[str, Any]) -> Dict[str, Any]:

@@ -63,7 +63,17 @@ logs verify getdrop
 
 Executes a deterministic core path through the transfer layer (seeded RNG) to exercise overflow/swap logic. For full end-to-end checks, use manual play with ground at capacity and inventory near the cap.
 
-- **Enable UI tracing** (logs ground raw/wrapped lines when rendering):
+- **Tail log file inside the game**:
+
+```
+logs tail [N]  # default 100
+```
+
+Prints the last `N` lines of `state/logs/game.log`.
+
+### UI Trace (ground & wrap diagnostics)
+
+Enable:
 
 ```
 logs trace ui on
@@ -75,21 +85,35 @@ Disable:
 logs trace ui off
 ```
 
-- **Probe the wrapper with hyphenated items**:
+When ON, the renderer logs both the **raw ground line** and the **post-wrap lines** with the active wrapper options:
+
+- `SYSTEM/INFO - UI/GROUND raw="On the ground lies: A Nuclear-Decay, A Bottle-Cap, …"`
+- `SYSTEM/INFO - UI/GROUND wrap width=80 opts={...} lines=["…", "…"]`
+
+You can also run a synthetic wrap probe:
 
 ```
-logs probe wrap [--count N] [--width W]
+logs probe wrap --count 16 --width 80
 ```
 
-Synthesizes a long hyphenated ground list and logs wrapping diagnostics. Emits `UI/WRAP/BAD_SPLIT` if a hyphen is split across lines.
+This logs:
+- `SYSTEM/INFO - UI/PROBE raw=…`
+- `SYSTEM/INFO - UI/PROBE wrap width=80 opts={...} lines=[...]`
+- `SYSTEM/OK - UI/WRAP/OK` on success, or `SYSTEM/WARN - UI/WRAP/BAD_SPLIT ...` if a hyphen split is detected.
 
-- **Tail log file inside the game**:
+Inspect logs from in-game:
 
 ```
-logs tail [N]  # default 100
+logs tail 200
 ```
 
-Prints the last `N` lines of `state/logs/game.log`.
+…or from the shell:
+
+```
+grep -n "UI/PROBE\|UI/GROUND\|UI/WRAP" state/logs/game.log
+```
+
+**Note on terminal width:** The game wraps to **80 columns** internally. If your terminal is narrower than 80, your terminal may hard-wrap the already-wrapped lines; that visual wrap can split at hyphens even when the internal lines are correct. Always check the `UI/GROUND wrap … lines=[…]` payload to see our **internal** wrap result.
 
 ## Debug helpers
 - **Add items to current tile** (for quick setup while testing):

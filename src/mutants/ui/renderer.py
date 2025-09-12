@@ -8,14 +8,16 @@ from . import formatters as fmt
 from . import uicontract as UC
 from . import styles as st
 from .viewmodels import RoomVM
-from .wrap import wrap_list
+from .wrap import wrap_list, WRAP_DEBUG_OPTS
 from . import item_display as idisp
 from . import render_items as ritems
 import os
 import logging
+import json
 from ..engine import edge_resolver as ER
 from ..registries import dynamics as dyn
 from ..app import context as appctx
+from ..app.trace import is_ui_trace_enabled
 
 SegmentLine = List[st.Segment]
 
@@ -115,7 +117,25 @@ def render_token_lines(
         names = [idisp.canonical_name(t if isinstance(t, str) else str(t)) for t in ids]
         numbered = idisp.number_duplicates(names)
         display = [ritems.display_name_for_item(idisp.with_article(n)) for n in numbered]
-        for line in wrap_list(display, width):
+        if is_ui_trace_enabled():
+            raw = "On the ground lies: " + ", ".join(display) + "."
+        wrapped_lines = wrap_list(display, width)
+        if is_ui_trace_enabled():
+            from ..app.context import current_context
+            ctx = current_context()
+            fb = ctx.get("feedback_bus") if ctx else None
+            if fb:
+                fb.push(
+                    "SYSTEM/INFO",
+                    f'UI/GROUND raw={json.dumps(raw, ensure_ascii=False)}',
+                )
+                fb.push(
+                    "SYSTEM/INFO",
+                    f'UI/GROUND wrap width={width} '
+                    f'opts={json.dumps(WRAP_DEBUG_OPTS, sort_keys=True)} '
+                    f'lines={json.dumps(wrapped_lines, ensure_ascii=False)}',
+                )
+        for line in wrapped_lines:
             lines.append(fmt.format_item(line))
 
     events = vm.get("events", [])
