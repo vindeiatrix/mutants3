@@ -209,10 +209,12 @@ def render(
                 logger.warning("ui: resolver check failed for dir %s: %s", d, e)
         lines.append(fmt.format_direction_line(d, edge))
 
-    if not lines or lines[-1] != UC.SEPARATOR_LINE:
-        lines.append(UC.SEPARATOR_LINE)
+    # ------- Build blocks instead of emitting separators inline -------
+    block_core = list(lines)
+    lines = []
 
     # ---- Ground Block (optional) ----
+    block_ground: list[str] = []
     has_ground = bool(vm.get("has_ground", False))
     ground_items = vm.get("ground_items") or []
     if has_ground:
@@ -224,38 +226,125 @@ def render(
                     "ui: dropping empty ground block (has_ground=True, no items)"
                 )
         else:
-            if not lines or lines[-1] != UC.SEPARATOR_LINE:
-                lines.append(UC.SEPARATOR_LINE)
-            lines.append(fmt.format_ground_header())
+            block_ground.append(fmt.format_ground_header())
             for ln in fmt.format_ground_list(ground_items):
-                lines.append(ln)
-            lines.append(UC.SEPARATOR_LINE)
+                block_ground.append(ln)
 
     # ---- Monsters block (optional, after Ground) ----
+    block_monsters: list[str] = []
     monsters = vm.get("monsters_here") or []
     if monsters:
-        if not lines or lines[-1] != UC.SEPARATOR_LINE:
-            lines.append(UC.SEPARATOR_LINE)
         mline = fmt.format_monsters_here(monsters)
         if mline:
-            lines.append(mline)
-            lines.append(UC.SEPARATOR_LINE)
+            block_monsters.append(mline)
 
     # ---- Cues block (optional, after Monsters) ----
+    block_cues: list[str] = []
     cues = vm.get("cues_lines") or []
     if cues:
-        if not lines or lines[-1] != UC.SEPARATOR_LINE:
-            lines.append(UC.SEPARATOR_LINE)
         for idx, cue in enumerate(cues):
-            lines.append(fmt.format_cue_line(cue))
-            if idx < len(cues) - 1 and lines[-1] != UC.SEPARATOR_LINE:
-                lines.append(UC.SEPARATOR_LINE)
+            block_cues.append(fmt.format_cue_line(cue))
+            if idx < len(cues) - 1:
+                block_cues.append(UC.SEPARATOR_LINE)
+
+    # ---- Join blocks with separators between non-empty blocks only ----
+    def _join_with_separators(blocks: list[list[str]]) -> list[str]:
+        out: list[str] = []
+        first = True
+        for b in blocks:
+            if not b:
+                continue
+            if not first:
+                out.append(UC.SEPARATOR_LINE)
+            out.extend(b)
+            first = False
+        return out
+
+    def _assert_no_sep_violations(out_lines: list[str]) -> list[str]:
+        if not out_lines:
+            return out_lines
+        if out_lines[0] == UC.SEPARATOR_LINE or out_lines[-1] == UC.SEPARATOR_LINE:
+            if DEV:
+                assert False, "ui: separator at frame boundary"
+            while out_lines and out_lines[0] == UC.SEPARATOR_LINE:
+                out_lines.pop(0)
+            while out_lines and out_lines[-1] == UC.SEPARATOR_LINE:
+                out_lines.pop()
+        i = 1
+        while i < len(out_lines):
+            if (
+                out_lines[i] == UC.SEPARATOR_LINE
+                and out_lines[i - 1] == UC.SEPARATOR_LINE
+            ):
+                if DEV:
+                    assert False, "ui: consecutive separators"
+                out_lines.pop(i)
+            else:
+                i += 1
+        return out_lines
+
+    blocks = [block_core, block_ground, block_monsters, block_cues]
+    lines = _join_with_separators(blocks)
+    lines = _assert_no_sep_violations(lines)
 
     if feedback_events:
         for ev in feedback_events:
             lines.append(ev.get("text", ""))
 
     return lines
+
+
+# Development helper used by `logs verify separators`
+def verify_separators_scenarios() -> tuple[int, list[str]]:
+    """Run synthetic scenarios to ensure separator invariants."""
+    failures: list[str] = []
+    ok = 0
+
+    def check(name: str, blocks: list[list[str]], expect_last_is_sep: bool = False):
+        nonlocal ok
+
+        def join(blks: list[list[str]]) -> list[str]:
+            out: list[str] = []
+            first = True
+            for b in blks:
+                if not b:
+                    continue
+                if not first:
+                    out.append(UC.SEPARATOR_LINE)
+                out.extend(b)
+                first = False
+            return out
+
+        out = join(blocks)
+        if out and out[0] == UC.SEPARATOR_LINE:
+            failures.append(f"{name}: leading separator")
+            return
+        if out and out[-1] == UC.SEPARATOR_LINE and not expect_last_is_sep:
+            failures.append(f"{name}: trailing separator")
+            return
+        for i in range(1, len(out)):
+            if out[i] == UC.SEPARATOR_LINE and out[i - 1] == UC.SEPARATOR_LINE:
+                failures.append(f"{name}: double separator @ {i}")
+                return
+        ok += 1
+
+    A = ["Room", "Compass", "Dirs"]
+    G = ["On the ground lies:", "item1, item2."]
+    M = ["Monster-Alpha is here."]
+    C = [
+        "You see shadows to the south.",
+        UC.SEPARATOR_LINE,
+        "You hear footsteps to the west.",
+    ]
+
+    check("core-only", [A])
+    check("core+ground", [A, G])
+    check("core+ground+monsters", [A, G, M])
+    check("core+monsters", [A, M])
+    check("core+cues(2)", [A, C])
+    check("ground-only", [G])
+
+    return ok, failures
 
 
 def token_debug_lines(

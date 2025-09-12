@@ -47,7 +47,7 @@ The `theme` command now switches two visual aspects at runtime:
 We lock the navigation frame now to prevent regressions:
 - **Direction descriptors** are a closed set of five strings: `area continues.`, `wall of ice.`, `ion force field.`, `open gate.`, `closed gate.`; see `src/mutants/ui/uicontract.py`.
 - **Rendered direction lines** are currently **open-only** (plain tiles) and use the exact format `"{dir:<5} - {desc}"` with two spaces before the dash. The open descriptor is always **`area continues.`**.
-- A single separator line `***` is emitted **once** after the directions block (no doubles).
+- The separator line `***` is inserted only **between** non-empty blocks; never at the start or end of a frame.
 - Compass uses the canonical prefix **`Compass: `** (no plus signs on non-negative values).
 
 ### Ground Block (locked behavior)
@@ -63,7 +63,13 @@ The VM must set `has_ground=True` **only** when `ground_items` is non-empty; oth
   - Multiple monsters: `"<A>, <B>, and <C> are here with you."` (comma before `and`)
   A single `***` separator precedes this block and another follows it.
 - **Cues:** each cue (e.g., `You see shadows to the south.`) prints as a single line; a `***` separator appears **between** multiple cue lines. The VM supplies `cues_lines` already worded; the UI does not invent text.
-Placement is fixed: **Room → Compass → Directions → `***` → Ground (optional) → `***` → Monsters (optional) → `***` → Cues (optional)**. This matches the original captures’ section order. 
+Placement is fixed: **Room → Compass → Directions → `***` → Ground (optional) → `***` → Monsters (optional) → `***` → Cues (optional)**. This matches the original captures’ section order.
+
+### Separators (hard rule)
+- The separator line `***` appears **only between** non-empty blocks, never at the start or end of a frame.
+- Blocks are: **(A)** Room+Compass+Directions, **(B)** Ground (if any), **(C)** Monsters (if any), **(D)** Cues (if any).  
+  The renderer first builds these blocks, then **joins** them with a single separator between adjacent blocks.  
+  Inside the **Cues** block, separators appear **between** multiple cue lines, not after the last.
 
 ## Daily Litter Spawns (once-per-day reset)
 At startup (once per calendar day), the game performs a **litter reset**:
