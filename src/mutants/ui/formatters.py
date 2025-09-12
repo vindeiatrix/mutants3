@@ -103,6 +103,9 @@ def format_shadows(dirs: List[str]) -> Segments | None:
 from . import groups as UG
 from . import styles as st
 import textwrap
+import json
+from .wrap import WRAP_DEBUG_OPTS
+from ..app.trace import is_ui_trace_enabled
 
 
 def format_compass_line(vm) -> str:
@@ -134,8 +137,26 @@ def format_ground_items(item_ids: list[str]) -> list[str]:
     if not item_ids:
         return []
     line = idisp.render_ground_list(item_ids)
+    fb = None
+    if is_ui_trace_enabled():
+        from ..app.context import current_context
+        ctx = current_context()
+        fb = ctx.get("feedback_bus") if ctx else None
+    if fb:
+        fb.push(
+            "SYSTEM/INFO",
+            f'UI/GROUND raw={json.dumps(line, ensure_ascii=False)}',
+        )
     wrapped = textwrap.fill(line, width=UC.UI_WRAP_WIDTH)
-    return wrapped.splitlines() if wrapped else []
+    lines = wrapped.splitlines() if wrapped else []
+    if fb:
+        fb.push(
+            "SYSTEM/INFO",
+            f'UI/GROUND wrap width={UC.UI_WRAP_WIDTH} '
+            f'opts={json.dumps(WRAP_DEBUG_OPTS, sort_keys=True)} '
+            f'lines={json.dumps(lines, ensure_ascii=False)}',
+        )
+    return lines
 
 
 def format_monsters_here(names: list[str]) -> str:

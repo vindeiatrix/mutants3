@@ -14,7 +14,7 @@ import logging
 import json
 
 
-def _probe_wrap(count: int = 12, width: int = 80) -> None:
+def _probe_wrap(count: int = 12, width: int = 80, ctx=None) -> None:
     """Generate a hyphenated list and log wrapping diagnostics."""
 
     logger = logging.getLogger(__name__)
@@ -28,6 +28,17 @@ def _probe_wrap(count: int = 12, width: int = 80) -> None:
     items = [samples[i % len(samples)] for i in range(count)]
     raw = "On the ground lies: " + ", ".join(items) + "."
     lines = wrap_segments([raw], width=width)
+    fb = ctx.get("feedback_bus") if ctx else None
+    if fb:
+        fb.push("SYSTEM/INFO", f'UI/PROBE raw={json.dumps(raw, ensure_ascii=False)}')
+        fb.push(
+            "SYSTEM/INFO",
+            (
+                f'UI/PROBE wrap width={width} '
+                f'opts={json.dumps(WRAP_DEBUG_OPTS, sort_keys=True)} '
+                f'lines={json.dumps(lines, ensure_ascii=False)}'
+            ),
+        )
     logger.info("UI/PROBE raw=%s", json.dumps(raw, ensure_ascii=False))
     logger.info(
         "UI/PROBE wrap width=%d opts=%s lines=%s",
@@ -39,8 +50,15 @@ def _probe_wrap(count: int = 12, width: int = 80) -> None:
     for a, b in zip(lines, lines[1:]):
         if a.endswith("-") and b[:1].isalpha():
             bad = True
+            if fb:
+                fb.push(
+                    "SYSTEM/WARN",
+                    f'UI/WRAP/BAD_SPLIT at line="{a}" next="{b}"',
+                )
             logger.warning("UI/WRAP/BAD_SPLIT at line='%s' next='%s'", a, b)
     if not bad:
+        if fb:
+            fb.push("SYSTEM/OK", "UI/WRAP/OK")
         logger.info("UI/WRAP/OK")
 
 
@@ -134,7 +152,7 @@ def log_cmd(arg: str, ctx) -> None:
                     width = int(next(it))
                 except StopIteration:
                     pass
-        _probe_wrap(count=count, width=width)
+        _probe_wrap(count=count, width=width, ctx=ctx)
         ctx["feedback_bus"].push(
             "SYSTEM/OK", f"Wrap probe logged (count={count}, width={width})."
         )
