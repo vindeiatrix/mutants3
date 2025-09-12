@@ -12,6 +12,7 @@ from mutants.ui.feedback import FeedbackBus
 from mutants.ui.logsink import LogSink
 from mutants.ui.themes import Theme, load_theme
 from mutants.ui import styles as st
+from ..registries import items_instances as itemsreg
 
 # --- store-aware header resolution ------------------------------------------
 def _store_price(year: int) -> int:
@@ -63,7 +64,7 @@ def build_context() -> Dict[str, Any]:
         "player_state": state,
         "world_loader": load_year,
         "monsters": None,
-        "items": None,
+        "items": itemsreg,
         "headers": ROOM_HEADERS,
         "feedback_bus": bus,
         "logsink": sink,
@@ -117,21 +118,20 @@ def build_room_vm(
         except Exception:
             pass
 
-    ground_items: List[Dict[str, str]] = []
+    ground_names: List[str] = []
     if items and hasattr(items, "list_at"):
         try:
-            for it in items.list_at(year, x, y):  # type: ignore[attr-defined]
-                name = it.get("name") or it.get("item_id", "?")
-                ground_items.append({"name": name})
+            ground_names = items.list_at(year, x, y)  # type: ignore[attr-defined]
         except Exception:
-            pass
+            ground_names = []
 
     vm: Dict[str, Any] = {
         "header": header,
         "coords": {"x": x, "y": y},
         "dirs": dirs,
         "monsters_here": monsters_here,
-        "ground_items": ground_items,
+        "ground_items": ground_names,
+        "has_ground": bool(ground_names),
         "events": [],
         "shadows": [],
         "flags": {"dark": bool(tile.get("dark")) if tile else False},

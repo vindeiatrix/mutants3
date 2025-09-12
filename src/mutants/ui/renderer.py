@@ -110,7 +110,10 @@ def render_token_lines(
     items = vm.get("ground_items", [])
     if items:
         lines.append(fmt.format_ground_label())
-        item_segs = [fmt.format_item(t["name"]) for t in items]
+        item_segs = [
+            fmt.format_item(t if isinstance(t, str) else t.get("name", "?"))
+            for t in items
+        ]
         lines.extend(wrap_list(item_segs, width))
 
     events = vm.get("events", [])

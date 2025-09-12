@@ -27,6 +27,7 @@ STATE_DIR = os.path.join(ROOT, "state")
 ITEMS_DIR = os.path.join(STATE_DIR, "items")
 RUNTIME_DIR = os.path.join(STATE_DIR, "runtime")
 WORLD_DIR = os.path.join(STATE_DIR, "world")
+LOG_PATH = os.path.join(STATE_DIR, "logs", "game.log")
 
 CATALOG_PATH = os.path.join(ITEMS_DIR, "catalog.json")
 INSTANCES_PATH = os.path.join(ITEMS_DIR, "instances.json")
@@ -159,30 +160,34 @@ def _list_years() -> List[int]:
 
 
 def _collect_open_tiles_for_year(year: int) -> List[Tuple[int, int]]:
-    """Best-effort list of open tile coordinates for a year."""
+    """
+    Collect candidate tiles for ground spawns.
+    World tiles store coordinates in ``tile["pos"] = [year, x, y]`` and
+    movement openness is determined by edges, not a tile-level ``base``.
+    We therefore simply gather coordinates for all tiles in the year.
+    """
     try:
         from ..registries.world import WorldRegistry  # type: ignore
         w = WorldRegistry()
-        for meth in ("iter_open_tiles", "open_coords", "iter_open_coords"):
-            if hasattr(w, meth):
-                coords = list(getattr(w, meth)(year))  # type: ignore[arg-type]
-                if coords:
-                    return [(int(x), int(y)) for (x, y) in coords]
+        coords: List[Tuple[int, int]] = []
         for meth in ("iter_tiles", "tiles"):
             if hasattr(w, meth):
-                coords: List[Tuple[int, int]] = []
                 for t in getattr(w, meth)(year):  # type: ignore[arg-type]
-                    if isinstance(t, tuple) and len(t) >= 3:
-                        x, y, tile = t[0], t[1], t[2]
-                    elif isinstance(t, dict):
-                        x, y, tile = t.get("x"), t.get("y"), t
-                    else:
-                        continue
-                    base = int(tile.get("base", 0)) if isinstance(tile, dict) else 0
-                    if base == 0:
-                        coords.append((int(x), int(y)))
-                if coords:
-                    return coords
+                    if isinstance(t, dict) and isinstance(t.get("pos"), (list, tuple)):
+                        pos = t["pos"]
+                        if len(pos) >= 3:
+                            coords.append((int(pos[1]), int(pos[2])))
+                    elif (
+                        isinstance(t, tuple)
+                        and len(t) >= 3
+                        and isinstance(t[2], dict)
+                        and isinstance(t[2].get("pos"), (list, tuple))
+                    ):
+                        pos = t[2]["pos"]
+                        if len(pos) >= 3:
+                            coords.append((int(pos[1]), int(pos[2])))
+        if coords:
+            return coords
     except Exception:
         pass
 
@@ -192,8 +197,10 @@ def _collect_open_tiles_for_year(year: int) -> List[Tuple[int, int]]:
     tiles = data.get("tiles") or data.get("grid") or []
     if isinstance(tiles, list):
         for t in tiles:
-            if isinstance(t, dict) and int(t.get("base", 0)) == 0:
-                coords.append((int(t.get("x", 0)), int(t.get("y", 0))))
+            if isinstance(t, dict) and isinstance(t.get("pos"), (list, tuple)):
+                pos = t["pos"]
+                if len(pos) >= 3:
+                    coords.append((int(pos[1]), int(pos[2])))
     return coords
 
 
@@ -258,6 +265,7 @@ def _new_instance_dict(item_id: str, year: int, x: int, y: int, epoch: str, seq:
     return {
         "iid": f"dl_{epoch.replace('-', '')}_{seq}",
         "item_id": item_id,
+        "pos": {"year": year, "x": x, "y": y},
         "year": year,
         "x": x,
         "y": y,
@@ -390,11 +398,16 @@ def run_daily_litter_reset() -> None:
 
     for year, counts in summary.items():
         parts = [f"{k}\u00d7{v}" for k, v in sorted(counts.items()) if v]
-        LOG.info(
-            "daily_litter %s year %s: spawned %d items%s",
-            today,
-            year,
-            sum(counts.values()),
-            f" ({', '.join(parts)})" if parts else "",
+        line = (
+            f"daily_litter {today} year {year}: spawned {sum(counts.values())} items"
+            f"{f' ({', '.join(parts)})' if parts else ''}"
         )
+        LOG.info(line)
+        try:
+            ts = datetime.utcnow().isoformat() + "Z"
+            _mkdir_p(os.path.dirname(LOG_PATH))
+            with open(LOG_PATH, "a", encoding="utf-8") as lf:
+                lf.write(f"{ts} SYSTEM/INFO - {line}\n")
+        except Exception:
+            pass
 

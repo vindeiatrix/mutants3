@@ -69,8 +69,12 @@ Placement is fixed: **Room → Compass → Directions → `***` → Ground (opti
 At startup (once per calendar day), the game performs a **litter reset**:
 - Removes only items previously spawned by the system (`origin: "daily_litter"`).
 - Spawns a fixed number per year (`state/items/spawn_rules.json: daily_target_per_year`) of catalog items marked `"spawnable": true`, using per-item weights and optional per-year caps.
-- Placement rules: open tiles only and never more than six items per tile; capped items (already at limit for a year) are skipped.
+- Placement rules: iterates world tiles (`tile["pos"] = [year,x,y]`) and never exceeds six items per tile; capped items (already at limit for a year) are skipped.
 - The reset is deterministic for the day (seeded by date) and runs only at startup, so no mid-day pop-in.
+
+### Ground items plumbing (minimal)
+- The **items registry** exposes `list_at(year,x,y)` which reads instance data and resolves display names.
+- The **room VM** sets `has_ground`/`ground_items` from this registry so the renderer prints the Ground block when items exist.
 
 ## Future-proofing choices
 - No hard-coded year: world **discovery** + **nearest year** when needed.
