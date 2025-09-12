@@ -1,14 +1,62 @@
-name: build
+name: CI
+
 on:
   push:
   pull_request:
+
 jobs:
-  build:
+  tests:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
-      - run: pip install -e .
-      - run: python -m mutants -h || true
+          python-version: "3.12"
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt', '**/pyproject.toml', '**/setup.cfg', '**/setup.py') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies (adaptive)
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install -U pip wheel
+
+          # Use requirements files if present
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          fi
+          if [ -f requirements-dev.txt ]; then
+            pip install -r requirements-dev.txt
+          fi
+
+          # Try to install the package (and dev extras) if project is installable
+          if [ -f pyproject.toml ] || [ -f setup.py ] || [ -f setup.cfg ]; then
+            pip install ".[dev]" || pip install .
+          fi
+
+          # Ensure pytest exists regardless of how we installed deps
+          python - <<'PY'
+import importlib, sys, subprocess
+try:
+    importlib.import_module("pytest")
+except ImportError:
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "pytest"])
+PY
+
+      # Set PYTHONPATH for src/ layout if package wasn't installed
+      - name: Set PYTHONPATH (src layout fallback)
+        if: ${{ !hashFiles('**/pyproject.toml', '**/setup.py', '**/setup.cfg') }}
+        run: echo "PYTHONPATH=./src" >> $GITHUB_ENV
+
+      - name: Run tests
+        run: pytest -q
+
