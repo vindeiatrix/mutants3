@@ -60,3 +60,16 @@ PY
       - name: Run tests
         run: pytest -q
 
+      - name: Run UI wrap probe (non-interactive)
+        run: |
+          python -m mutants <<'EOF'
+          logs trace ui on
+          logs probe wrap --count 24 --width 80
+          logs tail 1
+          EOF
+
+      - name: Guard against hyphen wrap regression
+        run: |
+          chmod +x scripts/guard_wrap.py || true
+          ./scripts/guard_wrap.py
+

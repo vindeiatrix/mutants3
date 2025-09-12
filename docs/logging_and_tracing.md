@@ -146,3 +146,37 @@ The first matching layer decides `passable` and the **descriptor**; `why` record
 - `state/world/dynamics.json` — dynamic overlays (temporary barriers / blasted edges).
 
 These are plain JSON or text; safe to inspect or back up.
+
+## Hyphen Wrap Diagnostics (ground truth logs)
+
+When debugging text wrapping, enable UI tracing and use the probe:
+
+```
+logs trace ui on
+logs probe wrap --count 24 --width 80
+logs tail 200
+```
+
+You’ll see diagnostics like:
+- `SYSTEM/INFO - UI/PROBE raw="On the ground lies: ..."`
+- `SYSTEM/INFO - UI/PROBE wrap width=80 opts={...} lines=[ "...", "..." ]`
+- `SYSTEM/OK - UI/WRAP/OK` (or `SYSTEM/WARN - UI/WRAP/BAD_SPLIT ...`)
+
+For real game paths, force a long ground list:
+
+```
+debug add item nuclear_decay 12
+debug add item bottle_cap 12
+look
+logs tail 200
+```
+
+This logs:
+- `SYSTEM/INFO - UI/GROUND raw="..."`
+- `SYSTEM/INFO - UI/GROUND wrap width=80 opts={...} lines=[ ... ]`
+
+**Interpretation:**  
+- If `lines=[…]` shows no line ending in `Nuclear-`/`Bottle-`, the engine’s wrap is correct. If your terminal pane is narrower than 80 columns, it may visually re-wrap anyway; trust the logged `lines=[…]` for ground truth.
+
+**Invariant implemented:**  
+- Final display strings (after article “A/An ” and any numbering “(n)”) are hardened: ASCII `-` → U+2011 (no-break hyphen), and the article space → U+00A0 (NBSP). With `break_on_hyphens=False` and `break_long_words=False`, hyphenated tokens will not split.
