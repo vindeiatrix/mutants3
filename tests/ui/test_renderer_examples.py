@@ -79,7 +79,7 @@ class RendererExamplesTest(unittest.TestCase):
             "<DIR>west</DIR>  - <DESC_CONT>area continues.</DESC_CONT>",
             "***",
             "<LABEL>On the ground lies:</LABEL>",
-            "<ITEM>A Broken-Weapon.</ITEM>",
+            "<ITEM>A Broken‑Weapon.</ITEM>",
             "<SHADOWS_LABEL>You see shadows to the east, south.</SHADOWS_LABEL>",
         ]
         self.assertEqual(lines, expected)
@@ -94,8 +94,8 @@ class RendererExamplesTest(unittest.TestCase):
             "<MONSTER>Ghoul is here.</MONSTER>",
             "<MONSTER>Sasquatch-331 is here.</MONSTER>",
             "<LABEL>On the ground lies:</LABEL>",
-            "<ITEM>A Gold-Chunk, A Bottle-Cap, A Cigarette-Butt, A Cheese, An Ion-Decay,</ITEM>",
-            "<ITEM>A Nuclear-Waste, A Light-Spear, A Monster-Bait.</ITEM>",
+            "<ITEM>A Gold‑Chunk, A Bottle‑Cap, A Cigarette‑Butt, A Cheese, An Ion‑Decay,</ITEM>",
+            "<ITEM>A Nuclear‑Waste, A Light‑Spear, A Monster‑Bait.</ITEM>",
             "The Ghoul hisses.",
             "Sasquatch-331 tightens its grip.",
         ]
