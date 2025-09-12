@@ -116,7 +116,8 @@ def render_token_lines(
         lines.append(fmt.format_ground_label())
         names = [idisp.canonical_name(t if isinstance(t, str) else str(t)) for t in ids]
         numbered = idisp.number_duplicates(names)
-        display = [ritems.display_name_for_item(idisp.with_article(n)) for n in numbered]
+        display = [idisp.with_article(n) for n in numbered]
+        display = [ritems.harden_display_nonbreak(s) for s in display]
         if is_ui_trace_enabled():
             raw = "On the ground lies: " + ", ".join(display) + "."
         wrapped_lines = wrap_list(display, width)

@@ -3,18 +3,18 @@
 from __future__ import annotations
 
 
-def _no_break_hyphens(s: str) -> str:
-    """Replace ASCII hyphen with U+2011 (no-break hyphen) for display only."""
+def harden_display_nonbreak(s: str) -> str:
+    """Return *s* with hyphen and article hardened using non-breaking forms.
 
-    return s.replace("-", "\u2011")
+    This is UI-only and must be applied only to final display strings
+    (after article and numbering).
+    """
 
-
-def display_name_for_item(name: str) -> str:
-    """Return *name* with hyphens rendered as non-breaking."""
-
-    hardened = _no_break_hyphens(name)
+    if not s:
+        return s
+    hardened = s.replace("-", "\u2011")
     if " " in hardened:
         first = hardened.find(" ")
-        hardened = hardened[:first] + "\u00a0" + hardened[first + 1 :]
+        hardened = hardened[:first] + "\u00A0" + hardened[first + 1 :]
     return hardened
 
