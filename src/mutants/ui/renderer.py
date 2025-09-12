@@ -10,6 +10,7 @@ from . import styles as st
 from .viewmodels import RoomVM
 from .wrap import wrap_list
 from . import item_display as idisp
+from . import render_items as ritems
 import os
 import logging
 from ..engine import edge_resolver as ER
@@ -113,8 +114,9 @@ def render_token_lines(
         lines.append(fmt.format_ground_label())
         names = [idisp.canonical_name(t if isinstance(t, str) else str(t)) for t in ids]
         numbered = idisp.number_duplicates(names)
-        segs = [fmt.format_item(idisp.with_article(n)) for n in numbered]
-        lines.extend(wrap_list(segs, width))
+        display = [ritems.display_name_for_item(idisp.with_article(n)) for n in numbered]
+        for line in wrap_list(display, width):
+            lines.append(fmt.format_item(line))
 
     events = vm.get("events", [])
     if events:
