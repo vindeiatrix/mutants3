@@ -12,3 +12,6 @@ jobs:
           python-version: '3.12'
       - run: pip install -e .
       - run: python -m mutants -h || true
+      - run: pytest -q
+      - name: CI wrap check
+        run: make ci-wrap-check
