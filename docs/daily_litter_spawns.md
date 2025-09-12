@@ -32,7 +32,7 @@ This system recreates the old BBS “daily reset”: once per calendar day (on s
 
 ## Placement Rules
 
-- **Open tiles only:** the spawner selects from open tiles reported by the world registry; blocked tiles are ignored.
+- **All map tiles (world-format aware)**: the spawner iterates tiles via `tile["pos"] = [year,x,y]`. Interiors are considered walkable; movement rules enforce edge blockages separately.
 - **Ground capacity respected:** the spawner keeps a per-tile counter and skips any tile at capacity; it will not place the 7th item.
 - **Multiple spawnables may land on the same tile** if space remains; there is no one-item-per-tile restriction.
 
@@ -61,8 +61,15 @@ Edit `state/items/catalog.json` on the item's entry:
 
 Edit `state/items/spawn_rules.json`:
 
-- Increase/decrease `daily_target_per_year` to change total items per year.
-- Adjust `max_ground_per_tile` if ground capacity limits change.
+- Increase/decrease `daily_target_per_year` to change how many total items appear per year each day.
+- Keep `max_ground_per_tile` at `6` unless you intend to change the game’s ground capacity.
+
+## Data Shapes (important)
+
+- Instances include both nested and flat position data:
+  - `"pos": {"year": Y, "x": X, "y": Y}`
+  - `"year": Y, "x": X, "y": Y`
+- Either form is recognized by the items registry `list_at(year,x,y)`.
 
 ## Safety & Guarantees
 

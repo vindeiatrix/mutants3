@@ -123,10 +123,14 @@ VM → Formatters (build strings + **group**) → Styles (resolve color by group
 * **Algorithm** (per day):
   1. Remove instances where `origin == "daily_litter"`.
   2. For each year, build a weighted pool of spawnable items that have not hit `cap_per_year` (counts include existing ground items).
-  3. Choose random open tiles; skip any tile already at capacity (default six items) and place until the daily target is met.
+  3. Iterate world tiles (`tile["pos"]`) at random; skip any tile already at capacity (default six items) and place until the daily target is met.
   4. Save instances, record today in `state/runtime/spawn_epoch.json`, log a summary line.
 * **Determinism**: RNG seeded by `YYYY-MM-DD` keeps placement stable within the day.
 * **Safety**: runs once at bootstrap; missing files/worlds merely log and skip.
+
+#### Items Registry
+* **Reader**: `registries/items_instances.py` provides `list_at(year,x,y)` understanding both `{"pos":{...}}` and flat `{"year":...}` shapes.
+* **VM plumbing**: context uses this registry so `build_room_vm` sets `has_ground`/`ground_items` for the renderer.
 
 ## IO helpers
 - `io/atomic.py` — `atomic_write_json()` and `read_json()` (tmp → fsync → replace).

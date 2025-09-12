@@ -2,12 +2,13 @@ from __future__ import annotations
 import json
 import uuid
 from pathlib import Path
-from typing import Dict, List, Optional, Iterable, Any
+from typing import Dict, List, Optional, Iterable, Any, Tuple
 
 from mutants.io.atomic import atomic_write_json
 
 DEFAULT_INSTANCES_PATH = "state/items/instances.json"
 FALLBACK_INSTANCES_PATH = "state/instances.json"  # auto-fallback if the new path isn't used yet
+CATALOG_PATH = "state/items/catalog.json"
 
 class ItemsInstances:
     """
@@ -112,3 +113,75 @@ def load_instances(path: str = DEFAULT_INSTANCES_PATH) -> ItemsInstances:
         items = []
 
     return ItemsInstances(str(target), items)
+
+
+# ---------------------------------------------------------------------------
+# lightweight read helpers --------------------------------------------------
+
+def _load_instances_raw() -> List[Dict[str, Any]]:
+    path = Path(DEFAULT_INSTANCES_PATH)
+    try:
+        with path.open("r", encoding="utf-8") as f:
+            data = json.load(f)
+    except FileNotFoundError:
+        return []
+    if isinstance(data, dict) and "instances" in data:
+        items = data["instances"]
+    elif isinstance(data, list):
+        items = data
+    else:
+        items = []
+    return items
+
+
+def _pos_of(inst: Dict[str, Any]) -> Optional[Tuple[int, int, int]]:
+    if isinstance(inst.get("pos"), dict):
+        p = inst["pos"]
+        try:
+            return int(p["year"]), int(p["x"]), int(p["y"])
+        except Exception:
+            pass
+    try:
+        return int(inst["year"]), int(inst["x"]), int(inst["y"])
+    except Exception:
+        return None
+
+
+def _catalog() -> Dict[str, Any]:
+    path = Path(CATALOG_PATH)
+    if not path.exists():
+        return {}
+    try:
+        data = json.load(path.open("r", encoding="utf-8"))
+    except Exception:
+        return {}
+    return data.get("items", data) if isinstance(data, dict) else {}
+
+
+def _display_name(item_id: str, cat: Dict[str, Any]) -> str:
+    meta = cat.get(item_id)
+    if isinstance(meta, dict):
+        for key in ("name", "display_name", "title"):
+            if isinstance(meta.get(key), str):
+                return meta[key]
+    return item_id
+
+
+def list_at(year: int, x: int, y: int) -> List[str]:
+    """Return display names for items at a tile."""
+    raw = _load_instances_raw()
+    cat = _catalog()
+    out: List[str] = []
+    tgt = (int(year), int(x), int(y))
+    for inst in raw:
+        pos = _pos_of(inst)
+        if pos and pos == tgt:
+            item_id = (
+                inst.get("item_id")
+                or inst.get("catalog_id")
+                or inst.get("id")
+            )
+            if item_id:
+                out.append(_display_name(str(item_id), cat))
+    return out
+

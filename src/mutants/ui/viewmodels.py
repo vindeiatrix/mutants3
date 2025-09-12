@@ -24,7 +24,8 @@ class RoomVM(TypedDict, total=False):
     coords: Coords
     dirs: Dict[str, EdgeDesc]
     monsters_here: List[Thing]
-    ground_items: List[Thing]
+    ground_items: List[str]
+    has_ground: bool
     events: List[str]
     shadows: List[str]
     flags: Dict[str, Any]
