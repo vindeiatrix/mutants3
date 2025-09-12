@@ -87,3 +87,16 @@ def render_ground_list(item_ids: List[str]) -> str:
     with_articles = [with_article(n) for n in numbered]
     return ", ".join(with_articles) + "."
 
+
+def canonical_name_from_iid(iid: str) -> str:
+    """Resolve display name for an instance-id via the items registry."""
+    try:
+        from ..registries import items_instances as itemsreg
+        inst = itemsreg.get_instance(iid)
+        if not inst:
+            return iid
+        item_id = inst.get("item_id") or inst.get("catalog_id") or inst.get("id") or iid
+        return canonical_name(str(item_id))
+    except Exception:
+        return iid
+

@@ -55,6 +55,14 @@ logs verify items
 
 Runs deterministic cases like ["ion_decay","skull","skull","opal_knife"] and checks the exact ground-line string. Failures log the expected vs. actual line.
 
+- **Verify get/drop core** (sanity path):
+
+```
+logs verify getdrop
+```
+
+Executes a deterministic core path through the transfer layer (seeded RNG) to exercise overflow/swap logic. For full end-to-end checks, use manual play with ground at capacity and inventory near the cap.
+
 ## What Tracing Logs
 
 When `move` tracing is on, each attempt adds a single line to `state/logs/game.log`, e.g.:
