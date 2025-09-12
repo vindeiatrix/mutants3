@@ -168,7 +168,10 @@ def _display_name(item_id: str, cat: Dict[str, Any]) -> str:
 
 
 def list_at(year: int, x: int, y: int) -> List[str]:
-    """Return display names for items at a tile."""
+    """
+    Legacy helper: return display names for items at (year, x, y).
+    Prefer ``list_ids_at`` for new code and apply display rules in the UI.
+    """
     raw = _load_instances_raw()
     cat = _catalog()
     out: List[str] = []
@@ -183,5 +186,23 @@ def list_at(year: int, x: int, y: int) -> List[str]:
             )
             if item_id:
                 out.append(_display_name(str(item_id), cat))
+    return out
+
+
+def list_ids_at(year: int, x: int, y: int) -> List[str]:
+    """Return raw item_ids for instances at (year, x, y)."""
+    raw = _load_instances_raw()
+    out: List[str] = []
+    tgt = (int(year), int(x), int(y))
+    for inst in raw:
+        pos = _pos_of(inst)
+        if pos and pos == tgt:
+            item_id = (
+                inst.get("item_id")
+                or inst.get("catalog_id")
+                or inst.get("id")
+            )
+            if item_id:
+                out.append(str(item_id))
     return out
 

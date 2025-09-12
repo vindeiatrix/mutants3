@@ -47,6 +47,14 @@ logs verify separators
 
 This runs several scenarios through the renderer’s block joiner. If issues are found, they are logged as VERIFY/SEPARATORS - ... in state/logs/game.log, and a warning is shown in-game.
 
+- Verify item naming rules (A/An, hyphens, numbering):
+
+```
+logs verify items
+```
+
+Runs deterministic cases like ["ion_decay","skull","skull","opal_knife"] and checks the exact ground-line string. Failures log the expected vs. actual line.
+
 ## What Tracing Logs
 
 When `move` tracing is on, each attempt adds a single line to `state/logs/game.log`, e.g.:

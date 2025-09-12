@@ -118,20 +118,20 @@ def build_room_vm(
         except Exception:
             pass
 
-    ground_names: List[str] = []
-    if items and hasattr(items, "list_at"):
+    ground_ids: List[str] = []
+    if items and hasattr(items, "list_ids_at"):
         try:
-            ground_names = items.list_at(year, x, y)  # type: ignore[attr-defined]
+            ground_ids = items.list_ids_at(year, x, y)  # type: ignore[attr-defined]
         except Exception:
-            ground_names = []
+            ground_ids = []
 
     vm: Dict[str, Any] = {
         "header": header,
         "coords": {"x": x, "y": y},
         "dirs": dirs,
         "monsters_here": monsters_here,
-        "ground_items": ground_names,
-        "has_ground": bool(ground_names),
+        "ground_item_ids": ground_ids,
+        "has_ground": bool(ground_ids),
         "events": [],
         "shadows": [],
         "flags": {"dark": bool(tile.get("dark")) if tile else False},

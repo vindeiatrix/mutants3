@@ -9,6 +9,7 @@ from . import uicontract as UC
 from . import styles as st
 from .viewmodels import RoomVM
 from .wrap import wrap_list
+from . import item_display as idisp
 import os
 import logging
 from ..engine import edge_resolver as ER
@@ -107,14 +108,13 @@ def render_token_lines(
     for segs in fmt.format_monsters_here_tokens(monsters):
         lines.append(segs)
 
-    items = vm.get("ground_items", [])
-    if items:
+    ids = vm.get("ground_item_ids", [])
+    if ids:
         lines.append(fmt.format_ground_label())
-        item_segs = [
-            fmt.format_item(t if isinstance(t, str) else t.get("name", "?"))
-            for t in items
-        ]
-        lines.extend(wrap_list(item_segs, width))
+        names = [idisp.canonical_name(t if isinstance(t, str) else str(t)) for t in ids]
+        numbered = idisp.number_duplicates(names)
+        segs = [fmt.format_item(idisp.with_article(n)) for n in numbered]
+        lines.extend(wrap_list(segs, width))
 
     events = vm.get("events", [])
     if events:
@@ -216,18 +216,18 @@ def render(
     # ---- Ground Block (optional) ----
     block_ground: list[str] = []
     has_ground = bool(vm.get("has_ground", False))
-    ground_items = vm.get("ground_items") or []
+    ground_ids = vm.get("ground_item_ids") or []
     if has_ground:
-        if not ground_items:
+        if not ground_ids:
             if DEV:
-                assert False, "ui: has_ground=True but ground_items is empty"
+                assert False, "ui: has_ground=True but ground_item_ids is empty"
             else:
                 logger.warning(
                     "ui: dropping empty ground block (has_ground=True, no items)"
                 )
         else:
             block_ground.append(fmt.format_ground_header())
-            for ln in fmt.format_ground_list(ground_items):
+            for ln in fmt.format_ground_items(ground_ids):
                 block_ground.append(ln)
 
     # ---- Monsters block (optional, after Ground) ----

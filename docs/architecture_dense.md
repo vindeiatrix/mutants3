@@ -51,10 +51,10 @@ VM → Formatters (build strings + **group**) → Styles (resolve color by group
 * **Separation of concerns:** Movement failures should surface via feedback lines (e.g., “You’re blocked!”) rather than as direction rows.
 
 ### UI Contract: Ground Block
-* **Trigger:** VM sets `has_ground=True` and provides non-empty `ground_items: List[str]`.
+* **Trigger:** VM sets `has_ground=True` and provides non-empty `ground_item_ids: List[str]`.
 * **Rendering:** Renderer prints one fixed header `On the ground lies:` followed by a comma-separated list of items, wrapped to **80 columns**, with a trailing period. See `uicontract.py` constants: `GROUND_HEADER`, `UI_WRAP_WIDTH`.
 * **Separators:** Exactly one `***` before and one `***` after the ground block. The post-direction separator is reused if already present.
-* **Guardrail:** If `has_ground=True` but `ground_items` is empty, the renderer asserts under `MUTANTS_DEV=1` or logs-and-drops in normal runs.
+* **Guardrail:** If `has_ground=True` but `ground_item_ids` is empty, the renderer asserts under `MUTANTS_DEV=1` or logs-and-drops in normal runs.
 
 ### UI Contract: Monsters & Cues
 * **Monsters:** If `vm["monsters_here"]` is non-empty, render:
@@ -128,8 +128,13 @@ VM → Formatters (build strings + **group**) → Styles (resolve color by group
 * **Safety**: runs once at bootstrap; missing files/worlds merely log and skip.
 
 #### Items Registry
-* **Reader**: `registries/items_instances.py` provides `list_at(year,x,y)` understanding both `{"pos":{...}}` and flat `{"year":...}` shapes.
-* **VM plumbing**: context uses this registry so `build_room_vm` sets `has_ground`/`ground_items` for the renderer.
+* **Reader**: `registries/items_instances.py` provides `list_ids_at(year,x,y)` (IDs) and legacy `list_at(year,x,y)` (display names). Both recognize `{"pos":{...}}` and flat `{"year":...}` shapes.
+* **VM plumbing**: context uses this registry so `build_room_vm` sets `has_ground`/`ground_item_ids` for the renderer.
+
+#### Item Display Rules
+* **Name source**: `ui/item_display.py` uses `catalog.display_name|name|title` when available; else derives by `_`→`-` and Title-Case per hyphen segment.
+* **Articles**: `A`/`An` chosen by first alphabetic character (vowel heuristic).
+* **Duplicate numbering**: for identical base names on the same tile, append `" (n)"` to the 2nd, 3rd, … occurrence.
 
 ## IO helpers
 - `io/atomic.py` — `atomic_write_json()` and `read_json()` (tmp → fsync → replace).

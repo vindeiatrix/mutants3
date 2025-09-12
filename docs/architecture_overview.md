@@ -55,7 +55,7 @@ When the VM indicates items are present on the ground, the renderer prints a **G
 - Header literal: **`On the ground lies:`** (see `uicontract.py`).
 - A comma-separated list of items, wrapped to **80 columns**, ending with a period.
 - The block is surrounded by single `***` separators: one before (after directions) and one after.
-The VM must set `has_ground=True` **only** when `ground_items` is non-empty; otherwise the renderer drops the block and warns (or asserts in dev).
+The VM must set `has_ground=True` **only** when `ground_item_ids` is non-empty; otherwise the renderer drops the block and warns (or asserts in dev).
 
 ### Monsters & Cues (after Ground)
 - **Monsters present:** a single line is emitted:
@@ -79,8 +79,12 @@ At startup (once per calendar day), the game performs a **litter reset**:
 - The reset is deterministic for the day (seeded by date) and runs only at startup, so no mid-day pop-in.
 
 ### Ground items plumbing (minimal)
-- The **items registry** exposes `list_at(year,x,y)` which reads instance data and resolves display names.
-- The **room VM** sets `has_ground`/`ground_items` from this registry so the renderer prints the Ground block when items exist.
+- The **items registry** exposes `list_at(year,x,y)` which reads `state/items/instances.json` (recognizing both nested `pos` and flat `year/x/y` shapes) and resolves display names via the catalog.
+- The **room VM** sets `has_ground` and `ground_item_ids`; the renderer formats names with the **Item Display** rules (Title Case, hyphens, `A/An`, duplicate numbering) and shows the Ground block when non-empty.
+
+## Item Display (canonical names)
+- Display names come from the catalog (`display_name`/`name`) or are derived from the item ID by replacing `_` with `-` and Title-Casing each part (e.g., `ion_decay` → `Ion-Decay`).
+- The ground list prefixes each name with `A`/`An` (vowel heuristic) and numbers duplicates as ` (1)`, ` (2)`, … for subsequent identical items.
 
 ## Future-proofing choices
 - No hard-coded year: world **discovery** + **nearest year** when needed.

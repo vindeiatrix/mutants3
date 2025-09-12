@@ -23,6 +23,7 @@ from .styles import (
 )
 from .viewmodels import EdgeDesc, Thing
 from . import uicontract as UC
+from . import item_display as idisp
 
 Segments = List[Segment]
 
@@ -82,8 +83,9 @@ def format_ground_label() -> Segments:
     return [(LABEL, "On the ground lies:")]
 
 
-def format_item(name: str) -> Segments:
-    return [(ITEM, f"A {name}")]
+def format_item(text: str) -> Segments:
+    """Wrap item text (with article/numbering) in ITEM token."""
+    return [(ITEM, text)]
 
 
 def format_shadows(dirs: List[str]) -> Segments | None:
@@ -127,14 +129,11 @@ def format_ground_header() -> str:
     return st.colorize_text(UC.GROUND_HEADER, group=UG.HEADER)
 
 
-def format_ground_list(items: list) -> list:
-    """
-    Comma-separated item list, wrapped to 80 cols, ends with a period.
-    Returns a list of lines (already wrapped).
-    """
-    line = ", ".join(str(x).strip() for x in items if str(x).strip())
-    if line and not line.endswith("."):
-        line += "."
+def format_ground_items(item_ids: list[str]) -> list[str]:
+    """Return wrapped ground item lines for *item_ids* using canonical rules."""
+    if not item_ids:
+        return []
+    line = idisp.render_ground_list(item_ids)
     wrapped = textwrap.fill(line, width=UC.UI_WRAP_WIDTH)
     return wrapped.splitlines() if wrapped else []
 

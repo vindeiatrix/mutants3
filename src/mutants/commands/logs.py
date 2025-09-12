@@ -6,6 +6,7 @@ from mutants.app import trace as traceflags
 from mutants.engine import edge_resolver as ER
 from mutants.registries import dynamics as dyn
 from mutants.ui import renderer as uirender
+from mutants.ui import item_display as idisp
 import random
 import logging
 
@@ -43,6 +44,31 @@ def log_cmd(arg: str, ctx) -> None:
         else:
             ctx["feedback_bus"].push(
                 "SYSTEM/OK", f"Separator verify OK: {ok} scenarios passed."
+            )
+        return
+    if len(parts) >= 2 and parts[0] == "verify" and parts[1] == "items":
+        cases = [
+            (["ion_decay", "skull", "skull", "opal_knife"],
+             "An Ion-Decay, A Skull, A Skull (1), An Opal-Knife."),
+            (["gold_chunk"], "A Gold-Chunk."),
+            (["battery", "battery", "battery"],
+             "A Battery, A Battery (1), A Battery (2)."),
+        ]
+        fails = 0
+        for ids, expect in cases:
+            got = idisp.render_ground_list(ids)
+            if got != expect:
+                fails += 1
+                logging.getLogger(__name__).warning(
+                    'VERIFY/ITEMS - expected "%s" got "%s" for %r', expect, got, ids
+                )
+        if fails:
+            ctx["feedback_bus"].push(
+                "SYSTEM/WARN", f"Item verify found {fails} failure(s). See game.log."
+            )
+        else:
+            ctx["feedback_bus"].push(
+                "SYSTEM/OK", f"Item verify OK: {len(cases)} cases passed."
             )
         return
     if len(parts) >= 2 and parts[0] == "verify" and parts[1] == "edges":
