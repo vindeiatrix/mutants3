@@ -3,6 +3,13 @@ from dataclasses import dataclass
 from typing import Dict, List, Optional, Tuple
 import time
 
+from mutants.registries.world import (
+    BASE_OPEN,
+    BASE_BOUNDARY,
+    BASE_GATE,
+    GATE_OPEN,
+)
+
 DESC_AREA = "area continues."
 DESC_ICE = "wall of ice."
 DESC_FORCE = "ion force field."
@@ -18,6 +25,32 @@ class EdgeDecision:
     reason_chain: List[Tuple[str, str]]
     cur_raw: Dict
     nbr_raw: Dict
+    reason: str = "ok"
+
+
+def _is_open(e: Dict) -> bool:
+    base = e.get("base", BASE_OPEN)
+    if base == BASE_OPEN:
+        return True
+    if base == BASE_GATE:
+        return e.get("gate_state", GATE_OPEN) == GATE_OPEN
+    if base == BASE_BOUNDARY:
+        return False
+    return False
+
+
+def _passable_pair(a: Dict, b: Dict) -> bool:
+    return _is_open(a) and _is_open(b)
+
+
+def _block_reason(a: Dict, b: Dict) -> str:
+    for e in (a, b):
+        base = e.get("base")
+        if base == BASE_GATE and e.get("gate_state", GATE_OPEN) != GATE_OPEN:
+            return "closed_gate"
+        if base == BASE_BOUNDARY:
+            return "boundary"
+    return "blocked"
 
 
 def _normalize_base_kind(v) -> str:
@@ -48,19 +81,21 @@ def _normalize_base_kind(v) -> str:
 
 def _gate_state_norm(v) -> int:
     """
-    Normalize gate_state to 0:none, 1:open, 2:closed (conservative default=2 if ambiguous when base == gate).
-    Accepts ints or strings ('open'/'closed').
+    Normalize gate_state to 0:open, 1:closed, 2:locked (conservative default=2 if ambiguous when base == gate).
+    Accepts ints or strings ('open'/'closed'/'locked').
     """
     if isinstance(v, int):
         return v if v in (0, 1, 2) else 2
     if isinstance(v, str):
         s = v.strip().lower()
         if s == "open":
-            return 1
+            return 0
         if s == "closed":
+            return 1
+        if s == "locked":
             return 2
         return 2
-    return 0
+    return 2
 
 
 _DELTA = {"n": (0, 1), "s": (0, -1), "e": (1, 0), "w": (-1, 0)}
@@ -105,15 +140,15 @@ def resolve(world, dynamics, year: int, x: int, y: int, dir_key: str, actor: Opt
 
     cur_kind = _normalize_base_kind(cur_edge.get("base", None))
     nbr_kind = _normalize_base_kind(nbr_edge.get("base", None))
-    cur_gs = _gate_state_norm(cur_edge.get("gate_state", 0))
-    nbr_gs = _gate_state_norm(nbr_edge.get("gate_state", 0))
+    cur_gs = _gate_state_norm(cur_edge.get("gate_state", GATE_OPEN))
+    nbr_gs = _gate_state_norm(nbr_edge.get("gate_state", GATE_OPEN))
 
     reasons.append(("cur.base", cur_kind))
     reasons.append(("nbr.base", nbr_kind))
     if cur_kind == "gate":
-        reasons.append(("cur.gate", "open" if cur_gs == 1 else "closed" if cur_gs == 2 else "none"))
+        reasons.append(("cur.gate", "open" if cur_gs == 0 else "closed" if cur_gs == 1 else "locked"))
     if nbr_kind == "gate":
-        reasons.append(("nbr.gate", "open" if nbr_gs == 1 else "closed" if nbr_gs == 2 else "none"))
+        reasons.append(("nbr.gate", "open" if nbr_gs == 0 else "closed" if nbr_gs == 1 else "locked"))
 
     cur_overlay = None
     try:
@@ -131,14 +166,14 @@ def resolve(world, dynamics, year: int, x: int, y: int, dir_key: str, actor: Opt
         pass
 
     if cur_kind == "boundary" or nbr_kind == "boundary":
-        return EdgeDecision(False, DESC_FORCE, reasons, cur_edge, nbr_edge)
-    if (cur_kind == "gate" and cur_gs != 1) or (nbr_kind == "gate" and nbr_gs != 1):
-        return EdgeDecision(False, DESC_GATE_CLOSED, reasons, cur_edge, nbr_edge)
+        return EdgeDecision(False, DESC_FORCE, reasons, cur_edge, nbr_edge, reason="boundary")
+    if (cur_kind == "gate" and cur_gs != 0) or (nbr_kind == "gate" and nbr_gs != 0):
+        return EdgeDecision(False, DESC_GATE_CLOSED, reasons, cur_edge, nbr_edge, reason="closed_gate")
     if cur_kind == "ice" or nbr_kind == "ice":
-        return EdgeDecision(False, DESC_ICE, reasons, cur_edge, nbr_edge)
+        return EdgeDecision(False, DESC_ICE, reasons, cur_edge, nbr_edge, reason="ice")
     if cur_kind == "force" or nbr_kind == "force":
-        return EdgeDecision(False, DESC_FORCE, reasons, cur_edge, nbr_edge)
-    if (cur_kind == "gate" and cur_gs == 1) or (nbr_kind == "gate" and nbr_gs == 1):
-        return EdgeDecision(True, DESC_GATE_OPEN, reasons, cur_edge, nbr_edge)
-    return EdgeDecision(True, DESC_AREA, reasons, cur_edge, nbr_edge)
+        return EdgeDecision(False, DESC_FORCE, reasons, cur_edge, nbr_edge, reason="force")
+    if (cur_kind == "gate" and cur_gs == 0) or (nbr_kind == "gate" and nbr_gs == 0):
+        return EdgeDecision(True, DESC_GATE_OPEN, reasons, cur_edge, nbr_edge, reason="ok")
+    return EdgeDecision(True, DESC_AREA, reasons, cur_edge, nbr_edge, reason="ok")
 
