@@ -54,52 +54,61 @@ def render_token_lines(
     coords = vm["coords"]
     lines.append(fmt.format_compass(coords["x"], coords["y"]))
 
-    # Directions list must be OPEN-ONLY by construction.
+    # Directions list should include plain OPEN (base==0) and GATE (base==3) edges.
     # Prefer vm["dirs_open"] if present; otherwise derive from vm["dirs"].
     raw_dirs = vm.get("dirs", {}) or {}
     dirs_open = vm.get("dirs_open")
     if dirs_open is None:
-        # Derive open-only dict (base == 0 means "area continues"/open).
-        dirs_open = {k: v for k, v in raw_dirs.items() if v.get("base", 0) == 0}
+        dirs_open = {
+            k: v for k, v in raw_dirs.items() if v and v.get("base", 0) in (0, 3)
+        }
 
     DEV = os.environ.get("MUTANTS_DEV") == "1"
     logger = logging.getLogger(__name__)
 
-    # Validate directions against the passability engine to prevent drift.
-    # (We keep the existing VM feed, but drop any direction the resolver blocks.)
+    # Validate with the passability engine.
+    # - base==0 (open): drop if resolver blocks.
+    # - base==3 (gate): never drop; render open/closed/locked via resolver outcome.
+    ctx = appctx.current_context() if hasattr(appctx, "current_context") else None
+    player = ctx.get("player_state") if ctx else None
+    world = ctx.get("world") if ctx else None
+    dyn_mod = ctx.get("dynamics") if ctx and ctx.get("dynamics") else dyn
+
     for d in c.DIR_ORDER:
         edge = dirs_open.get(d)
         if not edge:
             continue
-        # Guardrail: if something non-open leaked in, drop it and warn (or assert in dev).
-        if edge.get("base", 0) != 0:
-            if DEV:
-                assert False, f"ui: non-open edge leaked into dirs_open: {d}"
-            else:
-                logger.warning("ui: dropped non-open edge in dirs_open: %s", d)
-            continue
-        # Cross-check with resolver (single source of truth for movement).
-        player = getattr(appctx, "player", None)
-        world = getattr(appctx, "world", None)
-        if player is not None and world is not None:
-            try:
+        base = edge.get("base", 0)
+        try:
+            if player is not None and world is not None:
                 year = getattr(player, "year")
                 x = getattr(player, "x")
                 y = getattr(player, "y")
-                dec = ER.resolve(world, dyn, year, x, y, d, actor={})
-                if not dec.passable:
-                    if DEV:
-                        assert False, f"ui: resolver blocked direction {d} at ({x},{y})"
-                    else:
-                        logger.warning(
-                            "ui: dropped dir %s (resolver blocked) cur=%r nbr=%r",
-                            d,
-                            dec.cur_raw,
-                            dec.nbr_raw,
-                        )
+                dec = ER.resolve(world, dyn_mod, year, x, y, d, actor={})
+                if base == 0:
+                    if not dec.passable:
+                        if DEV:
+                            assert False, f"ui: resolver blocked {d} at ({x},{y})"
+                        else:
+                            logger.warning(
+                                "ui: dropped dir %s (blocked) cur=%r nbr=%r",
+                                d,
+                                dec.cur_raw,
+                                dec.nbr_raw,
+                            )
+                        continue
+                elif base == 3:
+                    edge = dict(edge)
+                    if edge.get("gate_state", 0) != 2:
+                        edge["gate_state"] = 0 if dec.passable else 1
+                else:
                     continue
-            except Exception as e:
-                logger.warning("ui: resolver check failed for dir %s: %s", d, e)
+            else:
+                if base not in (0, 3):
+                    continue
+        except Exception:
+            if base != 0:
+                continue
         lines.append(fmt.format_direction_segments(d, edge))
 
     sep_line = [("", UC.SEPARATOR_LINE)]
@@ -189,49 +198,60 @@ def render(
     vm_local = {"compass_str": compass_str}
     lines.append(fmt.format_compass_line(vm_local))
 
-    # Directions list must be OPEN-ONLY by construction.
+    # Directions list should include plain OPEN (base==0) and GATE (base==3) edges.
     raw_dirs = vm.get("dirs", {}) or {}
     dirs_open = vm.get("dirs_open")
     if dirs_open is None:
-        dirs_open = {k: v for k, v in raw_dirs.items() if v.get("base", 0) == 0}
+        dirs_open = {
+            k: v for k, v in raw_dirs.items() if v and v.get("base", 0) in (0, 3)
+        }
 
     DEV = os.environ.get("MUTANTS_DEV") == "1"
     logger = logging.getLogger(__name__)
 
-    # Validate directions against the passability engine to prevent drift.
-    # (We keep the existing VM feed, but drop any direction the resolver blocks.)
+    # Validate with the passability engine.
+    # - base==0 (open): drop if resolver blocks.
+    # - base==3 (gate): never drop; show open/closed/locked via resolver.
+    ctx = appctx.current_context() if hasattr(appctx, "current_context") else None
+    player = ctx.get("player_state") if ctx else None
+    world = ctx.get("world") if ctx else None
+    dyn_mod = ctx.get("dynamics") if ctx and ctx.get("dynamics") else dyn
+
     for d in c.DIR_ORDER:
         edge = dirs_open.get(d)
         if not edge:
             continue
-        if edge.get("base", 0) != 0:
-            if DEV:
-                assert False, f"ui: non-open edge leaked into dirs_open: {d}"
-            else:
-                logger.warning("ui: dropped non-open edge in dirs_open: %s", d)
-            continue
-        # Cross-check with resolver (single source of truth for movement).
-        player = getattr(appctx, "player", None)
-        world = getattr(appctx, "world", None)
-        if player is not None and world is not None:
-            try:
+        base = edge.get("base", 0)
+        try:
+            if player is not None and world is not None:
                 year = getattr(player, "year")
                 x = getattr(player, "x")
                 y = getattr(player, "y")
-                dec = ER.resolve(world, dyn, year, x, y, d, actor={})
-                if not dec.passable:
-                    if DEV:
-                        assert False, f"ui: resolver blocked direction {d} at ({x},{y})"
-                    else:
-                        logger.warning(
-                            "ui: dropped dir %s (resolver blocked) cur=%r nbr=%r",
-                            d,
-                            dec.cur_raw,
-                            dec.nbr_raw,
-                        )
+                dec = ER.resolve(world, dyn_mod, year, x, y, d, actor={})
+                if base == 0:
+                    if not dec.passable:
+                        if DEV:
+                            assert False, f"ui: resolver blocked {d} at ({x},{y})"
+                        else:
+                            logger.warning(
+                                "ui: dropped dir %s (blocked) cur=%r nbr=%r",
+                                d,
+                                dec.cur_raw,
+                                dec.nbr_raw,
+                            )
+                        continue
+                elif base == 3:
+                    edge = dict(edge)
+                    if edge.get("gate_state", 0) != 2:
+                        edge["gate_state"] = 0 if dec.passable else 1
+                else:
                     continue
-            except Exception as e:
-                logger.warning("ui: resolver check failed for dir %s: %s", d, e)
+            else:
+                if base not in (0, 3):
+                    continue
+        except Exception:
+            if base != 0:
+                continue
         lines.append(fmt.format_direction_line(d, edge))
 
     # ------- Build blocks instead of emitting separators inline -------

@@ -17,6 +17,7 @@ DESC_WALL_OF_ICE = "wall of ice."
 DESC_ION_FORCE_FIELD = "ion force field."
 DESC_OPEN_GATE = "open gate."
 DESC_CLOSED_GATE = "closed gate."
+DESC_LOCKED_GATE = "locked gate."
 
 # Allowed set for validation / normalization.
 ALLOWED_DIR_DESCRIPTORS = {
@@ -25,6 +26,7 @@ ALLOWED_DIR_DESCRIPTORS = {
     DESC_ION_FORCE_FIELD,
     DESC_OPEN_GATE,
     DESC_CLOSED_GATE,
+    DESC_LOCKED_GATE,
 }
 
 __all__ = [
@@ -38,5 +40,6 @@ __all__ = [
     "DESC_ION_FORCE_FIELD",
     "DESC_OPEN_GATE",
     "DESC_CLOSED_GATE",
+    "DESC_LOCKED_GATE",
     "ALLOWED_DIR_DESCRIPTORS",
 ]
