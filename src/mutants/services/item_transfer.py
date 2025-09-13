@@ -1,6 +1,6 @@
 from __future__ import annotations
 import json, os, random, time, logging
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 from ..io import atomic
 from ..ui import item_display as idisp
 from ..registries import items_instances as itemsreg
@@ -85,15 +85,23 @@ def _inv_iids(p: Dict) -> List[str]:
     return list(p.get("inventory") or [])
 
 
-def _pick_first_match_by_prefix(iids: List[str], prefix: str) -> Optional[str]:
+def _pick_first_match_by_prefix(
+    iids: List[str], prefix: str
+) -> Tuple[Optional[str], Optional[List[str]]]:
     if not prefix:
-        return None
+        return (None, None)
     pref = prefix.strip().lower()
+    matches: List[str] = []
     for iid in iids:
         nm = _iid_to_name(iid).lower()
         if nm.startswith(pref):
-            return iid
-    return None
+            matches.append(iid)
+    if len(matches) == 1:
+        return (matches[0], None)
+    if len(matches) > 1:
+        names = [_iid_to_name(i) for i in matches]
+        return (None, names)
+    return (None, None)
 
 
 def _rng(seed: Optional[int]) -> random.Random:
@@ -116,9 +124,11 @@ def pick_from_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
     _ensure_inventory(p)
     year, x, y = _pos_from_ctx(ctx)
     ground_iids = _ground_ordered_ids(year, x, y)
-    chosen_iid = None
+    chosen_iid: Optional[str] = None
     if prefix:
-        chosen_iid = _pick_first_match_by_prefix(ground_iids, prefix)
+        chosen_iid, amb = _pick_first_match_by_prefix(ground_iids, prefix)
+        if amb:
+            return {"ok": False, "reason": "ambiguous", "candidates": amb}
     else:
         chosen_iid = ground_iids[0] if ground_iids else None
     if not chosen_iid:
@@ -151,9 +161,11 @@ def drop_to_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
     inv = _inv_iids(p)
     if not inv:
         return {"ok": False, "reason": "inventory_empty"}
-    iid = None
+    iid: Optional[str] = None
     if prefix:
-        iid = _pick_first_match_by_prefix(inv, prefix)
+        iid, amb = _pick_first_match_by_prefix(inv, prefix)
+        if amb:
+            return {"ok": False, "reason": "ambiguous", "candidates": amb}
     else:
         iid = inv[0]
     if not iid:
@@ -192,9 +204,11 @@ def throw_to_direction(ctx, direction: str, prefix: str, *, seed: Optional[int] 
     inv = _inv_iids(p)
     if not inv:
         return {"ok": False, "reason": "inventory_empty"}
-    iid = None
+    iid: Optional[str] = None
     if prefix:
-        iid = _pick_first_match_by_prefix(inv, prefix)
+        iid, amb = _pick_first_match_by_prefix(inv, prefix)
+        if amb:
+            return {"ok": False, "reason": "ambiguous", "candidates": amb}
     else:
         iid = inv[0]
     if not iid:
