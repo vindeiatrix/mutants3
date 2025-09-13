@@ -82,3 +82,4 @@ Edit `state/items/spawn_rules.json`:
 
 - **“No litter spawned today”**: ensure `catalog.json` entries have `"spawnable": true` and `daily_target_per_year > 0`; confirm `spawn_epoch.json` reflects today’s date.
 - **“Too many of one item”**: lower its `weight` and/or set a `cap_per_year`.
+- **`daily_litter: no eligible spawnables for year YYYY` in logs**: every catalog item is either missing `"spawnable": true` or has already hit its `cap_per_year` for that year.

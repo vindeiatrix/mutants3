@@ -348,6 +348,7 @@ def run_daily_litter_reset(root: str | Path | None = None) -> None:
 
         pool = build_weighted_pool(year)
         if not pool:
+            LOG.info("daily_litter: no eligible spawnables for year %s", year)
             summary[year] = {}
             continue
 

@@ -1,6 +1,6 @@
 # Logging & Tracing Guide
 
-This game writes standard logs to `state/logs/game.log`. You can now enable lightweight **decision traces** from inside the game, and you can ask **why** a direction is (not) traversable.
+This game writes standard logs to `state/logs/game.log`. The daily litter reset emits messages here as well (e.g., `daily_litter: no spawnable items; skipping`, `daily_litter: no eligible spawnables for year 2000`). You can now enable lightweight **decision traces** from inside the game, and you can ask **why** a direction is (not) traversable.
 
 ## Quick Commands
 
