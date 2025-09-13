@@ -16,3 +16,21 @@ It intentionally contains **no game logic**. Start adding code under `src/mutant
 - `src/mutants/services/` — background/time-based services (empty).
 - `src/mutants/data/` — static data/resources (empty).
 
+## Troubleshooting World Loads
+
+World files are loaded from `state/world/*.json` relative to the **current working directory**.
+
+- `WORLD_DEBUG=1` → enable detailed world-load logs.
+- `WORLD_STRICT=1` → fail fast if no worlds are found (instead of creating a minimal world).
+
+Example:
+
+```bash
+WORLD_DEBUG=1 python -m mutants
+# [world] discover_world_years dir=/…/state/world years=[2000]
+# [world] load_year request=2000 path=/…/state/world/2000.json
+```
+
+Common pitfall: running from the wrong folder. If the game can't find world JSONs
+it will create a minimal world unless `WORLD_STRICT=1` is set.
+
