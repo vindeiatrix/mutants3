@@ -164,3 +164,14 @@ def render_frame(ctx: Dict[str, Any]) -> None:
     )
     for line in lines:
         print(line)
+
+
+def flush_feedback(ctx: Dict[str, Any]) -> None:
+    events = ctx["feedback_bus"].drain()
+    if not events:
+        return
+    palette = ctx["theme"].palette
+    for ev in events:
+        token = renderer._feedback_token(ev.get("kind", ""))
+        line = st.resolve_segments([(token, ev.get("text", ""))], palette)
+        print(line)

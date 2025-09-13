@@ -44,6 +44,13 @@ def test_single_letter_alias_north_ok():
     assert called.get('dir') == 'north'
 
 
+def test_call_returns_canonical_name():
+    d = _dispatch()
+    d.register('north', lambda arg: None)
+    d.alias('n', 'north')
+    assert d.call('n', '') == 'north'
+
+
 def test_ambiguous_prefix_warns():
     d = _dispatch()
     d.register('drink', lambda arg: None)

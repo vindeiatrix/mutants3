@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 def look_cmd(_arg: str, ctx) -> None:
-    # The REPL loop re-renders after each command; look is a no-op.
+    # REPL loop triggers rendering for look; the command itself does nothing.
     pass
 
 
