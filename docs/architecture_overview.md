@@ -90,7 +90,6 @@ At startup (once per calendar day), the game performs a **litter reset**:
 - Inventory is an **ordered list of instance IDs** in `state/playerlivestate.json`; worn armor lives separately and isn't counted.
 - `get <prefix>` picks the **first matching** ground item (by display-name prefix). If this pushes inventory over **10**, a random inventory item falls to the ground (overflow, swapping with a random ground item if the tile already has six).
 - `drop <prefix>` drops the first matching inventory item (pickup order, excluding worn armor). If ground exceeds **6**, a random ground item pops into inventory and may drop another if inventory would exceed 10.
-- `throw <dir> <prefix>` acts like **drop to the adjacent tile** in `dir` (north/south/east/west). It uses the same caps/overflow rules as `drop` and **never renders** the tile; it only pushes feedback (e.g., “You throw the Skull north.”).
 - `inv` prints inventory with the same naming rules as the ground list.
 
 ## Argument-Command Framework (updated)
