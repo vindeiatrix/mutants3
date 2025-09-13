@@ -1,20 +1,22 @@
 from __future__ import annotations
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, Optional
+from typing import Any, Callable, Dict, List, Optional, Tuple
+import shlex
 
+
+# ---------- Single-argument runner ----------
 
 @dataclass
 class ArgSpec:
     """
-    Spec for argument-taking commands.
+    Spec for single-argument commands.
     - verb: command verb for usage text (e.g., "GET", "DROP")
-    - arg_policy: "required" | "optional" | "forbidden" (we currently use "required" for GET/DROP)
+    - arg_policy: "required" | "optional" | "forbidden"
     - messages: dict with templates: "usage", "invalid", "success"
       Templates may use {subject} (raw user arg) and {name} (resolved display name).
-    - reason_messages: optional map from engine/service reason codes -> templates
-    - success_kind/warn_kind: feedback kinds to push on success/warn
+    - reason_messages: optional map reason-code -> template
+    - success_kind/warn_kind: feedback kinds on success/warn
     """
-
     verb: str
     arg_policy: str = "required"
     messages: Optional[Dict[str, str]] = None
@@ -34,28 +36,23 @@ def run_argcmd(
     do_action: Callable[[str], Dict[str, Any]],
 ) -> None:
     """
-    Common runner for commands that take a single 'subject' argument.
-    Behavior:
-      1) Trim the raw arg.
-      2) If arg is required and empty -> push usage (warn) and return.
-      3) Call do_action(subject) -> expect {"ok": bool, "reason"?: str, "display_name"| "name"| "item_name"?: str}
-      4) On failure: map reason -> message; else success -> push success with name if available.
+    Single-arg runner.
+    1) Trim arg.
+    2) If required & empty -> usage.
+    3) do_action(subject) -> {"ok": bool, "reason"?: str, "display_name"|"name"|"item_name"?: str}
+    4) On failure: map reason; on success: push success with best-available name.
     """
-
     bus = ctx["feedback_bus"]
     subject = (arg or "").strip()
 
-    # 1) Usage on empty
     if spec.arg_policy == "required" and not subject:
         usage = (spec.messages or {}).get("usage") or f"Type {spec.verb.upper()} [subject]."
         bus.push(spec.warn_kind, usage)
         return
 
-    # 2) Execute action (services are expected to be no-ops on failure)
     decision = do_action(subject)
     if not decision.get("ok"):
         r = decision.get("reason") or "invalid"
-        # Prefer explicit reason template, else fallback invalid message, else generic
         msg = None
         if spec.reason_messages and r in spec.reason_messages:
             msg = _fmt(spec.reason_messages[r], subject=subject)
@@ -64,13 +61,143 @@ def run_argcmd(
         bus.push(spec.warn_kind, msg or "Nothing happens.")
         return
 
-    # 3) Success — use best available display name
-    name = (
-        decision.get("display_name")
-        or decision.get("name")
-        or decision.get("item_name")
-        or subject
-    )
+    name = decision.get("display_name") or decision.get("name") or decision.get("item_name") or subject
     success = _fmt((spec.messages or {}).get("success"), name=name) or f"{spec.verb.title()} {name}."
+    bus.push(spec.success_kind, success)
+
+
+# ---------- Two-argument (positional) runner ----------
+
+@dataclass
+class PosArg:
+    name: str                 # e.g., "dir", "item", "amt"
+    kind: str                 # "direction" | "item_in_inventory" | "literal:ions" | "int_range:100000:999999"
+    required: bool = True
+
+
+@dataclass
+class PosArgSpec:
+    verb: str
+    args: List[PosArg]
+    messages: Optional[Dict[str, str]] = None  # "usage", "invalid", "success"
+    reason_messages: Optional[Dict[str, str]] = None  # reason -> template
+    success_kind: str = "SYSTEM/OK"
+    warn_kind: str = "SYSTEM/WARN"
+
+
+def _tokenize(s: str) -> List[str]:
+    # Supports quotes for multi-word names; preserves hyphens.
+    return shlex.split(s or "")
+
+
+def _parse_direction(tok: str) -> Optional[str]:
+    if not tok:
+        return None
+    t = tok.lower()
+    if t in ("n", "north"):
+        return "north"
+    if t in ("s", "south"):
+        return "south"
+    if t in ("e", "east"):
+        return "east"
+    if t in ("w", "west"):
+        return "west"
+    return None
+
+
+def _parse_int_range(tok: str, lo: int, hi: int) -> Optional[int]:
+    try:
+        v = int(tok.replace("_", ""))
+    except Exception:
+        return None
+    if lo <= v <= hi:
+        return v
+    return None
+
+
+def _check_literal(tok: str, lit: str) -> bool:
+    return tok.lower() == lit.lower()
+
+
+def _parse_by_kind(tok: str, kind: str) -> Tuple[Optional[Any], Optional[str]]:
+    """
+    Returns (value, reason_if_invalid).
+    Only kinds needed for POINT/THROW/BUY-ions are implemented.
+    """
+    if kind == "direction":
+        v = _parse_direction(tok)
+        return (v, None if v else "invalid_direction")
+    if kind == "item_in_inventory":
+        # Parsing is pass-through; actual resolution happens in the action/service.
+        # Armor is excluded by services; runner just carries the token through.
+        return ((tok or "").strip() or None, "not_carrying" if not tok else None)
+    if kind.startswith("literal:"):
+        expect = kind.split(":", 1)[1]
+        return (tok, None) if _check_literal(tok, expect) else (None, "wrong_item_literal")
+    if kind.startswith("int_range:"):
+        _, lo, hi = kind.split(":")
+        v = _parse_int_range(tok, int(lo), int(hi))
+        return (v, None) if v is not None else (None, "invalid_amount_range")
+    # Fallback: unknown kind treated as invalid
+    return (None, "invalid_argument")
+
+
+def run_argcmd_positional(
+    ctx: Dict[str, Any],
+    spec: PosArgSpec,
+    arg: str,
+    do_action: Callable[..., Dict[str, Any]],
+) -> None:
+    """
+    Two-arg (positional) runner.
+    - Tokenizes input (supports quotes).
+    - Enforces required argument count -> usage.
+    - Validates each arg by `kind`; first parse error -> mapped warn and return.
+    - On success, calls do_action(**values) with names from spec.args (e.g., dir, item, amt).
+    - Decision contract: {"ok": bool, "reason"?: str, ...} (as in single-arg).
+    """
+    bus = ctx["feedback_bus"]
+    toks = _tokenize(arg)
+    # Check presence counts
+    required = sum(1 for a in spec.args if a.required)
+    if len(toks) < required:
+        usage = (spec.messages or {}).get("usage") or f"Type {spec.verb.upper()} [args]."
+        bus.push(spec.warn_kind, usage)
+        return
+
+    values: Dict[str, Any] = {}
+    for idx, a in enumerate(spec.args):
+        tok = toks[idx] if idx < len(toks) else ""
+        if not tok and a.required:
+            usage = (spec.messages or {}).get("usage") or f"Type {spec.verb.upper()} [args]."
+            bus.push(spec.warn_kind, usage)
+            return
+        if not tok and not a.required:
+            continue
+        v, reason = _parse_by_kind(tok, a.kind)
+        if reason:
+            # Map reason -> message, else generic invalid
+            msg = None
+            if spec.reason_messages and reason in spec.reason_messages:
+                # allow templates like "We don't have {what} in stock." etc.
+                msg = _fmt(spec.reason_messages[reason], **{a.name: tok})
+            if not msg:
+                msg = _fmt((spec.messages or {}).get("invalid"), **{a.name: tok})
+            bus.push(spec.warn_kind, msg or "Nothing happens.")
+            return
+        values[a.name] = v if v is not None else tok
+
+    decision = do_action(**values)
+    if not decision.get("ok"):
+        r = decision.get("reason") or "invalid"
+        msg = None
+        if spec.reason_messages and r in spec.reason_messages:
+            msg = _fmt(spec.reason_messages[r], **values)
+        if not msg:
+            msg = _fmt((spec.messages or {}).get("invalid"), **values)
+        bus.push(spec.warn_kind, msg or "Nothing happens.")
+        return
+
+    success = _fmt((spec.messages or {}).get("success"), **values) or f"{spec.verb.title()} OK."
     bus.push(spec.success_kind, success)
 

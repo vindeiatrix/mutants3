@@ -169,14 +169,19 @@ VM → Formatters (build strings + **group**) → Styles (resolve color by group
 - Renderer/formatters pure & snapshot-friendly.
 - Commands push messages; REPL paints; logs keep a durable trail.
 - Auto-discovery keeps REPL decoupled from command inventory.
-## Argument-Command Runner (new)
+## Argument-Command Runner (single & positional)
 * **File**: `src/mutants/commands/argcmd.py`.
-* **Purpose**: unify empty/invalid/success handling for commands that accept a subject argument, reducing per-command boilerplate and preventing regressions.
-* **API**:
-  - `ArgSpec`: `verb`, `arg_policy` (`required|optional|forbidden`), `messages` (`usage|invalid|success` templates), `reason_messages` (map engine/service **reason codes** → templates), `success_kind`, `warn_kind`.
-  - `run_argcmd(ctx, spec, arg, do_action)`: trims arg; on empty+required → usage; else calls `do_action(subject)` and pushes feedback based on `ok/reason`. On success, prefers `display_name|name|item_name` from `do_action` result for `{name}`.
-* **GET/DROP adoption**: `get` and `drop` now use this runner. Failures map to specific feedback (`not_found` → “There isn’t a {subject} here.”, `inventory_empty` → “You have nothing to drop.”, `armor_cannot_drop` → “You can't drop what you're wearing.”). Success emits explicit lines (“You pick up the Skull.” / “You drop the Skull.”).
-* **Armor rule**: any **inventory** arg-kind excludes worn armor; armor is not targetable by `get/drop/look`. Only `remove` operates on the armor slot.
+* **Purpose**: unify empty/invalid/success handling and argument parsing for commands that accept subjects (one or two positional args), reducing per-command boilerplate and preventing regressions.
+* **API (single-arg)**:
+  - `ArgSpec`: `verb`, `arg_policy`, `messages` (`usage|invalid|success`), `reason_messages`, `success_kind`, `warn_kind`.
+  - `run_argcmd(ctx, spec, arg, do_action)`: trims arg; required+empty → usage; else calls `do_action(subject)`; on failure maps reason to message; on success uses `display_name|name|item_name|subject` for `{name}`.
+* **API (two-arg)**:
+  - `PosArgSpec`: `verb`, `args=[("dir","direction"), ("item","item_in_inventory")]` etc., `messages` (`usage|invalid|success`), `reason_messages`, `success_kind`, `warn_kind`.
+  - `run_argcmd_positional(ctx, spec, arg, do_action)`: tokenizes (quotes allowed); validates each arg by kind (`direction`, `item_in_inventory`, `literal('ions')`, `integer_range(min,max)`); missing args → usage; parse errors → reason-coded warn; else call `do_action(**values)`.
+* **Adoption**:
+  - `get` and `drop` use `run_argcmd`.
+  - Future two-arg commands (POINT, THROW, `BUY ions [amount]` at maintenance shops) will use `run_argcmd_positional` with the minimal arg kinds above.
+* **Armor rule**: any **inventory** arg-kind excludes worn armor; armor is not targetable by `get/drop/look/throw/point/buy`. Only `remove` operates on the armor slot.
 
 ## Router Prefix Rule (new)
 * **Rule**: tokens **≥3** letters resolve to the **unique** command whose name (or alias) starts with that prefix; **<3** works only for explicit aliases (by default `n/s/e/w`).

@@ -54,3 +54,6 @@ python scripts/guard_wrap.py
 ## Core command-UX checks (NEW)
 - A tiny **core** pytest file validates the argument-command runner behavior for `get`/`drop` (empty/invalid/success). It runs with the regular test job; no separate CI step is added.
 - Keep these tests minimal and stable (assert the canonical feedback lines only), so new commands don’t break CI. Additional command tests can live outside the core set and be run locally or nightly.
+
+## Router prefix checks (NEW)
+- Minimal router tests run in the same pytest job to ensure the ≥3-letter unique-prefix rule and single-letter movement aliases (`n/s/e/w`) remain stable.

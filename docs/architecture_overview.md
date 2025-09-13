@@ -92,19 +92,19 @@ At startup (once per calendar day), the game performs a **litter reset**:
 - `drop <prefix>` drops the first matching inventory item (pickup order, excluding worn armor). If ground exceeds **6**, a random ground item pops into inventory and may drop another if inventory would exceed 10.
 - `inv` prints inventory with the same naming rules as the ground list.
 
-## Argument-Command Framework (new)
-To keep command UX consistent, commands that take a **subject argument** now use a small runner:
+## Argument-Command Framework (updated)
+Commands that take a **subject argument** use a small runner to keep UX consistent:
 
-- `commands/argcmd.py` exposes `ArgSpec` and `run_argcmd(ctx, spec, arg, do_action)`.
-- `ArgSpec` declares the **arg policy** (`required|optional|forbidden`), **message templates** (usage/invalid/success), optional **reason→message** mapping, and the **feedback kinds** for success/warn (e.g., `LOOT/PICKUP`, `LOOT/DROP`).
-- `run_argcmd` handles: trim arg → usage on empty (when required) → call `do_action(subject)` → map failure `reason` to a message → push explicit success feedback including the item name when available.
+- `commands/argcmd.py` exposes `ArgSpec` + `run_argcmd(ctx, spec, arg, do_action)` for single-arg commands (e.g., GET/DROP) and `PosArgSpec` + `run_argcmd_positional(...)` for two-arg commands (e.g., POINT, THROW, and the limited `BUY ions [amount]` form).
+- `ArgSpec`/`PosArgSpec` declare the **arg policy** (`required|optional|forbidden`), **argument kinds** (e.g., `direction`, `item_in_inventory`, `integer_range`, `literal('ions')`), **message templates** (usage/invalid/success), optional **reason→message** mapping, and the **feedback kinds** for success/warn.
+- Runners handle: trim/tokenize → usage on empty/missing → parse & validate each argument → call `do_action(...)` → map failure `reason` to a message → push explicit success feedback using parsed values (e.g., `{dir}`, `{item}`, `{amt}`) or resolved item names.
 
 ### Command Prefix Rule (router)
-- All commands accept **≥3-letter unique prefixes** (case-insensitive). Only **north/south/east/west** allow single-letter aliases (`n/s/e/w`).
+- All commands accept **≥3-letter unique prefixes** (case-insensitive). Only **north/south/east/west** allow single-letter forms (`n/s/e/w`).
 - If a ≥3 prefix is **ambiguous**, the router warns and does nothing; if **unknown**, it warns accordingly.
 
 ### Notes
-- **Worn armor is not inventory**: by design, arg kinds that reference inventory (e.g., for `drop`) exclude worn armor; only the `remove` command interacts with armor.
+- **Worn armor is not inventory**: inventory-based arg kinds exclude worn armor; only the `remove` command interacts with armor.
 - `get`/`drop` now reject empty args with usage text and emit explicit success/warn lines.
 
 ## Item Display (canonical names)
