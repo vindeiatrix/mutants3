@@ -180,9 +180,14 @@ def run_argcmd_positional(
             msg = None
             if spec.reason_messages and reason in spec.reason_messages:
                 # allow templates like "We don't have {what} in stock." etc.
-                msg = _fmt(spec.reason_messages[reason], **{a.name: tok})
+                msg = _fmt(
+                    spec.reason_messages[reason], **{a.name: tok, "item": tok}
+                )
             if not msg:
-                msg = _fmt((spec.messages or {}).get("invalid"), **{a.name: tok})
+                msg = _fmt(
+                    (spec.messages or {}).get("invalid"),
+                    **{a.name: tok, "item": tok},
+                )
             bus.push(spec.warn_kind, msg or "Nothing happens.")
             return
         values[a.name] = v if v is not None else tok
@@ -191,14 +196,17 @@ def run_argcmd_positional(
     if not decision.get("ok"):
         r = decision.get("reason") or "invalid"
         msg = None
+        fmt_vals = dict(values)
+        fmt_vals.setdefault("item", values.get("item"))
         if spec.reason_messages and r in spec.reason_messages:
-            msg = _fmt(spec.reason_messages[r], **values)
+            msg = _fmt(spec.reason_messages[r], **fmt_vals)
         if not msg:
-            msg = _fmt((spec.messages or {}).get("invalid"), **values)
+            msg = _fmt((spec.messages or {}).get("invalid"), **fmt_vals)
         bus.push(spec.warn_kind, msg or "Nothing happens.")
         return
 
     fmt_vals = dict(values)
+    fmt_vals.setdefault("item", values.get("item"))
     name = (
         decision.get("display_name")
         or decision.get("name")

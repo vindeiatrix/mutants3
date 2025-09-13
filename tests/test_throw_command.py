@@ -1,8 +1,10 @@
 import json, shutil
+import json, shutil
 from pathlib import Path
 
 from src.mutants.commands.throw import throw_cmd
 from src.mutants.registries import items_instances as itemsreg
+from src.mutants.services import item_transfer as itx
 
 
 class DummyWorld:
@@ -34,22 +36,23 @@ def _copy_state(src: Path, dst: Path) -> None:
     shutil.copytree(src, dst)
 
 
-def test_throw_moves_item_to_adjacent_tile(monkeypatch, tmp_path):
+def _setup(monkeypatch, tmp_path, item_ids):
     src_state = Path(__file__).resolve().parents[1] / "state"
     dst_state = tmp_path / "state"
     _copy_state(src_state, dst_state)
     monkeypatch.chdir(tmp_path)
-
-    iid = itemsreg.create_and_save_instance("nuclear_decay", 2000, 0, 0)
-    itemsreg.clear_position(iid)
-
+    itemsreg._CACHE = None
+    inv = []
+    for item_id in item_ids:
+        iid = itemsreg.create_and_save_instance(item_id, 2000, 0, 0)
+        itemsreg.clear_position(iid)
+        inv.append(iid)
     pfile = Path("state/playerlivestate.json")
     with pfile.open("r", encoding="utf-8") as f:
         pdata = json.load(f)
-    pdata["inventory"] = [iid]
+    pdata["inventory"] = inv
     with pfile.open("w", encoding="utf-8") as f:
         json.dump(pdata, f)
-
     ctx = _ctx()
     ctx["player_state"] = {
         "active_id": pdata["players"][0]["id"],
@@ -57,7 +60,12 @@ def test_throw_moves_item_to_adjacent_tile(monkeypatch, tmp_path):
             {"id": pdata["players"][0]["id"], "pos": [2000, 0, 0]}
         ],
     }
+    return ctx, pfile, inv
 
+
+def test_throw_moves_item_to_adjacent_tile(monkeypatch, tmp_path):
+    ctx, pfile, inv = _setup(monkeypatch, tmp_path, ["nuclear_decay"])
+    iid = inv[0]
     throw_cmd("north nuclear", ctx)
 
     bus_events = ctx["feedback_bus"].events
@@ -72,3 +80,31 @@ def test_throw_moves_item_to_adjacent_tile(monkeypatch, tmp_path):
     with pfile.open("r", encoding="utf-8") as f:
         pdata_after = json.load(f)
     assert pdata_after.get("inventory") == []
+
+
+def test_thrown_item_can_be_picked_up(monkeypatch, tmp_path):
+    ctx, pfile, inv = _setup(monkeypatch, tmp_path, ["nuclear_decay"])
+    iid = inv[0]
+    throw_cmd("north nuclear", ctx)
+    assert itemsreg.list_ids_at(2000, 0, -1) == ["nuclear_decay"]
+    ctx["player_state"]["players"][0]["pos"] = [2000, 0, -1]
+    dec = itx.pick_from_ground(ctx, "nuclear")
+    assert dec.get("ok")
+    with pfile.open("r", encoding="utf-8") as f:
+        pdata_after = json.load(f)
+    assert iid in pdata_after.get("inventory")
+
+
+def test_throw_invalid_item_warns(monkeypatch, tmp_path):
+    ctx, _pfile, _inv = _setup(monkeypatch, tmp_path, ["nuclear_decay"])
+    throw_cmd("north junk", ctx)
+    events = ctx["feedback_bus"].events
+    assert any("not carrying" in m for _, m in events)
+
+
+def test_throw_abbreviation(monkeypatch, tmp_path):
+    ctx, _pfile, inv = _setup(monkeypatch, tmp_path, ["nuclear_decay"])
+    iid = inv[0]
+    throw_cmd("north n", ctx)
+    inst = itemsreg.get_instance(iid)
+    assert inst.get("pos", {}).get("y") == -1
