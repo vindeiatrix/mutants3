@@ -1,6 +1,7 @@
 from __future__ import annotations
+from __future__ import annotations
 import json, os, random, time
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any, Tuple
 from ..io import atomic
 from ..ui import item_display as idisp
 from ..registries import items_instances as itemsreg
@@ -96,6 +97,42 @@ def _pos_from_ctx(ctx) -> tuple[int, int, int]:
     return int(pos[0]), int(pos[1]), int(pos[2])
 
 
+def _drop_core(ctx, prefix: str, year: int, x: int, y: int, *, seed: Optional[int] = None) -> Dict[str, Any]:
+    p = _load_player()
+    _ensure_inventory(p)
+    inv = _inv_iids(p)
+    if not inv:
+        return {"ok": False, "reason": "inventory_empty"}
+    iid = _pick_first_match_by_prefix(inv, prefix) if prefix else (inv[0] if inv else None)
+    if not iid:
+        return {"ok": False, "reason": "not_found", "where": "inventory"}
+    if iid == _armor_iid(p):
+        return {"ok": False, "reason": "armor_cannot_drop"}
+    itemsreg.set_position(iid, year, x, y)
+    inv = [i for i in inv if i != iid]
+    p["inventory"] = inv
+    overflow_info = None
+    rng = _rng(seed)
+    ground_after = _ground_ordered_ids(year, x, y)
+    if len(ground_after) > GROUND_CAP:
+        candidates = [g for g in ground_after if g != iid] or ground_after
+        pick = rng.choice(candidates)
+        itemsreg.clear_position(pick)
+        inv.append(pick)
+        p["inventory"] = inv
+        if len(inv) > INV_CAP:
+            drop_iid = rng.choice(inv)
+            itemsreg.set_position(drop_iid, year, x, y)
+            inv = [i for i in inv if i != drop_iid]
+            p["inventory"] = inv
+            overflow_info = {"ground_overflow_pick": pick, "inv_overflow_drop": drop_iid}
+        else:
+            overflow_info = {"ground_overflow_pick": pick}
+    _save_player(p)
+    itemsreg.save_instances()
+    return {"ok": True, "iid": iid, "overflow": overflow_info, "inv_count": len(p["inventory"])}
+
+
 def pick_from_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
     p = _load_player()
     _ensure_inventory(p)
@@ -131,41 +168,41 @@ def pick_from_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
 
 
 def drop_to_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
-    p = _load_player()
-    _ensure_inventory(p)
-    inv = _inv_iids(p)
-    if not inv:
-        return {"ok": False, "reason": "inventory_empty"}
-    iid = None
-    if prefix:
-        iid = _pick_first_match_by_prefix(inv, prefix)
-    else:
-        iid = inv[0]
-    if not iid:
-        return {"ok": False, "reason": "not_found", "where": "inventory"}
-    if iid == _armor_iid(p):
-        return {"ok": False, "reason": "armor_cannot_drop"}
     year, x, y = _pos_from_ctx(ctx)
-    itemsreg.set_position(iid, year, x, y)
-    inv = [i for i in inv if i != iid]
-    p["inventory"] = inv
-    overflow_info = None
-    rng = _rng(seed)
-    ground_after = _ground_ordered_ids(year, x, y)
-    if len(ground_after) > GROUND_CAP:
-        candidates = [g for g in ground_after if g != iid] or ground_after
-        pick = rng.choice(candidates)
-        itemsreg.clear_position(pick)
-        inv.append(pick)
-        p["inventory"] = inv
-        if len(inv) > INV_CAP:
-            drop_iid = rng.choice(inv)
-            itemsreg.set_position(drop_iid, year, x, y)
-            inv = [i for i in inv if i != drop_iid]
-            p["inventory"] = inv
-            overflow_info = {"ground_overflow_pick": pick, "inv_overflow_drop": drop_iid}
-        else:
-            overflow_info = {"ground_overflow_pick": pick}
-    _save_player(p)
-    itemsreg.save_instances()
-    return {"ok": True, "iid": iid, "overflow": overflow_info, "inv_count": len(p["inventory"])}
+    return _drop_core(ctx, prefix, year, x, y, seed=seed)
+
+
+DIR_DELTAS = {
+    "north": (0, 1),
+    "south": (0, -1),
+    "east": (1, 0),
+    "west": (-1, 0),
+}
+
+
+def _player_pos(ctx) -> Tuple[int, int, int]:
+    ps = ctx.get("player_state", {})
+    pos = ps.get("pos") or (0, 0, 0)
+    if isinstance(pos, (list, tuple)) and len(pos) >= 3:
+        return int(pos[0]), int(pos[1]), int(pos[2])
+    return int(ps.get("year", 0)), int(ps.get("x", 0)), int(ps.get("y", 0))
+
+
+def drop_to_ground_at(ctx: Dict[str, Any], target_pos: Tuple[int, int, int], prefix: str, *, seed: Optional[int] = None) -> Dict[str, Any]:
+    year, x, y = int(target_pos[0]), int(target_pos[1]), int(target_pos[2])
+    return _drop_core(ctx, prefix, year, x, y, seed=seed)
+
+
+def throw_to_neighbor(ctx: Dict[str, Any], dir_name: str, prefix: str) -> Dict[str, Any]:
+    if dir_name not in DIR_DELTAS:
+        return {"ok": False, "reason": "invalid_direction"}
+    year, x0, y0 = _player_pos(ctx)
+    dx, dy = DIR_DELTAS[dir_name]
+    target = (year, x0 + dx, y0 + dy)
+    try:
+        wl = ctx.get("world_loader")
+        if wl and hasattr(wl, "has_tile") and not wl.has_tile(*target):
+            return {"ok": False, "reason": "no_target_tile"}
+    except Exception:
+        pass
+    return drop_to_ground_at(ctx, target, prefix)
