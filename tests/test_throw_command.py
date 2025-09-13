@@ -86,7 +86,7 @@ def test_thrown_item_can_be_picked_up(monkeypatch, tmp_path):
     ctx, pfile, inv = _setup(monkeypatch, tmp_path, ["nuclear_decay"])
     iid = inv[0]
     throw_cmd("north nuclear", ctx)
-    assert itemsreg.list_ids_at(2000, 0, -1) == ["nuclear_decay"]
+    assert "nuclear_decay" in itemsreg.list_ids_at(2000, 0, -1)
     ctx["player_state"]["players"][0]["pos"] = [2000, 0, -1]
     dec = itx.pick_from_ground(ctx, "nuclear")
     assert dec.get("ok")

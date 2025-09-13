@@ -121,9 +121,16 @@ Commands that take a **subject argument** use a small runner to keep UX consiste
 
 That’s the system in a nutshell. If it prints weird, try `theme mono`; if commands seem ignored, check `log`; and if a template’s start year doesn’t exist, the runtime will map it for you.
 ## Passability Engine (single source of truth)
-Movement decisions and (optionally) direction descriptors are determined by a single resolver at `src/mutants/engine/edge_resolver.py`. It layers:
-- **Base terrain** (world edge `base`), **gates** (open/closed), then **dynamic overlays** (temporary barriers/blasted edges from `state/world/dynamics.json`), and **actor modifiers** (e.g., rods/keys).
-It returns `passable` and a canonical descriptor (one of: `area continues.`, `wall of ice.`, `ion force field.`, `open gate.`, `closed gate.`), plus an internal reason chain for debugging.
+Movement decisions and (optionally) direction descriptors are determined by a
+single resolver at `src/mutants/engine/edge_resolver.py`. It layers:
+- **Base terrain** (world edge `base`), **gates** (open/closed), then
+  **dynamic overlays** (temporary barriers/blasted edges from
+  `state/world/dynamics.json`), and **actor modifiers** (e.g., rods/keys).
+It returns `passable` and a canonical descriptor (one of: `area continues.`,
+`wall of ice.`, `ion force field.`, `open gate.`, `closed gate.`), plus an
+internal reason chain for debugging. The `throw` command uses this same resolver
+to decide whether a tossed item lands in the destination tile or at the
+player's feet.
 
 ### UI direction guard (dev-safe)
 The renderer now cross-checks each printed direction with the same passability resolver. If the resolver says a direction is blocked, the UI silently drops that row (and in `MUTANTS_DEV=1` asserts), keeping UI and movement in lockstep.

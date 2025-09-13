@@ -1,4 +1,5 @@
 import types
+import pytest
 
 from mutants.commands.throw import throw_cmd
 from mutants.registries.world import BASE_GATE, GATE_CLOSED, GATE_OPEN, BASE_BOUNDARY
@@ -52,21 +53,24 @@ def patch_items(monkeypatch, player):
     return positions
 
 
-def test_throw_blocked_no_exit_keeps_item(monkeypatch):
-    cur = {"base": BASE_BOUNDARY}
-    nbr = {"base": BASE_BOUNDARY}
+def test_throw_non_exit_drops_here(monkeypatch):
+    cur = {}
+    nbr = {}
     player = {"inventory": ["rock"], "armor": None}
     ctx, bus = mk_ctx(cur, nbr, player)
     positions = patch_items(monkeypatch, player)
 
     throw_cmd("north rock", ctx)
 
-    assert "rock" in player["inventory"]
-    assert not positions
-    assert any("No exit" in m for _, m in bus.msgs)
+    assert "rock" not in player["inventory"]
+    assert positions.get("rock") == (2000, 0, 0)
+    assert bus.msgs == [
+        ("COMBAT/THROW", "You throw the rock north."),
+        ("COMBAT/THROW", "rock has fallen to the ground!"),
+    ]
 
 
-def test_throw_blocked_closed_gate(monkeypatch):
+def test_throw_closed_gate_drops_here(monkeypatch):
     cur = {"base": BASE_GATE, "gate_state": GATE_CLOSED}
     nbr = {"base": BASE_GATE, "gate_state": GATE_CLOSED}
     player = {"inventory": ["rock"], "armor": None}
@@ -75,12 +79,15 @@ def test_throw_blocked_closed_gate(monkeypatch):
 
     throw_cmd("north rock", ctx)
 
-    assert "rock" in player["inventory"]
-    assert not positions
-    assert any("gate is closed" in m for _, m in bus.msgs)
+    assert "rock" not in player["inventory"]
+    assert positions.get("rock") == (2000, 0, 0)
+    assert bus.msgs == [
+        ("COMBAT/THROW", "You throw the rock north."),
+        ("COMBAT/THROW", "rock has fallen to the ground!"),
+    ]
 
 
-def test_throw_open_succeeds(monkeypatch):
+def test_throw_open_exit_moves_item(monkeypatch):
     cur = {"base": BASE_GATE, "gate_state": GATE_OPEN}
     nbr = {"base": BASE_GATE, "gate_state": GATE_OPEN}
     player = {"inventory": ["rock"], "armor": None}
@@ -91,4 +98,31 @@ def test_throw_open_succeeds(monkeypatch):
 
     assert "rock" not in player["inventory"]
     assert positions.get("rock") == (2000, 0, -1)
-    assert any("You throw" in m for _, m in bus.msgs)
+    assert bus.msgs == [("COMBAT/THROW", "You throw the rock north.")]
+
+
+def test_throw_boundary_drops_here(monkeypatch):
+    cur = {"base": BASE_BOUNDARY}
+    nbr = {"base": BASE_BOUNDARY}
+    player = {"inventory": ["rock"], "armor": None}
+    ctx, bus = mk_ctx(cur, nbr, player)
+    positions = patch_items(monkeypatch, player)
+
+    throw_cmd("north rock", ctx)
+
+    assert "rock" not in player["inventory"]
+    assert positions.get("rock") == (2000, 0, 0)
+    assert bus.msgs == [
+        ("COMBAT/THROW", "You throw the rock north."),
+        ("COMBAT/THROW", "rock has fallen to the ground!"),
+    ]
+
+
+@pytest.mark.skip(reason="wall of ice not yet implemented")
+def test_throw_wall_of_ice_drops_here():
+    pass
+
+
+@pytest.mark.skip(reason="ion force field not yet implemented")
+def test_throw_ion_force_field_drops_here():
+    pass
