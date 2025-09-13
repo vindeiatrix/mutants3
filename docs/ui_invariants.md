@@ -9,3 +9,9 @@
   `break_long_words=False`, `replace_whitespace=False`, and
   `drop_whitespace=False`.
 
+## Command-Argument UX Invariants (new)
+- Commands with `arg_policy=required` **must not** act when invoked without an argument; they emit a usage line via the feedback bus.
+- Invalid subjects produce **specific** warnings (e.g., ground vs. inventory: “There isn’t a {subject} here.” vs. “You’re not carrying a {subject}. ”); generic “Nothing happens.” should not be used for these cases.
+- On success, commands emit an explicit confirmation line including the resolved subject name when available.
+- **Armor**: worn armor is **not** part of inventory and is not targetable by these commands; only `remove` interacts with the armor slot.
+

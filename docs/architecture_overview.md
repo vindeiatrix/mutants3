@@ -92,6 +92,17 @@ At startup (once per calendar day), the game performs a **litter reset**:
 - `drop <prefix>` drops the first matching inventory item (pickup order, excluding worn armor). If ground exceeds **6**, a random ground item pops into inventory and may drop another if inventory would exceed 10.
 - `inv` prints inventory with the same naming rules as the ground list.
 
+## Argument-Command Framework (new)
+To keep command UX consistent, commands that take a **subject argument** now use a small runner:
+
+- `commands/argcmd.py` exposes `ArgSpec` and `run_argcmd(ctx, spec, arg, do_action)`.
+- `ArgSpec` declares the **arg policy** (`required|optional|forbidden`), **message templates** (usage/invalid/success), optional **reason→message** mapping, and the **feedback kinds** for success/warn (e.g., `LOOT/PICKUP`, `LOOT/DROP`).
+- `run_argcmd` handles: trim arg → usage on empty (when required) → call `do_action(subject)` → map failure `reason` to a message → push explicit success feedback including the item name when available.
+
+### Notes
+- **Worn armor is not inventory**: by design, arg kinds that reference inventory (e.g., for `drop`) exclude worn armor; only the `remove` command interacts with armor.
+- `get`/`drop` now reject empty args with usage text and emit explicit success/warn lines.
+
 ## Item Display (canonical names)
 - Display names come from the catalog (`display_name`/`name`) or are derived from the item ID by replacing `_` with `-` and Title-Casing each part (e.g., `ion_decay` → `Ion-Decay`).
 - The ground list prefixes each name with `A`/`An` (vowel heuristic) and numbers duplicates as ` (1)`, ` (2)`, … for subsequent identical items.

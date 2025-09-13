@@ -1,21 +1,32 @@
 from __future__ import annotations
 from ..services import item_transfer as itx
-
-
+from ..ui import item_display as idisp
+from .argcmd import ArgSpec, run_argcmd
 def drop_cmd(arg: str, ctx):
-    prefix = arg.strip()
-    dec = itx.drop_to_ground(ctx, prefix)
-    if not dec.get("ok"):
-        reason = dec.get("reason")
-        bus = ctx["feedback_bus"]
-        if reason == "inventory_empty":
-            bus.push("SYSTEM/WARN", "You have nothing to drop.")
-        elif reason == "armor_cannot_drop":
-            bus.push("SYSTEM/WARN", "You can't drop what you're wearing.")
-        elif reason == "not_found":
-            bus.push("SYSTEM/WARN", "You don't have that.")
-        else:
-            bus.push("SYSTEM/WARN", "Nothing happens.")
+    spec = ArgSpec(
+        verb="DROP",
+        arg_policy="required",
+        messages={
+            "usage": "Type DROP [item name] to drop an item.",
+            "invalid": "You're not carrying a {subject}.",
+            "success": "You drop the {name}.",
+        },
+        reason_messages={
+            "inventory_empty": "You have nothing to drop.",
+            "armor_cannot_drop": "You can't drop what you're wearing.",
+            "not_found": "You're not carrying a {subject}.",
+        },
+        success_kind="LOOT/DROP",
+        warn_kind="SYSTEM/WARN",
+    )
+
+    def action(prefix: str):
+        dec = itx.drop_to_ground(ctx, prefix)
+        if dec.get("ok") and dec.get("iid"):
+            dec["display_name"] = idisp.canonical_name_from_iid(dec["iid"])
+        return dec
+
+    run_argcmd(ctx, spec, arg, action)
 
 
 def register(dispatch, ctx) -> None:

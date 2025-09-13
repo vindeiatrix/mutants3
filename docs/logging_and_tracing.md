@@ -63,6 +63,10 @@ logs verify getdrop
 
 Executes a deterministic core path through the transfer layer (seeded RNG) to exercise overflow/swap logic. For full end-to-end checks, use manual play with ground at capacity and inventory near the cap.
 
+### Feedback kinds (GET/DROP — updated)
+- On **success**, `get` pushes `LOOT/PICKUP` and `drop` pushes `LOOT/DROP` with explicit item names (e.g., “You pick up the Skull.” / “You drop the Skull.”).
+- On **invalid/empty**, commands push `SYSTEM/WARN` with usage or reason-mapped messages (e.g., “There isn’t a zz here.”, “You’re not carrying a zz.”, “You have nothing to drop.”).
+
 - **Tail log file inside the game**:
 
 ```
