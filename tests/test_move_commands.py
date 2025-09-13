@@ -2,7 +2,6 @@ import pytest
 
 from mutants.app import context
 from mutants.app.context import render_frame
-from mutants.app.render_policy import RenderPolicy
 from mutants.commands.move import move
 from mutants.commands.look import look_cmd
 
@@ -21,9 +20,8 @@ def make_ctx():
 
 def test_look_renders_room(capsys):
     ctx = make_ctx()
-    policy = look_cmd("", ctx)
-    assert policy is RenderPolicy.ROOM
-    render_frame(ctx, policy=policy)
+    look_cmd("", ctx)
+    render_frame(ctx)
     out = capsys.readouterr().out
     assert "Graffiti lines the city walls." in out
 

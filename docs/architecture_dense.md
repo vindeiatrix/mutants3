@@ -6,8 +6,8 @@
   1) builds the **app context** (`app/context.py`);
   2) creates a **Dispatch** router (`repl/dispatch.py`);
   3) calls `commands.register_all.register_all(dispatch, ctx)` to auto-register all commands;
-  4) prints a banner; initial `render_frame(ctx, policy=RenderPolicy.ROOM)`;
-  5) for each input line: split `token arg`; `dispatch.call(token, arg)`; re-render **only** when the command returns `RenderPolicy.ROOM` (movement and `look`).
+  4) prints a banner; initial `render_frame(ctx)`;
+  5) for each input line: split `token arg`; `dispatch.call(token, arg)`; always `render_frame(ctx)`.
 
 ## App context (single source of wiring)
 - File: `app/context.py`.
@@ -16,7 +16,7 @@
 - Helpers:
   - `build_context()` returns the dict above.
   - `build_room_vm(ctx)` constructs UI data for current tile (no I/O in renderer).
-  - `render_frame(ctx, policy)` builds RoomVM, drains bus, invokes renderer with theme palette/width, prints lines + prompt (when ``policy`` permits).
+  - `render_frame(ctx)` builds RoomVM, drains bus, invokes renderer with theme palette/width, prints lines + prompt.
 
 ## Command routing
 - `repl/dispatch.py`:
@@ -30,7 +30,7 @@
   - registers `north/n`, `south/s`, `east/e`, `west/w`, `look`;
   - inspects world edges via `registries/world.py`;
   - on block: `bus.push("MOVE/BLOCKED", "...")`; on success: optionally `bus.push("MOVE/OK","...")`;
-  - **does not print**; REPL repaints only when the command returns ``RenderPolicy.ROOM``.
+  - **does not print**; REPL repaints after dispatch.
 
 ## UI stack (pure, testable)
 - **ViewModel**: `ui/viewmodels.py` — RoomVM shape consumed by renderer.
@@ -160,8 +160,8 @@ VM → Formatters (build strings + **group**) → Styles (resolve color by group
 - `state/runtime/spawn_epoch.json`
 
 ## Flow examples
-- **look** → dispatch → `RenderPolicy.ROOM` → render_frame → renderer prints.
-- **n (locked gate)** → move checks edge → bus.push("MOVE/BLOCKED", "...") → `RenderPolicy.ROOM` → render_frame shows room then a feedback block.
+- **look** → dispatch → render_room: VM from context → renderer prints.
+- **n (locked gate)** → move checks edge → bus.push("MOVE/BLOCKED", "...") → render_frame shows room then a feedback block.
 - **combat** (future): compute damage → use monster’s attack template → `bus.push("COMBAT/HIT", "...")` → rendered under `***`.
 
 ## Why this split?
