@@ -73,6 +73,8 @@ def build_context() -> Dict[str, Any]:
         "theme": theme,
         "renderer": renderer.render,
         "config": cfg,
+        "render_next": False,
+        "peek_vm": None,
     }
     global _CURRENT_CTX
     _CURRENT_CTX = ctx
@@ -148,13 +150,15 @@ def build_room_vm(
 
 
 def render_frame(ctx: Dict[str, Any]) -> None:
-    vm = build_room_vm(
-        ctx["player_state"],
-        ctx["world_loader"],
-        ctx["headers"],
-        ctx.get("monsters"),
-        ctx.get("items"),
-    )
+    vm = ctx.pop("peek_vm", None)
+    if vm is None:
+        vm = build_room_vm(
+            ctx["player_state"],
+            ctx["world_loader"],
+            ctx["headers"],
+            ctx.get("monsters"),
+            ctx.get("items"),
+        )
     events = ctx["feedback_bus"].drain()
     lines = ctx["renderer"](
         vm,

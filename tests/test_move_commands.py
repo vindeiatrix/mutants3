@@ -45,3 +45,25 @@ def test_boundary_blocks_movement():
     assert p["pos"] == [2000, 14, 0]
     events = ctx["feedback_bus"].drain()
     assert any(ev["kind"] == "MOVE/BLOCKED" and ev["text"] == "You're blocked!" for ev in events)
+
+
+def test_peek_direction_renders_adjacent_room(capsys):
+    ctx = make_ctx()
+    p = active(ctx["player_state"])
+    p["pos"] = [2000, 0, 0]
+    look_cmd("north", ctx)
+    assert ctx["render_next"]
+    render_frame(ctx)
+    out = capsys.readouterr().out
+    assert "You're in an abandoned building." in out
+    assert p["pos"] == [2000, 0, 0]
+
+
+def test_peek_blocked_does_not_render():
+    ctx = make_ctx()
+    p = active(ctx["player_state"])
+    p["pos"] = [2000, 14, 0]
+    look_cmd("east", ctx)
+    assert not ctx["render_next"]
+    events = ctx["feedback_bus"].drain()
+    assert any(ev["kind"] == "LOOK/BLOCKED" for ev in events)
