@@ -5,6 +5,18 @@ from src.mutants.commands.throw import throw_cmd
 from src.mutants.registries import items_instances as itemsreg
 
 
+class DummyWorld:
+    def get_tile(self, year, x, y):
+        return {
+            "edges": {
+                "N": {"base": 0},
+                "S": {"base": 0},
+                "E": {"base": 0},
+                "W": {"base": 0},
+            }
+        }
+
+
 class FakeBus:
     def __init__(self):
         self.events = []
@@ -14,7 +26,8 @@ class FakeBus:
 
 
 def _ctx():
-    return {"feedback_bus": FakeBus()}
+    world = DummyWorld()
+    return {"feedback_bus": FakeBus(), "world_loader": lambda year: world}
 
 
 def _copy_state(src: Path, dst: Path) -> None:
