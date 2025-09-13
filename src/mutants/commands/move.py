@@ -3,12 +3,16 @@ from __future__ import annotations
 from typing import Any, Dict
 
 import logging
+import os
 
 from mutants.registries.world import DELTA
 from mutants.engine import edge_resolver as ER
 from mutants.registries import dynamics as dyn
 from mutants.app import trace as traceflags
 import json
+
+LOG = logging.getLogger(__name__)
+WORLD_DEBUG = os.getenv("WORLD_DEBUG") == "1"
 
 DIR_WORD = {"N": "north", "S": "south", "E": "east", "W": "west"}
 
@@ -52,6 +56,27 @@ def move(dir_code: str, ctx: Dict[str, Any]) -> None:
             )
         else:
             ctx["feedback_bus"].push("MOVE/BLOCKED", "You're blocked!")
+        if WORLD_DEBUG:
+            cur = dec.cur_raw or {}
+            nbr = dec.nbr_raw or {}
+            LOG.debug(
+                "[move] blocked (%s,%s,%s) dir=%s reason=%s cur(base=%s,gs=%s) nbr(base=%s,gs=%s)",
+                year,
+                x,
+                y,
+                dir_code,
+                getattr(dec, "reason", "blocked"),
+                cur.get("base"),
+                cur.get("gate_state"),
+                nbr.get("base"),
+                nbr.get("gate_state"),
+            )
+            ctx["feedback_bus"].push(
+                "SYSTEM/DEBUG",
+                f"[dev] move blocked: reason={getattr(dec,'reason','blocked')}; "
+                f"cur(base={cur.get('base')},gs={cur.get('gate_state')}) "
+                f"nbr(base={nbr.get('base')},gs={nbr.get('gate_state')})",
+            )
         return
 
     dx, dy = DELTA[dir_code]

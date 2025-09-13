@@ -4,6 +4,7 @@ from mutants.app import context
 from mutants.app.context import render_frame
 from mutants.commands.move import move
 from mutants.commands.look import look_cmd
+from mutants.data.room_headers import ROOM_HEADERS
 
 
 def active(state):
@@ -23,7 +24,7 @@ def test_look_renders_room(capsys):
     look_cmd("", ctx)
     render_frame(ctx)
     out = capsys.readouterr().out
-    assert "Graffiti lines the city walls." in out
+    assert ROOM_HEADERS[3] in out
 
 
 def test_move_north_updates_position_and_feedback():
@@ -55,7 +56,7 @@ def test_peek_direction_renders_adjacent_room(capsys):
     assert ctx["render_next"]
     render_frame(ctx)
     out = capsys.readouterr().out
-    assert "You're in an abandoned building." in out
+    assert ROOM_HEADERS[11] in out
     assert p["pos"] == [2000, 0, 0]
 
 
