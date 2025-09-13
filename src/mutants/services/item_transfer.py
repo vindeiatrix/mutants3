@@ -26,9 +26,13 @@ def _player_file() -> str:
 
 def _load_player() -> Dict:
     try:
-        return json.load(open(_player_file(), "r", encoding="utf-8"))
+        p = json.load(open(_player_file(), "r", encoding="utf-8"))
     except FileNotFoundError:
         return {}
+    # Accept legacy British spelling but normalize to "armor" internally
+    if "armour" in p and "armor" not in p:
+        p["armor"] = p.pop("armour")
+    return p
 
 
 def _save_player(p: Dict) -> None:
@@ -41,7 +45,7 @@ def _ensure_inventory(p: Dict) -> None:
 
 
 def _armor_iid(p: Dict) -> Optional[str]:
-    a = p.get("armor")
+    a = p.get("armor") or p.get("armour")
     if isinstance(a, dict):
         return a.get("iid") or a.get("instance_id")
     if isinstance(a, str):

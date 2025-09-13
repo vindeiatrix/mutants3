@@ -15,8 +15,9 @@ class LogSink:
         if self.file_path:
             self.file_path.parent.mkdir(parents=True, exist_ok=True)
 
-    def handle(self, event: Dict[str, str]) -> None:
-        line = f"{event.get('ts', '')} {event.get('kind', '')} - {event.get('text', '')}"
+    def add(self, kind: str, text: str, ts: str) -> None:
+        """Preferred API: add a log event with explicit fields."""
+        line = f"{ts} {kind} - {text}"
         self.buffer.append(line)
         if len(self.buffer) > self.capacity:
             self.buffer = self.buffer[-self.capacity :]
@@ -25,6 +26,10 @@ class LogSink:
                 f.write(line + "\n")
                 f.flush()
                 os.fsync(f.fileno())
+
+    def handle(self, ev: Dict[str, str]) -> None:
+        """Legacy shim: accept dicts as used by some commands."""
+        self.add(ev.get("kind", ""), ev.get("text", ""), ev.get("ts", ""))
 
     def tail(self, n: int = 100) -> List[str]:
         return self.buffer[-n:]

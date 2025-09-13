@@ -29,3 +29,21 @@ def test_list_spawnable(tmp_path: Path) -> None:
     cat = load_catalog(str(catalog_path))
     spawn_ids = {it["item_id"] for it in cat.list_spawnable()}
     assert spawn_ids == {"widget"}
+
+
+def test_legacy_yes_no_coerced(tmp_path: Path) -> None:
+    items = [
+        {
+            "item_id": "hat",
+            "name": "Hat",
+            "weight": 1,
+            "spawnable": "yes",
+            "armour": "no",
+        }
+    ]
+    catalog_path = tmp_path / "catalog.json"
+    catalog_path.write_text(json.dumps(items))
+    cat = load_catalog(str(catalog_path))
+    hat = cat.get("hat")
+    assert hat["spawnable"] is True
+    assert hat["armour"] is False

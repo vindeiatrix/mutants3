@@ -32,6 +32,18 @@ def _read_items_from_file(p: Path) -> List[Dict[str, Any]]:
         return data
     raise ValueError('catalog.json must be a list of items or {"items": [...]}')
 
+
+def _coerce_legacy_bools(items: List[Dict[str, Any]]) -> None:
+    """Convert legacy "yes"/"no" string fields to booleans in-place."""
+    for it in items:
+        for k, v in list(it.items()):
+            if isinstance(v, str):
+                lv = v.lower()
+                if lv == "yes":
+                    it[k] = True
+                elif lv == "no":
+                    it[k] = False
+
 def load_catalog(path: str = DEFAULT_CATALOG_PATH) -> ItemsCatalog:
     primary = Path(path)
     fallback = Path(FALLBACK_CATALOG_PATH)
@@ -41,4 +53,5 @@ def load_catalog(path: str = DEFAULT_CATALOG_PATH) -> ItemsCatalog:
         items = _read_items_from_file(fallback)
     else:
         raise FileNotFoundError(f"Missing catalog: tried {primary} then {fallback}")
+    _coerce_legacy_bools(items)
     return ItemsCatalog(items)
