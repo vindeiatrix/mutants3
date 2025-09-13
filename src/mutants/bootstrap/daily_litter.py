@@ -17,22 +17,32 @@ import logging
 import os
 import random
 from datetime import datetime
-from typing import Dict, List, Optional, Tuple
+from pathlib import Path
+from typing import Dict, List, Optional, Tuple, Any
 
 
 LOG = logging.getLogger(__name__)
 
-ROOT = os.getcwd()
-STATE_DIR = os.path.join(ROOT, "state")
-ITEMS_DIR = os.path.join(STATE_DIR, "items")
-RUNTIME_DIR = os.path.join(STATE_DIR, "runtime")
-WORLD_DIR = os.path.join(STATE_DIR, "world")
-LOG_PATH = os.path.join(STATE_DIR, "logs", "game.log")
 
-CATALOG_PATH = os.path.join(ITEMS_DIR, "catalog.json")
-INSTANCES_PATH = os.path.join(ITEMS_DIR, "instances.json")
-SPAWN_RULES_PATH = os.path.join(ITEMS_DIR, "spawn_rules.json")
-EPOCH_PATH = os.path.join(RUNTIME_DIR, "spawn_epoch.json")
+def _paths(root: str | Path | None = None) -> Dict[str, Path]:
+    """Return important runtime paths relative to ``root`` (cwd by default)."""
+    r = Path(root) if root is not None else Path.cwd()
+    state = r / "state"
+    items = state / "items"
+    runtime = state / "runtime"
+    world = state / "world"
+    logs = state / "logs" / "game.log"
+    return {
+        "state": state,
+        "items": items,
+        "runtime": runtime,
+        "world": world,
+        "log": logs,
+        "catalog": items / "catalog.json",
+        "instances": items / "instances.json",
+        "rules": items / "spawn_rules.json",
+        "epoch": runtime / "spawn_epoch.json",
+    }
 
 ORIGIN_FIELD = "origin"
 ORIGIN_DAILY = "daily_litter"
@@ -82,21 +92,21 @@ def _save_json_atomic(path: str, data) -> None:
 # ---------------------------------------------------------------------------
 # catalog / rules loading
 
-def _load_spawn_rules() -> Dict:
-    rules = _load_json(SPAWN_RULES_PATH, None)
+def _load_spawn_rules(spawn_rules_path: Path) -> Dict:
+    rules = _load_json(spawn_rules_path, None)
     if rules is None:
         rules = {
             "daily_target_per_year": DAILY_TARGET_DEFAULT,
             "max_ground_per_tile": MAX_PER_TILE_DEFAULT,
         }
-        _mkdir_p(os.path.dirname(SPAWN_RULES_PATH))
-        _save_json_atomic(SPAWN_RULES_PATH, rules)
+        _mkdir_p(spawn_rules_path.parent)
+        _save_json_atomic(spawn_rules_path, rules)
     return rules
 
 
-def _load_spawnables_from_catalog() -> Dict[str, Dict]:
+def _load_spawnables_from_catalog(catalog_path: Path) -> Dict[str, Dict]:
     """Return mapping item_id -> {weight:int, cap_per_year:int|None}."""
-    cat = _load_json(CATALOG_PATH, {})
+    cat = _load_json(catalog_path, {})
     spawnables: Dict[str, Dict] = {}
 
     items_obj = cat.get("items", cat) if isinstance(cat, dict) else cat
@@ -110,7 +120,8 @@ def _load_spawnables_from_catalog() -> Dict[str, Dict]:
     for item_id, meta in iterable:
         if not item_id or not isinstance(meta, dict):
             continue
-        if not meta.get("spawnable"):
+        # "spawnable" must be a JSON boolean True; other truthy values are ignored
+        if meta.get("spawnable") is not True:
             continue
         spawn_cfg = meta.get("spawn", {})
         weight = int(spawn_cfg.get("weight", 1))
@@ -124,8 +135,8 @@ def _load_spawnables_from_catalog() -> Dict[str, Dict]:
 # ---------------------------------------------------------------------------
 # instances I/O helpers
 
-def _load_instances_list() -> List[Dict]:
-    data = _load_json(INSTANCES_PATH, [])
+def _load_instances_list(instances_path: Path) -> List[Dict]:
+    data = _load_json(instances_path, [])
     if isinstance(data, list):
         return data
     if isinstance(data, dict):
@@ -136,22 +147,22 @@ def _load_instances_list() -> List[Dict]:
     return []
 
 
-def _save_instances_list(instances: List[Dict]) -> None:
-    existing = _load_json(INSTANCES_PATH, None)
+def _save_instances_list(instances_path: Path, instances: List[Dict]) -> None:
+    existing = _load_json(instances_path, None)
     if isinstance(existing, dict) and isinstance(existing.get("instances"), list):
         existing["instances"] = instances
-        _save_json_atomic(INSTANCES_PATH, existing)
+        _save_json_atomic(instances_path, existing)
     else:
-        _save_json_atomic(INSTANCES_PATH, instances)
+        _save_json_atomic(instances_path, instances)
 
 
 # ---------------------------------------------------------------------------
 # world helpers
 
-def _list_years() -> List[int]:
+def _list_years(world_dir: Path) -> List[int]:
     years: List[int] = []
     try:
-        for fn in os.listdir(WORLD_DIR):
+        for fn in os.listdir(world_dir):
             if fn.endswith(".json"):
                 years.append(int(os.path.splitext(fn)[0]))
     except FileNotFoundError:
@@ -159,7 +170,7 @@ def _list_years() -> List[int]:
     return sorted(years)
 
 
-def _collect_open_tiles_for_year(year: int) -> List[Tuple[int, int]]:
+def _collect_open_tiles_for_year(year: int, world_dir: Path) -> List[Tuple[int, int]]:
     """
     Collect candidate tiles for ground spawns.
     World tiles store coordinates in ``tile["pos"] = [year, x, y]`` and
@@ -191,7 +202,7 @@ def _collect_open_tiles_for_year(year: int) -> List[Tuple[int, int]]:
     except Exception:
         pass
 
-    world_path = os.path.join(WORLD_DIR, f"{year}.json")
+    world_path = world_dir / f"{year}.json"
     data = _load_json(world_path, {})
     coords: List[Tuple[int, int]] = []
     tiles = data.get("tiles") or data.get("grid") or []
@@ -277,37 +288,42 @@ def _new_instance_dict(item_id: str, year: int, x: int, y: int, epoch: str, seq:
 # ---------------------------------------------------------------------------
 # main entry
 
-def run_daily_litter_reset() -> None:
-    _mkdir_p(RUNTIME_DIR)
-    epoch = _load_json(EPOCH_PATH, {})
+def run_daily_litter_reset(root: str | Path | None = None) -> None:
+    paths = _paths(root)
+    runtime_dir = paths["runtime"]
+    epoch_path = paths["epoch"]
+    log_path = paths["log"]
+
+    _mkdir_p(runtime_dir)
+    epoch = _load_json(epoch_path, {})
     today = _today_str()
     if epoch.get("last_reset") == today:
         return
 
-    rules = _load_spawn_rules()
+    rules = _load_spawn_rules(paths["rules"])
     daily_target = int(rules.get("daily_target_per_year", DAILY_TARGET_DEFAULT))
     max_per_tile = int(rules.get("max_ground_per_tile", MAX_PER_TILE_DEFAULT))
 
     random.seed(today)
 
-    instances = _load_instances_list()
+    instances = _load_instances_list(paths["instances"])
     instances = _remove_yesterdays_daily_litter(instances)
 
     per_tile = _count_per_tile(instances)
     per_year_item = _count_item_per_year(instances)
 
-    spawnables = _load_spawnables_from_catalog()
+    spawnables = _load_spawnables_from_catalog(paths["catalog"])
     if not spawnables:
         LOG.info("daily_litter: no spawnable items; skipping")
-        _save_instances_list(instances)
-        _save_json_atomic(EPOCH_PATH, {"last_reset": today})
+        _save_instances_list(paths["instances"], instances)
+        _save_json_atomic(epoch_path, {"last_reset": today})
         return
 
-    years = _list_years()
+    years = _list_years(paths["world"])
     if not years:
         LOG.info("daily_litter: no world years found; skipping")
-        _save_instances_list(instances)
-        _save_json_atomic(EPOCH_PATH, {"last_reset": today})
+        _save_instances_list(paths["instances"], instances)
+        _save_json_atomic(epoch_path, {"last_reset": today})
         return
 
     def build_weighted_pool(year: int) -> List[Tuple[str, int]]:
@@ -325,7 +341,7 @@ def run_daily_litter_reset() -> None:
     summary: Dict[int, Dict[str, int]] = {}
 
     for year in years:
-        tiles = _collect_open_tiles_for_year(year)
+        tiles = _collect_open_tiles_for_year(year, paths["world"])
         if not tiles:
             LOG.warning("daily_litter: no open tiles for year %s", year)
             continue
@@ -391,22 +407,20 @@ def run_daily_litter_reset() -> None:
 
         summary[year] = spawned
 
-    _mkdir_p(os.path.dirname(INSTANCES_PATH))
-    _save_instances_list(instances)
-    _mkdir_p(RUNTIME_DIR)
-    _save_json_atomic(EPOCH_PATH, {"last_reset": today})
+    _mkdir_p(paths["instances"].parent)
+    _save_instances_list(paths["instances"], instances)
+    _mkdir_p(runtime_dir)
+    _save_json_atomic(epoch_path, {"last_reset": today})
 
     for year, counts in summary.items():
         parts = [f"{k}\u00d7{v}" for k, v in sorted(counts.items()) if v]
-        line = (
-            f"daily_litter {today} year {year}: spawned {sum(counts.values())} items"
-            f"{f' ({', '.join(parts)})' if parts else ''}"
-        )
+        extra = f" ({', '.join(parts)})" if parts else ""
+        line = f"daily_litter {today} year {year}: spawned {sum(counts.values())} items{extra}"
         LOG.info(line)
         try:
             ts = datetime.utcnow().isoformat() + "Z"
-            _mkdir_p(os.path.dirname(LOG_PATH))
-            with open(LOG_PATH, "a", encoding="utf-8") as lf:
+            _mkdir_p(log_path.parent)
+            with open(log_path, "a", encoding="utf-8") as lf:
                 lf.write(f"{ts} SYSTEM/INFO - {line}\n")
         except Exception:
             pass
