@@ -126,12 +126,18 @@ logs trace ui off
   ```
   close n
   ```
-  Feedback: `You've just closed the north gate.`  
+  Feedback: `You've just closed the north gate.`
   A log line is written:
   ```
   GATE/CLOSE {"pos":"(xE : yN)","dir":"N"}
   ```
   After closing, `look` will show `north - closed gate.` and trying to move that way will be blocked.
+
+- **Open a gate** in a given direction (if it's closed):
+  ```
+  open n
+  ```
+  Feedback: `You've just opened the north gate.`
 
 ## Debug helpers
 - **Add items to current tile** (for quick setup while testing):
