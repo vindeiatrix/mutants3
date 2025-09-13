@@ -198,6 +198,15 @@ def run_argcmd_positional(
         bus.push(spec.warn_kind, msg or "Nothing happens.")
         return
 
-    success = _fmt((spec.messages or {}).get("success"), **values) or f"{spec.verb.title()} OK."
+    fmt_vals = dict(values)
+    name = (
+        decision.get("display_name")
+        or decision.get("name")
+        or decision.get("item_name")
+    )
+    if name:
+        fmt_vals.setdefault("name", name)
+
+    success = _fmt((spec.messages or {}).get("success"), **fmt_vals) or f"{spec.verb.title()} OK."
     bus.push(spec.success_kind, success)
 

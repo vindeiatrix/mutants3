@@ -51,6 +51,25 @@ def test_throw_success_message_uses_values():
     assert ctx["feedback_bus"].events == [("COMBAT/THROW", "You throw the skull north.")]
 
 
+def test_success_message_can_use_display_name():
+    ctx = _ctx()
+    spec = PosArgSpec(
+        verb="THROW",
+        args=[PosArg("dir", "direction"), PosArg("item", "item_in_inventory")],
+        messages={"success": "You throw the {name} {dir}."},
+        success_kind="COMBAT/THROW",
+    )
+    run_argcmd_positional(
+        ctx,
+        spec,
+        "n sk",
+        lambda **kw: {"ok": True, "display_name": "Skull"},
+    )
+    assert ctx["feedback_bus"].events == [
+        ("COMBAT/THROW", "You throw the Skull north."),
+    ]
+
+
 def test_buy_ions_amount_range_and_gate_messages():
     ctx = _ctx()
     spec = PosArgSpec(
