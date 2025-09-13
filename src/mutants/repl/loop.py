@@ -1,5 +1,5 @@
 from __future__ import annotations
-from mutants.app.context import build_context, render_frame
+from mutants.app.context import build_context, render_frame, flush_feedback
 from mutants.repl.dispatch import Dispatch
 from mutants.commands.register_all import register_all
 from mutants.repl.prompt import make_prompt
@@ -30,5 +30,7 @@ def main() -> None:
         token, _, arg = raw.strip().partition(" ")
         handled = dispatch.call(token, arg)
 
-        # Always repaint; unknown commands produce a feedback event
-        render_frame(ctx)
+        if handled in {"north", "south", "east", "west", "look"}:
+            render_frame(ctx)
+        else:
+            flush_feedback(ctx)

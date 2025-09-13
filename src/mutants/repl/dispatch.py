@@ -59,13 +59,13 @@ class Dispatch:
         self._warn(f'Unknown command "{token}" (commands require at least 3 letters).')
         return None
 
-    def call(self, token: str, arg: str) -> None:
+    def call(self, token: str, arg: str) -> Optional[str]:
         name = self._resolve_prefix(token)
         if not name:
-            return
+            return None
         fn = self._cmds.get(name)
         if not fn:
             self._warn(f'Command handler missing for "{name}".')
-            return
+            return None
         fn(arg)
-
+        return name
