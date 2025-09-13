@@ -71,6 +71,9 @@ Executes a deterministic core path through the transfer layer (seeded RNG) to ex
 - **Ambiguous ≥3 prefix**: router warns with candidates (“Ambiguous command ‘dri’ (drink, drive)”).
 - **Unknown ≥3 prefix**: router warns that commands require at least 3 letters.
 
+### Positional-args tracing (POINT/THROW/BUY ions)
+- Two-argument commands use the same feedback bus; failures include reason codes like `invalid_direction`, `wrong_item_literal`, or `invalid_amount_range`. Success messages incorporate parsed values (e.g., “You throw the Skull north.”).
+
 ### Tail log file inside the game
 - `logs tail [N]  # default 100`
 

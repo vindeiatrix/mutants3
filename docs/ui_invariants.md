@@ -19,3 +19,7 @@
 - Tokens of **≥3 letters** resolve to a **unique** command by prefix; **<3** works only for explicit aliases (default: `n/s/e/w`).
 - Ambiguous ≥3 prefixes must produce a **single warning** and no action.
 
+## Positional-Args Invariants (new)
+- Two-argument commands declare ordered arg kinds; missing args result in a **usage** message; parse errors map to stable **reason codes** (e.g., `invalid_direction`, `invalid_amount_range`, `wrong_item_literal`).
+- Inventory arg kinds **exclude worn armor**; only `remove` may act on armor.
+

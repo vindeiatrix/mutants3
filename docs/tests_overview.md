@@ -42,5 +42,8 @@ pytest -q
 Add a **minimal** set of parametrized unit tests that assert **feedback** without spinning up the full REPL:
 
 - Use `commands/argcmd.py` directly with a fake feedback bus and stub `do_action`.
-- Cover for each command: **empty arg → usage**, **invalid → reason-mapped message**, **success → explicit success** (preferring `display_name` from `do_action` result).
+- Cover for each command: **empty/missing args → usage**, **invalid → reason-mapped message**, **success → explicit success** (preferring `display_name` from `do_action` result).
 - Keep assertions tight: the three cases above only; avoid end-to-end harnesses so adding more commands won’t churn tests.
+
+## Router tests (minimal)
+- Add tiny tests for the ≥3-letter prefix rule: accept unique ≥3 prefix, reject short non-alias tokens, keep `n/s/e/w` one-letter aliases, and warn on ambiguous ≥3 prefixes.
