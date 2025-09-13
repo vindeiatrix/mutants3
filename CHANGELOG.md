@@ -8,3 +8,6 @@
   - README troubleshooting section.
   - ARCHITECTURE notes on cwd dependence and fallback.
   - New `docs/LOGGING.md`.
+
+### Fixed
+- CLOSE [direction] now detects gates by type and closes open gates.
