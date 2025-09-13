@@ -14,5 +14,3 @@
 - CLOSE [direction] now detects gates by type and closes open gates.
 - Closed or locked gates now block movement; attempting to walk into one shows
   "The {dir} gate is closed."
-- Debug add-item now validates against state/items/catalog.json; unknown or
-  ambiguous names are rejected with suggestions.
