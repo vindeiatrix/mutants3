@@ -23,9 +23,3 @@
 - Two-argument commands declare ordered arg kinds; missing args result in a **usage** message; parse errors map to stable **reason codes** (e.g., `invalid_direction`, `invalid_amount_range`, `wrong_item_literal`).
 - Inventory arg kinds **exclude worn armor**; only `remove` may act on armor.
 
-## Throw UX (new)
-- `throw [direction] [item]` behaves like dropping that item onto the adjacent tile. It never renders a tile; it pushes feedback:
-  - Success: “You throw the {item} {dir}.”
-  - Invalid direction / no neighbor: “You can’t throw that way.”
-  - Not carrying / armor: same messages as `drop`.
-

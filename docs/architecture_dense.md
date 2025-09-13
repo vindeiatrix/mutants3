@@ -142,9 +142,8 @@ VM → Formatters (build strings + **group**) → Styles (resolve color by group
 
 ### Systems
 
-#### Item Transfers (Get/Drop/Throw)
+#### Item Transfers (Get/Drop)
 * **Service**: `services/item_transfer.py` centralizes rules and persistence for moving items **ground ↔ inventory**. It enforces **first-match only** (prefix by display name), **INV_CAP=10**, **GROUND_CAP=6**, and the overflow behavior (random item swap) for player commands. **Worn armor is excluded from inventory operations** and is only affected by the `remove` command.
-* **Throw**: `throw_to_neighbor(ctx, dir, prefix)` performs a drop at the adjacent tile, sharing `drop`’s armor exclusion and overflow semantics. If the neighbor ground is full, a random ground item will enter the player’s inventory (same as `drop`).
 * **Ordering**: Ground display and “first-match” selection use a **stable insertion order** grouped by first-seen display name so duplicates appear adjacent. Inventory order is pickup order (FIFO).
 * **Persistence**: Inventory is stored in `state/playerlivestate.json` as `inventory: [iid,...]`. Ground is represented by setting/clearing `pos` on instances in `state/items/instances.json`. All writes use atomic saves.
 
@@ -181,7 +180,7 @@ VM → Formatters (build strings + **group**) → Styles (resolve color by group
   - `run_argcmd_positional(ctx, spec, arg, do_action)`: tokenizes (quotes allowed); validates each arg by kind (`direction`, `item_in_inventory`, `literal('ions')`, `integer_range(min,max)`); missing args → usage; parse errors → reason-coded warn; else call `do_action(**values)`.
 * **Adoption**:
   - `get` and `drop` use `run_argcmd`.
-  - Two-arg commands (e.g., **THROW**) use `run_argcmd_positional` with `direction` + `item_in_inventory`; THROW never requests a render (feedback only).
+  - Future two-arg commands (POINT, THROW, `BUY ions [amount]` at maintenance shops) will use `run_argcmd_positional` with the minimal arg kinds above.
 * **Armor rule**: any **inventory** arg-kind excludes worn armor; armor is not targetable by `get/drop/look/throw/point/buy`. Only `remove` operates on the armor slot.
 
 ## Router Prefix Rule (new)
