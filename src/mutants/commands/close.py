@@ -48,16 +48,19 @@ def register(dispatch, ctx) -> None:
         if not tile:
             bus.push("SYSTEM/WARN", "Current tile not found.")
             return
-        edge = tile["edges"].get(D, {})
-        gs = edge.get("gate_state")
-        if edge.get("base") != BASE_GATE or gs not in (1, 2):
+        edge = (tile.get("edges") or {}).get(D, {}) or {}
+        base = edge.get("base", 0)
+        gs = edge.get("gate_state", 0)
+
+        if base != BASE_GATE:
             bus.push("SYSTEM/WARN", "There is no gate to close that way.")
             return
-        if gs == 2:
+
+        if gs in (1, 2):
             bus.push("SYSTEM/INFO", f"The {d0} gate is already closed.")
             return
 
-        world.set_edge(x, y, D, gate_state=2, force_gate_base=True)
+        world.set_edge(x, y, D, gate_state=1, force_gate_base=True)
         world.save()
 
         bus.push("SYSTEM/OK", f"You've just closed the {DIR_WORD[D]} gate.")
