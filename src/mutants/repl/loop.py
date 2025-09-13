@@ -8,7 +8,8 @@ from mutants.repl.help import startup_banner
 
 def main() -> None:
     ctx = build_context()
-    dispatch = Dispatch(bus=ctx["feedback_bus"])
+    dispatch = Dispatch()
+    dispatch.set_feedback_bus(ctx["feedback_bus"])
 
     # Auto-register all commands in mutants.commands
     register_all(dispatch, ctx)

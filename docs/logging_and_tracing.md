@@ -67,11 +67,12 @@ Executes a deterministic core path through the transfer layer (seeded RNG) to ex
 - On **success**, `get` pushes `LOOT/PICKUP` and `drop` pushes `LOOT/DROP` with explicit item names (e.g., “You pick up the Skull.” / “You drop the Skull.”).
 - On **invalid/empty**, commands push `SYSTEM/WARN` with usage or reason-mapped messages (e.g., “There isn’t a zz here.”, “You’re not carrying a zz.”, “You have nothing to drop.”).
 
-- **Tail log file inside the game**:
+### Router messages (prefix rule)
+- **Ambiguous ≥3 prefix**: router warns with candidates (“Ambiguous command ‘dri’ (drink, drive)”).
+- **Unknown ≥3 prefix**: router warns that commands require at least 3 letters.
 
-```
-logs tail [N]  # default 100
-```
+### Tail log file inside the game
+- `logs tail [N]  # default 100`
 
 Prints the last `N` lines of `state/logs/game.log`.
 
