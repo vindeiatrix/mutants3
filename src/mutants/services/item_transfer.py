@@ -1,9 +1,14 @@
 from __future__ import annotations
-import json, os, random, time
+import json, os, random, time, logging
 from typing import Dict, List, Optional
 from ..io import atomic
 from ..ui import item_display as idisp
 from ..registries import items_instances as itemsreg
+from mutants.engine import edge_resolver as ER
+from mutants.registries import dynamics as dyn
+
+LOG = logging.getLogger(__name__)
+WORLD_DEBUG = os.getenv("WORLD_DEBUG") == "1"
 
 GROUND_CAP = 6
 INV_CAP = 10  # worn armor excluded elsewhere
@@ -193,6 +198,27 @@ def throw_to_direction(ctx, direction: str, prefix: str, *, seed: Optional[int] 
     if iid == _armor_iid(p):
         return {"ok": False, "reason": "armor_cannot_drop"}
     year, x, y = _pos_from_ctx(ctx)
+    world = ctx["world_loader"](year)
+    dir_code = direction[:1].upper()
+    dec = ER.resolve(world, dyn, year, x, y, dir_code, actor={})
+    if not dec.passable:
+        reason = "closed_gate" if dec.reason == "closed_gate" else "blocked"
+        if WORLD_DEBUG:
+            cur = dec.cur_raw or {}
+            nbr = dec.nbr_raw or {}
+            LOG.debug(
+                "[throw] blocked (%s,%s,%s)->%s reason=%s cur(base=%s,gs=%s) nbr(base=%s,gs=%s)",
+                year,
+                x,
+                y,
+                dir_code,
+                getattr(dec, "reason", "blocked"),
+                cur.get("base"),
+                cur.get("gate_state"),
+                nbr.get("base"),
+                nbr.get("gate_state"),
+            )
+        return {"ok": False, "reason": reason}
     dx, dy = DIR_DELTAS.get(direction.lower(), (0, 0))
     tx, ty = x + dx, y + dy
     itemsreg.set_position(iid, year, tx, ty)

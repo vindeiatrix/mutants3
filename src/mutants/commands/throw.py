@@ -16,6 +16,8 @@ def throw_cmd(arg: str, ctx):
             "inventory_empty": "You have nothing to throw.",
             "armor_cannot_drop": "You can't throw what you're wearing.",
             "not_found": "You're not carrying a {item}.",
+            "closed_gate": "The {dir} gate is closed.",
+            "blocked": "No exit that way.",
         },
         success_kind="COMBAT/THROW",
         warn_kind="SYSTEM/WARN",
