@@ -1,18 +1,30 @@
 from __future__ import annotations
 from ..services import item_transfer as itx
-
-
+from ..ui import item_display as idisp
+from .argcmd import ArgSpec, run_argcmd
 def get_cmd(arg: str, ctx):
-    prefix = arg.strip()
-    dec = itx.pick_from_ground(ctx, prefix)
-    if not dec.get("ok"):
-        reason = dec.get("reason")
-        bus = ctx["feedback_bus"]
-        if reason == "not_found":
-            bus.push("SYSTEM/WARN", "You don't see that here.")
-        else:
-            bus.push("SYSTEM/WARN", "Nothing happens.")
-    # Success -> silent
+    spec = ArgSpec(
+        verb="GET",
+        arg_policy="required",
+        messages={
+            "usage": "Type GET [item name] to pick up an item.",
+            "invalid": "There isn't a {subject} here.",
+            "success": "You pick up the {name}.",
+        },
+        reason_messages={
+            "not_found": "There isn't a {subject} here.",
+        },
+        success_kind="LOOT/PICKUP",
+        warn_kind="SYSTEM/WARN",
+    )
+
+    def action(prefix: str):
+        dec = itx.pick_from_ground(ctx, prefix)
+        if dec.get("ok") and dec.get("iid"):
+            dec["display_name"] = idisp.canonical_name_from_iid(dec["iid"])
+        return dec
+
+    run_argcmd(ctx, spec, arg, action)
 
 
 def register(dispatch, ctx) -> None:

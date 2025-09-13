@@ -37,3 +37,10 @@ pytest -q
 ## CI notes
 - Unit tests run by default in CI.
 - Wrap probe/guard (see docs/ci_checks.md) complements tests to catch integration-level wrap regressions.
+
+## New core tests (argument-command)
+Add a **minimal** set of parametrized unit tests that assert **reason codes translated to the correct feedback** without spinning up the full REPL:
+
+- Use `commands/argcmd.py` directly with a fake feedback bus and stub `do_action`.
+- Cover for each command: **empty arg → usage**, **invalid → reason-mapped message**, **success → explicit success** (preferring `display_name` from `do_action` result).
+- Keep assertions tight: mostly check the final feedback text for the three cases above; avoid end-to-end harnesses so adding more commands won’t churn tests.

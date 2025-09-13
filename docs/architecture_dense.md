@@ -143,7 +143,7 @@ VM → Formatters (build strings + **group**) → Styles (resolve color by group
 ### Systems
 
 #### Item Transfers (Get/Drop)
-* **Service**: `services/item_transfer.py` centralizes rules and persistence for moving items **ground ↔ inventory**. It enforces **first-match only** (prefix by display name), **INV_CAP=10**, **GROUND_CAP=6**, and the overflow behavior (random item swap) for player commands. Worn armor is excluded from inventory operations.
+* **Service**: `services/item_transfer.py` centralizes rules and persistence for moving items **ground ↔ inventory**. It enforces **first-match only** (prefix by display name), **INV_CAP=10**, **GROUND_CAP=6**, and the overflow behavior (random item swap) for player commands. **Worn armor is excluded from inventory operations** and is only affected by the `remove` command.
 * **Ordering**: Ground display and “first-match” selection use a **stable insertion order** grouped by first-seen display name so duplicates appear adjacent. Inventory order is pickup order (FIFO).
 * **Persistence**: Inventory is stored in `state/playerlivestate.json` as `inventory: [iid,...]`. Ground is represented by setting/clearing `pos` on instances in `state/items/instances.json`. All writes use atomic saves.
 
@@ -169,3 +169,11 @@ VM → Formatters (build strings + **group**) → Styles (resolve color by group
 - Renderer/formatters pure & snapshot-friendly.
 - Commands push messages; REPL paints; logs keep a durable trail.
 - Auto-discovery keeps REPL decoupled from command inventory.
+## Argument-Command Runner (new)
+* **File**: `src/mutants/commands/argcmd.py`.
+* **Purpose**: unify empty/invalid/success handling for commands that accept a subject argument, reducing per-command boilerplate and preventing regressions.
+* **API**:
+  - `ArgSpec`: `verb`, `arg_policy` (`required|optional|forbidden`), `messages` (`usage|invalid|success` templates), `reason_messages` (map engine/service **reason codes** → templates), `success_kind`, `warn_kind`.
+  - `run_argcmd(ctx, spec, arg, do_action)`: trims arg; on empty+required → usage; else calls `do_action(subject)` and pushes feedback based on `ok/reason`. On success, prefers `display_name|name|item_name` from `do_action` result for `{name}`.
+* **GET/DROP adoption**: `get` and `drop` now use this runner. Failures map to specific feedback (`not_found` → “There isn’t a {subject} here.”, `inventory_empty` → “You have nothing to drop.”, `armor_cannot_drop` → “You can't drop what you're wearing.”). Success emits explicit lines (“You pick up the Skull.” / “You drop the Skull.”).
+* **Armor rule**: any **inventory** arg-kind excludes worn armor; armor is not targetable by `get/drop/look`. Only `remove` operates on the armor slot.

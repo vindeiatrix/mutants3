@@ -51,3 +51,6 @@ python scripts/guard_wrap.py
 - `UI/WRAP/BAD_SPLIT` → a regression in wrapping logic or hardening path.
 - Dangling `-"` at a diagnostic line end → a line broke at an ASCII hyphen in diagnostics; fix final-string hardening or wrapper options.
 - If your terminal shows breaks but `lines=[…]` is clean → terminal pane narrower than 80 columns; engine is correct.
+## Core command-UX checks (NEW)
+- A tiny **core** pytest file validates the argument-command runner behavior for `get`/`drop` (empty/invalid/success). It runs with the regular test job; no separate CI step is added.
+- Keep these tests minimal and stable (assert the canonical feedback lines only), so new commands don’t break CI. Additional command tests can live outside the core set and be run locally or nightly.
