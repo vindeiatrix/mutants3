@@ -7,6 +7,12 @@ from ..registries import items_instances as itemsreg
 
 GROUND_CAP = 6
 INV_CAP = 10  # worn armor excluded elsewhere
+DIR_DELTAS = {
+    "north": (0, -1),
+    "south": (0, 1),
+    "east": (1, 0),
+    "west": (-1, 0),
+}
 
 
 def _player_file() -> str:
@@ -161,6 +167,49 @@ def drop_to_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
         if len(inv) > INV_CAP:
             drop_iid = rng.choice(inv)
             itemsreg.set_position(drop_iid, year, x, y)
+            inv = [i for i in inv if i != drop_iid]
+            p["inventory"] = inv
+            overflow_info = {"ground_overflow_pick": pick, "inv_overflow_drop": drop_iid}
+        else:
+            overflow_info = {"ground_overflow_pick": pick}
+    _save_player(p)
+    itemsreg.save_instances()
+    return {"ok": True, "iid": iid, "overflow": overflow_info, "inv_count": len(p["inventory"])}
+
+
+def throw_to_direction(ctx, direction: str, prefix: str, *, seed: Optional[int] = None) -> Dict:
+    p = _load_player()
+    _ensure_inventory(p)
+    inv = _inv_iids(p)
+    if not inv:
+        return {"ok": False, "reason": "inventory_empty"}
+    iid = None
+    if prefix:
+        iid = _pick_first_match_by_prefix(inv, prefix)
+    else:
+        iid = inv[0]
+    if not iid:
+        return {"ok": False, "reason": "not_found", "where": "inventory"}
+    if iid == _armor_iid(p):
+        return {"ok": False, "reason": "armor_cannot_drop"}
+    year, x, y = _pos_from_ctx(ctx)
+    dx, dy = DIR_DELTAS.get(direction.lower(), (0, 0))
+    tx, ty = x + dx, y + dy
+    itemsreg.set_position(iid, year, tx, ty)
+    inv = [i for i in inv if i != iid]
+    p["inventory"] = inv
+    overflow_info = None
+    rng = _rng(seed)
+    ground_after = _ground_ordered_ids(year, tx, ty)
+    if len(ground_after) > GROUND_CAP:
+        candidates = [g for g in ground_after if g != iid] or ground_after
+        pick = rng.choice(candidates)
+        itemsreg.clear_position(pick)
+        inv.append(pick)
+        p["inventory"] = inv
+        if len(inv) > INV_CAP:
+            drop_iid = rng.choice(inv)
+            itemsreg.set_position(drop_iid, year, tx, ty)
             inv = [i for i in inv if i != drop_iid]
             p["inventory"] = inv
             overflow_info = {"ground_overflow_pick": pick, "inv_overflow_drop": drop_iid}
