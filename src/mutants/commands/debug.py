@@ -17,7 +17,13 @@ def debug_cmd(arg: str, ctx):
     parts = arg.strip().split()
     bus = ctx["feedback_bus"]
     if len(parts) >= 3 and parts[0] == "add" and parts[1] == "item":
+        from mutants.registries import items_catalog
+
         item_id = parts[2]
+        catalog = items_catalog.load_catalog()
+        if not catalog.get(item_id):
+            bus.push("SYSTEM/WARN", f"Unknown item: {item_id}")
+            return
         try:
             count = int(parts[3]) if len(parts) >= 4 else 1
         except Exception:
