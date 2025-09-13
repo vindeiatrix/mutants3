@@ -67,7 +67,7 @@ def format_direction_segments(dir_name: str, edge: EdgeDesc) -> Segments:
         elif state == 1:
             segments.append((DESC_GATE_CLOSED, UC.DESC_CLOSED_GATE))
         elif state == 2:
-            segments.append((DESC_GATE_LOCKED, UC.DESC_CLOSED_GATE))
+            segments.append((DESC_GATE_LOCKED, UC.DESC_LOCKED_GATE))
     else:
         segments.append((DESC_CONT, ""))
     return segments
@@ -117,10 +117,21 @@ def format_compass_line(vm) -> str:
 def format_direction_line(dir_key: str, edge: dict) -> str:
     """Return a direction line colored by open/blocked groups."""
     word = _dir_word(dir_key) if dir_key in {"N", "S", "E", "W"} else dir_key
-    is_open = edge.get("base", 0) == 0
-    if is_open:
+    base = edge.get("base", 0)
+    if base == 0:
         desc = UC.DESC_AREA_CONTINUES
         group = UG.DIR_OPEN
+    elif base == 3:
+        gs = edge.get("gate_state", 0)
+        if gs == 0:
+            desc = UC.DESC_OPEN_GATE
+            group = UG.DIR_OPEN
+        elif gs == 2:
+            desc = UC.DESC_LOCKED_GATE
+            group = UG.DIR_BLOCKED
+        else:
+            desc = UC.DESC_CLOSED_GATE
+            group = UG.DIR_BLOCKED
     else:
         desc = edge.get("desc", "")
         group = UG.DIR_BLOCKED
