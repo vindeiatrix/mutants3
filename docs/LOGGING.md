@@ -31,3 +31,20 @@ DEBUG [world] load_year request=2000 path=/…/state/world/2000.json cwd=/…
 INFO [world] load_nearest_year requested=1999 chosen=2000 dir=/…/state/world
 DEBUG [room] build_room_vm pos=[2000,12,-4] (year=2000,x=12,y=-4)
 ```
+
+## Movement/Resolver Debug Echoes (WORLD_DEBUG=1)
+
+- **Resolver decision** (DEBUG)
+  ```
+  [resolver] (<year>,<x>,<y>)-><dir> passable=<bool> reason=<string> cur=base=<n>,gs=<n> nbr=base=<n>,gs=<n>
+  ```
+  - `reason` is one of: `ok`, `closed_gate`, `boundary`, `blocked`.
+
+- **Move blocked** (DEBUG + optional in-game line)
+  ```
+  [move] blocked (<year>,<x>,<y>) dir=<dir> reason=<string> cur(base=<n>,gs=<n>) nbr(base=<n>,gs=<n>)
+  ```
+  In-game (only when WORLD_DEBUG=1):
+  ```
+  [dev] move blocked: reason=<string>; cur(base=<n>,gs=<n>) nbr(base=<n>,gs=<n>)
+  ```

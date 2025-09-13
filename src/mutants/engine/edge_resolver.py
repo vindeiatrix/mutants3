@@ -2,6 +2,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Tuple
 import time
+import os
+import logging
 
 from mutants.registries.world import (
     BASE_OPEN,
@@ -16,6 +18,9 @@ DESC_FORCE = "ion force field."
 DESC_GATE_OPEN = "open gate."
 DESC_GATE_CLOSED = "closed gate."
 CANON = {DESC_AREA, DESC_ICE, DESC_FORCE, DESC_GATE_OPEN, DESC_GATE_CLOSED}
+
+LOG = logging.getLogger(__name__)
+WORLD_DEBUG = os.getenv("WORLD_DEBUG") == "1"
 
 
 @dataclass
@@ -51,6 +56,12 @@ def _block_reason(a: Dict, b: Dict) -> str:
         if base == BASE_BOUNDARY:
             return "boundary"
     return "blocked"
+
+
+def _edge_dbg(e: Dict) -> str:
+    if not e:
+        return "{}"
+    return f"base={e.get('base')},gs={e.get('gate_state')}"
 
 
 def _normalize_base_kind(v) -> str:
@@ -166,14 +177,30 @@ def resolve(world, dynamics, year: int, x: int, y: int, dir_key: str, actor: Opt
         pass
 
     if cur_kind == "boundary" or nbr_kind == "boundary":
-        return EdgeDecision(False, DESC_FORCE, reasons, cur_edge, nbr_edge, reason="boundary")
-    if (cur_kind == "gate" and cur_gs != 0) or (nbr_kind == "gate" and nbr_gs != 0):
-        return EdgeDecision(False, DESC_GATE_CLOSED, reasons, cur_edge, nbr_edge, reason="closed_gate")
-    if cur_kind == "ice" or nbr_kind == "ice":
-        return EdgeDecision(False, DESC_ICE, reasons, cur_edge, nbr_edge, reason="ice")
-    if cur_kind == "force" or nbr_kind == "force":
-        return EdgeDecision(False, DESC_FORCE, reasons, cur_edge, nbr_edge, reason="force")
-    if (cur_kind == "gate" and cur_gs == 0) or (nbr_kind == "gate" and nbr_gs == 0):
-        return EdgeDecision(True, DESC_GATE_OPEN, reasons, cur_edge, nbr_edge, reason="ok")
-    return EdgeDecision(True, DESC_AREA, reasons, cur_edge, nbr_edge, reason="ok")
+        dec = EdgeDecision(False, DESC_FORCE, reasons, cur_edge, nbr_edge, reason="boundary")
+    elif (cur_kind == "gate" and cur_gs != 0) or (nbr_kind == "gate" and nbr_gs != 0):
+        dec = EdgeDecision(False, DESC_GATE_CLOSED, reasons, cur_edge, nbr_edge, reason="closed_gate")
+    elif cur_kind == "ice" or nbr_kind == "ice":
+        dec = EdgeDecision(False, DESC_ICE, reasons, cur_edge, nbr_edge, reason="ice")
+    elif cur_kind == "force" or nbr_kind == "force":
+        dec = EdgeDecision(False, DESC_FORCE, reasons, cur_edge, nbr_edge, reason="force")
+    elif (cur_kind == "gate" and cur_gs == 0) or (nbr_kind == "gate" and nbr_gs == 0):
+        dec = EdgeDecision(True, DESC_GATE_OPEN, reasons, cur_edge, nbr_edge, reason="ok")
+    else:
+        dec = EdgeDecision(True, DESC_AREA, reasons, cur_edge, nbr_edge, reason="ok")
+
+    if WORLD_DEBUG:
+        LOG.debug(
+            "[resolver] (%s,%s,%s)->%s passable=%s reason=%s cur=%s nbr=%s",
+            year,
+            x,
+            y,
+            dir_key,
+            dec.passable,
+            dec.reason,
+            _edge_dbg(cur_edge),
+            _edge_dbg(nbr_edge),
+        )
+
+    return dec
 
