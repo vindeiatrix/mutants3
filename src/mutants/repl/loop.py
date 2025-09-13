@@ -28,9 +28,10 @@ def main() -> None:
             break
 
         token, _, arg = raw.strip().partition(" ")
-        handled = dispatch.call(token, arg)
+        dispatch.call(token, arg)
 
-        if handled in {"north", "south", "east", "west", "look"}:
+        if ctx.get("render_next"):
             render_frame(ctx)
+            ctx["render_next"] = False
         else:
             flush_feedback(ctx)

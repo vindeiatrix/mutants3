@@ -52,6 +52,8 @@ def move(dir_code: str, ctx: Dict[str, Any]) -> None:
     dx, dy = DELTA[dir_code]
     p["pos"][1] = x + dx
     p["pos"][2] = y + dy
+    # Successful movement requests a render of the new room.
+    ctx["render_next"] = True
     # Do not echo success movement like "You head north." Original shows next room immediately.
 
 
