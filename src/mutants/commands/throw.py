@@ -17,21 +17,28 @@ def throw_cmd(arg: str, ctx):
             "armor_cannot_drop": "You can't throw what you're wearing.",
             "not_found": "You're not carrying a {item}.",
             "ambiguous": "Which {item}?",
-            "closed_gate": "The {dir} gate is closed.",
-            "blocked": "No exit that way.",
             "invalid_direction": "No exit that way.",
         },
         success_kind="COMBAT/THROW",
         warn_kind="SYSTEM/WARN",
     )
 
+    decision_holder = {}
+
     def action(dir: str, item: str):
         dec = itx.throw_to_direction(ctx, dir, item)
         if dec.get("ok") and dec.get("iid"):
             dec["display_name"] = idisp.canonical_name_from_iid(dec["iid"])
+        decision_holder["dec"] = dec
         return dec
 
     run_argcmd_positional(ctx, spec, arg, action)
+
+    dec = decision_holder.get("dec") or {}
+    if dec.get("blocked") and dec.get("display_name"):
+        ctx["feedback_bus"].push(
+            "COMBAT/THROW", f"{dec['display_name']} has fallen to the ground!"
+        )
 
 
 def register(dispatch, ctx) -> None:

@@ -219,8 +219,14 @@ def throw_to_direction(ctx, direction: str, prefix: str, *, seed: Optional[int] 
     world = ctx["world_loader"](year)
     dir_code = direction[:1].upper()
     dec = ER.resolve(world, dyn, year, x, y, dir_code, actor={})
-    if not dec.passable:
-        reason = "closed_gate" if dec.reason == "closed_gate" else "blocked"
+    dx, dy = DIR_DELTAS.get(direction.lower(), (0, 0))
+    tx, ty = x + dx, y + dy
+    if dec.passable:
+        drop_x, drop_y = tx, ty
+        blocked = False
+    else:
+        drop_x, drop_y = x, y
+        blocked = True
         if WORLD_DEBUG:
             cur = dec.cur_raw or {}
             nbr = dec.nbr_raw or {}
@@ -236,15 +242,12 @@ def throw_to_direction(ctx, direction: str, prefix: str, *, seed: Optional[int] 
                 nbr.get("base"),
                 nbr.get("gate_state"),
             )
-        return {"ok": False, "reason": reason}
-    dx, dy = DIR_DELTAS.get(direction.lower(), (0, 0))
-    tx, ty = x + dx, y + dy
-    itemsreg.set_position(iid, year, tx, ty)
+    itemsreg.set_position(iid, year, drop_x, drop_y)
     inv = [i for i in inv if i != iid]
     p["inventory"] = inv
     overflow_info = None
     rng = _rng(seed)
-    ground_after = _ground_ordered_ids(year, tx, ty)
+    ground_after = _ground_ordered_ids(year, drop_x, drop_y)
     if len(ground_after) > GROUND_CAP:
         candidates = [g for g in ground_after if g != iid] or ground_after
         pick = rng.choice(candidates)
@@ -253,7 +256,7 @@ def throw_to_direction(ctx, direction: str, prefix: str, *, seed: Optional[int] 
         p["inventory"] = inv
         if len(inv) > INV_CAP:
             drop_iid = rng.choice(inv)
-            itemsreg.set_position(drop_iid, year, tx, ty)
+            itemsreg.set_position(drop_iid, year, drop_x, drop_y)
             inv = [i for i in inv if i != drop_iid]
             p["inventory"] = inv
             overflow_info = {"ground_overflow_pick": pick, "inv_overflow_drop": drop_iid}
@@ -261,4 +264,10 @@ def throw_to_direction(ctx, direction: str, prefix: str, *, seed: Optional[int] 
             overflow_info = {"ground_overflow_pick": pick}
     _save_player(p)
     itemsreg.save_instances()
-    return {"ok": True, "iid": iid, "overflow": overflow_info, "inv_count": len(p["inventory"])}
+    return {
+        "ok": True,
+        "iid": iid,
+        "overflow": overflow_info,
+        "inv_count": len(p["inventory"]),
+        "blocked": blocked,
+    }
