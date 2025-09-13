@@ -15,7 +15,7 @@ This is the plain-English tour of how the game starts, reads your input, updates
 ## The Game Loop (REPL)
 - **Read**: get your command (e.g., `n`).
 - **Eval**: a simple router maps `n` to the move handler; the handler uses the world registry to check edges and updates your `(x,y)` if allowed. It doesn’t print— it **pushes a feedback message** like “The gate is locked.”
-- **Print**: we build a view of the room (header, compass, directions, ground, etc.), drain any feedback messages, and render everything using the current theme (colors live in JSON). The REPL now repaints **only** after movement or a `look` command (optionally with a direction).
+- **Print**: we build a view of the room (header, compass, directions, ground, etc.), drain any feedback messages, and render everything using the current theme (colors live in JSON).
 
 This repeats each turn.
 

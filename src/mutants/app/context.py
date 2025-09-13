@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from pathlib import Path
 from typing import Any, Dict, Iterable, List
-from .render_policy import RenderPolicy
 
 from mutants.bootstrap.lazyinit import ensure_player_state
 from mutants.bootstrap.runtime import ensure_runtime
@@ -148,17 +147,7 @@ def build_room_vm(
     return vm
 
 
-def render_frame(ctx: Dict[str, Any], *, policy: RenderPolicy) -> None:
-    """Render the current room if *policy* permits.
-
-    The REPL provides a ``RenderPolicy`` guard to ensure that rendering only
-    happens after movement or explicit look commands. Calls with
-    ``RenderPolicy.NEVER`` are ignored.
-    """
-
-    if policy is not RenderPolicy.ROOM:
-        return
-
+def render_frame(ctx: Dict[str, Any]) -> None:
     vm = build_room_vm(
         ctx["player_state"],
         ctx["world_loader"],

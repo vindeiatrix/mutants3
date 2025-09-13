@@ -5,7 +5,6 @@ from typing import Any, Dict
 import logging
 
 from mutants.registries.world import DELTA
-from mutants.app.render_policy import RenderPolicy
 from mutants.engine import edge_resolver as ER
 from mutants.registries import dynamics as dyn
 from mutants.app import trace as traceflags
@@ -22,7 +21,7 @@ def _active(state: Dict[str, Any]) -> Dict[str, Any]:
     return state["players"][0]
 
 
-def move(dir_code: str, ctx: Dict[str, Any]) -> RenderPolicy:
+def move(dir_code: str, ctx: Dict[str, Any]) -> None:
     """Attempt to move the active player in direction *dir_code*."""
     p = _active(ctx["player_state"])
     year, x, y = p.get("pos", [0, 0, 0])
@@ -48,13 +47,12 @@ def move(dir_code: str, ctx: Dict[str, Any]) -> RenderPolicy:
 
     if not dec.passable:
         ctx["feedback_bus"].push("MOVE/BLOCKED", "You're blocked!")
-        return RenderPolicy.ROOM
+        return
 
     dx, dy = DELTA[dir_code]
     p["pos"][1] = x + dx
     p["pos"][2] = y + dy
     # Do not echo success movement like "You head north." Original shows next room immediately.
-    return RenderPolicy.ROOM
 
 
 def register(dispatch, ctx) -> None:

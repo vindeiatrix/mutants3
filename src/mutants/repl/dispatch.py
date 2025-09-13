@@ -1,7 +1,6 @@
 from __future__ import annotations
 import sys
 from typing import Callable, Dict, List, Optional
-from mutants.app.render_policy import RenderPolicy
 
 
 class Dispatch:
@@ -60,14 +59,13 @@ class Dispatch:
         self._warn(f'Unknown command "{token}" (commands require at least 3 letters).')
         return None
 
-    def call(self, token: str, arg: str) -> RenderPolicy:
+    def call(self, token: str, arg: str) -> None:
         name = self._resolve_prefix(token)
         if not name:
-            return RenderPolicy.NEVER
+            return
         fn = self._cmds.get(name)
         if not fn:
             self._warn(f'Command handler missing for "{name}".')
-            return RenderPolicy.NEVER
-        rv = fn(arg)
-        return rv if isinstance(rv, RenderPolicy) else RenderPolicy.NEVER
+            return
+        fn(arg)
 

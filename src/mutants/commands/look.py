@@ -1,11 +1,8 @@
 from __future__ import annotations
 
-from mutants.app.render_policy import RenderPolicy
-
-
-def look_cmd(_arg: str, ctx) -> RenderPolicy:
-    # Request a render; argument (optional direction) is currently ignored.
-    return RenderPolicy.ROOM
+def look_cmd(_arg: str, ctx) -> None:
+    # The REPL loop re-renders after each command; look is a no-op.
+    pass
 
 
 def register(dispatch, ctx) -> None:
