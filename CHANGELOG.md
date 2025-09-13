@@ -12,3 +12,5 @@
 
 ### Fixed
 - CLOSE [direction] now detects gates by type and closes open gates.
+- Closed or locked gates now block movement; attempting to walk into one shows
+  "The {dir} gate is closed."

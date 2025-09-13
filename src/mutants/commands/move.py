@@ -46,7 +46,12 @@ def move(dir_code: str, ctx: Dict[str, Any]) -> None:
             sink.handle({"ts": "", "kind": "MOVE/DECISION", "text": json.dumps(payload)})
 
     if not dec.passable:
-        ctx["feedback_bus"].push("MOVE/BLOCKED", "You're blocked!")
+        if dec.reason == "closed_gate":
+            ctx["feedback_bus"].push(
+                "MOVE/BLOCKED", f"The {DIR_WORD[dir_code]} gate is closed."
+            )
+        else:
+            ctx["feedback_bus"].push("MOVE/BLOCKED", "You're blocked!")
         return
 
     dx, dy = DELTA[dir_code]
