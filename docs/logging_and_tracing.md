@@ -120,6 +120,19 @@ Disable tracing when done:
 logs trace ui off
 ```
 
+## Gate operations
+
+- **Close a gate** in a given direction from your current tile:
+  ```
+  close n
+  ```
+  Feedback: `You've just closed the north gate.`  
+  A log line is written:
+  ```
+  GATE/CLOSE {"pos":"(xE : yN)","dir":"N"}
+  ```
+  After closing, `look` will show `north - closed gate.` and trying to move that way will be blocked.
+
 ## Debug helpers
 - **Add items to current tile** (for quick setup while testing):
   ```
