@@ -1,7 +1,7 @@
 from __future__ import annotations
 import json
 from pathlib import Path
-from typing import Dict, List, Optional, Iterable, Any
+from typing import Dict, List, Optional, Any
 
 DEFAULT_CATALOG_PATH = "state/items/catalog.json"
 FALLBACK_CATALOG_PATH = "state/catalog.json"  # auto-fallback if the new path isn't used yet
@@ -21,7 +21,7 @@ class ItemsCatalog:
         return it
 
     def list_spawnable(self) -> List[Dict[str, Any]]:
-        return [it for it in self._items_list if it.get("spawnable", "no") == "yes"]
+        return [it for it in self._items_list if it.get("spawnable") is True]
 
 def _read_items_from_file(p: Path) -> List[Dict[str, Any]]:
     with p.open("r", encoding="utf-8") as f:
