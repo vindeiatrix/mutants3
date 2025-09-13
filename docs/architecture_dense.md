@@ -177,3 +177,7 @@ VM → Formatters (build strings + **group**) → Styles (resolve color by group
   - `run_argcmd(ctx, spec, arg, do_action)`: trims arg; on empty+required → usage; else calls `do_action(subject)` and pushes feedback based on `ok/reason`. On success, prefers `display_name|name|item_name` from `do_action` result for `{name}`.
 * **GET/DROP adoption**: `get` and `drop` now use this runner. Failures map to specific feedback (`not_found` → “There isn’t a {subject} here.”, `inventory_empty` → “You have nothing to drop.”, `armor_cannot_drop` → “You can't drop what you're wearing.”). Success emits explicit lines (“You pick up the Skull.” / “You drop the Skull.”).
 * **Armor rule**: any **inventory** arg-kind excludes worn armor; armor is not targetable by `get/drop/look`. Only `remove` operates on the armor slot.
+
+## Router Prefix Rule (new)
+* **Rule**: tokens **≥3** letters resolve to the **unique** command whose name (or alias) starts with that prefix; **<3** works only for explicit aliases (by default `n/s/e/w`).
+* **Ambiguity**: if multiple commands match the ≥3 prefix, the router warns and does nothing.

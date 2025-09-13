@@ -99,6 +99,10 @@ To keep command UX consistent, commands that take a **subject argument** now use
 - `ArgSpec` declares the **arg policy** (`required|optional|forbidden`), **message templates** (usage/invalid/success), optional **reason→message** mapping, and the **feedback kinds** for success/warn (e.g., `LOOT/PICKUP`, `LOOT/DROP`).
 - `run_argcmd` handles: trim arg → usage on empty (when required) → call `do_action(subject)` → map failure `reason` to a message → push explicit success feedback including the item name when available.
 
+### Command Prefix Rule (router)
+- All commands accept **≥3-letter unique prefixes** (case-insensitive). Only **north/south/east/west** allow single-letter aliases (`n/s/e/w`).
+- If a ≥3 prefix is **ambiguous**, the router warns and does nothing; if **unknown**, it warns accordingly.
+
 ### Notes
 - **Worn armor is not inventory**: by design, arg kinds that reference inventory (e.g., for `drop`) exclude worn armor; only the `remove` command interacts with armor.
 - `get`/`drop` now reject empty args with usage text and emit explicit success/warn lines.

@@ -15,3 +15,7 @@
 - On success, commands emit an explicit confirmation line including the resolved subject name when available.
 - **Armor**: worn armor is **not** part of inventory and is not targetable by these commands; only `remove` interacts with the armor slot.
 
+## Command Routing Invariants (new)
+- Tokens of **≥3 letters** resolve to a **unique** command by prefix; **<3** works only for explicit aliases (default: `n/s/e/w`).
+- Ambiguous ≥3 prefixes must produce a **single warning** and no action.
+
