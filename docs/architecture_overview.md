@@ -23,6 +23,7 @@ This repeats each turn.
 - **REPL**: `repl/loop.py` (the metronome), `repl/dispatch.py` (command router).
 - **Commands**: `commands/*.py` (movement, theme, logs, etc.).
   - New: `close <dir>` closes an adjacent **gate** on the current tile (mirrors the state to the neighbor tile’s opposite edge). Feedback shows “You’ve just closed the north gate.”
+  - New: `open <dir>` reopens a closed gate. Feedback shows “You've just opened the north gate.” Locked gates remain locked.
 - **App context**: `app/context.py` (wires player state, world loader, renderer, theme, feedback bus).
 - **UI**: `ui/renderer.py` (layout), `ui/formatters.py` (phrasing), `ui/themes.py` (loads colors), `ui/styles.py` (token names), `ui/wrap.py` (80-col lists).
 - **Color Groups** (new): text fragments are tagged with semantic groups like `compass.line`, `dir.open`, `dir.blocked`, `room.title`, `room.desc`. A single JSON file (`state/ui/colors.json`) maps each group to a color name so palette tweaks require no code edits. `styles.resolve_color_for_group(group)` handles dotted fallback (`compass.line` → `compass.*` → default).
