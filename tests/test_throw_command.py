@@ -108,3 +108,55 @@ def test_throw_abbreviation(monkeypatch, tmp_path):
     throw_cmd("north n", ctx)
     inst = itemsreg.get_instance(iid)
     assert inst.get("pos", {}).get("y") == -1
+
+def test_throw_open_exit_goes_to_destination(ctx):
+    item = ctx.items_instances.create_and_save_instance("nuclear-rock")
+    ctx.player["inventory"] = [item["iid"]]
+
+    # assume north is open
+    ctx.commands.throw_cmd("nuclear-rock n", ctx)
+
+    assert item["iid"] not in ctx.player["inventory"]
+    dest_ground = ctx.items_ground.load((ctx.year, ctx.pos[0], ctx.pos[1] + 1))
+    assert any(i["iid"] == item["iid"] for i in dest_ground)
+
+def test_throw_into_non_exit_drops_current_tile(ctx):
+    item = ctx.items_instances.create_and_save_instance("nuclear-rock")
+    ctx.player["inventory"] = [item["iid"]]
+
+    # no west exit at this tile
+    ctx.commands.throw_cmd("nuclear-rock w", ctx)
+
+    assert item["iid"] not in ctx.player["inventory"]
+    ground = ctx.items_ground.load((ctx.year, *ctx.pos))
+    assert any(i["iid"] == item["iid"] for i in ground)
+
+def test_throw_closed_gate_drops_current_tile(ctx):
+    item = ctx.items_instances.create_and_save_instance("nuclear-rock")
+    ctx.player["inventory"] = [item["iid"]]
+
+    # set north edge to gate, closed
+    ctx.world.set_gate(ctx.pos, "N", open=False)
+
+    ctx.commands.throw_cmd("nuclear-rock n", ctx)
+
+    assert item["iid"] not in ctx.player["inventory"]
+    ground = ctx.items_ground.load((ctx.year, *ctx.pos))
+    assert any(i["iid"] == item["iid"] for i in ground)
+
+def test_throw_boundary_drops_current_tile(ctx):
+    item = ctx.items_instances.create_and_save_instance("nuclear-rock")
+    ctx.player["inventory"] = [item["iid"]]
+
+    # place player at north map boundary
+    ctx.pos = (0, ctx.world.max_y)
+
+    ctx.commands.throw_cmd("nuclear-rock n", ctx)
+
+    assert item["iid"] not in ctx.player["inventory"]
+    ground = ctx.items_ground.load((ctx.year, *ctx.pos))
+    assert any(i["iid"] == item["iid"] for i in ground)
+
+
+
+
