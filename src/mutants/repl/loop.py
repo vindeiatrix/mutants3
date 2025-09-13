@@ -1,5 +1,6 @@
 from __future__ import annotations
 from mutants.app.context import build_context, render_frame
+from mutants.app.render_policy import RenderPolicy
 from mutants.repl.dispatch import Dispatch
 from mutants.commands.register_all import register_all
 from mutants.repl.prompt import make_prompt
@@ -18,7 +19,7 @@ def main() -> None:
     print(startup_banner(ctx))
 
     # Initial paint
-    render_frame(ctx)
+    render_frame(ctx, policy=RenderPolicy.ROOM)
 
     while True:
         try:
@@ -28,7 +29,8 @@ def main() -> None:
             break
 
         token, _, arg = raw.strip().partition(" ")
-        handled = dispatch.call(token, arg)
+        policy = dispatch.call(token, arg)
 
-        # Always repaint; unknown commands produce a feedback event
-        render_frame(ctx)
+        # Repaint only when the command requests it
+        if policy is RenderPolicy.ROOM:
+            render_frame(ctx, policy=policy)
