@@ -22,12 +22,15 @@ Edge model (per tile):
 
 from __future__ import annotations
 
-import json
+import json, os, logging
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 from mutants.io.atomic import atomic_write_json
 from mutants.bootstrap.runtime import discover_world_years
+
+LOG = logging.getLogger(__name__)
+WORLD_DEBUG = os.getenv("WORLD_DEBUG") == "1"
 
 WORLD_DIR = Path("state/world")
 
@@ -339,11 +342,20 @@ def load_year(year: int) -> YearWorld:
     global _default_world_registry
     if _default_world_registry is None:
         _default_world_registry = WorldRegistry()
+    path = WORLD_DIR / f"{int(year)}.json"
+    if WORLD_DEBUG:
+        LOG.debug(
+            "[world] load_year request=%s path=%s cwd=%s",
+            year, path.resolve(), Path.cwd()
+        )
     return _default_world_registry.load_year(year)
 
 
 def list_years() -> list[int]:
-    return discover_world_years()
+    years = discover_world_years()
+    if WORLD_DEBUG:
+        LOG.debug("[world] list_years dir=%s years=%s", WORLD_DIR.resolve(), years)
+    return years
 
 
 def load_nearest_year(target: int):
@@ -351,6 +363,10 @@ def load_nearest_year(target: int):
     if not years:
         raise FileNotFoundError("No world years found under state/world")
     best = min(years, key=lambda y: abs(y - int(target)))
+    LOG.info(
+        "[world] load_nearest_year requested=%s chosen=%s dir=%s",
+        target, best, WORLD_DIR.resolve()
+    )
     return load_year(best)
 
 def save_all() -> None:

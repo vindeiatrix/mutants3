@@ -3,6 +3,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, Dict, Iterable, List
 
+import os, logging
+
 from mutants.bootstrap.lazyinit import ensure_player_state
 from mutants.bootstrap.runtime import ensure_runtime
 from mutants.data.room_headers import ROOM_HEADERS, STORE_FOR_SALE_IDX
@@ -13,6 +15,9 @@ from mutants.ui.logsink import LogSink
 from mutants.ui.themes import Theme, load_theme
 from mutants.ui import styles as st
 from ..registries import items_instances as itemsreg
+
+LOG = logging.getLogger(__name__)
+WORLD_DEBUG = os.getenv("WORLD_DEBUG") == "1"
 
 # --- store-aware header resolution ------------------------------------------
 def _store_price(year: int) -> int:
@@ -108,6 +113,11 @@ def build_room_vm(
     p = _active(state)
     pos = p.get("pos") or [0, 0, 0]
     year, x, y = pos[0], pos[1], pos[2]
+    if WORLD_DEBUG:
+        LOG.debug(
+            "[room] build_room_vm pos=%s (year=%s,x=%s,y=%s)",
+            pos, year, x, y
+        )
     world = world_loader(year)
     tile = world.get_tile(x, y)
 

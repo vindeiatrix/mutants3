@@ -1,10 +1,14 @@
 from __future__ import annotations
-import json, re
+import json, re, os
 from pathlib import Path
 from typing import Dict, List, Optional, Iterable
 from mutants.io.atomic import atomic_write_json
 from . import daily_litter
 import logging
+
+LOG = logging.getLogger(__name__)
+WORLD_DEBUG = os.getenv("WORLD_DEBUG") == "1"
+WORLD_STRICT = os.getenv("WORLD_STRICT") == "1"
 
 STATE = Path("state")
 WORLD_DIR = STATE / "world"
@@ -30,9 +34,18 @@ def ensure_runtime() -> Dict:
     created_themes = ensure_theme_files(cfg.get("default_theme", "bbs"))
     years = discover_world_years()
     if not years:
+        LOG.info(
+            "[world] no world jsons found; cwd=%s world_dir=%s",
+            Path.cwd(), WORLD_DIR.resolve()
+        )
+        if WORLD_STRICT:
+            raise RuntimeError(
+                f"No world JSONs found in {WORLD_DIR.resolve()} (cwd={Path.cwd()}). "
+                "Set WORLD_STRICT=0 to allow minimal world creation."
+            )
         year = int(cfg.get("default_world_year", 2000))
         size = int(cfg.get("default_world_size", 30))
-        create_minimal_world(year=year, size=size)
+        create_minimal_world(year=year, size=size, reason="no_worlds_discovered")
         years = [year]
 
     try:
@@ -51,7 +64,10 @@ def discover_world_years() -> List[int]:
                 yrs.append(int(m.group(1)))
             except ValueError:
                 pass
-    return sorted(set(yrs))
+    yrs = sorted(set(yrs))
+    if WORLD_DEBUG:
+        LOG.debug("[world] discover_world_years dir=%s years=%s", WORLD_DIR.resolve(), yrs)
+    return yrs
 
 # ---------- helpers ----------
 def ensure_dirs(paths: Iterable[Path]) -> None:
@@ -101,11 +117,15 @@ def _mono_theme() -> Dict[str, str]:
         "colors_path": "state/ui/colors.json",
     }
 
-def create_minimal_world(year: int, size: int = 30) -> None:
+def create_minimal_world(year: int, size: int = 30, *, reason: str = "unspecified") -> None:
     """
     Create a simple square world with boundaries on the outer rim and open cells inside.
     Tiles include JSON 'pos': [year, x, y] and minimal edge records.
     """
+    LOG.warning(
+        "[world] create_minimal_world reason=%s cwd=%s target_dir=%s",
+        reason, Path.cwd(), WORLD_DIR.resolve()
+    )
     half = size // 2
     tiles = []
     for y in range(-half, half):
