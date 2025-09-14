@@ -60,6 +60,18 @@ def test_peek_direction_renders_adjacent_room(capsys):
     assert p["pos"] == [2000, 0, 0]
 
 
+def test_peek_direction_prefix_renders_adjacent_room(capsys):
+    ctx = make_ctx()
+    p = active(ctx["player_state"])
+    p["pos"] = [2000, 0, 0]
+    look_cmd("we", ctx)
+    assert ctx["render_next"]
+    render_frame(ctx)
+    out = capsys.readouterr().out
+    assert ROOM_HEADERS[7] in out
+    assert p["pos"] == [2000, 0, 0]
+
+
 def test_peek_blocked_does_not_render():
     ctx = make_ctx()
     p = active(ctx["player_state"])
