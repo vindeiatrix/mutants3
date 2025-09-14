@@ -2,6 +2,8 @@ from __future__ import annotations
 import json, os, time
 from typing import Dict, Optional
 
+from mutants.util.directions import DELTA as _DELTA, OPP as _OPP
+
 ROOT = os.getcwd()
 PATH = os.path.join(ROOT, "state", "world", "dynamics.json")
 
@@ -59,4 +61,43 @@ def set_blasted(year: int, x: int, y: int, dir_key: str, *, ttl: int = 0) -> Non
         "ttl": int(ttl),
         "created_at": int(time.time()),
     }
+    _save(data)
+
+
+# --- gate locks --------------------------------------------------------------
+
+def _lock_key(year: int, x: int, y: int, dir_key: str) -> str:
+    return f"lock:{year}:{x}:{y}:{dir_key}"
+
+
+def get_lock(year: int, x: int, y: int, dir_key: str) -> Optional[Dict]:
+    data = _load()
+    lk = data.get(_lock_key(year, x, y, dir_key))
+    if isinstance(lk, dict) and lk.get("locked"):
+        return lk
+    return None
+
+
+def set_lock(year: int, x: int, y: int, dir_key: str, lock_type: str) -> None:
+    data = _load()
+    key = _lock_key(year, x, y, dir_key)
+    data[key] = {"locked": True, "lock_type": str(lock_type)}
+    # Mirror to the neighbor edge so lock is enforced from both sides.
+    dk = dir_key.lower()
+    dx, dy = _DELTA.get(dk, (0, 0))
+    opp = _OPP.get(dk, dk).upper()
+    data[_lock_key(year, x + dx, y + dy, opp)] = {
+        "locked": True,
+        "lock_type": str(lock_type),
+    }
+    _save(data)
+
+
+def clear_lock(year: int, x: int, y: int, dir_key: str) -> None:
+    data = _load()
+    dk = dir_key.lower()
+    dx, dy = _DELTA.get(dk, (0, 0))
+    opp = _OPP.get(dk, dk).upper()
+    data.pop(_lock_key(year, x, y, dir_key), None)
+    data.pop(_lock_key(year, x + dx, y + dy, opp), None)
     _save(data)
