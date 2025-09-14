@@ -96,6 +96,11 @@ def _pick_first_match_by_prefix(
         return (matches[0], None)
     if len(matches) > 1:
         names = [_iid_to_name(i) for i in matches]
+        # If all matched items share the same canonical name, treat as non-ambiguous.
+        unique = {n.lower() for n in names}
+        if len(unique) == 1:
+            return (matches[0], None)
+        # Otherwise surface candidate names to disambiguate.
         return (None, names)
     return (None, None)
 

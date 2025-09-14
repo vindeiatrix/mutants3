@@ -56,8 +56,13 @@ def run_argcmd(
     if not decision.get("ok"):
         r = decision.get("reason") or "invalid"
         msg = None
+        fmt_vals = dict(decision)
+        fmt_vals["subject"] = subject
+        cands = fmt_vals.get("candidates")
+        if isinstance(cands, list):
+            fmt_vals["candidates"] = ", ".join(cands)
         if spec.reason_messages and r in spec.reason_messages:
-            msg = _fmt(spec.reason_messages[r], subject=subject)
+            msg = _fmt(spec.reason_messages[r], **fmt_vals)
         if not msg:
             msg = _fmt((spec.messages or {}).get("invalid"), subject=subject)
         bus.push(spec.warn_kind, msg or "Nothing happens.")
