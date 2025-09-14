@@ -48,7 +48,8 @@ def patch_items(monkeypatch, player):
     monkeypatch.setattr(itemsreg, "clear_position", lambda iid: positions.pop(iid, None))
     monkeypatch.setattr(itemsreg, "list_instances_at", lambda yr, x, y: [])
     monkeypatch.setattr(itemsreg, "save_instances", lambda: None)
-    monkeypatch.setattr(itemsreg, "get_instance", lambda iid: None)
+    monkeypatch.setattr(itemsreg, "get_instance", lambda iid: {"item_id": iid})
+    monkeypatch.setattr(idisp, "canonical_name", lambda iid: iid)
     monkeypatch.setattr(idisp, "canonical_name_from_iid", lambda iid: iid)
     return positions
 
@@ -115,6 +116,23 @@ def test_throw_boundary_drops_here(monkeypatch):
     assert bus.msgs == [
         ("COMBAT/THROW", "You throw the rock north."),
         ("COMBAT/THROW", "rock has fallen to the ground!"),
+    ]
+
+
+def test_throw_picks_first_matching_item(monkeypatch):
+    cur = {}
+    nbr = {}
+    player = {"inventory": ["ion-cannon", "ion-saber"], "armor": None}
+    ctx, bus = mk_ctx(cur, nbr, player)
+    positions = patch_items(monkeypatch, player)
+
+    throw_cmd("north ion", ctx)
+
+    assert player["inventory"] == ["ion-saber"]
+    assert positions.get("ion-cannon") == (2000, 0, 0)
+    assert bus.msgs == [
+        ("COMBAT/THROW", "You throw the ion-cannon north."),
+        ("COMBAT/THROW", "ion-cannon has fallen to the ground!"),
     ]
 
 
