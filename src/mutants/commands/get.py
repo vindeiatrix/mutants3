@@ -1,6 +1,7 @@
 from __future__ import annotations
 from ..services import item_transfer as itx
 from ..ui import item_display as idisp
+from ..util.textnorm import normalize_item_query
 from .argcmd import ArgSpec, run_argcmd
 def get_cmd(arg: str, ctx):
     spec = ArgSpec(
@@ -13,13 +14,17 @@ def get_cmd(arg: str, ctx):
         },
         reason_messages={
             "not_found": "There isn't a {subject} here.",
+            "usage": "Type GET [item name] to pick up an item.",
         },
         success_kind="LOOT/PICKUP",
         warn_kind="SYSTEM/WARN",
     )
 
     def action(prefix: str):
-        dec = itx.pick_from_ground(ctx, prefix)
+        q = normalize_item_query(prefix)
+        if not q:
+            return {"ok": False, "reason": "usage"}
+        dec = itx.pick_from_ground(ctx, q)
         if dec.get("ok") and dec.get("iid"):
             dec["display_name"] = idisp.canonical_name_from_iid(dec["iid"])
         return dec

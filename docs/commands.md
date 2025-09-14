@@ -1,5 +1,11 @@
 # Commands
 
+## Get
+
+`get <item>` picks up an item from the ground. Item names are parsed via the
+normalization helper (see [utilities](utilities.md)). If multiple ground items
+match the prefix, the first one in the ground list is picked up.
+
 ## Throw
 
 `throw <direction> <item>` throws an item into an adjacent tile. Item names

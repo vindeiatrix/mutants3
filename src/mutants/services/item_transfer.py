@@ -4,6 +4,7 @@ from typing import Dict, List, Optional, Tuple
 from ..io import atomic
 from ..ui import item_display as idisp
 from ..registries import items_instances as itemsreg
+from ..util.textnorm import normalize_item_query
 from mutants.engine import edge_resolver as ER
 from mutants.registries import dynamics as dyn
 
@@ -123,14 +124,26 @@ def pick_from_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
     p = _load_player()
     _ensure_inventory(p)
     year, x, y = _pos_from_ctx(ctx)
-    ground_iids = _ground_ordered_ids(year, x, y)
-    chosen_iid: Optional[str] = None
-    if prefix:
-        chosen_iid, amb = _pick_first_match_by_prefix(ground_iids, prefix)
-        if amb:
-            return {"ok": False, "reason": "ambiguous", "candidates": amb}
+    insts = itemsreg.list_instances_at(year, x, y)
+    q = normalize_item_query(prefix)
+    candidates: List[str] = []
+    if q:
+        for inst in insts:
+            iid = inst.get("iid") or inst.get("instance_id")
+            item_id = inst.get("item_id") or inst.get("catalog_id") or inst.get("id")
+            if not iid or not item_id:
+                continue
+            name = idisp.canonical_name(str(item_id))
+            norm_name = normalize_item_query(name)
+            norm_id = normalize_item_query(str(item_id))
+            if norm_name.startswith(q) or norm_id.startswith(q):
+                candidates.append(str(iid))
     else:
-        chosen_iid = ground_iids[0] if ground_iids else None
+        for inst in insts:
+            iid = inst.get("iid") or inst.get("instance_id")
+            if iid:
+                candidates.append(str(iid))
+    chosen_iid: Optional[str] = candidates[0] if candidates else None
     if not chosen_iid:
         return {"ok": False, "reason": "not_found", "where": "ground"}
     itemsreg.clear_position(chosen_iid)
