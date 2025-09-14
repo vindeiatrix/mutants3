@@ -1,4 +1,6 @@
 from __future__ import annotations
+import re, shlex
+
 from ..registries import items_instances as itemsreg
 
 
@@ -13,16 +15,57 @@ def _pos_from_ctx(ctx) -> tuple[int, int, int]:
     return int(pos[0]), int(pos[1]), int(pos[2])
 
 
+def _normalize(s: str) -> str:
+    s = s.strip().lower().strip("'\"")
+    s = re.sub(r"^(a|an|the)\s+", "", s)
+    return s
+
+
+def _display_name(it: dict) -> str:
+    for key in ("display_name", "name", "title"):
+        if isinstance(it.get(key), str):
+            return it[key]
+    return it.get("item_id", "")
+
+
+def _resolve_item_id(raw: str, catalog):
+    q = _normalize(raw)
+    q_id = q.replace("-", "_")
+    if catalog.get(q_id):
+        return q_id, None
+    prefix = [iid for iid in catalog._by_id if iid.startswith(q_id)]
+    if len(prefix) == 1:
+        return prefix[0], None
+    if len(prefix) > 1:
+        return None, prefix
+    name_matches = []
+    for it in catalog._items_list:
+        if _normalize(_display_name(it)) == q:
+            name_matches.append(it["item_id"])
+    if len(name_matches) == 1:
+        return name_matches[0], None
+    if len(name_matches) > 1:
+        return None, name_matches
+    return None, []
+
+
 def debug_cmd(arg: str, ctx):
-    parts = arg.strip().split()
+    parts = shlex.split(arg.strip())
     bus = ctx["feedback_bus"]
     if len(parts) >= 3 and parts[0] == "add" and parts[1] == "item":
         from mutants.registries import items_catalog
 
-        item_id = parts[2]
         catalog = items_catalog.load_catalog()
-        if not catalog.get(item_id):
-            bus.push("SYSTEM/WARN", f"Unknown item: {item_id}")
+        item_arg = parts[2]
+        item_id, matches = _resolve_item_id(item_arg, catalog)
+        if not item_id:
+            if matches:
+                bus.push(
+                    "SYSTEM/WARN",
+                    f"Ambiguous item ID: \"{item_arg}\" matches {', '.join(matches)}.",
+                )
+            else:
+                bus.push("SYSTEM/WARN", f"Unknown item: {item_arg}")
             return
         try:
             count = int(parts[3]) if len(parts) >= 4 else 1

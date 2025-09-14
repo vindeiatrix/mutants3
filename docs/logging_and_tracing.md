@@ -142,9 +142,9 @@ logs trace ui off
 ## Debug helpers
 - **Add items to current tile** (for quick setup while testing):
   ```
-  debug add item <item_id> [count]
+  debug add item <id|prefix|"Display Name"> [count]
   ```
-  Places one or more instances of `<item_id>` at your current coordinates. Useful to check wrapping of hyphenated names and inventory/ground overflow behavior quickly.
+  Accepts catalog IDs (preferred), unique prefixes, or display names with or without quotes. Matching is case-insensitive and ignores leading articles (`a`, `an`, `the`). Hyphens and underscores are interchangeable for catalog IDs. Places one or more instances at your current coordinates. Useful to check wrapping of hyphenated names and inventory/ground overflow behavior quickly.
 
 ## What Tracing Logs
 
