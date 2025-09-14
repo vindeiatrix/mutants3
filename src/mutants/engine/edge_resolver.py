@@ -170,6 +170,11 @@ def resolve(world, dynamics, year: int, x: int, y: int, dir_key: str, actor: Opt
                 elif kind == "blasted":
                     reasons.append(("overlay", "blasted"))
                     cur_kind = "open"
+        if dynamics is not None and hasattr(dynamics, "get_lock"):
+            cur_lock = dynamics.get_lock(year, x, y, du)
+            if cur_lock and cur_kind == "gate":
+                cur_gs = 2
+                reasons.append(("lock", f"locked:{cur_lock.get('lock_type','')}"))
     except Exception:
         pass
 
