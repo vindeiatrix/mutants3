@@ -3,6 +3,8 @@ from __future__ import annotations
 import shlex
 
 from ..registries import items_instances as itemsreg
+from ..registries import items_catalog
+from ..services import item_transfer as it
 from ..util.textnorm import normalize_item_query
 
 
@@ -45,35 +47,58 @@ def _resolve_item_id(raw: str, catalog):
     return None, []
 
 
-def debug_cmd(arg: str, ctx):
+
+def _add_to_inventory(ctx, item_id: str, count: int) -> None:
+    """Create *count* instances of item_id and add them to the active player's inventory."""
+    year, x, y = _pos_from_ctx(ctx)
+    p = it._load_player()
+    it._ensure_inventory(p)
+    inv = p["inventory"]
+    for _ in range(count):
+        iid = itemsreg.create_and_save_instance(item_id, year, x, y, origin="debug_add")
+        itemsreg.clear_position(iid)
+        inv.append(iid)
+    p["inventory"] = inv
+    it._save_player(p)
+    itemsreg.save_instances()
+
+
+def debug_add_cmd(arg: str, ctx):
     parts = shlex.split(arg.strip())
     bus = ctx["feedback_bus"]
-    if len(parts) >= 3 and parts[0] == "add" and parts[1] == "item":
-        from mutants.registries import items_catalog
-
-        catalog = items_catalog.load_catalog()
-        item_arg = parts[2]
-        item_id, matches = _resolve_item_id(item_arg, catalog)
-        if not item_id:
-            if matches:
-                bus.push(
-                    "SYSTEM/WARN",
-                    f"Ambiguous item ID: \"{item_arg}\" matches {', '.join(matches)}.",
-                )
-            else:
-                bus.push("SYSTEM/WARN", f"Unknown item: {item_arg}")
-            return
-        try:
-            count = int(parts[3]) if len(parts) >= 4 else 1
-        except Exception:
-            count = 1
-        year, x, y = _pos_from_ctx(ctx)
-        for _ in range(max(1, count)):
-            itemsreg.create_and_save_instance(item_id, year, x, y, origin="debug_add")
-        bus.push("DEBUG", f"added {count} x {item_id} at ({x},{y}).")
+    if not parts:
+        bus.push("SYSTEM/INFO", "Usage: debug add <item_id> [qty]")
         return
-    bus.push("SYSTEM/INFO", "Usage: debug add item <item_id_or_name> [count]")
+    catalog = items_catalog.load_catalog()
+    item_arg = parts[0]
+    item_id, matches = _resolve_item_id(item_arg, catalog)
+    if not item_id:
+        if matches:
+            bus.push(
+                "SYSTEM/WARN",
+                f"Ambiguous item ID: \"{item_arg}\" matches {', '.join(matches)}.",
+            )
+        else:
+            bus.push("SYSTEM/WARN", f"Unknown item: {item_arg}")
+        return
+    try:
+        count = int(parts[1]) if len(parts) >= 2 else 1
+    except Exception:
+        count = 1
+    count = max(1, min(99, count))
+    _add_to_inventory(ctx, item_id, count)
+    bus.push("DEBUG", f"added {count} x {item_id} to inventory.")
+
+
+def debug_cmd(arg: str, ctx):
+    parts = shlex.split(arg.strip())
+    if parts and parts[0] == "add":
+        debug_add_cmd(" ".join(parts[1:]), ctx)
+        return
+    bus = ctx["feedback_bus"]
+    bus.push("SYSTEM/INFO", "Usage: debug add <item_id> [qty]")
 
 
 def register(dispatch, ctx) -> None:
     dispatch.register("debug", lambda arg: debug_cmd(arg, ctx))
+    dispatch.register("give", lambda arg: debug_add_cmd(arg, ctx))
