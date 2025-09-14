@@ -7,18 +7,13 @@ from ..registries import items_instances as itemsreg
 from ..util.textnorm import normalize_item_query
 from mutants.engine import edge_resolver as ER
 from mutants.registries import dynamics as dyn
+from mutants.util.directions import vec as dir_vec
 
 LOG = logging.getLogger(__name__)
 WORLD_DEBUG = os.getenv("WORLD_DEBUG") == "1"
 
 GROUND_CAP = 6
 INV_CAP = 10  # worn armor excluded elsewhere
-DIR_DELTAS = {
-    "north": (0, -1),
-    "south": (0, 1),
-    "east": (1, 0),
-    "west": (-1, 0),
-}
 
 
 def _player_file() -> str:
@@ -245,7 +240,7 @@ def throw_to_direction(ctx, direction: str, prefix: str, *, seed: Optional[int] 
     world = ctx["world_loader"](year)
     dir_code = direction[:1].upper()
     dec = ER.resolve(world, dyn, year, x, y, dir_code, actor={})
-    dx, dy = DIR_DELTAS.get(direction.lower(), (0, 0))
+    dx, dy = dir_vec(direction)
     tx, ty = x + dx, y + dy
     if dec.passable:
         drop_x, drop_y = tx, ty

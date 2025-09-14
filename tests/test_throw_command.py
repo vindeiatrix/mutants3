@@ -75,7 +75,7 @@ def test_throw_moves_item_to_adjacent_tile(monkeypatch, tmp_path):
 
     inst = itemsreg.get_instance(iid)
     assert inst.get("pos", {}).get("x") == 0
-    assert inst.get("pos", {}).get("y") == -1
+    assert inst.get("pos", {}).get("y") == 1
 
     with pfile.open("r", encoding="utf-8") as f:
         pdata_after = json.load(f)
@@ -86,8 +86,8 @@ def test_thrown_item_can_be_picked_up(monkeypatch, tmp_path):
     ctx, pfile, inv = _setup(monkeypatch, tmp_path, ["nuclear_decay"])
     iid = inv[0]
     throw_cmd("north nuclear", ctx)
-    assert "nuclear_decay" in itemsreg.list_ids_at(2000, 0, -1)
-    ctx["player_state"]["players"][0]["pos"] = [2000, 0, -1]
+    assert "nuclear_decay" in itemsreg.list_ids_at(2000, 0, 1)
+    ctx["player_state"]["players"][0]["pos"] = [2000, 0, 1]
     dec = itx.pick_from_ground(ctx, "nuclear")
     assert dec.get("ok")
     with pfile.open("r", encoding="utf-8") as f:
@@ -107,7 +107,7 @@ def test_throw_abbreviation(monkeypatch, tmp_path):
     iid = inv[0]
     throw_cmd("north n", ctx)
     inst = itemsreg.get_instance(iid)
-    assert inst.get("pos", {}).get("y") == -1
+    assert inst.get("pos", {}).get("y") == 1
 
 
 def test_throw_direction_prefix(monkeypatch, tmp_path):

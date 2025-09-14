@@ -11,6 +11,7 @@ from mutants.registries.world import (
     BASE_GATE,
     GATE_OPEN,
 )
+from mutants.util.directions import DELTA as _DELTA, OPP as _OPP
 
 DESC_AREA = "area continues."
 DESC_ICE = "wall of ice."
@@ -107,10 +108,6 @@ def _gate_state_norm(v) -> int:
             return 2
         return 2
     return 2
-
-
-_DELTA = {"n": (0, 1), "s": (0, -1), "e": (1, 0), "w": (-1, 0)}
-_OPP = {"n": "s", "s": "n", "e": "w", "w": "e"}
 
 
 def resolve(world, dynamics, year: int, x: int, y: int, dir_key: str, actor: Optional[Dict] = None) -> EdgeDecision:

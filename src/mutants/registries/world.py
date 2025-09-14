@@ -35,9 +35,11 @@ WORLD_DEBUG = os.getenv("WORLD_DEBUG") == "1"
 WORLD_DIR = Path("state/world")
 
 # Direction helpers
+from mutants.util.directions import DELTA as _DELTA, OPP as _OPP
+
 DIRS = ("N", "S", "E", "W")
-OPPOSITE = {"N": "S", "S": "N", "E": "W", "W": "E"}
-DELTA = {"N": (0, 1), "S": (0, -1), "E": (1, 0), "W": (-1, 0)}
+OPPOSITE = {k.upper(): v.upper() for k, v in _OPP.items() if len(k) == 1}
+DELTA = {k.upper(): _DELTA[k] for k in ("n", "s", "e", "w")}
 
 BASE_OPEN = 0
 BASE_TERRAIN = 1
