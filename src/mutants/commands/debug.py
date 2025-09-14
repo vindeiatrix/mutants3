@@ -1,9 +1,7 @@
 from __future__ import annotations
-
-import shlex
+import re, shlex
 
 from ..registries import items_instances as itemsreg
-from ..util.textnorm import normalize_item_query
 
 
 def _pos_from_ctx(ctx) -> tuple[int, int, int]:
@@ -17,6 +15,12 @@ def _pos_from_ctx(ctx) -> tuple[int, int, int]:
     return int(pos[0]), int(pos[1]), int(pos[2])
 
 
+def _normalize(s: str) -> str:
+    s = s.strip().lower().strip("'\"")
+    s = re.sub(r"^(a|an|the)\s+", "", s)
+    return s
+
+
 def _display_name(it: dict) -> str:
     for key in ("display_name", "name", "title"):
         if isinstance(it.get(key), str):
@@ -25,7 +29,7 @@ def _display_name(it: dict) -> str:
 
 
 def _resolve_item_id(raw: str, catalog):
-    q = normalize_item_query(raw)
+    q = _normalize(raw)
     q_id = q.replace("-", "_")
     if catalog.get(q_id):
         return q_id, None
@@ -36,7 +40,7 @@ def _resolve_item_id(raw: str, catalog):
         return None, prefix
     name_matches = []
     for it in catalog._items_list:
-        if normalize_item_query(_display_name(it)) == q:
+        if _normalize(_display_name(it)) == q:
             name_matches.append(it["item_id"])
     if len(name_matches) == 1:
         return name_matches[0], None
@@ -72,7 +76,7 @@ def debug_cmd(arg: str, ctx):
             itemsreg.create_and_save_instance(item_id, year, x, y, origin="debug_add")
         bus.push("DEBUG", f"added {count} x {item_id} at ({x},{y}).")
         return
-    bus.push("SYSTEM/INFO", "Usage: debug add item <item_id_or_name> [count]")
+    bus.push("SYSTEM/INFO", "Usage: debug add item <item_id> [count]")
 
 
 def register(dispatch, ctx) -> None:
