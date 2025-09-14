@@ -1,7 +1,7 @@
 import json, shutil
 from pathlib import Path
 
-from src.mutants.commands.drop import drop_cmd
+from src.mutants.services.item_transfer import drop_to_ground
 from src.mutants.registries import items_instances as itemsreg
 
 
@@ -63,13 +63,11 @@ def _setup_inventory(monkeypatch, tmp_path, item_ids):
     return ctx, pfile, inv
 
 
-def test_drop_prefix_true_ambiguity_prompts(monkeypatch, tmp_path):
+def test_drop_picks_first_match_even_if_names_differ(monkeypatch, tmp_path):
     ctx, pfile, inv = _setup_inventory(monkeypatch, tmp_path, ["ion_pack", "ion_booster"])
-    drop_cmd("ion", ctx)
-    kinds = [k for (k, _m) in ctx["feedback_bus"].events]
-    assert any(k.endswith("/WARN") for k in kinds)
-    text = " ".join(m for (_k, m) in ctx["feedback_bus"].events)
-    assert "Be more specific" in text and "Ion-Pack" in text and "Ion-Booster" in text
+    res = drop_to_ground(ctx, "i")
+    assert res["ok"] and res["iid"] == inv[0]
     with pfile.open("r", encoding="utf-8") as f:
         pdata = json.load(f)
-    assert set(pdata.get("inventory", [])) == set(inv)
+    inv_after = pdata.get("inventory", [])
+    assert inv[0] not in inv_after and inv[1] in inv_after
