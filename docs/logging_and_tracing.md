@@ -142,9 +142,12 @@ logs trace ui off
 ## Debug helpers
 - **Add items to current tile** (for quick setup while testing):
   ```
-  debug add item <id|prefix|"Display Name"> [count]
+  debug add item <item_id_or_name> [count]
   ```
-  Accepts catalog IDs (preferred), unique prefixes, or display names with or without quotes. Matching is case-insensitive and ignores leading articles (`a`, `an`, `the`). Hyphens and underscores are interchangeable for catalog IDs. Places one or more instances at your current coordinates. Useful to check wrapping of hyphenated names and inventory/ground overflow behavior quickly.
+  Notes:
+  - The command is case-insensitive and accepts quotes and leading articles (A/An/The).
+  - Unicode punctuation and multiple spaces are normalized automatically.
+  - Prefer catalog IDs (e.g., `nuclear-waste`), but display names like `"A Nuclear-Thong"` also work if fuzzy matching is enabled.
 
 ## What Tracing Logs
 
