@@ -23,11 +23,12 @@ match the prefix, the first one in the ground list is picked up.
 `throw <direction> <item>` throws an item into an adjacent tile. Direction
 arguments accept any prefix of the full word, e.g. `throw we ion-p` throws the
 Ion-Pistol west. Item names support unique prefixes, so `throw n nuc` will throw
-the Nuclear-Decay north if it's the only match. Thrown items always leave your
-inventory. If the throw is blocked (no exit, closed gate, or map boundary) the
-item lands at your feet. Throw uses the same passability rules as movement for
-consistency. Item names are parsed via the normalization helper (see
-[utilities](utilities.md)).
+the Nuclear-Decay north if it's the only match. If the item token matches
+multiple items in your inventory, throw picks the first match in inventory
+order. Thrown items always leave your inventory. If the throw is blocked (no
+exit, closed gate, or map boundary) the item lands at your feet. Throw uses the
+same passability rules as movement for consistency. Item names are parsed via
+the normalization helper (see [utilities](utilities.md)).
 
 ## Open
 
