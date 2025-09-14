@@ -3,6 +3,12 @@
 This repo is a Codespaces-ready Python skeleton for the Mutants project.
 It intentionally contains **no game logic**. Start adding code under `src/mutants/`.
 
+## Documentation
+- [Architecture overview](docs/architecture_overview.md)
+- [Commands](docs/commands.md)
+- [Items](docs/items.md)
+- [Utilities](docs/utilities.md)
+
 ## Quick start (Codespaces)
 - Open in GitHub Codespaces.
 - The container installs the package in editable mode.
@@ -33,4 +39,3 @@ WORLD_DEBUG=1 python -m mutants
 
 Common pitfall: running from the wrong folder. If the game can't find world JSONs
 it will create a minimal world unless `WORLD_STRICT=1` is set.
-
