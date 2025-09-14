@@ -1,5 +1,11 @@
 # Commands
 
+## Movement
+
+Typing a direction moves you to an adjacent tile. Any prefix of the full word
+is accepted, case-insensitively: `w`/`we`/`wes`/`west`,
+`n`/`no`/`nor`/`nort`/`north`, and similarly for `east` and `south`.
+
 ## Get
 
 `get <item>` picks up an item from the ground. Item names are parsed via the
@@ -8,12 +14,24 @@ match the prefix, the first one in the ground list is picked up.
 
 ## Throw
 
-`throw <direction> <item>` throws an item into an adjacent tile. Item names
-support unique prefixes, so `throw n nuc` will throw the Nuclear-Decay north if
-it's the only match. Thrown items always leave your inventory. If the throw is
-blocked (no exit, closed gate, or map boundary) the item lands at your feet.
-Throw uses the same passability rules as movement for consistency. Item names
-are parsed via the normalization helper (see [utilities](utilities.md)).
+`throw <direction> <item>` throws an item into an adjacent tile. Direction
+arguments accept any prefix of the full word, e.g. `throw we ion-p` throws the
+Ion-Pistol west. Item names support unique prefixes, so `throw n nuc` will throw
+the Nuclear-Decay north if it's the only match. Thrown items always leave your
+inventory. If the throw is blocked (no exit, closed gate, or map boundary) the
+item lands at your feet. Throw uses the same passability rules as movement for
+consistency. Item names are parsed via the normalization helper (see
+[utilities](utilities.md)).
+
+## Open
+
+`open <direction>` reopens a closed gate. Direction arguments accept any prefix
+of the full word (e.g. `open no` opens the north gate).
+
+## Close
+
+`close <direction>` closes an adjacent gate. Direction arguments accept any
+prefix of the full word (e.g. `close so` closes the south gate).
 
 ## Debug Add Item
 

@@ -3,6 +3,8 @@ from dataclasses import dataclass
 from typing import Any, Callable, Dict, List, Optional, Tuple
 import shlex
 
+from mutants.util.directions import resolve_dir
+
 
 # ---------- Single-argument runner ----------
 
@@ -90,19 +92,8 @@ def _tokenize(s: str) -> List[str]:
     return shlex.split(s or "")
 
 
-def _parse_direction(tok: str) -> Optional[str]:
-    if not tok:
-        return None
-    t = tok.lower()
-    if t in ("n", "north"):
-        return "north"
-    if t in ("s", "south"):
-        return "south"
-    if t in ("e", "east"):
-        return "east"
-    if t in ("w", "west"):
-        return "west"
-    return None
+def coerce_direction(tok: str) -> Optional[str]:
+    return resolve_dir(tok)
 
 
 def _parse_int_range(tok: str, lo: int, hi: int) -> Optional[int]:
@@ -125,7 +116,7 @@ def _parse_by_kind(tok: str, kind: str) -> Tuple[Optional[Any], Optional[str]]:
     Only kinds needed for POINT/THROW/BUY-ions are implemented.
     """
     if kind == "direction":
-        v = _parse_direction(tok)
+        v = coerce_direction(tok)
         return (v, None if v else "invalid_direction")
     if kind == "item_in_inventory":
         # Parsing is pass-through; actual resolution happens in the action/service.

@@ -29,6 +29,26 @@ and systems should use. Referencing this page prevents "re-inventing" logic.
 
 ---
 
+## Direction Token Resolver
+
+**Function:** `mutants.util.directions.resolve_dir(token: str) -> str | None`
+
+- Resolves a user-entered direction token to `"north"`, `"south"`,
+  `"east"`, or `"west"`.
+- Accepts any prefix of the full word, case-insensitively (`we` → `west`,
+  `nor` → `north`).
+
+**Examples:**
+- `resolve_dir("w")` → `"west"`
+- `resolve_dir("sou")` → `"south"`
+- `resolve_dir("")` → `None`
+
+**Usage:**
+- All direction parsing—standalone movement and command arguments—must use this
+  resolver. Do not implement per-command direction logic.
+
+---
+
 ## Passability Service
 
 - The service that determines if movement (or throwing) can proceed in a given

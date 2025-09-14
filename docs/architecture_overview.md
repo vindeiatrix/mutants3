@@ -100,6 +100,7 @@ Commands that take a **subject argument** use a small runner to keep UX consiste
 - `commands/argcmd.py` exposes `ArgSpec` + `run_argcmd(ctx, spec, arg, do_action)` for single-arg commands (e.g., GET/DROP) and `PosArgSpec` + `run_argcmd_positional(...)` for two-arg commands (e.g., POINT, THROW, and the limited `BUY ions [amount]` form).
 - `ArgSpec`/`PosArgSpec` declare the **arg policy** (`required|optional|forbidden`), **argument kinds** (e.g., `direction`, `item_in_inventory`, `integer_range`, `literal('ions')`), **message templates** (usage/invalid/success), optional **reason→message** mapping, and the **feedback kinds** for success/warn.
 - Runners handle: trim/tokenize → usage on empty/missing → parse & validate each argument → call `do_action(...)` → map failure `reason` to a message → push explicit success feedback using parsed values (e.g., `{dir}`, `{item}`, `{amt}`) or resolved item names.
+- Item tokens are normalized via `mutants.util.textnorm.normalize_item_query`; direction tokens go through `mutants.util.directions.resolve_dir`.
 
 ### Command Prefix Rule (router)
 - All commands accept **≥3-letter unique prefixes** (case-insensitive). Only **north/south/east/west** allow single-letter forms (`n/s/e/w`).

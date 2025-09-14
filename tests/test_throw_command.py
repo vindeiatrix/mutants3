@@ -109,6 +109,18 @@ def test_throw_abbreviation(monkeypatch, tmp_path):
     inst = itemsreg.get_instance(iid)
     assert inst.get("pos", {}).get("y") == -1
 
+
+def test_throw_direction_prefix(monkeypatch, tmp_path):
+    ctx, pfile, inv = _setup(monkeypatch, tmp_path, ["nuclear_decay"])
+    iid = inv[0]
+    throw_cmd("we nuclear", ctx)
+    bus_events = ctx["feedback_bus"].events
+    assert bus_events == [
+        ("COMBAT/THROW", "You throw the Nuclear-Decay west."),
+    ]
+    inst = itemsreg.get_instance(iid)
+    assert inst.get("pos", {}).get("x") == -1
+
 def test_throw_open_exit_goes_to_destination(ctx):
     item = ctx.items_instances.create_and_save_instance("nuclear-rock")
     ctx.player["inventory"] = [item["iid"]]
