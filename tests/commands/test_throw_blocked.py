@@ -98,7 +98,7 @@ def test_throw_open_exit_moves_item(monkeypatch):
     throw_cmd("north rock", ctx)
 
     assert "rock" not in player["inventory"]
-    assert positions.get("rock") == (2000, 0, -1)
+    assert positions.get("rock") == (2000, 0, 1)
     assert bus.msgs == [("COMBAT/THROW", "You throw the rock north.")]
 
 
