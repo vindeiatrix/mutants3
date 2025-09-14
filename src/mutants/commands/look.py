@@ -7,17 +7,9 @@ from mutants.engine import edge_resolver as ER
 from mutants.registries import dynamics as dyn
 from mutants.registries.world import DELTA
 from mutants.app.context import build_room_vm
+from .argcmd import coerce_direction
 
-DIR_MAP = {
-    "north": "N",
-    "n": "N",
-    "south": "S",
-    "s": "S",
-    "east": "E",
-    "e": "E",
-    "west": "W",
-    "w": "W",
-}
+DIR_CODE = {"north": "N", "south": "S", "east": "E", "west": "W"}
 
 
 def _active(state: Dict[str, Any]) -> Dict[str, Any]:
@@ -29,15 +21,17 @@ def _active(state: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def look_cmd(arg: str, ctx: Dict[str, Any]) -> None:
-    arg = (arg or "").strip().lower()
-    if not arg:
+    token = (arg or "").strip()
+    if not token:
         ctx["render_next"] = True
         return
 
-    dir_code = DIR_MAP.get(arg)
-    if not dir_code:
+    dir_full = coerce_direction(token)
+    if not dir_full:
         ctx["feedback_bus"].push("LOOK/BAD_DIR", "Try north, south, east, or west.")
         return
+
+    dir_code = DIR_CODE[dir_full]
 
     p = _active(ctx["player_state"])
     year, x, y = p.get("pos", [0, 0, 0])

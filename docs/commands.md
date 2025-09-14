@@ -6,6 +6,12 @@ Typing a direction moves you to an adjacent tile. Any prefix of the full word
 is accepted, case-insensitively: `w`/`we`/`wes`/`west`,
 `n`/`no`/`nor`/`nort`/`north`, and similarly for `east` and `south`.
 
+## Look
+
+`look` shows the current room. `look <direction>` peeks into an adjacent tile
+without moving. Direction arguments accept any prefix of the full word (e.g.
+`look we` peeks west).
+
 ## Get
 
 `get <item>` picks up an item from the ground. Item names are parsed via the
