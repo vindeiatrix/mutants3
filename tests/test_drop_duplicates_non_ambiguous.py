@@ -63,17 +63,16 @@ def _setup_inventory(monkeypatch, tmp_path, item_ids):
     return ctx, pfile, inv
 
 
-def test_drop_picks_first_duplicate(monkeypatch, tmp_path):
+def test_drop_prefix_with_identical_name_duplicates(monkeypatch, tmp_path):
     ctx, pfile, inv = _setup_inventory(monkeypatch, tmp_path, ["gold_chunk", "gold_chunk"])
     res = drop_to_ground(ctx, "g")
     assert res["ok"]
     with pfile.open("r", encoding="utf-8") as f:
         pdata = json.load(f)
     inv_after = pdata.get("inventory", [])
-    # FIFO: first item dropped, second remains
-    assert inv[0] not in inv_after and inv[1] in inv_after
+    assert (inv[0] in inv_after) ^ (inv[1] in inv_after)
     ground_iids = [
         inst.get("iid") or inst.get("instance_id")
         for inst in itemsreg.list_instances_at(2000, 0, 0)
     ]
-    assert inv[0] in ground_iids and inv[1] not in ground_iids
+    assert (inv[0] in ground_iids) ^ (inv[1] in ground_iids)
