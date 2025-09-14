@@ -176,9 +176,23 @@ def drop_to_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
         return {"ok": False, "reason": "inventory_empty"}
     iid: Optional[str] = None
     if prefix:
-        iid, amb = _pick_first_match_by_prefix(inv, prefix)
-        if amb:
-            return {"ok": False, "reason": "ambiguous", "candidates": amb}
+        q = normalize_item_query(prefix)
+        if q:
+            # FIRST MATCH WINS (preserve inventory order) — same as THROW
+            for cand in inv:
+                inst = itemsreg.get_instance(cand) or {}
+                item_id = (
+                    inst.get("item_id")
+                    or inst.get("catalog_id")
+                    or inst.get("id")
+                    or cand
+                )
+                name = idisp.canonical_name(str(item_id))
+                norm_name = normalize_item_query(name)
+                norm_id = normalize_item_query(str(item_id))
+                if norm_name.startswith(q) or norm_id.startswith(q):
+                    iid = cand
+                    break
     else:
         iid = inv[0]
     if not iid:

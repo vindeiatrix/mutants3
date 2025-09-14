@@ -14,7 +14,6 @@ def drop_cmd(arg: str, ctx):
         reason_messages={
             "inventory_empty": "You have nothing to drop.",
             "armor_cannot_drop": "You can't drop what you're wearing.",
-            "ambiguous": "Be more specific. You could mean: {candidates}.",
         },
         success_kind="LOOT/DROP",
         warn_kind="SYSTEM/WARN",
