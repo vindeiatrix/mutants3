@@ -13,4 +13,5 @@
 - Framework: Added positional-args runner for two-argument commands (POINT/THROW and the restricted `BUY ions [100000-999999]` at maintenance shops); docs and minimal tests included.
 - Change: Item `spawnable` flags now use JSON booleans; migration script included.
 - Logging: Daily litter reset logs when no eligible spawnables remain for a year.
+- Change: Direction tokens now accept any prefix of the full word in movement and command arguments.
 

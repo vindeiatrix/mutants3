@@ -73,3 +73,11 @@ def test_close_when_no_gate_warns():
     run_close(ctx, "west")
     assert world.saved is False
     assert ("SYSTEM/WARN", "There is no gate to close that way.") in bus.msgs
+
+
+def test_close_accepts_prefix():
+    edge = {"base": BASE_GATE, "gate_state": 0}
+    world, ctx, bus = mk_ctx(edge)
+    run_close(ctx, "we")
+    assert edge["gate_state"] == 1
+    assert ("SYSTEM/OK", "You've just closed the west gate.") in bus.msgs

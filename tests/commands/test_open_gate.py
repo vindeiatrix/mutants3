@@ -82,3 +82,11 @@ def test_open_when_no_gate_warns():
     run_open(ctx, "west")
     assert world.saved is False
     assert ("SYSTEM/WARN", "There is no gate to open that way.") in bus.msgs
+
+
+def test_open_accepts_prefix():
+    edge = {"base": BASE_GATE, "gate_state": 1}
+    world, ctx, bus = mk_ctx(edge)
+    run_open(ctx, "we")
+    assert edge["gate_state"] == 0
+    assert ("SYSTEM/OK", "You've just opened the west gate.") in bus.msgs

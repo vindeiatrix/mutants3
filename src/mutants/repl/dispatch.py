@@ -2,6 +2,8 @@ from __future__ import annotations
 import sys
 from typing import Callable, Dict, List, Optional
 
+from mutants.util.directions import resolve_dir
+
 
 class Dispatch:
     """
@@ -60,6 +62,12 @@ class Dispatch:
         return None
 
     def call(self, token: str, arg: str) -> Optional[str]:
+        dir_name = resolve_dir(token)
+        if dir_name and dir_name in self._cmds:
+            fn = self._cmds.get(dir_name)
+            if fn:
+                fn(arg)
+            return dir_name
         name = self._resolve_prefix(token)
         if not name:
             return None

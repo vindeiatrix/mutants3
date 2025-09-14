@@ -4,18 +4,7 @@ from typing import Any, Dict
 
 from mutants.registries.world import BASE_GATE
 
-DIRS = {
-    "n": "N",
-    "north": "N",
-    "s": "S",
-    "south": "S",
-    "e": "E",
-    "east": "E",
-    "w": "W",
-    "west": "W",
-}
-
-DIR_WORD = {"N": "north", "S": "south", "E": "east", "W": "west"}
+from .argcmd import coerce_direction
 
 
 def _active(state: Dict[str, Any]) -> Dict[str, Any]:
@@ -35,11 +24,11 @@ def register(dispatch, ctx) -> None:
         if not token:
             bus.push("SYSTEM/INFO", "Type OPEN [direction] to open a gate.")
             return
-        d0 = token[0].lower()
-        if d0 not in DIRS:
+        dir_full = coerce_direction(token[0])
+        if not dir_full:
             bus.push("SYSTEM/WARN", f"Unknown direction: {token[0]}")
             return
-        D = DIRS[d0]
+        D = dir_full[0].upper()
 
         p = _active(ctx["player_state"])
         year, x, y = p.get("pos", [0, 0, 0])
@@ -61,13 +50,13 @@ def register(dispatch, ctx) -> None:
             return
 
         if gs == 0:
-            bus.push("SYSTEM/INFO", f"The {d0} gate is already open.")
+            bus.push("SYSTEM/INFO", f"The {dir_full} gate is already open.")
             return
 
         world.set_edge(x, y, D, gate_state=0, force_gate_base=True)
         world.save()
 
-        bus.push("SYSTEM/OK", f"You've just opened the {DIR_WORD[D]} gate.")
+        bus.push("SYSTEM/OK", f"You've just opened the {dir_full} gate.")
         if logsink:
             logsink.handle({
                 "ts": "",

@@ -60,3 +60,16 @@ def test_ambiguous_prefix_warns():
         ('SYSTEM/WARN', 'Ambiguous command "dri" (did you mean: drink, drive)')
     ]
 
+
+def test_direction_prefix_without_alias():
+    d = _dispatch()
+    called = {}
+
+    def west(arg):
+        called['dir'] = 'west'
+
+    d.register('west', west)
+    d.call('we', '')
+    assert called.get('dir') == 'west'
+    assert d._bus.events == []
+
