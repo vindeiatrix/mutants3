@@ -17,8 +17,7 @@
     "key": false,
     "key_type": null,
     "potion": false,
-    "skull": false,
-    "charges_start": 0
+    "skull": false
   },
   {
     "item_id": "ion_decay",
@@ -38,8 +37,7 @@
     "key": false,
     "key_type": null,
     "potion": false,
-    "skull": false,
-    "charges_start": 0
+    "skull": false
   },
   {
     "item_id": "nuclear_rock",
@@ -59,8 +57,7 @@
     "key": false,
     "key_type": null,
     "potion": false,
-    "skull": false,
-    "charges_start": 0
+    "skull": false
   },
   {
     "item_id": "gold_chunk",
@@ -80,8 +77,7 @@
     "key": false,
     "key_type": null,
     "potion": false,
-    "skull": false,
-    "charges_start": 0
+    "skull": false
   },
   {
     "item_id": "cheese",
@@ -101,8 +97,7 @@
     "key": false,
     "key_type": null,
     "potion": false,
-    "skull": false,
-    "charges_start": 0
+    "skull": false
   },
   {
     "item_id": "light_spear",
@@ -122,8 +117,7 @@
     "key": false,
     "key_type": null,
     "potion": false,
-    "skull": false,
-    "charges_start": 0
+    "skull": false
   },
   {
     "item_id": "monster_bait",
@@ -143,8 +137,7 @@
     "key": false,
     "key_type": null,
     "potion": false,
-    "skull": false,
-    "charges_start": 0
+    "skull": false
   },
   {
     "item_id": "nuclear_thong",
@@ -164,8 +157,7 @@
     "key": false,
     "key_type": null,
     "potion": false,
-    "skull": false,
-    "charges_start": 0
+    "skull": false
   },
   {
     "item_id": "ion_pack",
@@ -185,8 +177,7 @@
     "key": false,
     "key_type": null,
     "potion": false,
-    "skull": false,
-    "charges_start": 0
+    "skull": false
   },
   {
     "item_id": "ion_booster",
@@ -206,8 +197,7 @@
     "key": false,
     "key_type": null,
     "potion": false,
-    "skull": false,
-    "charges_start": 0
+    "skull": false
   },
   {
     "item_id": "nuclear_waste",
@@ -227,8 +217,7 @@
     "key": false,
     "key_type": null,
     "potion": false,
-    "skull": false,
-    "charges_start": 0
+    "skull": false
   },
   {
     "item_id": "cigarette_butt",
@@ -248,8 +237,7 @@
     "key": false,
     "key_type": null,
     "potion": false,
-    "skull": false,
-    "charges_start": 0
+    "skull": false
   },
   {
     "item_id": "bottle_cap",
@@ -269,8 +257,7 @@
     "key": false,
     "key_type": null,
     "potion": false,
-    "skull": false,
-    "charges_start": 0
+    "skull": false
   },
   {
     "item_id": "gate_key_a",
@@ -290,8 +277,7 @@
     "key": true,
     "key_type": "gate_a",
     "potion": false,
-    "skull": false,
-    "charges_start": 0
+    "skull": false
   },
   {
     "item_id": "gate_key_b",
@@ -311,8 +297,7 @@
     "key": true,
     "key_type": "gate_b",
     "potion": false,
-    "skull": false,
-    "charges_start": 0
+    "skull": false
   },
   {
     "item_id": "lightning-rod",
@@ -320,7 +305,7 @@
     "weight": 1,
     "ion_value": 0,
     "riblet_value": 0,
-    "spawnable": true,
+    "spawnable": false,
     "enchantable": false,
     "nondegradable": true,
     "base_power": 0,
@@ -334,6 +319,30 @@
     "potion": false,
     "skull": false,
     "charges_max": 25,
-    "description": "A crackling rod that stores lightning."
+    "description": "A crackling rod that stores lightning.",
+    "uses_charges": true
+  },
+  {
+    "item_id": "flare-wand",
+    "name": "Flare Wand",
+    "description": "A simple wand that fires a bright flare.",
+    "weight": 1,
+    "ion_value": 0,
+    "riblet_value": 0,
+    "spawnable": false,
+    "enchantable": false,
+    "nondegradable": true,
+    "base_power": 0,
+    "armour": false,
+    "armour_class": 0,
+    "ranged": true,
+    "uses_charges": true,
+    "charges_max": 7,
+    "poisonous": false,
+    "poison_type": 0,
+    "key": false,
+    "key_type": null,
+    "potion": false,
+    "skull": false
   }
 ]

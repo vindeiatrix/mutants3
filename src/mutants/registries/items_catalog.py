@@ -1,5 +1,6 @@
 from __future__ import annotations
 import json
+import logging
 from pathlib import Path
 from typing import Dict, List, Optional, Any
 
@@ -45,13 +46,48 @@ def _coerce_legacy_bools(items: List[Dict[str, Any]]) -> None:
                     it[k] = False
 
 
-def _normalize_charges(items: List[Dict[str, Any]]) -> None:
-    """Alias legacy charge fields and infer helper flags in-place."""
+LOG = logging.getLogger(__name__)
+
+
+def _normalize_items(items: List[Dict[str, Any]]) -> tuple[List[str], List[str]]:
+    """Alias legacy fields, infer defaults, and validate items in-place."""
+    warnings: List[str] = []
+    errors: List[str] = []
     for it in items:
+        iid = it.get("item_id", "<unknown>")
+
         if "charges_max" not in it and "charges_start" in it:
-            it["charges_max"] = it.get("charges_start")
-        if "charges_max" in it:
-            it["uses_charges"] = True
+            it["charges_max"] = it["charges_start"]
+        if "charges_start" in it:
+            it.pop("charges_start", None)
+
+        charges_max = int(it.get("charges_max", 0) or 0)
+        if "uses_charges" not in it:
+            it["uses_charges"] = charges_max > 0
+        uses_charges = bool(it.get("uses_charges"))
+        ranged = bool(it.get("ranged"))
+
+        if ranged:
+            it["spawnable"] = False
+            if uses_charges and charges_max <= 0:
+                errors.append(f"{iid}: uses_charges true requires charges_max > 0.")
+            if not uses_charges and charges_max > 0:
+                warnings.append(
+                    f"{iid}: ranged true & uses_charges false -> flipping to true."
+                )
+                it["uses_charges"] = True
+        else:
+            if uses_charges and charges_max <= 0:
+                errors.append(f"{iid}: uses_charges true requires charges_max > 0.")
+            if not uses_charges and charges_max > 0:
+                warnings.append(
+                    f"{iid}: charges_max present but uses_charges false -> flipping to true."
+                )
+                it["uses_charges"] = True
+            if not it.get("uses_charges"):
+                it.pop("charges_max", None)
+
+    return warnings, errors
 
 def load_catalog(path: str = DEFAULT_CATALOG_PATH) -> ItemsCatalog:
     primary = Path(path)
@@ -63,5 +99,11 @@ def load_catalog(path: str = DEFAULT_CATALOG_PATH) -> ItemsCatalog:
     else:
         raise FileNotFoundError(f"Missing catalog: tried {primary} then {fallback}")
     _coerce_legacy_bools(items)
-    _normalize_charges(items)
+    warnings, errors = _normalize_items(items)
+    for msg in warnings:
+        LOG.warning(msg)
+    if errors:
+        for msg in errors:
+            LOG.error(msg)
+        raise ValueError("invalid catalog items")
     return ItemsCatalog(items)
