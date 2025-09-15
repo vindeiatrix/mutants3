@@ -5,15 +5,16 @@ from typing import Any, Dict, Optional
 from mutants.registries.world import BASE_GATE
 from mutants.registries import dynamics as dyn
 from mutants.registries import items_instances as itemsreg, items_catalog
+from ..services import item_transfer as it  # source of truth for player inventory
 
 from .argcmd import PosArg, PosArgSpec, run_argcmd_positional
 
 
 def _has_any_key(ctx: Dict[str, Any]) -> tuple[bool, Optional[str]]:
-    """Return (has_key, key_type) for first key in inventory."""
+    """Return (has_key, key_type) by scanning the live player state."""
     cat = items_catalog.load_catalog()
-    p = ctx["player_state"]
-    inv = (p.get("players") or [{}])[0].get("inventory") or []
+    p = it._load_player()  # live inventory (same source as GET/DROP/THROW)
+    inv = p.get("inventory") or []
     for iid in inv:
         inst = itemsreg.get_instance(iid) or {}
         item_id = inst.get("item_id")

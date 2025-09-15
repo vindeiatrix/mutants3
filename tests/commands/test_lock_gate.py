@@ -28,7 +28,7 @@ class DummyWorld:
         self.saved = True
 
 
-def mk_ctx(inv, edge):
+def mk_ctx(inv, edge, monkeypatch):
     bus = types.SimpleNamespace(msgs=[])
 
     def push(chan, msg):
@@ -44,6 +44,9 @@ def mk_ctx(inv, edge):
         },
         "world_loader": lambda year: world,
     }
+    # ensure commands see this test inventory via live loader
+    monkeypatch.setattr(lock_cmd.it, "_load_player", lambda: {"inventory": ctx["player_state"]["players"][0]["inventory"]})
+    monkeypatch.setattr(open_cmd.it, "_load_player", lambda: {"inventory": ctx["player_state"]["players"][0]["inventory"]})
     return world, ctx, bus
 
 
@@ -105,7 +108,7 @@ def run(dispatch, bus, cmd):
 def test_lock_requires_key(monkeypatch):
     patch_items_and_dyn(monkeypatch)
     edge = {"base": BASE_GATE, "gate_state": 1}
-    world, ctx, bus = mk_ctx([], edge)
+    world, ctx, bus = mk_ctx([], edge, monkeypatch)
     dispatch = build_dispatch(ctx)
     events = run(dispatch, bus, "lock south")
     assert ("SYSTEM/WARN", "You need a key to lock a gate.") in events
@@ -116,13 +119,13 @@ def test_lock_open_or_non_gate_warns(monkeypatch):
     patch_items_and_dyn(monkeypatch)
     # Open gate
     edge = {"base": BASE_GATE, "gate_state": 0}
-    world, ctx, bus = mk_ctx(["KA1"], edge)
+    world, ctx, bus = mk_ctx(["KA1"], edge, monkeypatch)
     dispatch = build_dispatch(ctx)
     events = run(dispatch, bus, "lock south")
     assert ("SYSTEM/WARN", "You can only lock a closed gate.") in events
     # Non-gate
     edge2 = {"base": 0, "gate_state": 0}
-    world2, ctx2, bus2 = mk_ctx(["KA1"], edge2)
+    world2, ctx2, bus2 = mk_ctx(["KA1"], edge2, monkeypatch)
     dispatch2 = build_dispatch(ctx2)
     events2 = run(dispatch2, bus2, "lock south")
     assert ("SYSTEM/WARN", "You can only lock a closed gate.") in events2
@@ -131,7 +134,7 @@ def test_lock_open_or_non_gate_warns(monkeypatch):
 def test_lock_prefixes_and_open_requires_matching_key(monkeypatch):
     patch_items_and_dyn(monkeypatch)
     edge = {"base": BASE_GATE, "gate_state": 1}
-    world, ctx, bus = mk_ctx(["KA1"], edge)
+    world, ctx, bus = mk_ctx(["KA1"], edge, monkeypatch)
     dispatch = build_dispatch(ctx)
 
     for tok in ["s", "so", "sou", "sout"]:
