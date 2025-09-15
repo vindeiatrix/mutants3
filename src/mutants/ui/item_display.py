@@ -96,7 +96,13 @@ def canonical_name_from_iid(iid: str) -> str:
         if not inst:
             return iid
         item_id = inst.get("item_id") or inst.get("catalog_id") or inst.get("id") or iid
-        return canonical_name(str(item_id))
+        name = canonical_name(str(item_id))
+        if "charges" in inst:
+            try:
+                name = f"{name} ({int(inst.get('charges', 0))})"
+            except Exception:
+                pass
+        return name
     except Exception:
         return iid
 
