@@ -7,6 +7,8 @@
 - Command: `open <dir>` reopens a closed gate.
 - Item token normalization helper for consistent item parsing.
 - Debug add item supports fuzzy matching.
+- Class Selection startup screen, statistics command with prefix matching, and
+  save-game foundation (schema v1, Bury stubbed for now).
 - Documentation:
   - README troubleshooting section.
   - ARCHITECTURE notes on cwd dependence and fallback.

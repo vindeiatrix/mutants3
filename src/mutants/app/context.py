@@ -5,7 +5,6 @@ from typing import Any, Dict, Iterable, List
 
 import os, logging
 
-from mutants.bootstrap.lazyinit import ensure_player_state
 from mutants.bootstrap.runtime import ensure_runtime
 from mutants.data.room_headers import ROOM_HEADERS, STORE_FOR_SALE_IDX
 from mutants.registries.world import load_year
@@ -14,7 +13,9 @@ from mutants.ui.feedback import FeedbackBus
 from mutants.ui.logsink import LogSink
 from mutants.ui.themes import Theme, load_theme
 from mutants.ui import styles as st
+from mutants.ui.screens import ScreenManager
 from ..registries import items_instances as itemsreg
+from mutants.state.manager import StateManager
 
 LOG = logging.getLogger(__name__)
 WORLD_DEBUG = os.getenv("WORLD_DEBUG") == "1"
@@ -50,7 +51,6 @@ _CURRENT_CTX: Dict[str, Any] | None = None
 def build_context() -> Dict[str, Any]:
     """Build the application context."""
     info = ensure_runtime()
-    state = ensure_player_state()
     cfg = info.get("config", {})
     bus = FeedbackBus()
     theme_path = cfg.get("theme_path", str(DEFAULT_THEME_PATH))
@@ -67,8 +67,12 @@ def build_context() -> Dict[str, Any]:
     st.set_ansi_enabled(theme.ansi_enabled)
     sink = LogSink()
     bus.subscribe(sink.handle)
+    state_mgr = StateManager()
+
+    screen_mgr = ScreenManager(state_mgr, _render_room_lines)
+
     ctx: Dict[str, Any] = {
-        "player_state": state,
+        "player_state": state_mgr.legacy_state,
         "world_loader": load_year,
         "monsters": None,
         "items": itemsreg,
@@ -80,6 +84,8 @@ def build_context() -> Dict[str, Any]:
         "config": cfg,
         "render_next": False,
         "peek_vm": None,
+        "state_manager": state_mgr,
+        "screen_manager": screen_mgr,
     }
     global _CURRENT_CTX
     _CURRENT_CTX = ctx
@@ -159,7 +165,7 @@ def build_room_vm(
     return vm
 
 
-def render_frame(ctx: Dict[str, Any]) -> None:
+def _render_room_lines(ctx: Dict[str, Any]) -> List[str]:
     vm = ctx.pop("peek_vm", None)
     if vm is None:
         vm = build_room_vm(
@@ -170,13 +176,23 @@ def render_frame(ctx: Dict[str, Any]) -> None:
             ctx.get("items"),
         )
     events = ctx["feedback_bus"].drain()
-    lines = ctx["renderer"](
+    return ctx["renderer"](
         vm,
         feedback_events=events,
         palette=ctx["theme"].palette,
         width=ctx["theme"].width,
     )
-    for line in lines:
+
+
+def render_frame(ctx: Dict[str, Any]) -> None:
+    screen_mgr = ctx.get("screen_manager")
+    if screen_mgr is not None:
+        lines = screen_mgr.render(ctx)
+        for line in lines:
+            print(line)
+        flush_feedback(ctx)
+        return
+    for line in _render_room_lines(ctx):
         print(line)
 
 
