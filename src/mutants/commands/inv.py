@@ -1,6 +1,7 @@
 from __future__ import annotations
 import json, os
-from ..ui import item_display as idisp
+from mutants.registries import items_catalog, items_instances as itemsreg
+from ..ui.item_display import item_label, number_duplicates, with_article
 from ..ui import wrap as uwrap
 from ..ui.textutils import harden_final_display
 
@@ -19,9 +20,14 @@ def _load_player():
 def inv_cmd(arg: str, ctx):
     p = _load_player()
     inv = list(p.get("inventory") or [])
-    names = [idisp.canonical_name_from_iid(i) for i in inv]
-    numbered = idisp.number_duplicates(names)
-    display = [harden_final_display(idisp.with_article(n)) for n in numbered]
+    cat = items_catalog.load_catalog()
+    names = []
+    for iid in inv:
+        inst = itemsreg.get_instance(iid) or {}
+        tpl = cat.get(inst.get("item_id")) or {}
+        names.append(item_label(inst, tpl, show_charges=False))
+    numbered = number_duplicates(names)
+    display = [harden_final_display(with_article(n)) for n in numbered]
     bus = ctx["feedback_bus"]
     if not display:
         bus.push("SYSTEM/OK", "You are carrying nothing.")

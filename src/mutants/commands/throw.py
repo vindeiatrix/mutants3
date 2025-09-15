@@ -1,6 +1,7 @@
 from __future__ import annotations
 from ..services import item_transfer as itx
-from ..ui import item_display as idisp
+from mutants.registries import items_catalog, items_instances as itemsreg
+from ..ui.item_display import item_label
 from .argcmd import PosArg, PosArgSpec, run_argcmd_positional
 
 def throw_cmd(arg: str, ctx):
@@ -24,11 +25,14 @@ def throw_cmd(arg: str, ctx):
     )
 
     decision_holder = {}
+    cat = items_catalog.load_catalog()
 
     def action(dir: str, item: str):
         dec = itx.throw_to_direction(ctx, dir, item)
         if dec.get("ok") and dec.get("iid"):
-            dec["display_name"] = idisp.canonical_name_from_iid(dec["iid"])
+            inst = itemsreg.get_instance(dec["iid"]) or {}
+            tpl = cat.get(inst.get("item_id")) or {}
+            dec["display_name"] = item_label(inst, tpl, show_charges=False)
         decision_holder["dec"] = dec
         return dec
 

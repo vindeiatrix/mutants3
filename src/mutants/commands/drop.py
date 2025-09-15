@@ -1,6 +1,7 @@
 from __future__ import annotations
 from ..services import item_transfer as itx
-from ..ui import item_display as idisp
+from mutants.registries import items_catalog, items_instances as itemsreg
+from ..ui.item_display import item_label
 from .argcmd import ArgSpec, run_argcmd
 def drop_cmd(arg: str, ctx):
     spec = ArgSpec(
@@ -19,10 +20,14 @@ def drop_cmd(arg: str, ctx):
         warn_kind="SYSTEM/WARN",
     )
 
+    cat = items_catalog.load_catalog()
+
     def action(prefix: str):
         dec = itx.drop_to_ground(ctx, prefix)
         if dec.get("ok") and dec.get("iid"):
-            dec["display_name"] = idisp.canonical_name_from_iid(dec["iid"])
+            inst = itemsreg.get_instance(dec["iid"]) or {}
+            tpl = cat.get(inst.get("item_id")) or {}
+            dec["display_name"] = item_label(inst, tpl, show_charges=False)
         return dec
 
     run_argcmd(ctx, spec, arg, action)

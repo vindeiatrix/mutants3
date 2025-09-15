@@ -88,21 +88,30 @@ def render_ground_list(item_ids: List[str]) -> str:
     return ", ".join(with_articles) + "."
 
 
-def canonical_name_from_iid(iid: str) -> str:
+def item_label(inst, tpl, *, show_charges: bool = False) -> str:
+    """Return the display name for an item instance.
+
+    Charges are shown only when ``show_charges`` is ``True``.
+    """
+    item_id = tpl.get("item_id") or inst.get("item_id")
+    base = canonical_name(str(item_id)) if item_id else tpl.get("name") or "Item"
+    if show_charges and (tpl.get("uses_charges") or tpl.get("charges_max") is not None):
+        ch = inst.get("charges")
+        if ch is not None:
+            return f"{base} ({int(ch)})"
+    return base
+
+
+def canonical_name_from_iid(iid: str, *, show_charges: bool = False) -> str:
     """Resolve display name for an instance-id via the items registry."""
     try:
-        from ..registries import items_instances as itemsreg
-        inst = itemsreg.get_instance(iid)
-        if not inst:
-            return iid
-        item_id = inst.get("item_id") or inst.get("catalog_id") or inst.get("id") or iid
-        name = canonical_name(str(item_id))
-        if "charges" in inst:
-            try:
-                name = f"{name} ({int(inst.get('charges', 0))})"
-            except Exception:
-                pass
-        return name
+        from ..registries import items_instances as itemsreg, items_catalog
+        inst = itemsreg.get_instance(iid) or {}
+        cat = items_catalog.load_catalog()
+        tpl = {}
+        if inst:
+            tpl = cat.get(inst.get("item_id")) or {}
+        return item_label(inst, tpl, show_charges=show_charges)
     except Exception:
         return iid
 

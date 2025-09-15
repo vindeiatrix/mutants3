@@ -53,7 +53,8 @@ def test_ranged_item_flow(ctx, run):
     ctx["feedback_bus"].drain()
     run("inv")
     events = ctx["feedback_bus"].drain()
-    assert any("Lightning" in ev["text"] and "(25)" in ev["text"] for ev in events)
+    assert any("Lightning" in ev["text"] for ev in events)
+    assert not any("(25)" in ev["text"] for ev in events)
 
     run("look lightning")
     events = ctx["feedback_bus"].drain()
@@ -76,7 +77,8 @@ def test_ranged_item_flow(ctx, run):
     assert any("restore the Lightning Rod to full charge" in ev["text"] for ev in events)
     run("inv")
     events = ctx["feedback_bus"].drain()
-    assert any("Lightning" in ev["text"] and "(25)" in ev["text"] for ev in events)
+    assert any("Lightning" in ev["text"] for ev in events)
+    assert not any("(25)" in ev["text"] for ev in events)
 
     run("fix lightning")
     events = ctx["feedback_bus"].drain()
