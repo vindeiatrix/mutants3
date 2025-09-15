@@ -23,7 +23,7 @@ class DummyWorld:
         self.saved = True
 
 
-def mk_ctx(edge):
+def mk_ctx(edge, monkeypatch):
     bus = types.SimpleNamespace(msgs=[])
 
     def push(chan, msg):
@@ -35,10 +35,11 @@ def mk_ctx(edge):
         "feedback_bus": bus,
         "player_state": {
             "active_id": 1,
-            "players": [{"id": 1, "pos": [2000, 0, 0]}],
+            "players": [{"id": 1, "pos": [2000, 0, 0], "inventory": []}],
         },
         "world_loader": lambda year: world,
     }
+    monkeypatch.setattr(open_cmd.it, "_load_player", lambda: {"inventory": ctx["player_state"]["players"][0]["inventory"]})
     return world, ctx, bus
 
 
@@ -49,44 +50,44 @@ def run_open(ctx, arg):
     dispatch.call("open", arg)
 
 
-def test_open_on_closed_gate_sets_open():
+def test_open_on_closed_gate_sets_open(monkeypatch):
     edge = {"base": BASE_GATE, "gate_state": 1}
-    world, ctx, bus = mk_ctx(edge)
+    world, ctx, bus = mk_ctx(edge, monkeypatch)
     run_open(ctx, "west")
     assert edge["gate_state"] == 0
     assert world.saved is True
     assert ("SYSTEM/OK", "You've just opened the west gate.") in bus.msgs
 
 
-def test_open_on_locked_gate_warns():
+def test_open_on_locked_gate_warns(monkeypatch):
     edge = {"base": BASE_GATE, "gate_state": 2}
-    world, ctx, bus = mk_ctx(edge)
+    world, ctx, bus = mk_ctx(edge, monkeypatch)
     run_open(ctx, "west")
     assert edge["gate_state"] == 2
     assert world.saved is False
     assert ("SYSTEM/WARN", "The gate is locked.") in bus.msgs
 
 
-def test_open_when_already_open_informs():
+def test_open_when_already_open_informs(monkeypatch):
     edge = {"base": BASE_GATE, "gate_state": 0}
-    world, ctx, bus = mk_ctx(edge)
+    world, ctx, bus = mk_ctx(edge, monkeypatch)
     run_open(ctx, "west")
     assert edge["gate_state"] == 0
     assert world.saved is False
     assert ("SYSTEM/INFO", "The west gate is already open.") in bus.msgs
 
 
-def test_open_when_no_gate_warns():
+def test_open_when_no_gate_warns(monkeypatch):
     edge = {"base": 0, "gate_state": 0}
-    world, ctx, bus = mk_ctx(edge)
+    world, ctx, bus = mk_ctx(edge, monkeypatch)
     run_open(ctx, "west")
     assert world.saved is False
     assert ("SYSTEM/WARN", "There is no gate to open that way.") in bus.msgs
 
 
-def test_open_accepts_prefix():
+def test_open_accepts_prefix(monkeypatch):
     edge = {"base": BASE_GATE, "gate_state": 1}
-    world, ctx, bus = mk_ctx(edge)
+    world, ctx, bus = mk_ctx(edge, monkeypatch)
     run_open(ctx, "we")
     assert edge["gate_state"] == 0
     assert ("SYSTEM/OK", "You've just opened the west gate.") in bus.msgs

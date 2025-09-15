@@ -5,6 +5,7 @@ from typing import Any, Dict
 from mutants.registries.world import BASE_GATE
 from mutants.registries import dynamics as dyn
 from mutants.registries import items_instances as itemsreg, items_catalog
+from ..services import item_transfer as it  # live inventory access
 
 from .argcmd import coerce_direction
 
@@ -23,7 +24,7 @@ def register(dispatch, ctx) -> None:
 
     def _has_key_type_in_inventory(key_type: str) -> bool:
         cat = items_catalog.load_catalog()
-        p = _active(ctx["player_state"])
+        p = it._load_player()
         inv = p.get("inventory") or []
         for iid in inv:
             inst = itemsreg.get_instance(iid) or {}
