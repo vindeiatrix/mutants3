@@ -8,6 +8,8 @@ from mutants.registries import dynamics as dyn
 from mutants.registries.world import DELTA
 from mutants.app.context import build_room_vm
 from .argcmd import coerce_direction
+from ._helpers import find_inventory_item_by_prefix
+from mutants.registries import items_catalog, items_instances as itemsreg
 
 DIR_CODE = {"north": "N", "south": "S", "east": "E", "west": "W"}
 
@@ -27,34 +29,43 @@ def look_cmd(arg: str, ctx: Dict[str, Any]) -> None:
         return
 
     dir_full = coerce_direction(token)
-    if not dir_full:
-        ctx["feedback_bus"].push("LOOK/BAD_DIR", "Try north, south, east, or west.")
+    if dir_full:
+        dir_code = DIR_CODE[dir_full]
+        p = _active(ctx["player_state"])
+        year, x, y = p.get("pos", [0, 0, 0])
+        world = ctx["world_loader"](year)
+        dec = ER.resolve(world, dyn, year, x, y, dir_code, actor={})
+        if not dec.passable:
+            ctx["feedback_bus"].push("LOOK/BLOCKED", "You're blocked!")
+            return
+        dx, dy = DELTA[dir_code]
+        peek_state = deepcopy(ctx["player_state"])
+        p2 = _active(peek_state)
+        p2["pos"][1] = x + dx
+        p2["pos"][2] = y + dy
+        vm = build_room_vm(
+            peek_state,
+            ctx["world_loader"],
+            ctx["headers"],
+            ctx.get("monsters"),
+            ctx.get("items"),
+        )
+        ctx["peek_vm"] = vm
+        ctx["render_next"] = True
         return
 
-    dir_code = DIR_CODE[dir_full]
-
-    p = _active(ctx["player_state"])
-    year, x, y = p.get("pos", [0, 0, 0])
-    world = ctx["world_loader"](year)
-    dec = ER.resolve(world, dyn, year, x, y, dir_code, actor={})
-    if not dec.passable:
-        ctx["feedback_bus"].push("LOOK/BLOCKED", "You're blocked!")
+    iid = find_inventory_item_by_prefix(ctx, token)
+    if iid:
+        inst = itemsreg.get_instance(iid) or {}
+        cat = items_catalog.load_catalog()
+        tpl = cat.get(inst.get("item_id")) or {}
+        desc = tpl.get("description") or "You examine it."
+        if tpl.get("charges_max"):
+            desc += f"  Charges: {int(inst.get('charges', 0))}."
+        ctx["feedback_bus"].push("SYSTEM/OK", desc)
         return
 
-    dx, dy = DELTA[dir_code]
-    peek_state = deepcopy(ctx["player_state"])
-    p2 = _active(peek_state)
-    p2["pos"][1] = x + dx
-    p2["pos"][2] = y + dy
-    vm = build_room_vm(
-        peek_state,
-        ctx["world_loader"],
-        ctx["headers"],
-        ctx.get("monsters"),
-        ctx.get("items"),
-    )
-    ctx["peek_vm"] = vm
-    ctx["render_next"] = True
+    ctx["feedback_bus"].push("LOOK/BAD_DIR", "Try north, south, east, or west.")
 
 
 def register(dispatch, ctx) -> None:

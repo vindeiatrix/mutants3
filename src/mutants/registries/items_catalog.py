@@ -44,6 +44,15 @@ def _coerce_legacy_bools(items: List[Dict[str, Any]]) -> None:
                 elif lv == "no":
                     it[k] = False
 
+
+def _normalize_charges(items: List[Dict[str, Any]]) -> None:
+    """Alias legacy charge fields and infer helper flags in-place."""
+    for it in items:
+        if "charges_max" not in it and "charges_start" in it:
+            it["charges_max"] = it.get("charges_start")
+        if "charges_max" in it:
+            it["uses_charges"] = True
+
 def load_catalog(path: str = DEFAULT_CATALOG_PATH) -> ItemsCatalog:
     primary = Path(path)
     fallback = Path(FALLBACK_CATALOG_PATH)
@@ -54,4 +63,5 @@ def load_catalog(path: str = DEFAULT_CATALOG_PATH) -> ItemsCatalog:
     else:
         raise FileNotFoundError(f"Missing catalog: tried {primary} then {fallback}")
     _coerce_legacy_bools(items)
+    _normalize_charges(items)
     return ItemsCatalog(items)

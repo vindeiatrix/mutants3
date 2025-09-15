@@ -313,5 +313,27 @@
     "potion": false,
     "skull": false,
     "charges_start": 0
+  },
+  {
+    "item_id": "lightning-rod",
+    "name": "Lightning Rod",
+    "weight": 1,
+    "ion_value": 0,
+    "riblet_value": 0,
+    "spawnable": true,
+    "enchantable": false,
+    "nondegradable": true,
+    "base_power": 0,
+    "armour": false,
+    "armour_class": 0,
+    "ranged": true,
+    "poisonous": false,
+    "poison_type": 0,
+    "key": false,
+    "key_type": null,
+    "potion": false,
+    "skull": false,
+    "charges_max": 25,
+    "description": "A crackling rod that stores lightning."
   }
 ]

@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Iterable, Any, Tuple
 
 from mutants.io.atomic import atomic_write_json
+from . import items_catalog
 
 DEFAULT_INSTANCES_PATH = "state/items/instances.json"
 FALLBACK_INSTANCES_PATH = "state/instances.json"  # auto-fallback if the new path isn't used yet
@@ -41,7 +42,7 @@ class ItemsInstances:
     def create_instance(self, base_item: Dict[str, Any]) -> Dict[str, Any]:
         """
         Create a new instance from a base catalog item.
-        Seeds charges if base has charges_start; sets enchanted=no, wear=0 by default.
+        Seeds charges if base has charges_max; sets enchanted=no, wear=0 by default.
         """
         instance_id = f"{base_item['item_id']}#{uuid.uuid4().hex[:8]}"
         inst: Dict[str, Any] = {
@@ -50,9 +51,9 @@ class ItemsInstances:
             "enchanted": "no",
             "wear": 0,
         }
-        charges_start = int(base_item.get("charges_start", 0) or 0)
-        if charges_start > 0:
-            inst["charges"] = charges_start
+        charges_max = int(base_item.get("charges_max", 0) or 0)
+        if charges_max > 0:
+            inst["charges"] = charges_max
         # skull provenance fields (if ever needed) can be added by the loot system:
         # inst["skull_monster_type_id"] = "ghoul"; inst["skull_monster_name"] = "Ghoul"
         return self._add(inst)
@@ -144,6 +145,57 @@ def _save_instances_raw(instances: List[Dict[str, Any]]) -> None:
         orig = []
     payload = {"instances": instances} if isinstance(orig, dict) and "instances" in orig else instances
     atomic_write_json(path, payload)
+
+
+def _index_of(instances: List[Dict[str, Any]], iid: str) -> int:
+    for idx, inst in enumerate(instances):
+        inst_id = inst.get("iid") or inst.get("instance_id")
+        if inst_id and str(inst_id) == str(iid):
+            return idx
+    raise KeyError(iid)
+
+
+def charges_max_for(iid: str) -> int:
+    """Return capacity for *iid* considering overrides."""
+    inst = get_instance(iid) or {}
+    tpl_id = inst.get("item_id")
+    tpl = items_catalog.load_catalog().get(str(tpl_id)) if tpl_id else {}
+    return int(inst.get("charges_max_override") or (tpl.get("charges_max") if tpl else 0) or 0)
+
+
+def spend_charge(iid: str) -> bool:
+    """Decrement charge by 1 if available. Returns True if spent."""
+    raw = _load_instances_raw()
+    try:
+        idx = _index_of(raw, iid)
+    except KeyError:
+        return False
+    inst = raw[idx]
+    if int(inst.get("charges", 0)) < 1:
+        return False
+    inst["charges"] = int(inst.get("charges", 0)) - 1
+    _save_instances_raw(raw)
+    global _CACHE
+    _CACHE = None
+    return True
+
+
+def recharge_full(iid: str) -> int:
+    """Recharge iid to full. Returns amount gained."""
+    raw = _load_instances_raw()
+    try:
+        idx = _index_of(raw, iid)
+    except KeyError:
+        return 0
+    inst = raw[idx]
+    cap = charges_max_for(iid)
+    before = int(inst.get("charges", 0))
+    after = min(cap, before + (cap - before))
+    inst["charges"] = after
+    _save_instances_raw(raw)
+    global _CACHE
+    _CACHE = None
+    return after - before
 
 def _pos_of(inst: Dict[str, Any]) -> Optional[Tuple[int, int, int]]:
     if isinstance(inst.get("pos"), dict):
@@ -288,6 +340,10 @@ def create_and_save_instance(item_id: str, year: int, x: int, y: int, origin: st
         "y": int(y),
         "origin": origin,
     }
+    cat = items_catalog.load_catalog()
+    tpl = cat.get(str(item_id)) if cat else None
+    if tpl and int(tpl.get("charges_max", 0) or 0) > 0:
+        inst["charges"] = int(tpl.get("charges_max"))
     raw.append(inst)
     _save_instances_raw(raw)
     return iid
