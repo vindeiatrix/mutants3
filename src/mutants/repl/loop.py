@@ -31,10 +31,19 @@ def main() -> None:
 
         stripped = raw.strip()
         if screen_mgr and screen_mgr.in_selection():
-            screen_mgr.handle_selection(stripped, ctx)
+            resp = screen_mgr.handle_selection(stripped, ctx)
+            if getattr(resp, "action", "") == "quit":
+                if ctx.get("render_next"):
+                    render_frame(ctx)
+                    ctx["render_next"] = False
+                else:
+                    flush_feedback(ctx)
+                break
             if ctx.get("render_next"):
                 render_frame(ctx)
                 ctx["render_next"] = False
+            else:
+                flush_feedback(ctx)
             continue
 
         token, _, arg = stripped.partition(" ")
@@ -47,6 +56,9 @@ def main() -> None:
             ctx["render_next"] = False
         else:
             flush_feedback(ctx)
+
+        if executed == "quit" or executed == "__QUIT__":
+            break
 
     if state_mgr:
         state_mgr.save_on_exit()
