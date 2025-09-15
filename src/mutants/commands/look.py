@@ -60,8 +60,9 @@ def look_cmd(arg: str, ctx: Dict[str, Any]) -> None:
         cat = items_catalog.load_catalog()
         tpl = cat.get(inst.get("item_id")) or {}
         desc = tpl.get("description") or "You examine it."
-        if tpl.get("charges_max"):
-            desc += f"  Charges: {int(inst.get('charges', 0))}."
+        if tpl.get("uses_charges") or tpl.get("charges_max") is not None:
+            ch = int(inst.get("charges", 0))
+            desc = f"{desc}  Charges: {ch}."
         ctx["feedback_bus"].push("SYSTEM/OK", desc)
         return
 
