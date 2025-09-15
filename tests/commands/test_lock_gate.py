@@ -2,6 +2,7 @@ import types
 
 from mutants.commands import lock as lock_cmd
 from mutants.commands import open as open_cmd
+from mutants.commands import unlock as unlock_cmd
 from mutants.repl.dispatch import Dispatch
 from mutants.registries.world import BASE_GATE
 from mutants.registries import dynamics as dyn
@@ -46,17 +47,19 @@ def mk_ctx(inv, edge, monkeypatch):
     }
     # ensure commands see this test inventory via live loader
     monkeypatch.setattr(lock_cmd.it, "_load_player", lambda: {"inventory": ctx["player_state"]["players"][0]["inventory"]})
-    monkeypatch.setattr(open_cmd.it, "_load_player", lambda: {"inventory": ctx["player_state"]["players"][0]["inventory"]})
+    monkeypatch.setattr(unlock_cmd.it, "_load_player", lambda: {"inventory": ctx["player_state"]["players"][0]["inventory"]})
     return world, ctx, bus
 
 
 CAT = {
     "gate_key_a": {"key": True, "key_type": "gate_a"},
     "gate_key_b": {"key": True, "key_type": "gate_b"},
+    "gate_key_generic": {"key": True},
 }
 INSTANCES = {
     "KA1": {"item_id": "gate_key_a"},
     "KB1": {"item_id": "gate_key_b"},
+    "KG1": {"item_id": "gate_key_generic"},
 }
 
 
@@ -93,6 +96,7 @@ def build_dispatch(ctx):
     dispatch = Dispatch()
     dispatch.set_feedback_bus(ctx["feedback_bus"])
     lock_cmd.register(dispatch, ctx)
+    unlock_cmd.register(dispatch, ctx)
     open_cmd.register(dispatch, ctx)
     return dispatch
 
@@ -131,7 +135,7 @@ def test_lock_open_or_non_gate_warns(monkeypatch):
     assert ("SYSTEM/WARN", "You can only lock a closed gate.") in events2
 
 
-def test_lock_prefixes_and_open_requires_matching_key(monkeypatch):
+def test_lock_prefixes_and_unlock_requires_matching_key(monkeypatch):
     patch_items_and_dyn(monkeypatch)
     edge = {"base": BASE_GATE, "gate_state": 1}
     world, ctx, bus = mk_ctx(["KA1"], edge, monkeypatch)
@@ -141,21 +145,44 @@ def test_lock_prefixes_and_open_requires_matching_key(monkeypatch):
         events = run(dispatch, bus, f"loc {tok}")
         assert ("SYSTEM/OK", "You lock the gate south.") in events
 
-    # Remove key and try to open
-    ctx["player_state"]["players"][0]["inventory"] = []
+    # Open should fail even with key
     events = run(dispatch, bus, "open south")
-    assert ("SYSTEM/WARN", "The gate is locked.") in events
+    assert ("SYSTEM/WARN", "The south gate is locked.") in events
 
-    # Wrong key type
+    # No key
+    ctx["player_state"]["players"][0]["inventory"] = []
+    events = run(dispatch, bus, "unlock south")
+    assert ("SYSTEM/WARN", "You don't have a key.") in events
+
+    # Wrong key for unlock
     ctx["player_state"]["players"][0]["inventory"] = ["KB1"]
-    events = run(dispatch, bus, "open south")
-    assert ("SYSTEM/WARN", "The gate is locked.") in events
+    events = run(dispatch, bus, "unlock south")
+    assert ("SYSTEM/WARN", "That key doesn't fit.") in events
 
     # Correct key
     ctx["player_state"]["players"][0]["inventory"] = ["KA1"]
+    events = run(dispatch, bus, "unlock south")
+    assert ("SYSTEM/OK", "You unlock the gate south.") in events
+
+    # Gate remains closed until opened
     events = run(dispatch, bus, "open south")
     assert ("SYSTEM/OK", "You've just opened the south gate.") in events
     assert world.saved is True
     assert edge["gate_state"] == 0
     assert dyn.get_lock(2000, 0, 0, "S") is None
+
+
+def test_unlock_generic_key(monkeypatch):
+    patch_items_and_dyn(monkeypatch)
+    edge = {"base": BASE_GATE, "gate_state": 1}
+    world, ctx, bus = mk_ctx(["KG1"], edge, monkeypatch)
+    dispatch = build_dispatch(ctx)
+
+    events = run(dispatch, bus, "lock south")
+    assert ("SYSTEM/OK", "You lock the gate south.") in events
+
+    # Any key should unlock
+    ctx["player_state"]["players"][0]["inventory"] = ["KB1"]
+    events = run(dispatch, bus, "unlock south")
+    assert ("SYSTEM/OK", "You unlock the gate south.") in events
 
