@@ -19,6 +19,7 @@ Select (Bury, 1–5, ?)
 - Press `1`–`5` to activate a class and enter the in-game view.
 - Type `?` for a reminder: “Enter 1–5 to choose a class; ‘Bury’ resets later.”
 - `BURY <n>` is accepted but currently responds with “Bury not implemented yet.”
+- Type `quit`/`q` to save and exit immediately.
 
 The menu always follows the template order regardless of the current active
 class.
