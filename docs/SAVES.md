@@ -16,6 +16,8 @@
 - `meta.created_at`: ISO-8601 UTC timestamp for the initial save creation.
 - `meta.updated_at`: refreshed on every successful `persist()`.
 - `players`: map keyed by class id (`player_thief`, `player_priest`, etc.).
+  - Each player stores `pos = [year, x, y]`, the latest compass location tracked
+    by the `StateManager` and written on autosave/exit.
 - `active_id`: the class currently in control.
 
 ## Autosave & triggers

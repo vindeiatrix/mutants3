@@ -35,7 +35,9 @@ without touching the golden templates shipped in the repo.
 - `ions`, `riblets`: non-negative integers.
 - `conditions`: `{ "poisoned", "encumbered", "ion_starving" }` booleans.
 - `inventory`: list of item instance IDs (may be empty).
-- `pos`: `[year, x, y]` integers; year stays in sync with the loaded world.
+- `pos`: `[year, x, y]` integers; this compass location is updated through the
+  `StateManager` whenever you move or change year and is persisted on autosave
+  or clean exit.
 - Additional keys (notes, exhaustion, armour, etc.) are preserved.
 
 ### Example
