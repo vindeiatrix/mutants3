@@ -39,7 +39,6 @@ def mk_ctx(edge, monkeypatch):
         },
         "world_loader": lambda year: world,
     }
-    monkeypatch.setattr(open_cmd.it, "_load_player", lambda: {"inventory": ctx["player_state"]["players"][0]["inventory"]})
     return world, ctx, bus
 
 
@@ -65,7 +64,7 @@ def test_open_on_locked_gate_warns(monkeypatch):
     run_open(ctx, "west")
     assert edge["gate_state"] == 2
     assert world.saved is False
-    assert ("SYSTEM/WARN", "The gate is locked.") in bus.msgs
+    assert ("SYSTEM/WARN", "The west gate is locked.") in bus.msgs
 
 
 def test_open_when_already_open_informs(monkeypatch):
