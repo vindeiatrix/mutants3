@@ -20,7 +20,7 @@ def _has_any_key(ctx: Dict[str, Any]) -> tuple[bool, Optional[str]]:
         item_id = inst.get("item_id")
         meta = cat.get(item_id) if cat else None
         if isinstance(meta, dict) and meta.get("key") is True:
-            return True, meta.get("key_type") or ""
+            return True, meta.get("key_type")
     return False, None
 
 
@@ -35,6 +35,8 @@ def lock_cmd(arg: str, ctx: Dict[str, Any]) -> None:
         reason_messages={
             "not_gate": "You can only lock a closed gate.",
             "already_open": "You can only lock a closed gate.",
+            "already_locked": "That gate is already locked.",
+            "not_closed": "You can only lock a closed gate.",
             "no_key": "You need a key to lock a gate.",
         },
     )
@@ -48,10 +50,15 @@ def lock_cmd(arg: str, ctx: Dict[str, Any]) -> None:
         edge = (tile.get("edges") or {}).get(D, {})
         base = edge.get("base", 0)
         gs = edge.get("gate_state", 0)
+        lock_meta = dyn.get_lock(year, x, y, D)
         if base != BASE_GATE:
             return {"ok": False, "reason": "not_gate"}
+        if lock_meta or gs == 2:
+            return {"ok": False, "reason": "already_locked"}
         if gs == 0:
             return {"ok": False, "reason": "already_open"}
+        if gs != 1:
+            return {"ok": False, "reason": "not_closed"}
         has_key, key_type = _has_any_key(ctx)
         if not has_key:
             return {"ok": False, "reason": "no_key"}
