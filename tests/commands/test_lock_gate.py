@@ -7,6 +7,7 @@ from mutants.repl.dispatch import Dispatch
 from mutants.registries.world import BASE_GATE
 from mutants.registries import dynamics as dyn
 from mutants.registries import items_instances as itemsreg, items_catalog
+from mutants.engine import edge_resolver as ER
 
 
 class DummyWorld:
@@ -15,7 +16,11 @@ class DummyWorld:
         self.saved = False
 
     def get_tile(self, x, y):
-        return {"edges": {"S": self._edge}}
+        if y == 0:
+            return {"edges": {"S": self._edge}}
+        if y == -1:
+            return {"edges": {"N": self._edge}}
+        return {"edges": {}}
 
     def set_edge(self, x, y, D, *, gate_state=None, force_gate_base=False, key_type=None):
         if force_gate_base:
@@ -127,12 +132,62 @@ def test_lock_open_or_non_gate_warns(monkeypatch):
     dispatch = build_dispatch(ctx)
     events = run(dispatch, bus, "lock south")
     assert ("SYSTEM/WARN", "You can only lock a closed gate.") in events
+    assert dyn.get_lock(2000, 0, 0, "S") is None
     # Non-gate
     edge2 = {"base": 0, "gate_state": 0}
     world2, ctx2, bus2 = mk_ctx(["KA1"], edge2, monkeypatch)
     dispatch2 = build_dispatch(ctx2)
     events2 = run(dispatch2, bus2, "lock south")
     assert ("SYSTEM/WARN", "You can only lock a closed gate.") in events2
+    assert dyn.get_lock(2000, 0, 0, "S") is None
+    # Weird state should warn via not_closed
+    edge3 = {"base": BASE_GATE, "gate_state": 5}
+    world3, ctx3, bus3 = mk_ctx(["KA1"], edge3, monkeypatch)
+    dispatch3 = build_dispatch(ctx3)
+    events3 = run(dispatch3, bus3, "lock south")
+    assert ("SYSTEM/WARN", "You can only lock a closed gate.") in events3
+    assert dyn.get_lock(2000, 0, 0, "S") is None
+
+
+def test_lock_rejects_when_already_locked(monkeypatch):
+    patch_items_and_dyn(monkeypatch)
+    edge = {"base": BASE_GATE, "gate_state": 1}
+    world, ctx, bus = mk_ctx(["KA1"], edge, monkeypatch)
+    dispatch = build_dispatch(ctx)
+
+    # Pre-existing dynamic lock
+    dyn.set_lock(2000, 0, 0, "S", "gate_a")
+    events = run(dispatch, bus, "lock south")
+    assert ("SYSTEM/WARN", "That gate is already locked.") in events
+    lock = dyn.get_lock(2000, 0, 0, "S")
+    assert lock and lock.get("lock_type") == "gate_a"
+
+    # Static locked gate_state should also warn
+    dyn.clear_lock(2000, 0, 0, "S")
+    edge["gate_state"] = 2
+    events2 = run(dispatch, bus, "lock south")
+    assert ("SYSTEM/WARN", "That gate is already locked.") in events2
+
+
+def test_lock_sets_dynamic_lock_and_resolver_reports_locked(monkeypatch):
+    patch_items_and_dyn(monkeypatch)
+    edge = {"base": BASE_GATE, "gate_state": 1}
+    world, ctx, bus = mk_ctx(["KA1"], edge, monkeypatch)
+    dispatch = build_dispatch(ctx)
+
+    events = run(dispatch, bus, "lock south")
+    assert ("SYSTEM/OK", "You lock the gate south.") in events
+
+    lock_meta = dyn.get_lock(2000, 0, 0, "S")
+    assert lock_meta == {"locked": True, "lock_type": "gate_a"}
+    neighbor_lock = dyn.get_lock(2000, 0, -1, "N")
+    assert neighbor_lock == lock_meta
+    assert edge["gate_state"] == 1
+
+    dec = ER.resolve(world, dyn, 2000, 0, 0, "S", actor={})
+    assert dec.passable is False
+    assert dec.reason == "closed_gate"
+    assert any(tag == "lock" for tag, _ in dec.reason_chain)
 
 
 def test_lock_prefixes_and_unlock_requires_matching_key(monkeypatch):
@@ -141,28 +196,42 @@ def test_lock_prefixes_and_unlock_requires_matching_key(monkeypatch):
     world, ctx, bus = mk_ctx(["KA1"], edge, monkeypatch)
     dispatch = build_dispatch(ctx)
 
-    for tok in ["s", "so", "sou", "sout"]:
+    tokens = ["s", "so", "sou", "sout"]
+    for idx, tok in enumerate(tokens):
         events = run(dispatch, bus, f"loc {tok}")
         assert ("SYSTEM/OK", "You lock the gate south.") in events
+        lock_meta = dyn.get_lock(2000, 0, 0, "S")
+        assert lock_meta and lock_meta.get("lock_type") == "gate_a"
+        if idx < len(tokens) - 1:
+            events = run(dispatch, bus, "unlock south")
+            assert ("SYSTEM/OK", "You unlock the gate south.") in events
+            assert dyn.get_lock(2000, 0, 0, "S") is None
+
+    lock_meta = dyn.get_lock(2000, 0, 0, "S")
+    assert lock_meta and lock_meta.get("lock_type") == "gate_a"
 
     # Open should fail even with key
     events = run(dispatch, bus, "open south")
     assert ("SYSTEM/WARN", "The south gate is locked.") in events
+    assert dyn.get_lock(2000, 0, 0, "S") == lock_meta
 
     # No key
     ctx["player_state"]["players"][0]["inventory"] = []
     events = run(dispatch, bus, "unlock south")
     assert ("SYSTEM/WARN", "You don't have a key.") in events
+    assert dyn.get_lock(2000, 0, 0, "S") == lock_meta
 
     # Wrong key for unlock
     ctx["player_state"]["players"][0]["inventory"] = ["KB1"]
     events = run(dispatch, bus, "unlock south")
     assert ("SYSTEM/WARN", "That key doesn't fit.") in events
+    assert dyn.get_lock(2000, 0, 0, "S") == lock_meta
 
     # Correct key
     ctx["player_state"]["players"][0]["inventory"] = ["KA1"]
     events = run(dispatch, bus, "unlock south")
     assert ("SYSTEM/OK", "You unlock the gate south.") in events
+    assert dyn.get_lock(2000, 0, 0, "S") is None
 
     # Gate remains closed until opened
     events = run(dispatch, bus, "open south")
@@ -180,6 +249,8 @@ def test_unlock_generic_key(monkeypatch):
 
     events = run(dispatch, bus, "lock south")
     assert ("SYSTEM/OK", "You lock the gate south.") in events
+    lock_meta = dyn.get_lock(2000, 0, 0, "S")
+    assert lock_meta == {"locked": True, "lock_type": ""}
 
     # Any key should unlock
     ctx["player_state"]["players"][0]["inventory"] = ["KB1"]
