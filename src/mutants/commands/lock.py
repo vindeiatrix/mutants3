@@ -5,7 +5,7 @@ from typing import Any, Dict, Optional
 from mutants.registries.world import BASE_GATE
 from mutants.registries import dynamics as dyn
 from mutants.registries import items_instances as itemsreg, items_catalog
-from mutants.services.player_source import get_active_player
+from ..services import item_transfer as it  # source of truth for player inventory
 
 from .argcmd import PosArg, PosArgSpec, run_argcmd_positional
 
@@ -13,10 +13,8 @@ from .argcmd import PosArg, PosArgSpec, run_argcmd_positional
 def _has_any_key(ctx: Dict[str, Any]) -> tuple[bool, Optional[str]]:
     """Return (has_key, key_type) by scanning the live player state."""
     cat = items_catalog.load_catalog()
-    player = get_active_player(ctx)
-    inv = player.get("inventory") if hasattr(player, "get") else []
-    if not isinstance(inv, list):
-        inv = list(inv or [])
+    p = it._load_player()  # live inventory (same source as GET/DROP/THROW)
+    inv = p.get("inventory") or []
     for iid in inv:
         inst = itemsreg.get_instance(iid) or {}
         item_id = inst.get("item_id")
@@ -42,24 +40,8 @@ def lock_cmd(arg: str, ctx: Dict[str, Any]) -> None:
     )
 
     def action(dir: str) -> Dict[str, Any]:
-        player = get_active_player(ctx)
-        pos_raw = player.get("pos") if hasattr(player, "get") else None
-        if not isinstance(pos_raw, (list, tuple)):
-            pos = [0, 0, 0]
-        else:
-            pos = list(pos_raw) + [0, 0, 0]
-        try:
-            year = int(pos[0])
-        except Exception:
-            year = 0
-        try:
-            x = int(pos[1])
-        except Exception:
-            x = 0
-        try:
-            y = int(pos[2])
-        except Exception:
-            y = 0
+        p = ctx["player_state"]["players"][0]
+        year, x, y = p.get("pos", [0, 0, 0])
         D = dir[0].upper()
         world = ctx["world_loader"](year)
         tile = world.get_tile(x, y) or {}
