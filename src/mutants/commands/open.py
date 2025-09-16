@@ -1,19 +1,12 @@
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any
 
 from mutants.registries.world import BASE_GATE
 from mutants.registries import dynamics as dyn
+from mutants.services.player_source import get_active_player
 
 from .argcmd import coerce_direction
-
-
-def _active(state: Dict[str, Any]) -> Dict[str, Any]:
-    aid = state.get("active_id")
-    for p in state.get("players", []):
-        if p.get("id") == aid:
-            return p
-    return state["players"][0]
 
 
 def register(dispatch, ctx) -> None:
@@ -31,8 +24,24 @@ def register(dispatch, ctx) -> None:
             return
         D = dir_full[0].upper()
 
-        p = _active(ctx["player_state"])
-        year, x, y = p.get("pos", [0, 0, 0])
+        player = get_active_player(ctx)
+        pos_raw = player.get("pos") if hasattr(player, "get") else None
+        if not isinstance(pos_raw, (list, tuple)):
+            pos = [0, 0, 0]
+        else:
+            pos = list(pos_raw) + [0, 0, 0]
+        try:
+            year = int(pos[0])
+        except Exception:
+            year = 0
+        try:
+            x = int(pos[1])
+        except Exception:
+            x = 0
+        try:
+            y = int(pos[2])
+        except Exception:
+            y = 0
         world = ctx["world_loader"](year)
         tile = world.get_tile(x, y)
         if not tile:

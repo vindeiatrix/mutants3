@@ -79,3 +79,32 @@ def test_position_persists(tmp_path, monkeypatch):
 
     data = json.loads(save_path.read_text(encoding="utf-8"))
     assert data["players"][mgr.active_id]["pos"] == [2001, 3, -1]
+
+
+def test_inventories_are_isolated_per_class(tmp_path, monkeypatch):
+    tpl_path = _copy_template(tmp_path)
+    save_path = tmp_path / "save.json"
+
+    monkeypatch.setattr("mutants.state.manager.atomic_write_json", lambda p, d: None)
+
+    mgr = StateManager(template_path=tpl_path, save_path=save_path)
+
+    thief = mgr.save_data.players["player_thief"].data
+    priest = mgr.save_data.players["player_priest"].data
+    wizard = mgr.save_data.players["player_wizard"].data
+
+    thief.setdefault("inventory", []).append("KA1")
+    assert "KA1" not in priest.get("inventory", [])
+    assert "KA1" not in wizard.get("inventory", [])
+
+    mgr.switch_active("player_priest")
+    assert "KA1" not in mgr.get_active().data.get("inventory", [])
+
+    mgr.switch_active("player_thief")
+    assert "KA1" in mgr.get_active().data.get("inventory", [])
+
+    thief.setdefault("inventory", []).append("KB1")
+    assert thief.get("inventory") is not priest.get("inventory")
+    assert thief.get("inventory") is not wizard.get("inventory")
+    assert "KB1" not in priest.get("inventory", [])
+    assert "KB1" not in wizard.get("inventory", [])

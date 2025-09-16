@@ -5,16 +5,18 @@ from typing import Any, Dict, Optional
 from mutants.registries.world import BASE_GATE
 from mutants.registries import dynamics as dyn
 from mutants.registries import items_instances as itemsreg, items_catalog
-from ..services import item_transfer as it  # live inventory access
+from mutants.services.player_source import get_active_player
 
 from .argcmd import PosArg, PosArgSpec, run_argcmd_positional
 
 
-def _has_matching_key(required: Optional[str]) -> tuple[bool, bool]:
+def _has_matching_key(ctx: Dict[str, Any], required: Optional[str]) -> tuple[bool, bool]:
     """Return (has_any_key, matches_required)."""
     cat = items_catalog.load_catalog()
-    p = it._load_player()
-    inv = p.get("inventory") or []
+    player = get_active_player(ctx)
+    inv = player.get("inventory") if hasattr(player, "get") else []
+    if not isinstance(inv, list):
+        inv = list(inv or [])
     has_any = False
     for iid in inv:
         inst = itemsreg.get_instance(iid) or {}
@@ -45,8 +47,24 @@ def unlock_cmd(arg: str, ctx: Dict[str, Any]) -> None:
     )
 
     def action(dir: str) -> Dict[str, Any]:
-        p = ctx["player_state"]["players"][0]
-        year, x, y = p.get("pos", [0, 0, 0])
+        player = get_active_player(ctx)
+        pos_raw = player.get("pos") if hasattr(player, "get") else None
+        if not isinstance(pos_raw, (list, tuple)):
+            pos = [0, 0, 0]
+        else:
+            pos = list(pos_raw) + [0, 0, 0]
+        try:
+            year = int(pos[0])
+        except Exception:
+            year = 0
+        try:
+            x = int(pos[1])
+        except Exception:
+            x = 0
+        try:
+            y = int(pos[2])
+        except Exception:
+            y = 0
         D = dir[0].upper()
         world = ctx["world_loader"](year)
         tile = world.get_tile(x, y) or {}
@@ -71,7 +89,7 @@ def unlock_cmd(arg: str, ctx: Dict[str, Any]) -> None:
         if not locked:
             return {"ok": False, "reason": "not_locked"}
 
-        has_any, matches = _has_matching_key(required)
+        has_any, matches = _has_matching_key(ctx, required)
         if not has_any:
             return {"ok": False, "reason": "no_key"}
         if not matches:
