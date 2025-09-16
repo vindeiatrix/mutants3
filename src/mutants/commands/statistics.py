@@ -1,7 +1,6 @@
 """Statistics command for inspecting the active player."""
 from __future__ import annotations
 
-from mutants.services.inventory_source import get_player_inventory_instances
 from mutants.ui.inventory_section import render_inventory_section
 
 
@@ -126,9 +125,11 @@ def statistics_cmd(arg: str, ctx) -> None:
         "",
     ]
 
-    inv_instances = get_player_inventory_instances(ctx)
+    inventory = player.get("inventory") or []
+    if not isinstance(inventory, (list, tuple)):
+        inventory = [inventory] if inventory else []
 
-    lines.extend(render_inventory_section(ctx, inv_instances))
+    lines.extend(render_inventory_section(ctx, inventory))
 
     for line in lines:
         bus.push("SYSTEM/OK", line)
