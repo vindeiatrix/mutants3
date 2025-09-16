@@ -40,6 +40,29 @@ def _ensure_inventory(p: Dict) -> None:
         p["inventory"] = []
 
 
+def _sync_state_manager(ctx, inventory: List[str]) -> None:
+    if not isinstance(ctx, dict):
+        return
+    state_mgr = ctx.get("state_manager")
+    if state_mgr is None:
+        return
+    try:
+        active = state_mgr.get_active()
+    except Exception:
+        return
+    target = getattr(active, "data", None)
+    if isinstance(target, dict):
+        target["inventory"] = list(inventory)
+    elif isinstance(active, dict):
+        active["inventory"] = list(inventory)
+    sync = getattr(state_mgr, "_sync_legacy_views", None)
+    if callable(sync):
+        try:
+            sync()
+        except Exception:
+            pass
+
+
 def _armor_iid(p: Dict) -> Optional[str]:
     a = p.get("armor") or p.get("armour")
     if isinstance(a, dict):
@@ -165,6 +188,7 @@ def pick_from_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
         overflow_info = {"inv_overflow_drop": drop_iid}
     _save_player(p)
     itemsreg.save_instances()
+    _sync_state_manager(ctx, p.get("inventory") or [])
     return {"ok": True, "iid": chosen_iid, "overflow": overflow_info, "inv_count": len(p["inventory"])}
 
 
@@ -222,6 +246,7 @@ def drop_to_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
             overflow_info = {"ground_overflow_pick": pick}
     _save_player(p)
     itemsreg.save_instances()
+    _sync_state_manager(ctx, p.get("inventory") or [])
     return {"ok": True, "iid": iid, "overflow": overflow_info, "inv_count": len(p["inventory"])}
 
 
@@ -304,6 +329,7 @@ def throw_to_direction(ctx, direction: str, prefix: str, *, seed: Optional[int] 
             overflow_info = {"ground_overflow_pick": pick}
     _save_player(p)
     itemsreg.save_instances()
+    _sync_state_manager(ctx, p.get("inventory") or [])
     return {
         "ok": True,
         "iid": iid,

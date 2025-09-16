@@ -61,6 +61,7 @@ def _add_to_inventory(ctx, item_id: str, count: int) -> None:
     p["inventory"] = inv
     it._save_player(p)
     itemsreg.save_instances()
+    it._sync_state_manager(ctx, inv)
 
 
 def debug_add_cmd(arg: str, ctx):
