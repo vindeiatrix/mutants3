@@ -20,14 +20,6 @@ Movement updates your compass location `[year, x, y]` through the
 `StateManager`, and the coordinates persist to `state/savegame.json` on
 autosave or clean exit.
 
-## Travel
-
-`travel <year>` (prefixes `tra`/`trav`/`trave`/`travel`) moves you to the
-origin of the requested year. Your compass immediately updates to `[year, 0,
-0]` without triggering an automatic room render, so you can queue another
-action before the next paint. Traveling to the current year is allowed and
-currently free; a future update will charge 3,000 Ions per year of distance.
-
 ## Look
 
 `look` shows the current room. `look <direction>` peeks into an adjacent tile
