@@ -44,6 +44,6 @@ def test_statistics_pushes_summary():
     ctx = {"feedback_bus": bus, "state_manager": FakeStateManager()}
     statistics.statistics_cmd("", ctx)
     lines = [text for _kind, text in bus.events]
-    assert any(line.startswith("Name:") for line in lines)
-    assert any("Hit Points" in line and "Level" in line for line in lines)
-    assert any("Year A.D." in line for line in lines)
+    assert any("Thief" in line for line in lines)
+    assert any("HP" in line for line in lines)
+    assert any("Location" in line for line in lines)

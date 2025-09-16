@@ -70,29 +70,8 @@ parsed via the normalization helper (see [utilities](utilities.md)).
 ## Statistics
 
 `statistics` (or any prefix such as `sta`, `stat`, `stati`, …) shows the active
-player's full BBS-style sheet without triggering a render. A typical output
-looks like:
-
-```
-Name: Gwydion / Mutant Thief
-Exhaustion      : 0
-Str: 15     Int: 9     Wis: 8
-Dex: 14     Con: 15    Cha: 16
-Hit Points      : 18 / 18      Level: 1
-Exp. Points     : 0
-Riblets         : 0
-Ions            : 30000
-Wearing Armor   : Nothing.   Armour Class: 1
-Ready to Combat : NO ONE
-Readied Spell   : No spell memorized.
-Year A.D.       : 2000
-
-You are carrying the following items:  (Total Weight: 0 LB's)
-Nothing.
-```
-
-Values are drawn from the active player and the items registry when available,
-and the command is read-only.
+player's level, HP, AC, experience, money, ability scores, active conditions,
+and current location. The command is read-only.
 
 ## Class Selection
 
