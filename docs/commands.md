@@ -40,18 +40,6 @@ without moving. Direction arguments accept any prefix of the full word (e.g.
 normalization helper (see [utilities](utilities.md)). If multiple ground items
 match the prefix, the first one in the ground list is picked up.
 
-## Inventory
-
-`inventory` (prefix `inv`) prints your carried items in the final BBS format:
-
-```
-You are carrying the following items:  (Total Weight: <N> LB's)
-<item lines or Nothing.>
-```
-
-The list is identical to the Statistics page; both commands call the same
-renderer.
-
 ## Throw
 
 `throw <direction> <item>` throws an item into an adjacent tile. Direction
@@ -104,8 +92,7 @@ Nothing.
 ```
 
 Values are drawn from the active player and the items registry when available,
-and the command is read-only. The inventory section is shared with the
-`inventory` command so both screens stay in sync.
+and the command is read-only.
 
 ## Class Selection
 

@@ -1,8 +1,6 @@
 """Statistics command for inspecting the active player."""
 from __future__ import annotations
 
-from mutants.ui.inventory_final import render_inventory_final
-
 
 def _col(label: str, value: str, width: int = 16) -> str:
     return f"{label:<{width}} : {value}"
@@ -51,6 +49,34 @@ def _year(player: dict) -> int:
     if isinstance(pos, (list, tuple)) and pos:
         return _num(pos[0], 2000)
     return 2000
+
+
+def _item_display(items, iid) -> str:
+    for attr in ("get_display_name", "display_name", "name_of", "describe"):
+        fn = getattr(items, attr, None)
+        if callable(fn):
+            try:
+                info = fn(iid)
+                if isinstance(info, dict):
+                    return str(info.get("name") or iid)
+                return str(info)
+            except Exception:
+                pass
+    return str(iid)
+
+
+def _item_weight_lb(items, iid) -> int:
+    for attr in ("weight_lb", "get_weight_lb", "describe"):
+        fn = getattr(items, attr, None)
+        if callable(fn):
+            try:
+                info = fn(iid)
+                if isinstance(info, dict):
+                    return _num(info.get("weight_lb"), 0)
+                return _num(info, 0)
+            except Exception:
+                pass
+    return 0
 
 
 def _armour_name(player: dict) -> str:
@@ -125,13 +151,55 @@ def statistics_cmd(arg: str, ctx) -> None:
         "",
     ]
 
-    items_registry = ctx.get("items")
-    inv_lines, total_weight = render_inventory_final(player, items_registry)
+    inventory = player.get("inventory") or []
+    if not isinstance(inventory, (list, tuple)):
+        inventory = [inventory] if inventory else []
 
-    lines.append(
-        f"You are carrying the following items:  (Total Weight: {total_weight} LB's)"
-    )
-    lines.extend(inv_lines)
+    items_registry = ctx.get("items")
+    inventory_lines = []
+    total_weight = 0
+
+    for entry in inventory:
+        item_dict = entry if isinstance(entry, dict) else None
+        iid = None
+        if isinstance(entry, dict):
+            iid = entry.get("id") or entry.get("name")
+        else:
+            iid = entry
+
+        display_name = None
+        if items_registry is not None and iid is not None:
+            try:
+                display_name = _item_display(items_registry, iid)
+            except Exception:
+                display_name = None
+        if display_name is None and item_dict:
+            display_name = item_dict.get("name") or item_dict.get("display_name")
+        if display_name is None:
+            display_name = str(iid)
+
+        weight = 0
+        if items_registry is not None and iid is not None:
+            try:
+                weight = _item_weight_lb(items_registry, iid)
+            except Exception:
+                weight = 0
+        if weight == 0 and item_dict:
+            candidate = item_dict.get("weight_lb") or item_dict.get("weight")
+            if candidate is not None:
+                weight = _num(candidate, 0)
+        try:
+            total_weight += int(weight)
+        except Exception:
+            pass
+
+        inventory_lines.append(str(display_name))
+
+    lines.append(f"You are carrying the following items:  (Total Weight: {total_weight} LB's)")
+    if inventory_lines:
+        lines.extend(inventory_lines)
+    else:
+        lines.append("Nothing.")
 
     for line in lines:
         bus.push("SYSTEM/OK", line)
