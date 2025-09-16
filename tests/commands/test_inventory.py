@@ -21,7 +21,7 @@ def test_inventory_empty_shows_header_and_nothing(monkeypatch):
     bus = FakeBus()
     ctx = {"feedback_bus": bus}
 
-    monkeypatch.setattr(inv, "_load_player", lambda: {"inventory": []})
+    monkeypatch.setattr(inv, "get_player_inventory_instances", lambda _ctx: [])
     monkeypatch.setattr(inv.items_catalog, "load_catalog", lambda: FakeCatalog({}))
 
     inv.inv_cmd("", ctx)
@@ -36,7 +36,7 @@ def test_inventory_header_includes_single_item_weight(monkeypatch):
     bus = FakeBus()
     ctx = {"feedback_bus": bus}
 
-    monkeypatch.setattr(inv, "_load_player", lambda: {"inventory": ["iid-1"]})
+    monkeypatch.setattr(inv, "get_player_inventory_instances", lambda _ctx: ["iid-1"])
 
     catalog_items = {
         "test_sword": {"item_id": "test_sword", "weight": 2.6, "name": "Sword"}
@@ -63,8 +63,8 @@ def test_inventory_header_sums_multiple_items_with_quantities(monkeypatch):
 
     monkeypatch.setattr(
         inv,
-        "_load_player",
-        lambda: {"inventory": ["iid-1", "iid-2"]},
+        "get_player_inventory_instances",
+        lambda _ctx: ["iid-1", "iid-2"],
     )
 
     catalog_items = {

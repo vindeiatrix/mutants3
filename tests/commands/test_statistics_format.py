@@ -42,10 +42,11 @@ class SM:
         return P(self.p)
 
 
-def test_statistics_renders_core_lines():
+def test_statistics_renders_core_lines(monkeypatch):
     bus = Bus()
     sm = SM()
     ctx = {"feedback_bus": bus, "state_manager": sm, "items": FakeItems()}
+    monkeypatch.setattr(stat, "get_player_inventory_instances", lambda _ctx: [])
     stat.statistics_cmd("", ctx)
     out = [text for _, text in bus.events]
     assert any(line.startswith("Name:") for line in out)
