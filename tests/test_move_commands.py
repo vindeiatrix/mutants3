@@ -34,12 +34,10 @@ def test_look_renders_room(capsys):
 
 def test_move_north_updates_position_and_feedback():
     ctx = make_ctx()
-    state_mgr = ctx["state_manager"]
-    state_mgr.set_position(2000, 0, 0)
     p = active(ctx["player_state"])
+    p["pos"] = [2000, 0, 0]
     move("N", ctx)
     assert p["pos"] == [2000, 0, 1]
-    assert state_mgr.get_active().data["pos"] == [2000, 0, 1]
     events = ctx["feedback_bus"].drain()
     # No movement echo; success should not emit MOVE/OK.
     assert not any(ev["kind"] == "MOVE/OK" for ev in events)
@@ -47,20 +45,18 @@ def test_move_north_updates_position_and_feedback():
 
 def test_boundary_blocks_movement():
     ctx = make_ctx()
-    state_mgr = ctx["state_manager"]
-    state_mgr.set_position(2000, 14, 0)
     p = active(ctx["player_state"])
+    p["pos"] = [2000, 14, 0]
     move("E", ctx)
     assert p["pos"] == [2000, 14, 0]
-    assert state_mgr.get_active().data["pos"] == [2000, 14, 0]
     events = ctx["feedback_bus"].drain()
     assert any(ev["kind"] == "MOVE/BLOCKED" and ev["text"] == "You're blocked!" for ev in events)
 
 
 def test_peek_direction_renders_adjacent_room(capsys):
     ctx = make_ctx()
-    ctx["state_manager"].set_position(2000, 0, 0)
     p = active(ctx["player_state"])
+    p["pos"] = [2000, 0, 0]
     look_cmd("north", ctx)
     assert ctx["render_next"]
     render_frame(ctx)
@@ -71,8 +67,8 @@ def test_peek_direction_renders_adjacent_room(capsys):
 
 def test_peek_direction_prefix_renders_adjacent_room(capsys):
     ctx = make_ctx()
-    ctx["state_manager"].set_position(2000, 0, 0)
     p = active(ctx["player_state"])
+    p["pos"] = [2000, 0, 0]
     look_cmd("we", ctx)
     assert ctx["render_next"]
     render_frame(ctx)
@@ -83,8 +79,8 @@ def test_peek_direction_prefix_renders_adjacent_room(capsys):
 
 def test_peek_blocked_does_not_render():
     ctx = make_ctx()
-    ctx["state_manager"].set_position(2000, 14, 0)
     p = active(ctx["player_state"])
+    p["pos"] = [2000, 14, 0]
     look_cmd("east", ctx)
     assert not ctx["render_next"]
     events = ctx["feedback_bus"].drain()

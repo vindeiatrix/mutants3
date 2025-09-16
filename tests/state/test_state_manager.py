@@ -61,21 +61,3 @@ def test_switch_active_updates_legacy_view(tmp_path, monkeypatch):
     assert legacy["active_id"] == "player_thief"
     mgr.switch_active("player_wizard")
     assert legacy["active_id"] == "player_wizard"
-
-
-def test_position_persists(tmp_path, monkeypatch):
-    tpl_path = _copy_template(tmp_path)
-    save_path = tmp_path / "save.json"
-
-    def fake_atomic(path, payload):
-        save_path.write_text(json.dumps(payload), encoding="utf-8")
-
-    monkeypatch.setattr("mutants.state.manager.atomic_write_json", fake_atomic)
-
-    mgr = StateManager(template_path=tpl_path, save_path=save_path)
-
-    mgr.set_position(2001, 3, -1)
-    mgr.save_on_exit()
-
-    data = json.loads(save_path.read_text(encoding="utf-8"))
-    assert data["players"][mgr.active_id]["pos"] == [2001, 3, -1]

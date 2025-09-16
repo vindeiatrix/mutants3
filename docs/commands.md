@@ -16,9 +16,6 @@ Type `quit` (or the prefix `qui`/`q`) to save and exit from anywhere.
 Typing a direction moves you to an adjacent tile. Any prefix of the full word
 is accepted, case-insensitively: `w`/`we`/`wes`/`west`,
 `n`/`no`/`nor`/`nort`/`north`, and similarly for `east` and `south`.
-Movement updates your compass location `[year, x, y]` through the
-`StateManager`, and the coordinates persist to `state/savegame.json` on
-autosave or clean exit.
 
 ## Look
 
