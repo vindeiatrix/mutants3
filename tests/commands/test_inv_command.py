@@ -32,7 +32,10 @@ def test_inv_empty_inventory_uses_legacy_message(monkeypatch):
 
     inv_cmd.inv_cmd("", ctx)
 
-    assert bus.events == [("SYSTEM/OK", "You are carrying nothing.")]
+    assert bus.events == [
+        ("SYSTEM/OK", "You are carrying the following items:  (Total Weight: 0 LB's)"),
+        ("SYSTEM/OK", "Nothing."),
+    ]
 
 
 def test_inv_reports_total_weight_when_known(monkeypatch):
@@ -58,6 +61,9 @@ def test_inv_reports_total_weight_when_known(monkeypatch):
 
     inv_cmd.inv_cmd("", ctx)
 
-    assert bus.events[0] == ("SYSTEM/OK", "You are carrying: (Total weight: 2 lbs)")
+    assert bus.events[0] == (
+        "SYSTEM/OK",
+        "You are carrying the following items:  (Total Weight: 2 LB's)",
+    )
     # Display line uses NBSP for the article binding. Ensure item is listed.
     assert any("Sword" in msg for _, msg in bus.events[1:])
