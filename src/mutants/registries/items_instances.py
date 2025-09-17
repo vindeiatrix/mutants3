@@ -307,7 +307,8 @@ def remove_instances(instance_ids: List[str]) -> int:
     return before - len(raw)
 
 def list_instances_at(year: int, x: int, y: int) -> List[Dict[str, Any]]:
-    raw = _cache()
+    # Use the authoritative, on-disk snapshot to avoid stale cache divergence.
+    raw = _load_instances_raw()
     out: List[Dict[str, Any]] = []
     tgt = (int(year), int(x), int(y))
     for inst in raw:
@@ -317,7 +318,8 @@ def list_instances_at(year: int, x: int, y: int) -> List[Dict[str, Any]]:
     return out
 
 def get_instance(iid: str) -> Optional[Dict[str, Any]]:
-    raw = _cache()
+    # Get the freshest view for correctness during picks/prints.
+    raw = _load_instances_raw()
     for inst in raw:
         inst_id = inst.get("iid") or inst.get("instance_id")
         if inst_id and str(inst_id) == str(iid):
@@ -326,6 +328,7 @@ def get_instance(iid: str) -> Optional[Dict[str, Any]]:
 
 def clear_position(iid: str) -> None:
     raw = _cache()
+    changed = False
     for inst in raw:
         inst_id = inst.get("iid") or inst.get("instance_id")
         if inst_id and str(inst_id) == str(iid):
@@ -333,10 +336,14 @@ def clear_position(iid: str) -> None:
             inst.pop("year", None)
             inst.pop("x", None)
             inst.pop("y", None)
+            changed = True
             break
+    if changed:
+        _save_instances_raw(raw)
 
 def set_position(iid: str, year: int, x: int, y: int) -> None:
     raw = _cache()
+    changed = False
     for inst in raw:
         inst_id = inst.get("iid") or inst.get("instance_id")
         if inst_id and str(inst_id) == str(iid):
@@ -344,7 +351,10 @@ def set_position(iid: str, year: int, x: int, y: int) -> None:
             inst["year"] = int(year)
             inst["x"] = int(x)
             inst["y"] = int(y)
+            changed = True
             break
+    if changed:
+        _save_instances_raw(raw)
 
 
 def create_and_save_instance(item_id: str, year: int, x: int, y: int, origin: str = "debug_add") -> str:
