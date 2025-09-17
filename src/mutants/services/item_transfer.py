@@ -1,13 +1,18 @@
 from __future__ import annotations
-import json, os, random, time, logging
+import logging
+import os
+import random
+import time
 from typing import Dict, List, Optional, Tuple
-from ..io import atomic
 from ..ui import item_display as idisp
 from ..registries import items_instances as itemsreg
 from ..util.textnorm import normalize_item_query
 from mutants.engine import edge_resolver as ER
 from mutants.registries import dynamics as dyn
 from mutants.util.directions import vec as dir_vec
+from mutants.services import player_state as pstate
+
+_STATE_CACHE: Optional[Dict] = None
 
 LOG = logging.getLogger(__name__)
 WORLD_DEBUG = os.getenv("WORLD_DEBUG") == "1"
@@ -16,28 +21,47 @@ GROUND_CAP = 6
 INV_CAP = 10  # worn armor excluded elsewhere
 
 
-def _player_file() -> str:
-    return os.path.join(os.getcwd(), "state", "playerlivestate.json")
-
-
 def _load_player() -> Dict:
-    try:
-        p = json.load(open(_player_file(), "r", encoding="utf-8"))
-    except FileNotFoundError:
+    global _STATE_CACHE
+    state, player = pstate.get_active_pair()
+    _STATE_CACHE = state
+    if not player:
         return {}
-    # Accept legacy British spelling but normalize to "armor" internally
-    if "armour" in p and "armor" not in p:
-        p["armor"] = p.pop("armour")
-    return p
+    inv = player.get("inventory")
+    if isinstance(inv, list):
+        cleaned = [i for i in inv if i]
+    else:
+        cleaned = []
+    if not cleaned:
+        legacy = state.get("inventory")
+        if isinstance(legacy, list):
+            cleaned = [i for i in legacy if i]
+    player["inventory"] = cleaned
+    state["inventory"] = list(cleaned)
+    return player
 
 
-def _save_player(p: Dict) -> None:
-    atomic.atomic_write_json(_player_file(), p)
-
-
-def _ensure_inventory(p: Dict) -> None:
-    if "inventory" not in p or not isinstance(p["inventory"], list):
-        p["inventory"] = []
+def _save_player(player: Dict) -> None:
+    global _STATE_CACHE
+    inv = [i for i in player.get("inventory", []) if i]
+    if _STATE_CACHE is not None:
+        state = _STATE_CACHE
+    else:
+        state = pstate.load_state()
+    players = state.get("players")
+    target: Dict = state
+    if isinstance(players, list) and players:
+        aid = state.get("active_id")
+        for cand in players:
+            if cand.get("id") == aid:
+                target = cand
+                break
+        else:
+            target = players[0]
+    target["inventory"] = inv
+    state["inventory"] = inv
+    pstate.save_state(state)
+    _STATE_CACHE = None
 
 
 def _armor_iid(p: Dict) -> Optional[str]:
@@ -75,10 +99,6 @@ def _ground_ordered_ids(year: int, x: int, y: int) -> List[str]:
             if iid:
                 out.append(str(iid))
     return out
-
-
-def _inv_iids(p: Dict) -> List[str]:
-    return list(p.get("inventory") or [])
 
 
 def _pick_first_match_by_prefix(
@@ -121,8 +141,7 @@ def _pos_from_ctx(ctx) -> tuple[int, int, int]:
 
 
 def pick_from_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
-    p = _load_player()
-    _ensure_inventory(p)
+    player = _load_player()
     year, x, y = _pos_from_ctx(ctx)
     insts = itemsreg.list_instances_at(year, x, y)
     q = normalize_item_query(prefix)
@@ -147,9 +166,9 @@ def pick_from_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
     if not chosen_iid:
         return {"ok": False, "reason": "not_found", "where": "ground"}
     itemsreg.clear_position(chosen_iid)
-    inv = _inv_iids(p)
+    inv = [i for i in player.get("inventory", []) if i]
     inv.append(chosen_iid)
-    p["inventory"] = inv
+    player["inventory"] = inv
     overflow_info = None
     rng = _rng(seed)
     if len(inv) > INV_CAP:
@@ -161,17 +180,21 @@ def pick_from_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
             inv.append(swap_iid)
         itemsreg.set_position(drop_iid, year, x, y)
         inv = [i for i in inv if i != drop_iid]
-        p["inventory"] = inv
+        player["inventory"] = inv
         overflow_info = {"inv_overflow_drop": drop_iid}
-    _save_player(p)
+    _save_player(player)
     itemsreg.save_instances()
-    return {"ok": True, "iid": chosen_iid, "overflow": overflow_info, "inv_count": len(p["inventory"])}
+    return {
+        "ok": True,
+        "iid": chosen_iid,
+        "overflow": overflow_info,
+        "inv_count": len(player.get("inventory", [])),
+    }
 
 
 def drop_to_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
-    p = _load_player()
-    _ensure_inventory(p)
-    inv = _inv_iids(p)
+    player = _load_player()
+    inv = [i for i in player.get("inventory", []) if i]
     if not inv:
         return {"ok": False, "reason": "inventory_empty"}
     iid: Optional[str] = None
@@ -197,12 +220,12 @@ def drop_to_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
         iid = inv[0]
     if not iid:
         return {"ok": False, "reason": "not_found", "where": "inventory"}
-    if iid == _armor_iid(p):
+    if iid == _armor_iid(player):
         return {"ok": False, "reason": "armor_cannot_drop"}
     year, x, y = _pos_from_ctx(ctx)
     itemsreg.set_position(iid, year, x, y)
     inv = [i for i in inv if i != iid]
-    p["inventory"] = inv
+    player["inventory"] = inv
     overflow_info = None
     rng = _rng(seed)
     ground_after = _ground_ordered_ids(year, x, y)
@@ -211,24 +234,28 @@ def drop_to_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
         pick = rng.choice(candidates)
         itemsreg.clear_position(pick)
         inv.append(pick)
-        p["inventory"] = inv
+        player["inventory"] = inv
         if len(inv) > INV_CAP:
             drop_iid = rng.choice(inv)
             itemsreg.set_position(drop_iid, year, x, y)
             inv = [i for i in inv if i != drop_iid]
-            p["inventory"] = inv
+            player["inventory"] = inv
             overflow_info = {"ground_overflow_pick": pick, "inv_overflow_drop": drop_iid}
         else:
             overflow_info = {"ground_overflow_pick": pick}
-    _save_player(p)
+    _save_player(player)
     itemsreg.save_instances()
-    return {"ok": True, "iid": iid, "overflow": overflow_info, "inv_count": len(p["inventory"])}
+    return {
+        "ok": True,
+        "iid": iid,
+        "overflow": overflow_info,
+        "inv_count": len(player.get("inventory", [])),
+    }
 
 
 def throw_to_direction(ctx, direction: str, prefix: str, *, seed: Optional[int] = None) -> Dict:
-    p = _load_player()
-    _ensure_inventory(p)
-    inv = _inv_iids(p)
+    player = _load_player()
+    inv = [i for i in player.get("inventory", []) if i]
     if not inv:
         return {"ok": False, "reason": "inventory_empty"}
     iid: Optional[str] = None
@@ -253,7 +280,7 @@ def throw_to_direction(ctx, direction: str, prefix: str, *, seed: Optional[int] 
         iid = inv[0]
     if not iid:
         return {"ok": False, "reason": "not_found", "where": "inventory"}
-    if iid == _armor_iid(p):
+    if iid == _armor_iid(player):
         return {"ok": False, "reason": "armor_cannot_drop"}
     year, x, y = _pos_from_ctx(ctx)
     world = ctx["world_loader"](year)
@@ -284,7 +311,7 @@ def throw_to_direction(ctx, direction: str, prefix: str, *, seed: Optional[int] 
             )
     itemsreg.set_position(iid, year, drop_x, drop_y)
     inv = [i for i in inv if i != iid]
-    p["inventory"] = inv
+    player["inventory"] = inv
     overflow_info = None
     rng = _rng(seed)
     ground_after = _ground_ordered_ids(year, drop_x, drop_y)
@@ -293,21 +320,21 @@ def throw_to_direction(ctx, direction: str, prefix: str, *, seed: Optional[int] 
         pick = rng.choice(candidates)
         itemsreg.clear_position(pick)
         inv.append(pick)
-        p["inventory"] = inv
+        player["inventory"] = inv
         if len(inv) > INV_CAP:
             drop_iid = rng.choice(inv)
             itemsreg.set_position(drop_iid, year, drop_x, drop_y)
             inv = [i for i in inv if i != drop_iid]
-            p["inventory"] = inv
+            player["inventory"] = inv
             overflow_info = {"ground_overflow_pick": pick, "inv_overflow_drop": drop_iid}
         else:
             overflow_info = {"ground_overflow_pick": pick}
-    _save_player(p)
+    _save_player(player)
     itemsreg.save_instances()
     return {
         "ok": True,
         "iid": iid,
         "overflow": overflow_info,
-        "inv_count": len(p["inventory"]),
+        "inv_count": len(player.get("inventory", [])),
         "blocked": blocked,
     }
