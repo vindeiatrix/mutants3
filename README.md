@@ -17,7 +17,7 @@ It intentionally contains **no game logic**. Start adding code under `src/mutant
 - The container installs the package in editable mode.
 - Run: `pip install -e .`
 - Run: `python -m mutants`.
-- Pick a class on the Class Selection screen (1–5), use `stat` to view player details, press `x` to return to the menu, and use `quit` to save and exit. `Bury` will arrive in a future update.
+- Pick a class on the Class Selection screen (1–5), use `stat` to view player details, and press `x` to return to the menu. `Bury` will arrive in a future update.
 
 ## Features
 - Class Selection & Statistics foundation

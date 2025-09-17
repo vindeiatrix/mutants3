@@ -7,10 +7,6 @@ three characters. If two commands share the same three-letter prefix you must
 type one more letter to disambiguate. Single-letter shortcuts remain available
 only when explicitly aliased (e.g. `x` to open the class selection menu).
 
-## Quit
-
-Type `quit` (or the prefix `qui`/`q`) to save and exit from anywhere.
-
 ## Movement
 
 Typing a direction moves you to an adjacent tile. Any prefix of the full word

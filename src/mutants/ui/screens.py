@@ -63,10 +63,6 @@ class ClassSelectionScreen:
         if not raw:
             return ScreenResponse("noop")
 
-        lowered = raw.lower()
-        if lowered in ("q",) or (len(lowered) >= 3 and lowered.startswith("qui")):
-            return ScreenResponse("quit")
-
         token = raw.upper()
         if token == "?":
             return ScreenResponse("message", "Enter 1–5 to choose a class; 'Bury' resets later.")
@@ -119,11 +115,6 @@ class ScreenManager:
                 return ScreenResponse("message", "Unknown class.")
             self.mode = "game"
             ctx["render_next"] = True
-        elif response.action == "quit":
-            ctx["render_next"] = False
-            bus = ctx.get("feedback_bus")
-            if bus is not None:
-                bus.push("SYSTEM/OK", "Goodbye!")
         elif response.action == "message" and response.payload:
             print(response.payload)
             ctx["render_next"] = True
