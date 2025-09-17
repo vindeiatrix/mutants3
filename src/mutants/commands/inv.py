@@ -38,7 +38,6 @@ def inv_cmd(arg: str, ctx):
     cat = items_catalog.load_catalog()
     names = []
     total_weight = 0
-    weight_known = False
 
     for iid in inv:
         inst = itemsreg.get_instance(iid)
@@ -51,21 +50,19 @@ def inv_cmd(arg: str, ctx):
 
         weight = _resolve_weight(inst, tpl or {})
         if weight is not None:
-            weight_known = True
             total_weight += weight
 
     numbered = number_duplicates(names)
     display = [harden_final_display(with_article(n)) for n in numbered]
     bus = ctx["feedback_bus"]
+    # Header must read exactly as specified; note the two spaces before '('
+    bus.push(
+        "SYSTEM/OK",
+        f"You are carrying the following items:  (Total Weight: {total_weight} LB's)",
+    )
     if not display:
-        bus.push("SYSTEM/OK", "You are carrying nothing.")
+        bus.push("SYSTEM/OK", "Nothing.")
         return
-
-    if weight_known:
-        unit = "lb" if total_weight == 1 else "lbs"
-        bus.push("SYSTEM/OK", f"You are carrying: (Total weight: {total_weight} {unit})")
-    else:
-        bus.push("SYSTEM/OK", "You are carrying:")
     for ln in uwrap.wrap_list(display):
         bus.push("SYSTEM/OK", ln)
 
