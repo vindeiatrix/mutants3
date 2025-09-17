@@ -4,6 +4,7 @@ from mutants.repl.dispatch import Dispatch
 from mutants.commands.register_all import register_all
 from mutants.repl.prompt import make_prompt
 from mutants.repl.help import startup_banner
+from mutants.ui.class_menu import handle_input, render_menu
 
 
 def main() -> None:
@@ -13,6 +14,10 @@ def main() -> None:
 
     # Auto-register all commands in mutants.commands
     register_all(dispatch, ctx)
+
+    ctx["mode"] = "class_select"
+    render_menu(ctx)
+    flush_feedback(ctx)
 
     # Optional: print a small banner or first-help hint once
     print(startup_banner(ctx))
@@ -27,8 +32,11 @@ def main() -> None:
             print()  # newline on ^D/^C
             break
 
-        token, _, arg = raw.strip().partition(" ")
-        dispatch.call(token, arg)
+        if ctx.get("mode") == "class_select":
+            handle_input(raw, ctx)
+        else:
+            token, _, arg = raw.strip().partition(" ")
+            dispatch.call(token, arg)
 
         if ctx.get("render_next"):
             render_frame(ctx)

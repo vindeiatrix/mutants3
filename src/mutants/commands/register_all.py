@@ -13,7 +13,7 @@ def register_all(dispatch: Any, ctx: dict) -> None:
     modules = []
     for m in pkgutil.iter_modules(pkg.__path__):  # type: ignore[attr-defined]
         name = m.name
-        if name in {"__init__", "register_all"} or name.startswith("_"):
+        if name in {"__init__", "register_all", "switch"} or name.startswith("_"):
             continue
         modules.append(name)
 
