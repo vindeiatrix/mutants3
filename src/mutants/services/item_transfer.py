@@ -22,6 +22,17 @@ GROUND_CAP = 6
 INV_CAP = 10  # worn armor excluded elsewhere
 
 
+# --- Inventory helpers (used by debug.py and services here) ---
+def _ensure_inventory(p: Dict[str, Any]) -> None:
+    """Normalize the inventory list stored on a player mapping."""
+
+    inv = p.get("inventory")
+    if not isinstance(inv, list):
+        p["inventory"] = []
+        return
+    p["inventory"] = [i for i in inv if i]
+
+
 def _load_state() -> Dict[str, Any]:
     """Load player state from disk with graceful fallbacks."""
 
@@ -54,21 +65,15 @@ def _load_player() -> Dict[str, Any]:
         return {}
     if "armour" in player and "armor" not in player:
         player["armor"] = player.pop("armour")
-    inv = player.get("inventory")
-    if isinstance(inv, list):
-        cleaned = [i for i in inv if i]
-    else:
-        cleaned = []
-    # Do NOT inherit from any top-level legacy 'inventory' when multi-player is present;
-    # doing so would pollute per-player inventories after switching.
-    player["inventory"] = cleaned
+    _ensure_inventory(player)
     return player
 
 
 def _save_player(player: Dict[str, Any]) -> None:
     global _STATE_CACHE
 
-    inv = [i for i in player.get("inventory", []) if i]
+    _ensure_inventory(player)
+    inv = list(player.get("inventory", []))
     state = _STATE_CACHE if isinstance(_STATE_CACHE, dict) else _load_state()
     players = state.get("players")
     if isinstance(players, list) and players:
@@ -193,6 +198,7 @@ def _pos_from_ctx(ctx) -> tuple[int, int, int]:
 
 def pick_from_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
     player = _load_player()
+    _ensure_inventory(player)
     year, x, y = _pos_from_ctx(ctx)
     insts = itemsreg.list_instances_at(year, x, y)
     q = normalize_item_query(prefix)
@@ -217,7 +223,7 @@ def pick_from_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
     if not chosen_iid:
         return {"ok": False, "reason": "not_found", "where": "ground"}
     itemsreg.clear_position(chosen_iid)
-    inv = [i for i in player.get("inventory", []) if i]
+    inv = list(player.get("inventory", []))
     inv.append(chosen_iid)
     player["inventory"] = inv
     overflow_info = None
@@ -245,7 +251,8 @@ def pick_from_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
 
 def drop_to_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
     player = _load_player()
-    inv = [i for i in player.get("inventory", []) if i]
+    _ensure_inventory(player)
+    inv = list(player.get("inventory", []))
     if not inv:
         return {"ok": False, "reason": "inventory_empty"}
     iid: Optional[str] = None
@@ -306,7 +313,8 @@ def drop_to_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
 
 def throw_to_direction(ctx, direction: str, prefix: str, *, seed: Optional[int] = None) -> Dict:
     player = _load_player()
-    inv = [i for i in player.get("inventory", []) if i]
+    _ensure_inventory(player)
+    inv = list(player.get("inventory", []))
     if not inv:
         return {"ok": False, "reason": "inventory_empty"}
     iid: Optional[str] = None
