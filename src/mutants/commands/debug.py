@@ -5,6 +5,7 @@ import shlex
 from ..registries import items_instances as itemsreg
 from ..registries import items_catalog
 from ..services import item_transfer as it
+from ..services import player_state as pstate
 from ..util.textnorm import normalize_item_query
 
 
@@ -63,6 +64,36 @@ def _add_to_inventory(ctx, item_id: str, count: int) -> None:
     itemsreg.save_instances()
 
 
+def _adjust_ions(ctx, delta: int) -> None:
+    """Adjust the active player's ion count by ``delta`` and persist the change."""
+
+    bus = ctx["feedback_bus"]
+    result = {"applied": False, "change": 0, "total": 0}
+
+    def _mutate(state, active):
+        result["applied"] = True
+        current = int(active.get("ions") or 0)
+        new_total = max(0, current + delta)
+        result["change"] = new_total - current
+        result["total"] = new_total
+        active["ions"] = new_total
+
+    pstate.mutate_active(_mutate)
+
+    if not result["applied"]:
+        bus.push("SYSTEM/ERROR", "No player available to modify ions.")
+        return
+
+    change = int(result["change"])
+    total = int(result["total"])
+    if change > 0:
+        bus.push("SYSTEM/OK", f"added {change} ions. (total: {total})")
+    elif change < 0:
+        bus.push("SYSTEM/OK", f"removed {abs(change)} ions. (total: {total})")
+    else:
+        bus.push("SYSTEM/INFO", f"Ion total unchanged. (total: {total})")
+
+
 def debug_add_cmd(arg: str, ctx):
     parts = shlex.split(arg.strip())
     bus = ctx["feedback_bus"]
@@ -92,11 +123,33 @@ def debug_add_cmd(arg: str, ctx):
 
 def debug_cmd(arg: str, ctx):
     parts = shlex.split(arg.strip())
-    if parts and parts[0] == "add":
+    if not parts:
+        ctx["feedback_bus"].push(
+            "SYSTEM/INFO", "Usage: debug add <item_id> [qty] | debug ions <amount>"
+        )
+        return
+
+    if parts[0] == "add":
         debug_add_cmd(" ".join(parts[1:]), ctx)
         return
-    bus = ctx["feedback_bus"]
-    bus.push("SYSTEM/INFO", "Usage: debug add <item_id> [qty]")
+
+    if parts[0] in {"ions", "ion"}:
+        if len(parts) < 2:
+            ctx["feedback_bus"].push("SYSTEM/INFO", "Usage: debug ions <amount>")
+            return
+        try:
+            amount = int(parts[1])
+        except ValueError:
+            ctx["feedback_bus"].push(
+                "SYSTEM/WARN", "Ion amount must be an integer (e.g. 100 or -25)."
+            )
+            return
+        _adjust_ions(ctx, amount)
+        return
+
+    ctx["feedback_bus"].push(
+        "SYSTEM/INFO", "Usage: debug add <item_id> [qty] | debug ions <amount>"
+    )
 
 
 def register(dispatch, ctx) -> None:
