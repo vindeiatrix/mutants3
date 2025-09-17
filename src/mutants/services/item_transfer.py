@@ -1,9 +1,10 @@
 from __future__ import annotations
+
 import logging
 import os
 import random
 import time
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 from ..ui import item_display as idisp
 from ..registries import items_instances as itemsreg
 from ..util.textnorm import normalize_item_query
@@ -12,7 +13,7 @@ from mutants.registries import dynamics as dyn
 from mutants.util.directions import vec as dir_vec
 from mutants.services import player_state as pstate
 
-_STATE_CACHE: Optional[Dict] = None
+_STATE_CACHE: Optional[Dict[str, Any]] = None
 
 LOG = logging.getLogger(__name__)
 WORLD_DEBUG = os.getenv("WORLD_DEBUG") == "1"
@@ -21,12 +22,38 @@ GROUND_CAP = 6
 INV_CAP = 10  # worn armor excluded elsewhere
 
 
-def _load_player() -> Dict:
+def _load_state() -> Dict[str, Any]:
+    """Load player state from disk with graceful fallbacks."""
+
+    state = pstate.load_state()
+    if isinstance(state, dict):
+        return state
+    return {}
+
+
+def _active_from_state(state: Dict[str, Any]) -> Dict[str, Any]:
+    """Return the active player's mapping from a state payload."""
+
+    players = state.get("players")
+    if isinstance(players, list) and players:
+        active_id = state.get("active_id")
+        for player in players:
+            if player.get("id") == active_id:
+                return player
+        return players[0]
+    return state
+
+
+def _load_player() -> Dict[str, Any]:
     global _STATE_CACHE
-    state, player = pstate.get_active_pair()
+
+    state = _load_state()
+    player = _active_from_state(state)
     _STATE_CACHE = state
-    if not player:
+    if not isinstance(player, dict):
         return {}
+    if "armour" in player and "armor" not in player:
+        player["armor"] = player.pop("armour")
     inv = player.get("inventory")
     if isinstance(inv, list):
         cleaned = [i for i in inv if i]
@@ -41,24 +68,51 @@ def _load_player() -> Dict:
     return player
 
 
-def _save_player(player: Dict) -> None:
+def _save_player(player: Dict[str, Any]) -> None:
     global _STATE_CACHE
+
     inv = [i for i in player.get("inventory", []) if i]
-    if _STATE_CACHE is not None:
-        state = _STATE_CACHE
-    else:
-        state = pstate.load_state()
+    state = _STATE_CACHE if isinstance(_STATE_CACHE, dict) else _load_state()
     players = state.get("players")
-    target: Dict = state
     if isinstance(players, list) and players:
-        aid = state.get("active_id")
-        for cand in players:
-            if cand.get("id") == aid:
-                target = cand
-                break
-        else:
-            target = players[0]
-    target["inventory"] = inv
+        active_id = state.get("active_id")
+        updated = False
+        first_player = players[0]
+        new_players: List[Dict[str, Any]] = []
+        for existing in players:
+            is_active = (active_id is not None and existing.get("id") == active_id) or (
+                active_id is None and existing is first_player
+            )
+            if is_active:
+                merged = {**existing, **player}
+                merged["inventory"] = inv
+                new_players.append(merged)
+                updated = True
+            else:
+                new_players.append(existing)
+        if not updated and player.get("id") is not None:
+            new_players = []
+            target_id = player.get("id")
+            for existing in players:
+                if existing.get("id") == target_id:
+                    merged = {**existing, **player}
+                    merged["inventory"] = inv
+                    new_players.append(merged)
+                    updated = True
+                else:
+                    new_players.append(existing)
+        if not updated:
+            merged = {**first_player, **player}
+            merged["inventory"] = inv
+            if new_players:
+                new_players[0] = merged
+            else:
+                new_players.append(merged)
+        state["players"] = new_players
+    else:
+        state.update(player)
+        state.setdefault("players", [])
+    player["inventory"] = inv
     state["inventory"] = inv
     pstate.save_state(state)
     _STATE_CACHE = None
