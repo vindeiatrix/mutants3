@@ -8,6 +8,7 @@ import os
 from mutants.registries.world import DELTA
 from mutants.engine import edge_resolver as ER
 from mutants.registries import dynamics as dyn
+from mutants.services import player_state as pstate
 from mutants.app import trace as traceflags
 import json
 
@@ -82,6 +83,22 @@ def move(dir_code: str, ctx: Dict[str, Any]) -> None:
     dx, dy = DELTA[dir_code]
     p["pos"][1] = x + dx
     p["pos"][2] = y + dy
+    # Persist new position (autosave)
+    try:
+        # Write the updated position into the active player on disk.
+        def _persist(_, active: Dict[str, Any]) -> None:
+            pos = list(active.get("pos") or [])
+            if len(pos) >= 3:
+                pos[0] = year
+                pos[1] = x + dx
+                pos[2] = y + dy
+            else:
+                pos = [year, x + dx, y + dy]
+            active["pos"] = pos
+
+        pstate.mutate_active(_persist)
+    except Exception:
+        LOG.exception("Failed to autosave position after move.")
     # Successful movement requests a render of the new room.
     ctx["render_next"] = True
     # Do not echo success movement like "You head north." Original shows next room immediately.
