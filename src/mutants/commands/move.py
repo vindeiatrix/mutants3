@@ -80,13 +80,8 @@ def move(dir_code: str, ctx: Dict[str, Any]) -> None:
         return
 
     dx, dy = DELTA[dir_code]
-    new_x = x + dx
-    new_y = y + dy
-
-    state_mgr = ctx.get("state_manager")
-    if state_mgr is None:
-        raise RuntimeError("state manager unavailable; cannot update position")
-    state_mgr.set_position(year, new_x, new_y)
+    p["pos"][1] = x + dx
+    p["pos"][2] = y + dy
     # Successful movement requests a render of the new room.
     ctx["render_next"] = True
     # Do not echo success movement like "You head north." Original shows next room immediately.

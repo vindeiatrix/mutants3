@@ -277,20 +277,6 @@ class StateManager:
     def get_active(self) -> PlayerState:
         return self.save_data.players[self.save_data.active_id]
 
-    def set_position(self, year: int, x: int, y: int) -> None:
-        """Update the active player's compass location."""
-
-        player = self.get_active().data
-        player["pos"] = [int(year), int(x), int(y)]
-        self.mark_dirty()
-
-    def set_year(self, year: int) -> None:
-        """Update only the active player's year, preserving x/y coordinates."""
-
-        player = self.get_active().data
-        current = _normalize_pos(player.get("pos"), [2000, 0, 0])
-        self.set_position(int(year), current[1], current[2])
-
     def switch_active(self, class_id: str) -> None:
         if class_id not in self.save_data.players:
             raise KeyError(class_id)
