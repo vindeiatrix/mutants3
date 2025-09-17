@@ -59,12 +59,9 @@ def _load_player() -> Dict[str, Any]:
         cleaned = [i for i in inv if i]
     else:
         cleaned = []
-    if not cleaned:
-        legacy = state.get("inventory")
-        if isinstance(legacy, list):
-            cleaned = [i for i in legacy if i]
+    # Do NOT inherit from any top-level legacy 'inventory' when multi-player is present;
+    # doing so would pollute per-player inventories after switching.
     player["inventory"] = cleaned
-    state["inventory"] = list(cleaned)
     return player
 
 
@@ -113,7 +110,7 @@ def _save_player(player: Dict[str, Any]) -> None:
         state.update(player)
         state.setdefault("players", [])
     player["inventory"] = inv
-    state["inventory"] = inv
+    # Do not maintain any top-level 'inventory' in state; inventories are per-player.
     pstate.save_state(state)
     _STATE_CACHE = None
 
