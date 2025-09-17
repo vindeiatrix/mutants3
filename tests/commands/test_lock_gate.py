@@ -144,8 +144,15 @@ def test_lock_prefixes_and_unlock_requires_matching_key(monkeypatch):
     for tok in ["s", "so", "sou", "sout"]:
         events = run(dispatch, bus, f"loc {tok}")
         assert ("SYSTEM/OK", "You lock the gate south.") in events
+        # Re-locking without unlocking should warn.
+        events = run(dispatch, bus, "lock south")
+        assert ("SYSTEM/WARN", "The gate is already locked.") in events
+        dyn.clear_lock(2000, 0, 0, "S")
+        edge["gate_state"] = 1
 
     # Open should fail even with key
+    events = run(dispatch, bus, "lock south")
+    assert ("SYSTEM/OK", "You lock the gate south.") in events
     events = run(dispatch, bus, "open south")
     assert ("SYSTEM/WARN", "The south gate is locked.") in events
 
