@@ -50,8 +50,14 @@ def _year_installed(year: int) -> bool:
     return year in _installed_years()
 
 
-def _cost_per_years(delta_years: int) -> int:
-    return 3000 * max(0, int(delta_years))
+def _cost_for_trip(cur_year: int, target_year: int) -> int:
+    """
+    Cost is 3,000 ions per *century* moved.
+    Both years are already floored to centuries.
+    """
+
+    delta_centuries = abs(int(target_year) - int(cur_year)) // 100
+    return 3000 * delta_centuries
 
 
 def travel_cmd(arg: str, ctx) -> None:
@@ -85,8 +91,8 @@ def travel_cmd(arg: str, ctx) -> None:
         bus.push("SYSTEM/OK", f"You're already in the {_century_label(cur_year)}")
         return
 
-    # Compute cost for a normal trip
-    cost = _cost_per_years(abs(target_year - cur_year))
+    # Compute cost for a normal trip (3k per century)
+    cost = _cost_for_trip(cur_year, target_year)
 
     # Not enough to even create a portal
     if ions < 3000:
