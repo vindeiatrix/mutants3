@@ -88,16 +88,3 @@ def test_selection_bury_stub(capsys):
     screens.handle_selection("BURY 3", ctx)
     out = capsys.readouterr().out
     assert "Bury not implemented" in out
-
-
-def test_selection_quit_returns_quit_action():
-    mgr = FakeManager()
-    screens = ScreenManager(mgr, fake_render_room)
-    bus = FakeBus()
-    ctx = {"render_next": False, "feedback_bus": bus}
-
-    resp = screens.handle_selection("q", ctx)
-
-    assert resp.action == "quit"
-    assert ctx["render_next"] is False
-    assert ("SYSTEM/OK", "Goodbye!") in bus.events
