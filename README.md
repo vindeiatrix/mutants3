@@ -8,20 +8,12 @@ It intentionally contains **no game logic**. Start adding code under `src/mutant
 - [Commands](docs/commands.md)
 - [Items](docs/items.md)
 - [Utilities](docs/utilities.md)
-- [State layers](docs/STATE.md)
-- [Menus](docs/MENUS.md)
-- [Save system](docs/SAVES.md)
 
 ## Quick start (Codespaces)
 - Open in GitHub Codespaces.
 - The container installs the package in editable mode.
 - Run: `pip install -e .`
-- Run: `python -m mutants`.
-- Pick a class on the Class Selection screen (1–5), use `stat` to view player details, and press `x` to return to the menu. `Bury` will arrive in a future update.
-
-## Features
-- Class Selection & Statistics foundation
-- Room rendering + feedback bus (legacy placeholder)
+- Run: `python -m mutants` (placeholder CLI).
 
 ## Structure
 - `src/mutants/io/` — input/parse I/O (empty).

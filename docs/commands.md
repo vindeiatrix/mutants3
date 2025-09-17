@@ -1,12 +1,5 @@
 # Commands
 
-## Prefix Matching
-
-Commands are case-insensitive and accept unique prefixes once you type at least
-three characters. If two commands share the same three-letter prefix you must
-type one more letter to disambiguate. Single-letter shortcuts remain available
-only when explicitly aliased (e.g. `x` to open the class selection menu).
-
 ## Movement
 
 Typing a direction moves you to an adjacent tile. Any prefix of the full word
@@ -51,19 +44,6 @@ prefix of the full word (e.g. `close so` closes the south gate).
 
 `debug add item <name>` spawns an item into your inventory. Item names are
 parsed via the normalization helper (see [utilities](utilities.md)).
-
-## Statistics
-
-`statistics` (or any prefix such as `sta`, `stat`, `stati`, …) shows the active
-player's level, HP, AC, experience, money, ability scores, active conditions,
-and current location. The command is read-only.
-
-## Class Selection
-
-Press `x` from in-game mode to save and return to the class selection menu.
-From the menu you can pick a new class by entering `1`–`5` or type `?` for a
-quick reminder. `BURY <n>` is accepted but currently replies with “Bury not
-implemented yet.”
 
 ## Equip
 

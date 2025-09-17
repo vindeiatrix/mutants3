@@ -10,8 +10,6 @@ def main() -> None:
     ctx = build_context()
     dispatch = Dispatch()
     dispatch.set_feedback_bus(ctx["feedback_bus"])
-    state_mgr = ctx.get("state_manager")
-    screen_mgr = ctx.get("screen_manager")
 
     # Auto-register all commands in mutants.commands
     register_all(dispatch, ctx)
@@ -29,24 +27,11 @@ def main() -> None:
             print()  # newline on ^D/^C
             break
 
-        stripped = raw.strip()
-        if screen_mgr and screen_mgr.in_selection():
-            screen_mgr.handle_selection(stripped, ctx)
-            if ctx.get("render_next"):
-                render_frame(ctx)
-                ctx["render_next"] = False
-            continue
-
-        token, _, arg = stripped.partition(" ")
-        executed = dispatch.call(token, arg)
-        if state_mgr:
-            state_mgr.on_command_executed(executed)
+        token, _, arg = raw.strip().partition(" ")
+        dispatch.call(token, arg)
 
         if ctx.get("render_next"):
             render_frame(ctx)
             ctx["render_next"] = False
         else:
             flush_feedback(ctx)
-
-    if state_mgr:
-        state_mgr.save_on_exit()
