@@ -6,8 +6,17 @@ from mutants.registries.world import BASE_GATE
 from mutants.registries import dynamics as dyn
 from mutants.registries import items_instances as itemsreg, items_catalog
 from ..services import item_transfer as it  # live inventory access
+from mutants.util.directions import OPP, DELTA
 
 from .argcmd import PosArg, PosArgSpec, run_argcmd_positional
+
+
+def _active(state: Dict[str, Any]) -> Dict[str, Any]:
+    aid = state.get("active_id")
+    for p in state.get("players", []):
+        if p.get("id") == aid:
+            return p
+    return (state.get("players") or [{}])[0]
 
 
 def _has_matching_key(required: Optional[str]) -> tuple[bool, bool]:
@@ -45,14 +54,21 @@ def unlock_cmd(arg: str, ctx: Dict[str, Any]) -> None:
     )
 
     def action(dir: str) -> Dict[str, Any]:
-        p = ctx["player_state"]["players"][0]
+        # Use active player and check both sides of the edge.
+        p = _active(ctx["player_state"])
         year, x, y = p.get("pos", [0, 0, 0])
         D = dir[0].upper()
         world = ctx["world_loader"](year)
         tile = world.get_tile(x, y) or {}
-        edge = (tile.get("edges") or {}).get(D, {})
+        edge = (tile.get("edges") or {}).get(D, {}) or {}
         base = edge.get("base", 0)
         gs = edge.get("gate_state", 0)
+        dx, dy = DELTA.get(D.lower(), (0, 0))
+        opp = OPP.get(D.lower(), D.lower()).upper()
+        nbr = world.get_tile(x + dx, y + dy) or {}
+        nedge = (nbr.get("edges") or {}).get(opp, {}) or {}
+        nbase = nedge.get("base", 0)
+        ngs = nedge.get("gate_state", 0)
 
         lock_meta = dyn.get_lock(year, x, y, D)
         locked = False
@@ -66,7 +82,7 @@ def unlock_cmd(arg: str, ctx: Dict[str, Any]) -> None:
             lt = edge.get("key_type")
             required = str(lt) if lt is not None and str(lt) != "" else None
 
-        if base != BASE_GATE:
+        if not (base == BASE_GATE or nbase == BASE_GATE):
             return {"ok": False, "reason": "not_gate"}
         if not locked:
             return {"ok": False, "reason": "not_locked"}
@@ -80,6 +96,8 @@ def unlock_cmd(arg: str, ctx: Dict[str, Any]) -> None:
         if lock_meta:
             dyn.clear_lock(year, x, y, D)
         else:
+            # Edge was "hard-locked" in world data (gs==2 on one/both sides):
+            # change to closed (1), unlocked.
             world.set_edge(x, y, D, gate_state=1, key_type=None, force_gate_base=True)
             world.save()
 
