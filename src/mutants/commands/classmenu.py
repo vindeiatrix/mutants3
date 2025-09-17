@@ -7,10 +7,12 @@ from mutants.ui.class_menu import render_menu
 
 def open_menu(ctx: dict[str, Any]) -> None:
     ctx["mode"] = "class_select"
+    # Clear any pending room render while showing the menu
+    ctx["render_next"] = False
     render_menu(ctx)
 
 
 def register(dispatch, ctx) -> None:
-    """Register the class menu command bindings."""
-
-    dispatch.register("x", lambda arg: open_menu(ctx))
+    # Real command name (>=3 chars) + single-letter alias 'x'
+    dispatch.register("menu", lambda arg: open_menu(ctx))
+    dispatch.alias("x", "menu")

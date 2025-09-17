@@ -16,13 +16,11 @@ def _coerce_pos(player) -> Tuple[int, int, int]:
         x = int(pos[1])
         y = int(pos[2])
         return (yr, x, y)
-    except Exception:  # pragma: no cover - fallback for unexpected shapes
+    except Exception:
         return (2000, 0, 0)
 
 
 def render_menu(ctx: dict) -> None:
-    """Push the class selection menu into the feedback bus."""
-
     state = pstate.load_state()
     players = state.get("players", [])
     bus = ctx["feedback_bus"]
@@ -47,8 +45,6 @@ def _select_index(value: str, max_n: int) -> int | None:
 
 
 def handle_input(raw: str, ctx: dict) -> None:
-    """Handle input while in the class selection menu."""
-
     s = (raw or "").strip()
     state = pstate.load_state()
     players = state.get("players", [])
