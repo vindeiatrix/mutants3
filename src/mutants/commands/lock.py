@@ -6,8 +6,17 @@ from mutants.registries.world import BASE_GATE
 from mutants.registries import dynamics as dyn
 from mutants.registries import items_instances as itemsreg, items_catalog
 from ..services import item_transfer as it  # source of truth for player inventory
+from mutants.util.directions import OPP, DELTA
 
 from .argcmd import PosArg, PosArgSpec, run_argcmd_positional
+
+
+def _active(state: Dict[str, Any]) -> Dict[str, Any]:
+    aid = state.get("active_id")
+    for p in state.get("players", []):
+        if p.get("id") == aid:
+            return p
+    return (state.get("players") or [{}])[0]
 
 
 def _has_any_key(ctx: Dict[str, Any]) -> tuple[bool, Optional[str]]:
@@ -40,17 +49,28 @@ def lock_cmd(arg: str, ctx: Dict[str, Any]) -> None:
     )
 
     def action(dir: str) -> Dict[str, Any]:
-        p = ctx["player_state"]["players"][0]
+        # Use active player and check both sides of the edge.
+        p = _active(ctx["player_state"])
         year, x, y = p.get("pos", [0, 0, 0])
         D = dir[0].upper()
         world = ctx["world_loader"](year)
         tile = world.get_tile(x, y) or {}
-        edge = (tile.get("edges") or {}).get(D, {})
+        edge = (tile.get("edges") or {}).get(D, {}) or {}
         base = edge.get("base", 0)
         gs = edge.get("gate_state", 0)
-        if base != BASE_GATE:
+
+        # Also consider the opposite edge from the neighbouring tile so we
+        # correctly report gates that only have their geometry on that side.
+        dx, dy = DELTA.get(D.lower(), (0, 0))
+        opp = OPP.get(D.lower(), D.lower()).upper()
+        nbr = world.get_tile(x + dx, y + dy) or {}
+        nedge = (nbr.get("edges") or {}).get(opp, {}) or {}
+        nbase = nedge.get("base", 0)
+        ngs = nedge.get("gate_state", 0)
+
+        if not (base == BASE_GATE or nbase == BASE_GATE):
             return {"ok": False, "reason": "not_gate"}
-        if gs == 0:
+        if gs == 0 and ngs == 0:
             return {"ok": False, "reason": "already_open"}
         has_key, key_type = _has_any_key(ctx)
         if not has_key:
