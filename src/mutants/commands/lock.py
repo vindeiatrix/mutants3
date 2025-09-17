@@ -44,6 +44,7 @@ def lock_cmd(arg: str, ctx: Dict[str, Any]) -> None:
         reason_messages={
             "not_gate": "You can only lock a closed gate.",
             "already_open": "You can only lock a closed gate.",
+            "already_locked": "The gate is already locked.",
             "no_key": "You need a key to lock a gate.",
         },
     )
@@ -72,6 +73,9 @@ def lock_cmd(arg: str, ctx: Dict[str, Any]) -> None:
             return {"ok": False, "reason": "not_gate"}
         if gs == 0 and ngs == 0:
             return {"ok": False, "reason": "already_open"}
+        lock_meta = dyn.get_lock(year, x, y, D)
+        if lock_meta or gs == 2 or ngs == 2:
+            return {"ok": False, "reason": "already_locked"}
         has_key, key_type = _has_any_key(ctx)
         if not has_key:
             return {"ok": False, "reason": "no_key"}
