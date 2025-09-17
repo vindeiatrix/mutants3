@@ -33,6 +33,8 @@ def render_menu(ctx: dict) -> None:
             "SYSTEM/OK",
             ROW_FMT.format(idx=i, cls=cls, lvl=lvl, yr=yr, x=x, y=y),
         )
+    # Blank line between the list and the hint line.
+    bus.push("SYSTEM/OK", "")
     bus.push(
         "SYSTEM/OK",
         "Type BURY [class number] to reset a player. Type X to exit.",
