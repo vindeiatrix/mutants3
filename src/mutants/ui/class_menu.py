@@ -33,7 +33,10 @@ def render_menu(ctx: dict) -> None:
             "SYSTEM/OK",
             ROW_FMT.format(idx=i, cls=cls, lvl=lvl, yr=yr, x=x, y=y),
         )
-    bus.push("SYSTEM/OK", "Type BURY [class number] to reset a player.")
+    bus.push(
+        "SYSTEM/OK",
+        "Type BURY [class number] to reset a player. Type X to exit.",
+    )
     bus.push("SYSTEM/OK", "***")
 
 
@@ -56,9 +59,11 @@ def handle_input(raw: str, ctx: dict) -> None:
     if lowered == "?":
         bus.push(
             "SYSTEM/INFO",
-            "Select a class by number. Type BURY [class number] to reset a player.",
+            "Select a class by number. Type BURY [class number] to reset a player. Type X to exit.",
         )
         return
+    if lowered == "x":
+        raise SystemExit(0)
     if lowered.startswith("bury"):
         parts = lowered.split()
         if len(parts) != 2 or not parts[1].isdigit():
