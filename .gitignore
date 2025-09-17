@@ -8,5 +8,3 @@ state/**
 !state/ui/themes/
 !state/ui/themes/bbs.json
 !state/ui/themes/mono.json
-state/savegame.json
-state/savegame.bak.*

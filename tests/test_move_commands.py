@@ -16,12 +16,7 @@ def active(state):
 
 
 def make_ctx():
-    ctx = context.build_context()
-    screen = ctx.get("screen_manager")
-    if screen:
-        screen.enter_game(ctx)
-        ctx["render_next"] = False
-    return ctx
+    return context.build_context()
 
 
 def test_look_renders_room(capsys):

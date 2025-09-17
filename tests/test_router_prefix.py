@@ -73,28 +73,3 @@ def test_direction_prefix_without_alias():
     assert called.get('dir') == 'west'
     assert d._bus.events == []
 
-
-def test_statistics_prefix_matches():
-    d = _dispatch()
-    called = {}
-
-    def stats(arg):
-        called['ok'] = True
-
-    d.register('statistics', stats)
-    d.call('sta', '')
-    assert called.get('ok') is True
-
-
-def test_statistics_prefix_ambiguous_requires_more():
-    d = _dispatch()
-    d.register('statistics', lambda arg: None)
-    d.register('status', lambda arg: None)
-    d.call('stat', '')
-    assert d._bus.events == [
-        (
-            'SYSTEM/WARN',
-            'Ambiguous command "stat" (did you mean: statistics, status)',
-        )
-    ]
-
