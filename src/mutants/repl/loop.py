@@ -15,15 +15,14 @@ def main() -> None:
     # Auto-register all commands in mutants.commands
     register_all(dispatch, ctx)
 
+    # Show startup banner *before* entering menu
+    ctx["feedback_bus"].push("SYSTEM/INFO", startup_banner(ctx))
+
+    # Enter class selection menu at startup; suppress any pending room render.
     ctx["mode"] = "class_select"
+    ctx["render_next"] = False
     render_menu(ctx)
     flush_feedback(ctx)
-
-    # Optional: print a small banner or first-help hint once
-    print(startup_banner(ctx))
-
-    # Initial paint
-    render_frame(ctx)
 
     while True:
         try:
