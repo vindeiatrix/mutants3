@@ -285,6 +285,27 @@ def save_instances() -> None:
     data = _cache()
     _save_instances_raw(data)
 
+
+def remove_instances(instance_ids: List[str]) -> int:
+    """Remove all instances whose ids are in ``instance_ids``."""
+
+    targets = {str(i) for i in instance_ids if i}
+    if not targets:
+        return 0
+
+    raw = _cache()
+    before = len(raw)
+
+    def _iid(inst: Dict[str, Any]) -> Optional[str]:
+        value = inst.get("iid") or inst.get("instance_id")
+        return str(value) if value else None
+
+    raw[:] = [inst for inst in raw if _iid(inst) not in targets]
+    _save_instances_raw(raw)
+    global _CACHE
+    _CACHE = None
+    return before - len(raw)
+
 def list_instances_at(year: int, x: int, y: int) -> List[Dict[str, Any]]:
     raw = _cache()
     out: List[Dict[str, Any]] = []

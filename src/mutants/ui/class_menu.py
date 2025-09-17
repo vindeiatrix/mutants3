@@ -4,6 +4,7 @@ from typing import Tuple
 
 from mutants.services import player_active as act
 from mutants.services import player_state as pstate
+from mutants.services import player_reset
 
 
 ROW_FMT = "{idx:>2}. Mutant {cls:<7}  Level: {lvl:<2}  Year: {yr:<4}  ({x:>2} {y:>2})"
@@ -55,11 +56,22 @@ def handle_input(raw: str, ctx: dict) -> None:
     if lowered == "?":
         bus.push(
             "SYSTEM/INFO",
-            "Select a class by number. Type BURY [class number] to reset a player (not implemented).",
+            "Select a class by number. Type BURY [class number] to reset a player.",
         )
         return
     if lowered.startswith("bury"):
-        bus.push("SYSTEM/INFO", "Bury is not implemented yet.")
+        parts = lowered.split()
+        if len(parts) != 2 or not parts[1].isdigit():
+            bus.push("SYSTEM/ERROR", "Usage: BURY [class number]")
+            return
+        idx_n = int(parts[1])
+        if not (1 <= idx_n <= len(players)):
+            bus.push("SYSTEM/ERROR", f"Choose a number 1–{len(players)}")
+            return
+        player_reset.bury_by_index(idx_n - 1)
+        ctx["player_state"] = pstate.load_state()
+        bus.push("SYSTEM/OK", "Player reset.")
+        render_menu(ctx)
         return
     idx = _select_index(lowered, len(players))
     if idx is None:
