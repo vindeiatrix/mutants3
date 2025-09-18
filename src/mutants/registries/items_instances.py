@@ -120,7 +120,7 @@ def load_instances(path: str = DEFAULT_INSTANCES_PATH) -> ItemsInstances:
 # lightweight read helpers --------------------------------------------------
 
 def _load_instances_raw() -> List[Dict[str, Any]]:
-    path = Path(DEFAULT_INSTANCES_PATH)
+    path = _instances_path()
     try:
         with path.open("r", encoding="utf-8") as f:
             data = json.load(f)
@@ -145,6 +145,7 @@ def _save_instances_raw(instances: List[Dict[str, Any]]) -> None:
         orig = []
     payload = {"instances": instances} if isinstance(orig, dict) and "instances" in orig else instances
     atomic_write_json(path, payload)
+    invalidate_cache()
 
 
 def _index_of(instances: List[Dict[str, Any]], iid: str) -> int:
@@ -175,8 +176,6 @@ def spend_charge(iid: str) -> bool:
         return False
     inst["charges"] = int(inst.get("charges", 0)) - 1
     _save_instances_raw(raw)
-    global _CACHE
-    _CACHE = None
     return True
 
 
@@ -193,8 +192,6 @@ def recharge_full(iid: str) -> int:
     after = min(cap, before + (cap - before))
     inst["charges"] = after
     _save_instances_raw(raw)
-    global _CACHE
-    _CACHE = None
     return after - before
 
 def _pos_of(inst: Dict[str, Any]) -> Optional[Tuple[int, int, int]]:
@@ -235,50 +232,65 @@ def list_at(year: int, x: int, y: int) -> List[str]:
     Legacy helper: return display names for items at (year, x, y).
     Prefer ``list_ids_at`` for new code and apply display rules in the UI.
     """
-    raw = _load_instances_raw()
     cat = _catalog()
     out: List[str] = []
-    tgt = (int(year), int(x), int(y))
-    for inst in raw:
-        pos = _pos_of(inst)
-        if pos and pos == tgt:
-            item_id = (
-                inst.get("item_id")
-                or inst.get("catalog_id")
-                or inst.get("id")
-            )
-            if item_id:
-                out.append(_display_name(str(item_id), cat))
+    for inst in list_instances_at(year, x, y):
+        item_id = (
+            inst.get("item_id")
+            or inst.get("catalog_id")
+            or inst.get("id")
+        )
+        if item_id:
+            out.append(_display_name(str(item_id), cat))
     return out
 
 
 def list_ids_at(year: int, x: int, y: int) -> List[str]:
     """Return raw item_ids for instances at (year, x, y)."""
-    raw = _load_instances_raw()
     out: List[str] = []
-    tgt = (int(year), int(x), int(y))
-    for inst in raw:
-        pos = _pos_of(inst)
-        if pos and pos == tgt:
-            item_id = (
-                inst.get("item_id")
-                or inst.get("catalog_id")
-                or inst.get("id")
-            )
-            if item_id:
-                out.append(str(item_id))
+    for inst in list_instances_at(year, x, y):
+        item_id = (
+            inst.get("item_id")
+            or inst.get("catalog_id")
+            or inst.get("id")
+        )
+        if item_id:
+            out.append(str(item_id))
     return out
 
 # ---------------------------------------------------------------------------
-# Extra helpers for ground/inventory transfers
+# Extra helpers for ground/inventory transfers and caching
 
-_CACHE: Optional[List[Dict[str, Any]]] = None
+_CACHE: Optional[Tuple[float, List[Dict[str, Any]]]] = None
+
+
+def _instances_path() -> Path:
+    primary = Path(DEFAULT_INSTANCES_PATH)
+    if primary.exists():
+        return primary
+    fallback = Path(FALLBACK_INSTANCES_PATH)
+    return fallback if fallback.exists() else primary
+
+
+def _stat_mtime(path: Path) -> float:
+    try:
+        return path.stat().st_mtime
+    except FileNotFoundError:
+        return 0.0
+
+
+def invalidate_cache() -> None:
+    """Clear the cached snapshot forcing the next read to hit disk."""
+    global _CACHE
+    _CACHE = None
 
 def _cache() -> List[Dict[str, Any]]:
     global _CACHE
-    if _CACHE is None:
-        _CACHE = _load_instances_raw()
-    return _CACHE
+    path = _instances_path()
+    mtime = _stat_mtime(path)
+    if _CACHE is None or _CACHE[0] < mtime:
+        _CACHE = (mtime, _load_instances_raw())
+    return _CACHE[1]
 
 def save_instances() -> None:
     """Persist the cached instances list back to disk."""
@@ -302,8 +314,6 @@ def remove_instances(instance_ids: List[str]) -> int:
 
     raw[:] = [inst for inst in raw if _iid(inst) not in targets]
     _save_instances_raw(raw)
-    global _CACHE
-    _CACHE = None
     return before - len(raw)
 
 def list_instances_at(year: int, x: int, y: int) -> List[Dict[str, Any]]:
