@@ -1,8 +1,10 @@
 from __future__ import annotations
+
 import json
+import logging
 import uuid
 from pathlib import Path
-from typing import Dict, List, Optional, Iterable, Any
+from typing import Any, Dict, Iterable, List, Optional
 
 from mutants.io.atomic import atomic_write_json
 from . import items_catalog
@@ -10,6 +12,8 @@ from . import items_catalog
 DEFAULT_INSTANCES_PATH = "state/items/instances.json"
 FALLBACK_INSTANCES_PATH = "state/instances.json"  # auto-fallback if the new path isn't used yet
 CATALOG_PATH = "state/items/catalog.json"
+
+LOG = logging.getLogger("mutants.itemsdbg")
 
 class ItemsInstances:
     """
@@ -132,6 +136,28 @@ def _load_instances_raw() -> List[Dict[str, Any]]:
         items = data
     else:
         items = []
+
+    if not isinstance(items, list):
+        return []
+
+    seen: Dict[str, int] = {}
+    duplicates: List[str] = []
+    for inst in items:
+        iid = str(inst.get("iid") or inst.get("instance_id") or "")
+        if not iid:
+            continue
+        if iid in seen:
+            duplicates.append(iid)
+        else:
+            seen[iid] = 1
+
+    if duplicates:
+        LOG.error(
+            "[itemsdbg] DUPLICATE_IIDS_DETECTED count=%s sample=%s",
+            len(duplicates),
+            duplicates[:5],
+        )
+
     return items
 
 
@@ -354,15 +380,52 @@ def get_instance(iid: str) -> Optional[Dict[str, Any]]:
     return None
 
 def clear_position(iid: str) -> None:
+    """Back-compat: clear by iid (may hit wrong object if duplicate iids exist)."""
+
     raw = _cache()
     for inst in raw:
         inst_id = inst.get("iid") or inst.get("instance_id")
         if inst_id and str(inst_id) == str(iid):
             inst.pop("pos", None)
-            inst.pop("year", None)
-            inst.pop("x", None)
-            inst.pop("y", None)
+            inst["year"] = -1
+            inst["x"] = -1
+            inst["y"] = -1
             break
+    _save_instances_raw(raw)
+
+
+def clear_position_at(iid: str, year: int, x: int, y: int) -> bool:
+    """Preferred: clear only if the iid currently resides at (year, x, y)."""
+
+    raw = _cache()
+    target = (int(year), int(x), int(y))
+    for inst in raw:
+        inst_id = inst.get("iid") or inst.get("instance_id")
+        if not (inst_id and str(inst_id) == str(iid)):
+            continue
+
+        pos = inst.get("pos") or {}
+        current = (
+            int(pos.get("year", inst.get("year", -2))),
+            int(pos.get("x", inst.get("x", 99999))),
+            int(pos.get("y", inst.get("y", 99999))),
+        )
+        if current == target:
+            inst.pop("pos", None)
+            inst["year"] = -1
+            inst["x"] = -1
+            inst["y"] = -1
+            _save_instances_raw(raw)
+            return True
+
+    LOG.error(
+        "[itemsdbg] CLEAR_AT_MISS iid=%s not at (%s,%s,%s); no change",
+        iid,
+        year,
+        x,
+        y,
+    )
+    return False
 
 def set_position(iid: str, year: int, x: int, y: int) -> None:
     raw = _cache()

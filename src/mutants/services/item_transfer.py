@@ -355,7 +355,9 @@ def pick_from_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
             "message": "No such item on the ground here.",
         }
 
-    itemsreg.clear_position(chosen_iid)
+    ok = itemsreg.clear_position_at(chosen_iid, year, x, y)
+    if not ok:
+        return {"ok": False, "reason": "That item is no longer on the ground here."}
     inv = list(player.get("inventory", []))
     inv.append(chosen_iid)
     player["inventory"] = inv
