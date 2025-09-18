@@ -116,6 +116,35 @@ def _iid_to_name(iid: str) -> str:
     return idisp.canonical_name(str(item_id))
 
 
+def _norm_inst_tile(inst: Dict) -> Tuple[Optional[int], Optional[int], Optional[int]]:
+    """
+    Normalize an instance's tile position to ``(year, x, y)`` of ints or ``None``.
+
+    Accepts legacy shapes for the position payload:
+
+    * ``inst["pos"]`` as ``[year, x, y]``
+    * ``inst["pos"]`` as ``{"year": year, "x": x, "y": y}``
+    * flat ``inst["year"]/"x"/"y"`` fields
+    """
+
+    pos = inst.get("pos")
+    if isinstance(pos, (list, tuple)) and len(pos) >= 3:
+        year_val, x_val, y_val = pos[0], pos[1], pos[2]
+    else:
+        data = pos if isinstance(pos, dict) else {}
+        year_val = data.get("year", inst.get("year"))
+        x_val = data.get("x", inst.get("x"))
+        y_val = data.get("y", inst.get("y"))
+
+    def _to_int(value: Any) -> Optional[int]:
+        try:
+            return int(value)
+        except (TypeError, ValueError):
+            return None
+
+    return (_to_int(year_val), _to_int(x_val), _to_int(y_val))
+
+
 def _ground_ordered_ids(year: int, x: int, y: int) -> List[str]:
     ids = itemsreg.list_ids_at(year, x, y)
     groups: Dict[str, List[Dict]] = {}
@@ -203,17 +232,8 @@ def pick_from_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
         return {"ok": False, "reason": "not_found", "where": "ground"}
     # Safety: ensure the chosen instance is actually at our tile (fresh read).
     inst = itemsreg.get_instance(chosen_iid) or {}
-    pos = inst.get("pos") or {
-        "year": inst.get("year"),
-        "x": inst.get("x"),
-        "y": inst.get("y"),
-    }
-    if (
-        not pos
-        or int(pos.get("year", -1)) != int(year)
-        or int(pos.get("x", -1)) != int(x)
-        or int(pos.get("y", -1)) != int(y)
-    ):
+    inst_year, inst_x, inst_y = _norm_inst_tile(inst)
+    if inst_year != int(year) or inst_x != int(x) or inst_y != int(y):
         # Refresh from the authoritative id list and retry once.
         ids = itemsreg.list_ids_at(year, x, y)
         candidates = []
