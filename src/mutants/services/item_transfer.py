@@ -6,6 +6,7 @@ import random
 import time
 from typing import Any, Dict, List, Optional, Tuple
 from ..ui import item_display as idisp
+from ..registries import items_catalog as catreg
 from ..registries import items_instances as itemsreg
 from ..debug import items_probe
 from ..util.textnorm import normalize_item_query
@@ -145,6 +146,78 @@ def _iid_to_name(iid: str) -> str:
     return idisp.canonical_name(str(item_id))
 
 
+def _display_name_for(item_id: str) -> str:
+    cat = catreg.load_catalog() or {}
+    base = cat.get(str(item_id)) if cat else None
+    if isinstance(base, dict):
+        return str(base.get("display") or base.get("name") or item_id)
+    return idisp.canonical_name(str(item_id))
+
+
+def _choose_instance_from_prefix(
+    insts: List[Dict[str, Any]], prefix: str
+) -> Tuple[Optional[Dict[str, Any]], Optional[Dict[str, Any]]]:
+    """Pick an instance from ``insts`` matching ``prefix``.
+
+    Returns ``(instance, None)`` on success. On failure, returns ``(None, info)``
+    where ``info`` includes at least a ``reason`` key and may provide
+    ``message`` and ``candidates`` for UI hints.
+    """
+
+    q = normalize_item_query(prefix)
+    if not insts:
+        return None, {"reason": "not_found", "message": "There are no items here."}
+
+    candidates: List[Tuple[str, str, Dict[str, Any]]] = []
+    for inst in insts:
+        item_id = inst.get("item_id") or inst.get("catalog_id") or inst.get("id")
+        if not item_id:
+            continue
+        name = _display_name_for(str(item_id))
+        candidates.append((str(item_id), name, inst))
+
+    if not candidates:
+        return None, {"reason": "not_found", "message": "There are no items here."}
+
+    if not q:
+        # No prefix supplied – return the first candidate to preserve legacy behaviour.
+        return candidates[0][2], None
+
+    qq = q.lower()
+    filtered: List[Tuple[str, str, Dict[str, Any]]] = []
+    for item_id, name, inst in candidates:
+        norm_name = normalize_item_query(name)
+        if item_id.lower().startswith(qq) or norm_name.startswith(q):
+            filtered.append((item_id, name, inst))
+
+    if not filtered:
+        tips = [name for _, name, _ in candidates[:5]]
+        info: Dict[str, Any] = {
+            "reason": "not_found",
+            "message": f"No item here matches “{prefix}”.",
+        }
+        if tips:
+            info["candidates"] = tips
+        return None, info
+
+    if len(filtered) > 1:
+        exact = [t for t in filtered if t[0].lower() == qq or normalize_item_query(t[1]) == q]
+        if len(exact) == 1:
+            return exact[0][2], None
+        # If all candidates resolve to the same canonical name, treat as non-ambiguous.
+        names_norm = {normalize_item_query(t[1]) for t in filtered}
+        if len(names_norm) == 1:
+            return filtered[0][2], None
+        names = [name for _, name, _ in filtered]
+        return None, {
+            "reason": "ambiguous",
+            "message": f"Ambiguous: {', '.join(names[:5])}.",
+            "candidates": names,
+        }
+
+    return filtered[0][2], None
+
+
 def _ground_ordered_ids(year: int, x: int, y: int) -> List[str]:
     insts = itemsreg.list_instances_at(year, x, y)
     groups: Dict[str, List[Dict]] = {}
@@ -213,32 +286,37 @@ def pick_from_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
         items_probe.probe("command-pre", itemsreg, year, x, y)
     except Exception:
         pass
+
     insts = itemsreg.list_instances_at(year, x, y)
-    q = normalize_item_query(prefix)
-    candidates: List[str] = []
-    if q:
-        for inst in insts:
-            iid = inst.get("iid") or inst.get("instance_id")
-            item_id = inst.get("item_id") or inst.get("catalog_id") or inst.get("id")
-            if not iid or not item_id:
-                continue
-            name = idisp.canonical_name(str(item_id))
-            norm_name = normalize_item_query(name)
-            norm_id = normalize_item_query(str(item_id))
-            if norm_name.startswith(q) or norm_id.startswith(q):
-                candidates.append(str(iid))
-    else:
-        for inst in insts:
-            iid = inst.get("iid") or inst.get("instance_id")
-            if iid:
-                candidates.append(str(iid))
-    chosen_iid: Optional[str] = candidates[0] if candidates else None
+    chosen_inst, failure = _choose_instance_from_prefix(insts, prefix)
+    if failure:
+        decision = {"ok": False, "where": "ground"}
+        decision["reason"] = failure.get("reason", "not_found")
+        if failure.get("message"):
+            decision["message"] = failure["message"]
+        if failure.get("candidates"):
+            decision["candidates"] = list(failure["candidates"])
+        return decision
+
+    assert chosen_inst is not None
+    chosen_iid = chosen_inst.get("iid") or chosen_inst.get("instance_id")
     if not chosen_iid:
         return {"ok": False, "reason": "not_found", "where": "ground"}
+
+    chosen_iid = str(chosen_iid)
+    item_id = (
+        chosen_inst.get("item_id")
+        or chosen_inst.get("catalog_id")
+        or chosen_inst.get("id")
+        or chosen_iid
+    )
+    display_name = _display_name_for(str(item_id)) if item_id else _iid_to_name(chosen_iid)
+
     itemsreg.clear_position(chosen_iid)
     inv = list(player.get("inventory", []))
     inv.append(chosen_iid)
     player["inventory"] = inv
+
     overflow_info = None
     rng = _rng(seed)
     if len(inv) > INV_CAP:
@@ -252,6 +330,7 @@ def pick_from_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
         inv = [i for i in inv if i != drop_iid]
         player["inventory"] = inv
         overflow_info = {"inv_overflow_drop": drop_iid}
+
     _save_player(player)
     itemsreg.save_instances()
     # Command-side probe (after mutation & save)
@@ -259,9 +338,12 @@ def pick_from_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
         items_probe.probe("command-post", itemsreg, year, x, y)
     except Exception:
         pass
+
     return {
         "ok": True,
         "iid": chosen_iid,
+        "item_id": str(item_id) if item_id else None,
+        "display_name": display_name,
         "overflow": overflow_info,
         "inv_count": len(player.get("inventory", [])),
     }

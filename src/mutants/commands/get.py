@@ -27,7 +27,7 @@ def get_cmd(arg: str, ctx):
         q = normalize_item_query(prefix)
         if not q:
             return {"ok": False, "reason": "usage"}
-        dec = itx.pick_from_ground(ctx, q)
+        dec = itx.pick_from_ground(ctx, prefix)
         if dec.get("ok") and dec.get("iid"):
             inst = itemsreg.get_instance(dec["iid"]) or {}
             tpl = cat.get(inst.get("item_id")) or {}
