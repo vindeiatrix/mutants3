@@ -10,6 +10,7 @@ from mutants.bootstrap.runtime import ensure_runtime
 from mutants.data.room_headers import ROOM_HEADERS, STORE_FOR_SALE_IDX
 from mutants.registries.world import load_nearest_year
 from mutants.ui import renderer
+from mutants.debug import items_probe
 from mutants.ui.feedback import FeedbackBus
 from mutants.ui.logsink import LogSink
 from mutants.ui.themes import Theme, load_theme
@@ -143,6 +144,11 @@ def build_room_vm(
     if items and hasattr(items, "list_ids_at"):
         try:
             ground_ids = items.list_ids_at(year, x, y)  # type: ignore[attr-defined]
+            # Emit a renderer-side probe of exactly what we're about to show.
+            try:
+                items_probe.probe("renderer", items, year, x, y)
+            except Exception:
+                pass
         except Exception:
             ground_ids = []
 
@@ -179,6 +185,16 @@ def render_frame(ctx: Dict[str, Any]) -> None:
     )
     for line in lines:
         print(line)
+    # Also log the human-facing ground list that was rendered.
+    try:
+        if items_probe.enabled():
+            items_probe.setup_file_logging()
+            gids = vm.get("ground_item_ids") or []
+            logging.getLogger("mutants.itemsdbg").info(
+                "[itemsdbg] renderer_shown ground_ids=%s", gids
+            )
+    except Exception:
+        pass
 
 
 def flush_feedback(ctx: Dict[str, Any]) -> None:

@@ -7,6 +7,7 @@ import time
 from typing import Any, Dict, List, Optional, Tuple
 from ..ui import item_display as idisp
 from ..registries import items_instances as itemsreg
+from ..debug import items_probe
 from ..util.textnorm import normalize_item_query
 from mutants.engine import edge_resolver as ER
 from mutants.registries import dynamics as dyn
@@ -207,6 +208,11 @@ def pick_from_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
     player = _load_player()
     _ensure_inventory(player)
     year, x, y = _pos_from_ctx(ctx)
+    # Command-side probe (before filtering/mutation)
+    try:
+        items_probe.probe("command-pre", itemsreg, year, x, y)
+    except Exception:
+        pass
     insts = itemsreg.list_instances_at(year, x, y)
     q = normalize_item_query(prefix)
     candidates: List[str] = []
@@ -248,6 +254,11 @@ def pick_from_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
         overflow_info = {"inv_overflow_drop": drop_iid}
     _save_player(player)
     itemsreg.save_instances()
+    # Command-side probe (after mutation & save)
+    try:
+        items_probe.probe("command-post", itemsreg, year, x, y)
+    except Exception:
+        pass
     return {
         "ok": True,
         "iid": chosen_iid,
