@@ -19,7 +19,12 @@ _STATE_CACHE: Optional[Dict[str, Any]] = None
 
 LOG = logging.getLogger(__name__)
 ITEMS_LOG = logging.getLogger("mutants.itemsdbg")
+LOG_P = logging.getLogger("mutants.playersdbg")
 WORLD_DEBUG = os.getenv("WORLD_DEBUG") == "1"
+
+
+def _pdbg_enabled() -> bool:
+    return bool(os.environ.get("PLAYERS_DEBUG"))
 
 GROUND_CAP = 6
 INV_CAP = 10  # worn armor excluded elsewhere
@@ -289,6 +294,21 @@ def pick_from_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
         pass
 
     insts = itemsreg.list_instances_at(year, x, y)
+    if _pdbg_enabled():
+        try:
+            before_inv = list(player.get("inventory") or [])
+            LOG_P.info(
+                "[playersdbg] PICKUP-BEFORE class=%s pos=%s inv_iids=%s tile=(%s,%s,%s) tile_items=%s",
+                player.get("active", {}).get("class") or player.get("class"),
+                player.get("active", {}).get("pos"),
+                before_inv,
+                year,
+                x,
+                y,
+                [inst.get("item_id") for inst in insts],
+            )
+        except Exception:  # pragma: no cover - defensive logging only
+            pass
     if items_probe.enabled():
         try:
             items_probe.setup_file_logging()
@@ -377,6 +397,17 @@ def pick_from_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
         overflow_info = {"inv_overflow_drop": drop_iid}
 
     _save_player(player)
+    if _pdbg_enabled():
+        try:
+            after_inv = list(player.get("inventory") or [])
+            LOG_P.info(
+                "[playersdbg] PICKUP-AFTER class=%s added_iid=%s inv_iids=%s",
+                player.get("active", {}).get("class") or player.get("class"),
+                chosen_iid,
+                after_inv,
+            )
+        except Exception:  # pragma: no cover - defensive logging only
+            pass
     itemsreg.save_instances()
     # Command-side probe (after mutation & save)
     try:
