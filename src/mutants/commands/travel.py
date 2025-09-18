@@ -103,11 +103,9 @@ def travel_cmd(arg: str, ctx) -> None:
         # Full travel succeeds
         def _apply(_, active):
             active["ions"] = ions - cost
-            active["pos"] = [int(target_year), 0, 0]
+            active["pos"] = [target_year, 0, 0]
 
         pstate.mutate_active(_apply)
-        # Keep the REPL context in sync with disk so x,y are 0,0 immediately.
-        ctx["player_state"] = pstate.load_state()
         ctx["render_next"] = False  # traveling does not render a tile
         bus.push("SYSTEM/OK", f"ZAAAPPPP!! You've been sent to the year {target_year} A.D.")
         return
@@ -122,10 +120,9 @@ def travel_cmd(arg: str, ctx) -> None:
 
     def _apply_partial(_, active):
         active["ions"] = 0
-        active["pos"] = [int(rnd_year), 0, 0]
+        active["pos"] = [rnd_year, 0, 0]
 
     pstate.mutate_active(_apply_partial)
-    ctx["player_state"] = pstate.load_state()
     ctx["render_next"] = False
     bus.push("SYSTEM/OK", "ZAAAPPPP!!!! You suddenly feel something has gone terribly wrong!")
 
