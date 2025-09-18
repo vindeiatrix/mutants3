@@ -258,6 +258,8 @@ def list_ids_at(year: int, x: int, y: int) -> List[str]:
     out: List[str] = []
     tgt = (int(year), int(x), int(y))
     for inst in raw:
+        if inst.get("held_by"):
+            continue
         pos = _pos_of(inst)
         if pos and pos == tgt:
             inst_id = inst.get("iid") or inst.get("instance_id")
@@ -301,6 +303,79 @@ def remove_instances(instance_ids: List[str]) -> int:
     global _CACHE
     _CACHE = None
     return before - len(raw)
+
+
+def scrub_held_instances(held_map: Dict[str, Optional[str]]) -> int:
+    """
+    Ensure that any instances referenced in ``held_map`` carry no ground
+    coordinates and are tagged with their holder (if provided).
+    Returns the count of instances that had ground coordinates removed.
+    """
+
+    if not held_map:
+        return 0
+
+    raw = _cache()
+    scrubbed = 0
+    changed = False
+
+    for inst in raw:
+        inst_id = inst.get("iid") or inst.get("instance_id")
+        if not inst_id:
+            continue
+        key = str(inst_id)
+        if key not in held_map:
+            continue
+
+        before = any(k in inst for k in ("pos", "year", "x", "y"))
+        if "pos" in inst:
+            inst.pop("pos", None)
+        inst.pop("year", None)
+        inst.pop("x", None)
+        inst.pop("y", None)
+        holder = held_map.get(key)
+        if holder:
+            if inst.get("held_by") != holder:
+                inst["held_by"] = str(holder)
+                changed = True
+        else:
+            if "held_by" in inst:
+                inst.pop("held_by", None)
+                changed = True
+        if before:
+            scrubbed += 1
+            changed = True
+
+    if changed:
+        _save_instances_raw(raw)
+        global _CACHE
+        _CACHE = None
+
+    return scrubbed
+
+
+def set_held_by(iid: str, holder: Optional[str]) -> None:
+    """Tag an instance as being held by ``holder`` (or clear the tag)."""
+
+    raw = _cache()
+    changed = False
+    for inst in raw:
+        inst_id = inst.get("iid") or inst.get("instance_id")
+        if inst_id and str(inst_id) == str(iid):
+            if holder:
+                if inst.get("held_by") != holder:
+                    inst["held_by"] = str(holder)
+                    changed = True
+            else:
+                if "held_by" in inst:
+                    inst.pop("held_by", None)
+                    changed = True
+            break
+
+    if changed:
+        _save_instances_raw(raw)
+        global _CACHE
+        _CACHE = None
 
 def list_instances_at(year: int, x: int, y: int) -> List[Dict[str, Any]]:
     # Use the authoritative, on-disk snapshot to avoid stale cache divergence.
