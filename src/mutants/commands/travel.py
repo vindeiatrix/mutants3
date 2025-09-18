@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Iterable, Optional
 
-from mutants.registries.world import load_nearest_year
+from mutants.registries.world import load_nearest_year, list_years
 from mutants.services import player_state as pstate
 from ..services import item_transfer as itx
 
@@ -37,6 +37,37 @@ def _parse_year(arg: str) -> Optional[int]:
     return sign * int("".join(digits))
 
 
+def _available_years(ctx: Dict[str, Any]) -> list[int]:
+    """Return the available world years, allowing tests to override them."""
+
+    years = ctx.get("world_years")
+    if callable(years):  # pragma: no branch - exercised in tests via dummy callable
+        try:
+            years = years()
+        except Exception:
+            years = None
+
+    sanitized: list[int] = []
+    iterable: Optional[Iterable[Any]]
+    if isinstance(years, Iterable) and not isinstance(years, (str, bytes)):
+        iterable = years
+    else:
+        iterable = None
+
+    if iterable is None:
+        try:
+            iterable = list_years()
+        except Exception:
+            iterable = []
+
+    for raw in iterable:
+        try:
+            sanitized.append(int(raw))
+        except Exception:
+            continue
+    return sorted(set(sanitized))
+
+
 def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
     bus = ctx["feedback_bus"]
 
@@ -46,6 +77,11 @@ def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
         return
 
     target = _floor_to_century(year_raw)
+    years = _available_years(ctx)
+    if years and target > max(years):
+        bus.push("SYSTEM/WARN", "That year doesn't exist yet!")
+        return
+
     loader = ctx.get("world_loader", load_nearest_year)
     try:
         world = loader(target)

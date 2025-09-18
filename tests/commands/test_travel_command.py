@@ -70,6 +70,32 @@ def test_travel_no_worlds(monkeypatch: pytest.MonkeyPatch) -> None:
     assert ctx["render_next"] is False
 
 
+def test_travel_rejects_future_year_without_files() -> None:
+    loader_called = False
+
+    def _loader(year: int) -> None:
+        nonlocal loader_called
+        loader_called = True
+        raise AssertionError("loader should not be called when year is unavailable")
+
+    ctx = {
+        "feedback_bus": DummyBus(),
+        "world_loader": _loader,
+        "world_years": [2000, 2100],
+        "render_next": False,
+        "peek_vm": object(),
+    }
+
+    travel_cmd("2400", ctx)
+
+    assert loader_called is False
+    assert ctx["feedback_bus"].events[-1] == (
+        "SYSTEM/WARN",
+        "That year doesn't exist yet!",
+    )
+    assert ctx["render_next"] is False
+
+
 def test_travel_updates_player_state(monkeypatch: pytest.MonkeyPatch) -> None:
     bus = DummyBus()
     ctx: dict[str, object] = {
