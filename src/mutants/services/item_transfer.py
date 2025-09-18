@@ -142,10 +142,11 @@ def _iid_to_name(iid: str) -> str:
 
 
 def _ground_ordered_ids(year: int, x: int, y: int) -> List[str]:
-    insts = itemsreg.list_instances_at(year, x, y)
+    ids = itemsreg.list_ids_at(year, x, y)
     groups: Dict[str, List[Dict]] = {}
     order: List[str] = []
-    for inst in insts:
+    for iid in ids:
+        inst = itemsreg.get_instance(iid) or {}
         item_id = inst.get("item_id") or inst.get("catalog_id") or inst.get("id")
         name = idisp.canonical_name(str(item_id)) if item_id else "Unknown"
         if name not in groups:
@@ -204,12 +205,12 @@ def pick_from_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
     player = _load_player()
     _ensure_inventory(player)
     year, x, y = _pos_from_ctx(ctx)
-    insts = itemsreg.list_instances_at(year, x, y)
+    ids = itemsreg.list_ids_at(year, x, y)
     q = normalize_item_query(prefix)
     candidates: List[str] = []
     if q:
-        for inst in insts:
-            iid = inst.get("iid") or inst.get("instance_id")
+        for iid in ids:
+            inst = itemsreg.get_instance(iid) or {}
             item_id = inst.get("item_id") or inst.get("catalog_id") or inst.get("id")
             if not iid or not item_id:
                 continue
@@ -219,8 +220,7 @@ def pick_from_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
             if norm_name.startswith(q) or norm_id.startswith(q):
                 candidates.append(str(iid))
     else:
-        for inst in insts:
-            iid = inst.get("iid") or inst.get("instance_id")
+        for iid in ids:
             if iid:
                 candidates.append(str(iid))
     chosen_iid: Optional[str] = candidates[0] if candidates else None
@@ -239,12 +239,12 @@ def pick_from_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
         or int(pos.get("x", -1)) != int(x)
         or int(pos.get("y", -1)) != int(y)
     ):
-        # Refresh the candidate list from the authoritative store and retry once.
-        insts = itemsreg.list_instances_at(year, x, y)
+        # Refresh from the authoritative id list and retry once.
+        ids = itemsreg.list_ids_at(year, x, y)
         candidates = []
         if q:
-            for inst in insts:
-                iid = inst.get("iid") or inst.get("instance_id")
+            for iid in ids:
+                inst = itemsreg.get_instance(iid) or {}
                 item_id = inst.get("item_id") or inst.get("catalog_id") or inst.get("id")
                 if not iid or not item_id:
                     continue
@@ -254,8 +254,7 @@ def pick_from_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
                 if norm_name.startswith(q) or norm_id.startswith(q):
                     candidates.append(str(iid))
         else:
-            for inst in insts:
-                iid = inst.get("iid") or inst.get("instance_id")
+            for iid in ids:
                 if iid:
                     candidates.append(str(iid))
         chosen_iid = candidates[0] if candidates else None
