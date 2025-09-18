@@ -11,6 +11,30 @@ from mutants.io.atomic import atomic_write_json
 LOG_P = logging.getLogger("mutants.playersdbg")
 
 
+_PDBG_CONFIGURED = False
+
+
+def _pdbg_setup_file_logging() -> None:
+    """Send playersdbg logs to a file when debugging is enabled."""
+
+    global _PDBG_CONFIGURED
+    if _PDBG_CONFIGURED or not _pdbg_enabled():
+        return
+    try:
+        log_dir = Path("state") / "logs"
+        log_dir.mkdir(parents=True, exist_ok=True)
+        handler = logging.FileHandler(log_dir / "players_debug.log", encoding="utf-8")
+        handler.setLevel(logging.INFO)
+        handler.setFormatter(logging.Formatter("%(asctime)s %(name)s: %(message)s"))
+        LOG_P.handlers.clear()
+        LOG_P.addHandler(handler)
+        LOG_P.setLevel(logging.INFO)
+        LOG_P.propagate = False
+        _PDBG_CONFIGURED = True
+    except Exception:  # pragma: no cover - defensive logging only
+        pass
+
+
 def _pdbg_enabled() -> bool:
     return bool(os.environ.get("PLAYERS_DEBUG"))
 
@@ -18,6 +42,7 @@ def _pdbg_enabled() -> bool:
 def _playersdbg_log(action: str, state: Dict[str, Any]) -> None:
     if not _pdbg_enabled() or not isinstance(state, dict):
         return
+    _pdbg_setup_file_logging()
     try:
         active = state.get("active")
         if not isinstance(active, dict):
