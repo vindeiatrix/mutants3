@@ -372,12 +372,27 @@ def list_instances_at(year: int, x: int, y: int) -> List[Dict[str, Any]]:
     return out
 
 def get_instance(iid: str) -> Optional[Dict[str, Any]]:
+    """Return the cached instance matching ``iid`` if present."""
+
     raw = _cache()
+    siid = str(iid)
     for inst in raw:
-        inst_id = inst.get("iid") or inst.get("instance_id")
-        if inst_id and str(inst_id) == str(iid):
+        inst_id = str(inst.get("iid") or inst.get("instance_id") or "")
+        if inst_id == siid:
             return inst
     return None
+
+
+def delete_instance(iid: str) -> int:
+    """Remove the instance identified by ``iid`` from the cache and persist."""
+
+    raw = _cache()
+    siid = str(iid)
+    before = len(raw)
+    raw[:] = [inst for inst in raw if str(inst.get("iid") or inst.get("instance_id") or "") != siid]
+    removed = before - len(raw)
+    _save_instances_raw(raw)
+    return removed
 
 def clear_position(iid: str) -> None:
     """Back-compat: clear by iid (may hit wrong object if duplicate iids exist)."""
