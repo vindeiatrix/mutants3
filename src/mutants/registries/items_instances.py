@@ -336,7 +336,6 @@ def clear_position(iid: str) -> None:
             break
     if changed:
         _save_instances_raw(raw)
-        # Keep cache and disk in sync after ground mutations.
         global _CACHE
         _CACHE = None
 
@@ -354,7 +353,6 @@ def set_position(iid: str, year: int, x: int, y: int) -> None:
             break
     if changed:
         _save_instances_raw(raw)
-        # Keep cache and disk in sync after ground mutations.
         global _CACHE
         _CACHE = None
 
@@ -379,7 +377,6 @@ def create_and_save_instance(item_id: str, year: int, x: int, y: int, origin: st
         inst["charges"] = int(tpl.get("charges_max"))
     raw.append(inst)
     _save_instances_raw(raw)
-    # Keep cache and disk in sync after ground mutations.
     global _CACHE
     _CACHE = None
     return iid
