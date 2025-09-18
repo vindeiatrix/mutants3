@@ -58,6 +58,7 @@ def _add_to_inventory(ctx, item_id: str, count: int) -> None:
     for _ in range(count):
         iid = itemsreg.create_and_save_instance(item_id, year, x, y, origin="debug_add")
         itemsreg.clear_position(iid)
+        itemsreg.set_held_by(iid, p.get("id"))
         inv.append(iid)
     p["inventory"] = inv
     it._save_player(p)
