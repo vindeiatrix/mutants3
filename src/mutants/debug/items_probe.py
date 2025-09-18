@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 import os
 import sys
-from typing import Any, List, Tuple
+from typing import Any, Dict, List, Tuple
 
 LOG = logging.getLogger("mutants.itemsdbg")
 
@@ -115,4 +115,68 @@ def probe(tag: str, itemsreg: Any, year: int, x: int, y: int) -> None:
         _mod_identity(itemsreg),
         cache_id,
     )
+
+
+def dump_tile_instances(
+    itemsreg: Any, year: int, x: int, y: int, tag: str = "tile"
+) -> None:
+    """Verbose dump of all instances on a tile (iid, item_id, display)."""
+
+    if not enabled():
+        return
+    try:
+        from ..registries import items_catalog as catreg
+
+        cat: Dict[str, Any] = catreg.load_catalog() or {}
+    except Exception:
+        cat = {}
+    try:
+        seq = itemsreg.list_instances_at(year, x, y)
+    except Exception:
+        seq = []
+    rows: List[str] = []
+    for inst in seq:
+        iid = str(inst.get("iid") or inst.get("instance_id"))
+        item_id = str(
+            inst.get("item_id") or inst.get("catalog_id") or inst.get("id")
+        )
+        disp = item_id
+        base = cat.get(item_id)
+        if isinstance(base, dict):
+            disp = str(base.get("display") or base.get("name") or item_id)
+        rows.append(f"{iid}:{item_id}:{disp}")
+    LOG.info("[itemsdbg] DUMP %s year=%s x=%s y=%s -> %s", tag, year, x, y, rows)
+
+
+def find_all(itemsreg: Any, item_id_like: str) -> None:
+    """
+    Scan entire instances cache for any item_id containing ``item_id_like``;
+    log their iids and positions (year,x,y). Helps catch cross-tile pickups.
+    """
+
+    if not enabled():
+        return
+    try:
+        raw = itemsreg._cache()  # type: ignore[attr-defined]
+    except Exception:
+        raw = []
+    hits: List[str] = []
+    needle = item_id_like.lower()
+    for inst in raw:
+        iid = str(inst.get("iid") or inst.get("instance_id"))
+        item_id = str(
+            inst.get("item_id")
+            or inst.get("catalog_id")
+            or inst.get("id")
+            or ""
+        )
+        pos = inst.get("pos") or {}
+        p = (
+            int(pos.get("year", inst.get("year", -1))),
+            int(pos.get("x", inst.get("x", 99999))),
+            int(pos.get("y", inst.get("y", 99999))),
+        )
+        if needle in item_id.lower():
+            hits.append(f"{iid}:{item_id}@{p}")
+    LOG.info("[itemsdbg] FIND item~=%r -> %s", item_id_like, hits)
 

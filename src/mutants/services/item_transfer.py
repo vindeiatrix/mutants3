@@ -18,6 +18,7 @@ from mutants.services import player_state as pstate
 _STATE_CACHE: Optional[Dict[str, Any]] = None
 
 LOG = logging.getLogger(__name__)
+ITEMS_LOG = logging.getLogger("mutants.itemsdbg")
 WORLD_DEBUG = os.getenv("WORLD_DEBUG") == "1"
 
 GROUND_CAP = 6
@@ -288,6 +289,13 @@ def pick_from_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
         pass
 
     insts = itemsreg.list_instances_at(year, x, y)
+    if items_probe.enabled():
+        try:
+            items_probe.setup_file_logging()
+            items_probe.dump_tile_instances(itemsreg, year, x, y, tag="command-pre")
+            items_probe.find_all(itemsreg, "light_spear")
+        except Exception:
+            pass
     chosen_inst, failure = _choose_instance_from_prefix(insts, prefix)
     if failure:
         decision = {"ok": False, "where": "ground"}
@@ -296,6 +304,14 @@ def pick_from_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
             decision["message"] = failure["message"]
         if failure.get("candidates"):
             decision["candidates"] = list(failure["candidates"])
+        if items_probe.enabled():
+            ITEMS_LOG.error(
+                "[itemsdbg] PICKUP no-match prefix=%r at year=%s x=%s y=%s",
+                prefix,
+                year,
+                x,
+                y,
+            )
         return decision
 
     assert chosen_inst is not None
@@ -311,6 +327,33 @@ def pick_from_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
         or chosen_iid
     )
     display_name = _display_name_for(str(item_id)) if item_id else _iid_to_name(chosen_iid)
+    if items_probe.enabled():
+        ITEMS_LOG.info(
+            "[itemsdbg] PICKUP choose iid=%s item_id=%s display=%s from_tile=(%s,%s,%s)",
+            chosen_iid,
+            item_id,
+            display_name,
+            year,
+            x,
+            y,
+        )
+    if not any(
+        str(p.get("iid") or p.get("instance_id")) == chosen_iid for p in insts
+    ):
+        ITEMS_LOG.error(
+            "[itemsdbg] PICKUP abort — iid=%s missing from tile snapshot (%s,%s,%s). insts=%s",
+            chosen_iid,
+            year,
+            x,
+            y,
+            [str(p.get("iid") or p.get("instance_id")) for p in insts],
+        )
+        return {
+            "ok": False,
+            "reason": "not_found",
+            "where": "ground",
+            "message": "No such item on the ground here.",
+        }
 
     itemsreg.clear_position(chosen_iid)
     inv = list(player.get("inventory", []))
@@ -338,6 +381,30 @@ def pick_from_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
         items_probe.probe("command-post", itemsreg, year, x, y)
     except Exception:
         pass
+
+    _post = itemsreg.list_instances_at(year, x, y)
+    if any(str(p.get("iid") or p.get("instance_id")) == chosen_iid for p in _post):
+        ITEMS_LOG.error(
+            "[itemsdbg] PICKUP consistency — iid=%s still present after save; forcing clear",
+            chosen_iid,
+        )
+        itemsreg.clear_position(chosen_iid)
+        itemsreg.save_instances()
+        _post_retry = itemsreg.list_instances_at(year, x, y)
+        if any(
+            str(p.get("iid") or p.get("instance_id")) == chosen_iid for p in _post_retry
+        ):
+            ITEMS_LOG.error(
+                "[itemsdbg] PICKUP hard fail — iid=%s persists on tile after force clear",
+                chosen_iid,
+            )
+
+    if items_probe.enabled():
+        try:
+            items_probe.dump_tile_instances(itemsreg, year, x, y, tag="command-post")
+            items_probe.find_all(itemsreg, "light_spear")
+        except Exception:
+            pass
 
     return {
         "ok": True,

@@ -147,6 +147,7 @@ def build_room_vm(
             # Emit a renderer-side probe of exactly what we're about to show.
             try:
                 items_probe.probe("renderer", items, year, x, y)
+                items_probe.dump_tile_instances(items, year, x, y, tag="renderer-dump")
             except Exception:
                 pass
         except Exception:
