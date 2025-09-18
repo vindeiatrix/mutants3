@@ -13,11 +13,6 @@ class DummyBus:
         self.events.append((kind, text))
 
 
-class DummyWorld:
-    def __init__(self, year: int) -> None:
-        self.year = year
-
-
 def test_floor_to_century() -> None:
     assert _floor_to_century(2314) == 2300
     assert _floor_to_century(2100) == 2100
@@ -38,34 +33,22 @@ def test_parse_year(raw: str, expected: int | None) -> None:
     assert _parse_year(raw) == expected
 
 
+def make_ctx(bus: DummyBus, *, years: list[int] | None = None, loader=None) -> dict[str, object]:
+    ctx: dict[str, object] = {"feedback_bus": bus, "render_next": False, "peek_vm": object()}
+    if years is not None:
+        ctx["world_years"] = years
+    if loader is not None:
+        ctx["world_loader"] = loader
+    return ctx
+
+
 def test_travel_requires_year() -> None:
-    ctx = {"feedback_bus": DummyBus(), "render_next": False, "peek_vm": object()}
+    bus = DummyBus()
+    ctx = make_ctx(bus, years=[2000, 2100])
     travel_cmd("", ctx)
-    assert ctx["feedback_bus"].events[-1] == (
-        "SYSTEM/WARN", "Usage: TRAVEL <year>  (e.g., 'tra 2100')."
-    )
-    assert ctx["render_next"] is False
-    assert ctx["peek_vm"] is not None
-
-
-def test_travel_no_worlds(monkeypatch: pytest.MonkeyPatch) -> None:
-    ctx = {
-        "feedback_bus": DummyBus(),
-        "world_loader": lambda year: (_ for _ in ()).throw(FileNotFoundError()),
-        "render_next": False,
-        "peek_vm": object(),
-    }
-
-    # Ensure player load/save helpers are not called.
-    monkeypatch.setattr(
-        "mutants.commands.travel.itx._load_player",
-        lambda: pytest.fail("should not load player"),
-    )
-
-    travel_cmd("2300", ctx)
-    assert ctx["feedback_bus"].events[-1] == (
-        "SYSTEM/ERROR",
-        "No worlds found in state/world/.",
+    assert bus.events[-1] == (
+        "SYSTEM/WARN",
+        "Usage: TRAVEL <year>  (e.g., 'tra 2100').",
     )
     assert ctx["render_next"] is False
 
@@ -73,43 +56,30 @@ def test_travel_no_worlds(monkeypatch: pytest.MonkeyPatch) -> None:
 def test_travel_rejects_future_year_without_files() -> None:
     loader_called = False
 
-    def _loader(year: int) -> None:
+    def _loader(_: int) -> None:
         nonlocal loader_called
         loader_called = True
         raise AssertionError("loader should not be called when year is unavailable")
 
-    ctx = {
-        "feedback_bus": DummyBus(),
-        "world_loader": _loader,
-        "world_years": [2000, 2100],
-        "render_next": False,
-        "peek_vm": object(),
-    }
+    bus = DummyBus()
+    ctx = make_ctx(bus, years=[2000, 2100], loader=_loader)
 
-    travel_cmd("2400", ctx)
+    travel_cmd("2200", ctx)
 
     assert loader_called is False
-    assert ctx["feedback_bus"].events[-1] == (
-        "SYSTEM/WARN",
-        "That year doesn't exist yet!",
-    )
+    assert bus.events[-1] == ("SYSTEM/WARN", "That year doesn't exist yet!")
     assert ctx["render_next"] is False
 
 
-def test_travel_updates_player_state(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_travel_same_century_returns_to_origin(monkeypatch: pytest.MonkeyPatch) -> None:
     bus = DummyBus()
-    ctx: dict[str, object] = {
-        "feedback_bus": bus,
-        "world_loader": lambda year: DummyWorld(2400),
-        "render_next": False,
-        "peek_vm": "not-none",
-    }
+    ctx = make_ctx(bus, years=[2100, 2200], loader=lambda year: type("W", (), {"year": year})())
 
-    player = {"id": "player_thief", "pos": [2000, 3, 4], "inventory": []}
+    player = {"id": "player_thief", "pos": [2100, 5, 6], "inventory": [], "ions": 9000}
     saved: dict[str, object] = {}
 
     monkeypatch.setattr("mutants.commands.travel.itx._load_player", lambda: player)
-    monkeypatch.setattr("mutants.commands.travel.itx._ensure_inventory", lambda p: None)
+    monkeypatch.setattr("mutants.commands.travel.itx._ensure_inventory", lambda _: None)
     monkeypatch.setattr(
         "mutants.commands.travel.itx._save_player",
         lambda payload: saved.update({"player": payload.copy()}),
@@ -117,10 +87,121 @@ def test_travel_updates_player_state(monkeypatch: pytest.MonkeyPatch) -> None:
     new_state = {"players": [player], "active_id": "player_thief"}
     monkeypatch.setattr("mutants.commands.travel.pstate.load_state", lambda: new_state)
 
-    travel_cmd("2356", ctx)
+    travel_cmd("2150", ctx)
 
-    assert saved["player"]["pos"] == [2400, 0, 0]
+    assert saved["player"]["pos"] == [2100, 0, 0]
+    assert saved["player"]["ions"] == 9000
     assert ctx["player_state"] is new_state
-    assert ctx["render_next"] is True
-    assert ctx["peek_vm"] is None
-    assert bus.events[-1] == ("SYSTEM/OK", "Travel complete. Year: 2400.")
+    assert ctx["render_next"] is False
+    assert bus.events[-1] == (
+        "SYSTEM/OK",
+        "You're already in the 22th Century!",
+    )
+
+
+def test_travel_cross_century_full_cost(monkeypatch: pytest.MonkeyPatch) -> None:
+    bus = DummyBus()
+
+    def _loader(year: int):
+        return type("W", (), {"year": year})()
+
+    ctx = make_ctx(bus, years=[2000, 2100, 2300], loader=_loader)
+    player = {"id": "player_thief", "pos": [2100, 1, 2], "inventory": [], "ions": 7000}
+    saved: dict[str, object] = {}
+
+    monkeypatch.setattr("mutants.commands.travel.itx._load_player", lambda: player)
+    monkeypatch.setattr("mutants.commands.travel.itx._ensure_inventory", lambda _: None)
+    monkeypatch.setattr(
+        "mutants.commands.travel.itx._save_player",
+        lambda payload: saved.update({"player": payload.copy()}),
+    )
+    new_state = {"players": [player], "active_id": "player_thief"}
+    monkeypatch.setattr("mutants.commands.travel.pstate.load_state", lambda: new_state)
+
+    travel_cmd("2300", ctx)
+
+    assert saved["player"]["pos"] == [2300, 0, 0]
+    assert saved["player"]["ions"] == 1000
+    assert ctx["player_state"] is new_state
+    assert ctx["render_next"] is False
+    assert bus.events[-1] == (
+        "SYSTEM/OK",
+        "ZAAAPPPPP!! You've been sent to the year 2300 A.D.",
+    )
+
+
+def test_travel_requires_minimum_ions(monkeypatch: pytest.MonkeyPatch) -> None:
+    bus = DummyBus()
+    ctx = make_ctx(bus, years=[2000, 2200])
+    player = {"id": "player_thief", "pos": [2000, 0, 0], "inventory": [], "ions": 2000}
+
+    monkeypatch.setattr("mutants.commands.travel.itx._load_player", lambda: player)
+    monkeypatch.setattr("mutants.commands.travel.itx._ensure_inventory", lambda _: None)
+    monkeypatch.setattr(
+        "mutants.commands.travel.itx._save_player",
+        lambda _: pytest.fail("_save_player should not be called"),
+    )
+
+    travel_cmd("2200", ctx)
+
+    assert bus.events[-1] == (
+        "SYSTEM/WARN",
+        "You don't have enough ions to create a portal.",
+    )
+    assert ctx["render_next"] is False
+
+
+def test_travel_partial_jump(monkeypatch: pytest.MonkeyPatch) -> None:
+    bus = DummyBus()
+
+    def _loader(year: int):
+        return type("W", (), {"year": year})()
+
+    ctx = make_ctx(bus, years=[2000, 2300, 2500], loader=_loader)
+    player = {"id": "player_thief", "pos": [2000, 0, 0], "inventory": [], "ions": 4000}
+    saved: dict[str, object] = {}
+
+    monkeypatch.setattr("mutants.commands.travel.itx._load_player", lambda: player)
+    monkeypatch.setattr("mutants.commands.travel.itx._ensure_inventory", lambda _: None)
+    monkeypatch.setattr(
+        "mutants.commands.travel.itx._save_player",
+        lambda payload: saved.update({"player": payload.copy()}),
+    )
+    new_state = {"players": [player], "active_id": "player_thief"}
+    monkeypatch.setattr("mutants.commands.travel.pstate.load_state", lambda: new_state)
+    monkeypatch.setattr("mutants.commands.travel.random.choice", lambda seq: seq[1])
+
+    travel_cmd("2550", ctx)
+
+    assert saved["player"]["pos"] == [2300, 0, 0]
+    assert saved["player"]["ions"] == 0
+    assert ctx["player_state"] is new_state
+    assert ctx["render_next"] is False
+    assert bus.events[-1] == (
+        "SYSTEM/WARN",
+        "ZAAAPPPP!!!! You suddenly feel something has gone terribly wrong!",
+    )
+
+
+def test_travel_no_worlds(monkeypatch: pytest.MonkeyPatch) -> None:
+    bus = DummyBus()
+
+    def _loader(_: int):
+        raise FileNotFoundError()
+
+    ctx = make_ctx(bus, years=[2100], loader=_loader)
+    player = {"id": "player_thief", "pos": [2100, 1, 2], "inventory": [], "ions": 6000}
+
+    monkeypatch.setattr("mutants.commands.travel.itx._load_player", lambda: player)
+    monkeypatch.setattr("mutants.commands.travel.itx._ensure_inventory", lambda _: None)
+    monkeypatch.setattr(
+        "mutants.commands.travel.itx._save_player",
+        lambda _: pytest.fail("_save_player should not be called"),
+    )
+
+    travel_cmd("2150", ctx)
+
+    assert bus.events[-1] == (
+        "SYSTEM/ERROR",
+        "No worlds found in state/world/.",
+    )
