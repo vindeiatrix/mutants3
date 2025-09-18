@@ -63,9 +63,6 @@ def _load_player() -> Dict[str, Any]:
     _STATE_CACHE = state
     if not isinstance(player, dict):
         return {}
-    inv = player.get("inventory")
-    if (not inv or not isinstance(inv, list)) and isinstance(state.get("inventory"), list):
-        player["inventory"] = list(state["inventory"])
     if "armour" in player and "armor" not in player:
         player["armor"] = player.pop("armour")
     _ensure_inventory(player)
@@ -117,7 +114,6 @@ def _save_player(player: Dict[str, Any]) -> None:
     else:
         state.update(player)
         state.setdefault("players", [])
-    state["inventory"] = inv
     player["inventory"] = inv
     # Do not maintain any top-level 'inventory' in state; inventories are per-player.
     pstate.save_state(state)
@@ -226,41 +222,6 @@ def pick_from_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
     chosen_iid: Optional[str] = candidates[0] if candidates else None
     if not chosen_iid:
         return {"ok": False, "reason": "not_found", "where": "ground"}
-    # Safety: ensure the chosen instance is actually at our tile (fresh read).
-    inst = itemsreg.get_instance(chosen_iid) or {}
-    pos = inst.get("pos") or {
-        "year": inst.get("year"),
-        "x": inst.get("x"),
-        "y": inst.get("y"),
-    }
-    if (
-        not pos
-        or int(pos.get("year", -1)) != int(year)
-        or int(pos.get("x", -1)) != int(x)
-        or int(pos.get("y", -1)) != int(y)
-    ):
-        # Refresh the candidate list from the authoritative store and retry once.
-        insts = itemsreg.list_instances_at(year, x, y)
-        candidates = []
-        if q:
-            for inst in insts:
-                iid = inst.get("iid") or inst.get("instance_id")
-                item_id = inst.get("item_id") or inst.get("catalog_id") or inst.get("id")
-                if not iid or not item_id:
-                    continue
-                name = idisp.canonical_name(str(item_id))
-                norm_name = normalize_item_query(name)
-                norm_id = normalize_item_query(str(item_id))
-                if norm_name.startswith(q) or norm_id.startswith(q):
-                    candidates.append(str(iid))
-        else:
-            for inst in insts:
-                iid = inst.get("iid") or inst.get("instance_id")
-                if iid:
-                    candidates.append(str(iid))
-        chosen_iid = candidates[0] if candidates else None
-        if not chosen_iid:
-            return {"ok": False, "reason": "not_found", "where": "ground"}
     itemsreg.clear_position(chosen_iid)
     inv = list(player.get("inventory", []))
     inv.append(chosen_iid)
