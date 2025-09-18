@@ -142,21 +142,6 @@ def build_room_vm(
     if items and hasattr(items, "list_ids_at"):
         try:
             iid_list = items.list_ids_at(year, x, y)  # type: ignore[attr-defined]
-            # Ghost-dup guard: filter out any instance IDs that live in any player's inventory.
-            try:
-                inv_iids: set[str] = set()
-                players = state.get("players") if isinstance(state, dict) else None
-                if isinstance(players, list):
-                    for pl in players:
-                        inv = pl.get("inventory") if isinstance(pl, dict) else None
-                        if isinstance(inv, list):
-                            for iid in inv:
-                                if isinstance(iid, str):
-                                    inv_iids.add(iid)
-                iid_list = [iid for iid in iid_list if iid not in inv_iids]
-            except Exception:
-                # rendering should never crash, ignore guard failures
-                pass
             if hasattr(items, "get_instance"):
                 resolved: List[str] = []
                 for iid in iid_list:
