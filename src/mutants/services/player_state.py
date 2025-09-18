@@ -1,25 +1,64 @@
 from __future__ import annotations
 import json
+import logging
 import os
 from pathlib import Path
-from typing import Any, Callable, Dict, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from mutants.io.atomic import atomic_write_json
+
+
+LOG_P = logging.getLogger("mutants.playersdbg")
+
+
+def _pdbg_enabled() -> bool:
+    return bool(os.environ.get("PLAYERS_DEBUG"))
+
+
+def _playersdbg_log(action: str, state: Dict[str, Any]) -> None:
+    if not _pdbg_enabled() or not isinstance(state, dict):
+        return
+    try:
+        active = state.get("active")
+        if not isinstance(active, dict):
+            active = {}
+        klass = active.get("class") or state.get("class") or "?"
+        inventory: List[str] = []
+        raw_inv = state.get("inventory")
+        if not isinstance(raw_inv, list):
+            raw_inv = active.get("inventory") if isinstance(active, dict) else None
+        if isinstance(raw_inv, list):
+            inventory = [str(i) for i in raw_inv if i is not None]
+        LOG_P.info(
+            "[playersdbg] %s class=%s path=%s inv_iids=%s pos=%s ions=%s",
+            action,
+            klass,
+            str(_player_path()),
+            inventory,
+            active.get("pos"),
+            state.get("Ions", state.get("ions")),
+        )
+    except Exception:  # pragma: no cover - defensive logging only
+        pass
 
 def _player_path() -> Path:
     return Path(os.getcwd()) / "state" / "playerlivestate.json"
 
 
 def load_state() -> Dict[str, Any]:
+    path = _player_path()
     try:
-        with _player_path().open("r", encoding="utf-8") as f:
-            return json.load(f)
+        with path.open("r", encoding="utf-8") as f:
+            state: Dict[str, Any] = json.load(f)
     except (FileNotFoundError, json.JSONDecodeError):
-        return {"players": [], "active_id": None}
+        state = {"players": [], "active_id": None}
+    _playersdbg_log("LOAD", state)
+    return state
 
 
 def save_state(state: Dict[str, Any]) -> None:
     atomic_write_json(_player_path(), state)
+    _playersdbg_log("SAVE", state)
 
 
 def get_active_pair(
