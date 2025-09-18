@@ -364,7 +364,7 @@ def load_nearest_year(target: int):
     years = list_years()
     if not years:
         raise FileNotFoundError("No world years found under state/world")
-    best = min(years, key=lambda y: abs(y - int(target)))
+    best = min(years, key=lambda y: (abs(y - int(target)), y))
     LOG.info(
         "[world] load_nearest_year requested=%s chosen=%s dir=%s",
         target, best, WORLD_DIR.resolve()
@@ -375,3 +375,9 @@ def save_all() -> None:
     global _default_world_registry
     if _default_world_registry:
         _default_world_registry.save_all()
+
+
+def clear_cache() -> None:
+    """Forget any cached YearWorlds."""
+    global _default_world_registry
+    _default_world_registry = None
