@@ -2,7 +2,7 @@ from __future__ import annotations
 import json
 import uuid
 from pathlib import Path
-from typing import Dict, List, Optional, Iterable, Any, Tuple
+from typing import Dict, List, Optional, Iterable, Any
 
 from mutants.io.atomic import atomic_write_json
 from . import items_catalog
@@ -261,7 +261,9 @@ def list_ids_at(year: int, x: int, y: int) -> List[str]:
 # ---------------------------------------------------------------------------
 # Extra helpers for ground/inventory transfers and caching
 
-_CACHE: Optional[Tuple[str, float, List[Dict[str, Any]]]] = None
+_CACHE: Optional[List[Dict[str, Any]]] = None
+_CACHE_PATH: Optional[str] = None
+_CACHE_MTIME: Optional[float] = None
 
 
 def _instances_path() -> Path:
@@ -281,33 +283,33 @@ def _stat_mtime(path: Path) -> float:
 
 def invalidate_cache() -> None:
     """Clear the cached snapshot forcing the next read to hit disk."""
-    global _CACHE
+    global _CACHE, _CACHE_PATH, _CACHE_MTIME
     _CACHE = None
+    _CACHE_PATH = None
+    _CACHE_MTIME = None
 
 
 def _cache() -> List[Dict[str, Any]]:
-    global _CACHE
+    global _CACHE, _CACHE_PATH, _CACHE_MTIME
     path = _instances_path()
     mtime = _stat_mtime(path)
-
-    cached_path: Optional[str] = None
-    cached_mtime: Optional[float] = None
-    payload: Optional[List[Dict[str, Any]]] = None
-
-    if isinstance(_CACHE, tuple) and len(_CACHE) == 3:
-        cached_path, cached_mtime, payload = _CACHE
+    try:
+        path_key = str(path.resolve())
+    except Exception:
+        path_key = str(path)
 
     if (
-        payload is None
-        or cached_path != str(path)
-        or cached_mtime is None
-        or cached_mtime != mtime
+        _CACHE is None
+        or _CACHE_PATH != path_key
+        or _CACHE_MTIME is None
+        or _CACHE_MTIME != mtime
     ):
-        payload = _load_instances_raw()
-        _CACHE = (str(path), mtime, payload)
+        _CACHE = _load_instances_raw()
+        _CACHE_PATH = path_key
+        _CACHE_MTIME = mtime
 
-    assert payload is not None
-    return payload
+    assert _CACHE is not None
+    return _CACHE
 
 def save_instances() -> None:
     """Persist the cached instances list back to disk."""
