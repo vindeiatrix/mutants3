@@ -132,7 +132,7 @@ VM → Formatters (build strings + **group**) → Styles (resolve color by group
 * **Safety**: runs once at bootstrap; missing files/worlds merely log and skip.
 
 #### Items Registry
-* **Reader**: `registries/items_instances.py` provides `list_ids_at(year,x,y)` (IDs) and legacy `list_at(year,x,y)` (display names). Both recognize `{"pos":{...}}` and flat `{"year":...}` shapes.
+* **Reader**: `registries/items_instances.py` provides `list_ids_at(year,x,y)` (instance IDs) and legacy `list_at(year,x,y)` (display names). Both recognize `{"pos":{...}}` and flat `{"year":...}` shapes.
 * **VM plumbing**: context uses this registry so `build_room_vm` sets `has_ground`/`ground_item_ids` for the renderer.
 
 #### Item Display Rules

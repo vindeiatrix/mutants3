@@ -141,7 +141,24 @@ def build_room_vm(
     ground_ids: List[str] = []
     if items and hasattr(items, "list_ids_at"):
         try:
-            ground_ids = items.list_ids_at(year, x, y)  # type: ignore[attr-defined]
+            iid_list = items.list_ids_at(year, x, y)  # type: ignore[attr-defined]
+            if hasattr(items, "get_instance"):
+                resolved: List[str] = []
+                for iid in iid_list:
+                    inst = items.get_instance(iid)  # type: ignore[attr-defined]
+                    if isinstance(inst, dict):
+                        item_id = (
+                            inst.get("item_id")
+                            or inst.get("catalog_id")
+                            or inst.get("id")
+                        )
+                        if item_id:
+                            resolved.append(str(item_id))
+                            continue
+                    resolved.append(str(iid))
+                ground_ids = resolved
+            else:
+                ground_ids = [str(i) for i in iid_list]
         except Exception:
             ground_ids = []
 
