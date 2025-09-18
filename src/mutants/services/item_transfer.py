@@ -66,6 +66,12 @@ def _load_player() -> Dict[str, Any]:
     if "armour" in player and "armor" not in player:
         player["armor"] = player.pop("armour")
     _ensure_inventory(player)
+    legacy_inv = state.get("inventory")
+    if isinstance(legacy_inv, list):
+        cleaned = [str(i) for i in legacy_inv if i]
+        if cleaned and not player.get("inventory"):
+            player["inventory"] = cleaned.copy()
+        state["inventory"] = cleaned
     return player
 
 
@@ -115,7 +121,8 @@ def _save_player(player: Dict[str, Any]) -> None:
         state.update(player)
         state.setdefault("players", [])
     player["inventory"] = inv
-    # Do not maintain any top-level 'inventory' in state; inventories are per-player.
+    state["inventory"] = list(inv)
+    # Mirror to legacy top-level slot so older tooling/tests stay in sync.
     pstate.save_state(state)
     _STATE_CACHE = None
 
