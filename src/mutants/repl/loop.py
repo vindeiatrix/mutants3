@@ -1,26 +1,14 @@
 from __future__ import annotations
-import logging
-
 from mutants.app.context import build_context, render_frame, flush_feedback
-from mutants.commands.register_all import register_all
 from mutants.repl.dispatch import Dispatch
-from mutants.repl.help import startup_banner
+from mutants.commands.register_all import register_all
 from mutants.repl.prompt import make_prompt
-from mutants.services import item_transfer
+from mutants.repl.help import startup_banner
 from mutants.ui.class_menu import handle_input, render_menu
-
-
-LOG = logging.getLogger(__name__)
 
 
 def main() -> None:
     ctx = build_context()
-    try:
-        fixed = item_transfer.scrub_instances(ctx)
-        if fixed:
-            LOG.debug("[startup] scrubbed %s held instances with stray coords", fixed)
-    except Exception:
-        LOG.warning("[startup] instance scrub failed", exc_info=True)
     dispatch = Dispatch()
     dispatch.set_feedback_bus(ctx["feedback_bus"])
 

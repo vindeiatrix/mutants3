@@ -91,53 +91,12 @@ def _save_player(player: Dict[str, Any]) -> None:
     def _apply(state: Dict[str, Any], active: Dict[str, Any]) -> None:
         active.update({k: v for k, v in player.items() if k != "inventory"})
         active["inventory"] = inv
-        # Maintain a legacy top-level inventory mirror for tests/compatibility.
-        state["inventory"] = list(inv)
-        state["_legacy_inventory"] = list(inv)
+        # Guard: strip any accidental top-level inventory (legacy hygiene)
+        state.pop("inventory", None)
+        state.pop("_legacy_inventory", None)
 
     pstate.mutate_active(_apply)
     _STATE_CACHE = None
-
-
-def scrub_instances(ctx: Optional[Dict[str, Any]] = None) -> int:
-    """Strip ground coordinates from any instance held in a player's inventory."""
-
-    state: Optional[Dict[str, Any]] = None
-    if isinstance(ctx, dict):
-        maybe_state = ctx.get("player_state")
-        if isinstance(maybe_state, dict):
-            state = maybe_state
-    if state is None:
-        state = _load_state()
-
-    held: Dict[str, Optional[str]] = {}
-    players = state.get("players") if isinstance(state, dict) else None
-    if isinstance(players, list):
-        for pl in players:
-            if not isinstance(pl, dict):
-                continue
-            holder = pl.get("id")
-            inv = pl.get("inventory")
-            if not isinstance(inv, list):
-                continue
-            for entry in inv:
-                iid: Optional[str] = None
-                if isinstance(entry, str):
-                    iid = entry
-                elif isinstance(entry, dict):
-                    for key in ("iid", "instance_id", "item_id"):
-                        value = entry.get(key)
-                        if value:
-                            iid = str(value)
-                            break
-                if iid:
-                    held[str(iid)] = str(holder) if holder else None
-
-    try:
-        return itemsreg.scrub_held_instances(held)
-    except Exception:
-        LOG.exception("[scrub] failed to sanitize held instances")
-        return 0
 
 
 def _armor_iid(p: Dict) -> Optional[str]:
@@ -290,7 +249,6 @@ def pick_from_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
         if not chosen_iid:
             return {"ok": False, "reason": "not_found", "where": "ground"}
     itemsreg.clear_position(chosen_iid)
-    itemsreg.set_held_by(chosen_iid, player.get("id"))
     inv = list(player.get("inventory", []))
     inv.append(chosen_iid)
     player["inventory"] = inv
@@ -302,10 +260,8 @@ def pick_from_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
         if len(ground_now) >= GROUND_CAP:
             swap_iid = rng.choice(ground_now)
             itemsreg.clear_position(swap_iid)
-            itemsreg.set_held_by(swap_iid, player.get("id"))
             inv.append(swap_iid)
         itemsreg.set_position(drop_iid, year, x, y)
-        itemsreg.set_held_by(drop_iid, None)
         inv = [i for i in inv if i != drop_iid]
         player["inventory"] = inv
         overflow_info = {"inv_overflow_drop": drop_iid}
@@ -352,7 +308,6 @@ def drop_to_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
         return {"ok": False, "reason": "armor_cannot_drop"}
     year, x, y = _pos_from_ctx(ctx)
     itemsreg.set_position(iid, year, x, y)
-    itemsreg.set_held_by(iid, None)
     inv = [i for i in inv if i != iid]
     player["inventory"] = inv
     overflow_info = None
@@ -362,13 +317,11 @@ def drop_to_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
         candidates = [g for g in ground_after if g != iid] or ground_after
         pick = rng.choice(candidates)
         itemsreg.clear_position(pick)
-        itemsreg.set_held_by(pick, player.get("id"))
         inv.append(pick)
         player["inventory"] = inv
         if len(inv) > INV_CAP:
             drop_iid = rng.choice(inv)
             itemsreg.set_position(drop_iid, year, x, y)
-            itemsreg.set_held_by(drop_iid, None)
             inv = [i for i in inv if i != drop_iid]
             player["inventory"] = inv
             overflow_info = {"ground_overflow_pick": pick, "inv_overflow_drop": drop_iid}
@@ -442,7 +395,6 @@ def throw_to_direction(ctx, direction: str, prefix: str, *, seed: Optional[int] 
                 nbr.get("gate_state"),
             )
     itemsreg.set_position(iid, year, drop_x, drop_y)
-    itemsreg.set_held_by(iid, None)
     inv = [i for i in inv if i != iid]
     player["inventory"] = inv
     overflow_info = None
@@ -452,13 +404,11 @@ def throw_to_direction(ctx, direction: str, prefix: str, *, seed: Optional[int] 
         candidates = [g for g in ground_after if g != iid] or ground_after
         pick = rng.choice(candidates)
         itemsreg.clear_position(pick)
-        itemsreg.set_held_by(pick, player.get("id"))
         inv.append(pick)
         player["inventory"] = inv
         if len(inv) > INV_CAP:
             drop_iid = rng.choice(inv)
             itemsreg.set_position(drop_iid, year, drop_x, drop_y)
-            itemsreg.set_held_by(drop_iid, None)
             inv = [i for i in inv if i != drop_iid]
             player["inventory"] = inv
             overflow_info = {"ground_overflow_pick": pick, "inv_overflow_drop": drop_iid}
