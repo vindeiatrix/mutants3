@@ -45,7 +45,15 @@ def patch_items(monkeypatch, player):
     monkeypatch.setattr(item_transfer, "_save_player", lambda p: None)
     positions = {}
     monkeypatch.setattr(itemsreg, "set_position", lambda iid, yr, x, y: positions.update({iid: (yr, x, y)}))
+
+    def _clear_at(iid, yr, x, y):
+        if positions.get(iid) == (yr, x, y):
+            positions.pop(iid, None)
+            return True
+        return False
+
     monkeypatch.setattr(itemsreg, "clear_position", lambda iid: positions.pop(iid, None))
+    monkeypatch.setattr(itemsreg, "clear_position_at", _clear_at)
     monkeypatch.setattr(itemsreg, "list_instances_at", lambda yr, x, y: [])
     monkeypatch.setattr(itemsreg, "save_instances", lambda: None)
     monkeypatch.setattr(itemsreg, "get_instance", lambda iid: {"item_id": iid})
