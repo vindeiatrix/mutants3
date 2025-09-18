@@ -410,6 +410,14 @@ def run_daily_litter_reset(root: str | Path | None = None) -> None:
 
     _mkdir_p(paths["instances"].parent)
     _save_instances_list(paths["instances"], instances)
+    try:
+        from mutants.registries import items_instances as itemsreg
+
+        invalidate = getattr(itemsreg, "invalidate_cache", None)
+        if callable(invalidate):
+            invalidate()
+    except Exception:
+        pass
     _mkdir_p(runtime_dir)
     _save_json_atomic(epoch_path, {"last_reset": today})
 

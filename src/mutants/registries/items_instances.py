@@ -261,7 +261,7 @@ def list_ids_at(year: int, x: int, y: int) -> List[str]:
 # ---------------------------------------------------------------------------
 # Extra helpers for ground/inventory transfers and caching
 
-_CACHE: Optional[Tuple[float, List[Dict[str, Any]]]] = None
+_CACHE: Optional[Tuple[str, float, List[Dict[str, Any]]]] = None
 
 
 def _instances_path() -> Path:
@@ -284,13 +284,30 @@ def invalidate_cache() -> None:
     global _CACHE
     _CACHE = None
 
+
 def _cache() -> List[Dict[str, Any]]:
     global _CACHE
     path = _instances_path()
     mtime = _stat_mtime(path)
-    if _CACHE is None or _CACHE[0] < mtime:
-        _CACHE = (mtime, _load_instances_raw())
-    return _CACHE[1]
+
+    cached_path: Optional[str] = None
+    cached_mtime: Optional[float] = None
+    payload: Optional[List[Dict[str, Any]]] = None
+
+    if isinstance(_CACHE, tuple) and len(_CACHE) == 3:
+        cached_path, cached_mtime, payload = _CACHE
+
+    if (
+        payload is None
+        or cached_path != str(path)
+        or cached_mtime is None
+        or cached_mtime != mtime
+    ):
+        payload = _load_instances_raw()
+        _CACHE = (str(path), mtime, payload)
+
+    assert payload is not None
+    return payload
 
 def save_instances() -> None:
     """Persist the cached instances list back to disk."""
