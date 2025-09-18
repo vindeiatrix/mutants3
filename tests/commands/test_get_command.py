@@ -67,17 +67,17 @@ import pytest
 
 
 @pytest.mark.parametrize("token", ["i", "ion"])
-def test_get_prefix_picks_first(monkeypatch, tmp_path, token):
+def test_get_prefix_requires_disambiguation(monkeypatch, tmp_path, token):
     ctx, pfile, iids = _setup(monkeypatch, tmp_path, ["ion_pack", "ion_booster"])
     get_cmd(token, ctx)
     assert ctx["feedback_bus"].events == [
-        ("LOOT/PICKUP", "You pick up the Ion-Pack."),
+        ("SYSTEM/WARN", "Ambiguous: Ion-Pack, Ion-Booster."),
     ]
     with pfile.open("r", encoding="utf-8") as f:
         pdata = json.load(f)
-    assert iids[0] in pdata.get("inventory", [])
+    assert not pdata.get("inventory")
     ground_ids = itemsreg.list_ids_at(2000, 0, 0)
-    assert "ion_pack" not in ground_ids
+    assert "ion_pack" in ground_ids
     assert "ion_booster" in ground_ids
 
 

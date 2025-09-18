@@ -63,6 +63,8 @@ def run_argcmd(
             fmt_vals["candidates"] = ", ".join(cands)
         if spec.reason_messages and r in spec.reason_messages:
             msg = _fmt(spec.reason_messages[r], **fmt_vals)
+        if not msg and decision.get("message"):
+            msg = str(decision["message"])
         if not msg:
             msg = _fmt((spec.messages or {}).get("invalid"), subject=subject)
         bus.push(spec.warn_kind, msg or "Nothing happens.")
@@ -196,6 +198,8 @@ def run_argcmd_positional(
         fmt_vals.setdefault("item", values.get("item"))
         if spec.reason_messages and r in spec.reason_messages:
             msg = _fmt(spec.reason_messages[r], **fmt_vals)
+        if not msg and decision.get("message"):
+            msg = str(decision["message"])
         if not msg:
             msg = _fmt((spec.messages or {}).get("invalid"), **fmt_vals)
         bus.push(spec.warn_kind, msg or "Nothing happens.")
