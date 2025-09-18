@@ -253,16 +253,20 @@ def list_at(year: int, x: int, y: int) -> List[str]:
 
 
 def list_ids_at(year: int, x: int, y: int) -> List[str]:
-    """Return instance IDs located at (year, x, y)."""
+    """Return raw item_ids for instances at (year, x, y)."""
     raw = _load_instances_raw()
     out: List[str] = []
     tgt = (int(year), int(x), int(y))
     for inst in raw:
         pos = _pos_of(inst)
         if pos and pos == tgt:
-            inst_id = inst.get("iid") or inst.get("instance_id")
-            if inst_id:
-                out.append(str(inst_id))
+            item_id = (
+                inst.get("item_id")
+                or inst.get("catalog_id")
+                or inst.get("id")
+            )
+            if item_id:
+                out.append(str(item_id))
     return out
 
 # ---------------------------------------------------------------------------

@@ -76,12 +76,9 @@ def test_get_prefix_picks_first(monkeypatch, tmp_path, token):
     with pfile.open("r", encoding="utf-8") as f:
         pdata = json.load(f)
     assert iids[0] in pdata.get("inventory", [])
-    ground_iids = itemsreg.list_ids_at(2000, 0, 0)
-    assert iids[0] not in ground_iids
-    remaining = {
-        (itemsreg.get_instance(g) or {}).get("item_id") for g in ground_iids
-    }
-    assert "ion_booster" in remaining
+    ground_ids = itemsreg.list_ids_at(2000, 0, 0)
+    assert "ion_pack" not in ground_ids
+    assert "ion_booster" in ground_ids
 
 
 def test_get_longer_prefix_picks_second(monkeypatch, tmp_path):
@@ -93,12 +90,9 @@ def test_get_longer_prefix_picks_second(monkeypatch, tmp_path):
     with pfile.open("r", encoding="utf-8") as f:
         pdata = json.load(f)
     assert iids[1] in pdata.get("inventory", [])
-    ground_iids = itemsreg.list_ids_at(2000, 0, 0)
-    assert iids[1] not in ground_iids
-    remaining = {
-        (itemsreg.get_instance(g) or {}).get("item_id") for g in ground_iids
-    }
-    assert "ion_pack" in remaining
+    ground_ids = itemsreg.list_ids_at(2000, 0, 0)
+    assert "ion_booster" not in ground_ids
+    assert "ion_pack" in ground_ids
 
 
 @pytest.mark.skip(reason="Unicode dash naming no longer validated")
@@ -120,8 +114,5 @@ def test_get_not_found(monkeypatch, tmp_path):
     with pfile.open("r", encoding="utf-8") as f:
         pdata = json.load(f)
     assert not pdata.get("inventory")
-    ground_iids = itemsreg.list_ids_at(2000, 0, 0)
-    assert any(
-        (itemsreg.get_instance(g) or {}).get("item_id") == "ion_pack"
-        for g in ground_iids
-    )
+    ground_ids = itemsreg.list_ids_at(2000, 0, 0)
+    assert "ion_pack" in ground_ids
