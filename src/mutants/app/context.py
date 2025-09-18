@@ -69,10 +69,7 @@ def build_context() -> Dict[str, Any]:
     bus.subscribe(sink.handle)
     ctx: Dict[str, Any] = {
         "player_state": state,
-        # Multi-year aware: pick the closest available world year to whatever
-        # the active player currently has set. Exact matches return unchanged
-        # (e.g., 2000 -> 2000); missing years gracefully fall back to the
-        # nearest available JSON under state/world/.
+        # Multi-year aware loader: exact year if present, otherwise closest available.
         "world_loader": load_nearest_year,
         "monsters": None,
         "items": itemsreg,
