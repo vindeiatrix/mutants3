@@ -117,15 +117,7 @@ def _iid_to_name(iid: str) -> str:
 
 
 def _norm_inst_tile(inst: Dict) -> Tuple[Optional[int], Optional[int], Optional[int]]:
-    """
-    Normalize an instance's tile position to ``(year, x, y)`` of ints or ``None``.
-
-    Accepts legacy shapes for the position payload:
-
-    * ``inst["pos"]`` as ``[year, x, y]``
-    * ``inst["pos"]`` as ``{"year": year, "x": x, "y": y}``
-    * flat ``inst["year"]/"x"/"y"`` fields
-    """
+    """Normalize an instance's position to ints or None, tolerating legacy shapes."""
 
     pos = inst.get("pos")
     if isinstance(pos, (list, tuple)) and len(pos) >= 3:
@@ -146,6 +138,7 @@ def _norm_inst_tile(inst: Dict) -> Tuple[Optional[int], Optional[int], Optional[
 
 
 def _ground_ordered_ids(year: int, x: int, y: int) -> List[str]:
+    # Authoritative id list for this tile
     ids = itemsreg.list_ids_at(year, x, y)
     groups: Dict[str, List[Dict]] = {}
     order: List[str] = []
@@ -230,11 +223,11 @@ def pick_from_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
     chosen_iid: Optional[str] = candidates[0] if candidates else None
     if not chosen_iid:
         return {"ok": False, "reason": "not_found", "where": "ground"}
-    # Safety: ensure the chosen instance is actually at our tile (fresh read).
+    # Safety: ensure the chosen instance is actually at our tile (fresh read, robust to None).
     inst = itemsreg.get_instance(chosen_iid) or {}
     inst_year, inst_x, inst_y = _norm_inst_tile(inst)
     if inst_year != int(year) or inst_x != int(x) or inst_y != int(y):
-        # Refresh from the authoritative id list and retry once.
+        # Refresh the candidate list from the authoritative store and retry once.
         ids = itemsreg.list_ids_at(year, x, y)
         candidates = []
         if q:

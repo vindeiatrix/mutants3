@@ -155,7 +155,7 @@ def build_room_vm(
                                     inv_iids.add(iid)
                 iid_list = [iid for iid in iid_list if iid not in inv_iids]
             except Exception:
-                # rendering should never crash, ignore guard failures
+                # Rendering should be best-effort; never crash here.
                 pass
             if hasattr(items, "get_instance"):
                 resolved: List[str] = []
