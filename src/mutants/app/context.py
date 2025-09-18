@@ -8,7 +8,7 @@ import os, logging
 from mutants.bootstrap.lazyinit import ensure_player_state
 from mutants.bootstrap.runtime import ensure_runtime
 from mutants.data.room_headers import ROOM_HEADERS, STORE_FOR_SALE_IDX
-from mutants.registries.world import load_year
+from mutants.registries.world import load_nearest_year
 from mutants.ui import renderer
 from mutants.ui.feedback import FeedbackBus
 from mutants.ui.logsink import LogSink
@@ -69,7 +69,11 @@ def build_context() -> Dict[str, Any]:
     bus.subscribe(sink.handle)
     ctx: Dict[str, Any] = {
         "player_state": state,
-        "world_loader": load_year,
+        # Multi-year aware: pick the closest available world year to whatever
+        # the active player currently has set. Exact matches return unchanged
+        # (e.g., 2000 -> 2000); missing years gracefully fall back to the
+        # nearest available JSON under state/world/.
+        "world_loader": load_nearest_year,
         "monsters": None,
         "items": itemsreg,
         "headers": ROOM_HEADERS,
