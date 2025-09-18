@@ -34,12 +34,19 @@ def _ensure_inventory(p: Dict[str, Any]) -> None:
 
 
 def _load_state() -> Dict[str, Any]:
-    """Load player state from disk with graceful fallbacks."""
+    """Load player state from disk with graceful fallbacks, and sanitize."""
 
     state = pstate.load_state()
-    if isinstance(state, dict):
-        return state
-    return {}
+    if not isinstance(state, dict):
+        return {}
+
+    sanitized = dict(state)
+    legacy_inv = sanitized.get("inventory")
+    if isinstance(legacy_inv, list):
+        sanitized["_legacy_inventory"] = list(legacy_inv)
+    # Never allow a stray top-level inventory to pollute per-player inventories.
+    sanitized.pop("inventory", None)
+    return sanitized
 
 
 def _active_from_state(state: Dict[str, Any]) -> Dict[str, Any]:
@@ -64,8 +71,9 @@ def _load_player() -> Dict[str, Any]:
     if not isinstance(player, dict):
         return {}
     inv = player.get("inventory")
-    if (not inv or not isinstance(inv, list)) and isinstance(state.get("inventory"), list):
-        player["inventory"] = list(state["inventory"])
+    legacy = state.get("_legacy_inventory")
+    if (not inv or not isinstance(inv, list)) and isinstance(legacy, list):
+        player["inventory"] = list(legacy)
     if "armour" in player and "armor" not in player:
         player["armor"] = player.pop("armour")
     _ensure_inventory(player)
@@ -73,54 +81,21 @@ def _load_player() -> Dict[str, Any]:
 
 
 def _save_player(player: Dict[str, Any]) -> None:
+    """Persist changes to the active player's record only."""
+
     global _STATE_CACHE
 
     _ensure_inventory(player)
     inv = list(player.get("inventory", []))
-    state = _STATE_CACHE if isinstance(_STATE_CACHE, dict) else _load_state()
-    players = state.get("players")
-    if isinstance(players, list) and players:
-        active_id = state.get("active_id")
-        updated = False
-        first_player = players[0]
-        new_players: List[Dict[str, Any]] = []
-        for existing in players:
-            is_active = (active_id is not None and existing.get("id") == active_id) or (
-                active_id is None and existing is first_player
-            )
-            if is_active:
-                merged = {**existing, **player}
-                merged["inventory"] = inv
-                new_players.append(merged)
-                updated = True
-            else:
-                new_players.append(existing)
-        if not updated and player.get("id") is not None:
-            new_players = []
-            target_id = player.get("id")
-            for existing in players:
-                if existing.get("id") == target_id:
-                    merged = {**existing, **player}
-                    merged["inventory"] = inv
-                    new_players.append(merged)
-                    updated = True
-                else:
-                    new_players.append(existing)
-        if not updated:
-            merged = {**first_player, **player}
-            merged["inventory"] = inv
-            if new_players:
-                new_players[0] = merged
-            else:
-                new_players.append(merged)
-        state["players"] = new_players
-    else:
-        state.update(player)
-        state.setdefault("players", [])
-    state["inventory"] = inv
-    player["inventory"] = inv
-    # Do not maintain any top-level 'inventory' in state; inventories are per-player.
-    pstate.save_state(state)
+
+    def _apply(state: Dict[str, Any], active: Dict[str, Any]) -> None:
+        active.update({k: v for k, v in player.items() if k != "inventory"})
+        active["inventory"] = inv
+        # Guard: strip any accidental top-level inventory (legacy hygiene)
+        state.pop("inventory", None)
+        state.pop("_legacy_inventory", None)
+
+    pstate.mutate_active(_apply)
     _STATE_CACHE = None
 
 
