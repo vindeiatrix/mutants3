@@ -1,10 +1,15 @@
 from __future__ import annotations
 
+import random
+from pathlib import Path
 from typing import Any, Dict, Iterable, Optional
 
-from mutants.registries.world import load_nearest_year, list_years
+from mutants.registries.world import load_nearest_year
 from mutants.services import player_state as pstate
 from ..services import item_transfer as itx
+
+
+ION_COST_PER_CENTURY = 3000
 
 
 def _floor_to_century(year: int) -> int:
@@ -37,35 +42,112 @@ def _parse_year(arg: str) -> Optional[int]:
     return sign * int("".join(digits))
 
 
+def _century_index(year: int) -> int:
+    return (int(year) // 100) + 1
+
+
 def _available_years(ctx: Dict[str, Any]) -> list[int]:
-    """Return the available world years, allowing tests to override them."""
+    """Return sorted available world years."""
 
     years = ctx.get("world_years")
-    if callable(years):  # pragma: no branch - exercised in tests via dummy callable
+    if callable(years):
         try:
             years = years()
         except Exception:
             years = None
 
-    sanitized: list[int] = []
     iterable: Optional[Iterable[Any]]
     if isinstance(years, Iterable) and not isinstance(years, (str, bytes)):
         iterable = years
     else:
         iterable = None
 
-    if iterable is None:
+    sanitized: list[int] = []
+    if iterable is not None:
+        for raw in iterable:
+            if isinstance(raw, Path):
+                raw = raw.stem
+            try:
+                sanitized.append(int(raw))
+            except Exception:
+                continue
+    else:
+        base_dir = ctx.get("world_dir", "state/world")
         try:
-            iterable = list_years()
-        except Exception:
-            iterable = []
-
-    for raw in iterable:
-        try:
-            sanitized.append(int(raw))
-        except Exception:
-            continue
+            base_path = Path(base_dir)
+        except TypeError:
+            base_path = Path("state/world")
+        if base_path.exists():
+            for fpath in base_path.glob("*.json"):
+                try:
+                    sanitized.append(int(fpath.stem))
+                except Exception:
+                    continue
     return sorted(set(sanitized))
+
+
+def _get_ions(player: Dict[str, Any]) -> int:
+    if not isinstance(player, dict):
+        return 0
+    if "Ions" in player:
+        try:
+            return int(player["Ions"])
+        except Exception:
+            return 0
+    if "ions" in player:
+        try:
+            return int(player["ions"])
+        except Exception:
+            return 0
+    stats = player.get("stats")
+    if isinstance(stats, dict):
+        if "Ions" in stats:
+            try:
+                return int(stats["Ions"])
+            except Exception:
+                return 0
+        if "ions" in stats:
+            try:
+                return int(stats["ions"])
+            except Exception:
+                return 0
+    return 0
+
+
+def _set_ions(player: Dict[str, Any], amount: int) -> None:
+    clamped = int(max(0, amount))
+    if "Ions" in player:
+        player["Ions"] = clamped
+        return
+    if "ions" in player:
+        player["ions"] = clamped
+        return
+    stats = player.get("stats")
+    if isinstance(stats, dict):
+        if "Ions" in stats:
+            stats["Ions"] = clamped
+            return
+        if "ions" in stats:
+            stats["ions"] = clamped
+            return
+    player["Ions"] = clamped
+
+
+def _resolved_year(ctx: Dict[str, Any], target: int) -> Optional[int]:
+    loader = ctx.get("world_loader", load_nearest_year)
+    try:
+        world = loader(int(target))
+    except FileNotFoundError:
+        ctx["feedback_bus"].push("SYSTEM/ERROR", "No worlds found in state/world/.")
+        return None
+    return int(getattr(world, "year", int(target)))
+
+
+def _persist_state(ctx: Dict[str, Any], player: Dict[str, Any]) -> None:
+    itx._save_player(player)
+    ctx["player_state"] = pstate.load_state()
+    if "render_next" in ctx:
+        ctx["render_next"] = False
 
 
 def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
@@ -76,30 +158,80 @@ def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
         bus.push("SYSTEM/WARN", "Usage: TRAVEL <year>  (e.g., 'tra 2100').")
         return
 
-    target = _floor_to_century(year_raw)
-    years = _available_years(ctx)
-    if years and target > max(years):
+    dest_century = _floor_to_century(year_raw)
+    available = _available_years(ctx)
+    if available and dest_century > max(available):
+        bus.push("SYSTEM/WARN", "That year doesn't exist yet!")
+        return
+    if not available:
         bus.push("SYSTEM/WARN", "That year doesn't exist yet!")
         return
 
-    loader = ctx.get("world_loader", load_nearest_year)
-    try:
-        world = loader(target)
-    except FileNotFoundError:
-        bus.push("SYSTEM/ERROR", "No worlds found in state/world/.")
-        return
-
-    resolved_year = int(getattr(world, "year", target))
-
     player = itx._load_player()
     itx._ensure_inventory(player)
-    player["pos"] = [resolved_year, 0, 0]
-    itx._save_player(player)
+    pos = player.get("pos") or [2000, 0, 0]
+    try:
+        current_year = int(pos[0])
+    except Exception:
+        current_year = 2000
+    current_century = _floor_to_century(current_year)
 
-    ctx["player_state"] = pstate.load_state()
-    ctx["render_next"] = True
-    ctx["peek_vm"] = None
-    bus.push("SYSTEM/OK", f"Travel complete. Year: {resolved_year}.")
+    if dest_century == current_century:
+        resolved_year = _resolved_year(ctx, dest_century)
+        if resolved_year is None:
+            return
+        player["pos"] = [resolved_year, 0, 0]
+        _persist_state(ctx, player)
+        bus.push(
+            "SYSTEM/OK",
+            f"You're already in the {_century_index(dest_century)}th Century!",
+        )
+        return
+
+    steps = abs(dest_century - current_century) // 100
+    full_cost = steps * ION_COST_PER_CENTURY
+    ions = _get_ions(player)
+
+    if ions < ION_COST_PER_CENTURY:
+        bus.push("SYSTEM/WARN", "You don't have enough ions to create a portal.")
+        return
+
+    if ions >= full_cost:
+        resolved_year = _resolved_year(ctx, dest_century)
+        if resolved_year is None:
+            return
+        _set_ions(player, ions - full_cost)
+        player["pos"] = [resolved_year, 0, 0]
+        _persist_state(ctx, player)
+        bus.push(
+            "SYSTEM/OK",
+            f"ZAAAPPPPP!! You've been sent to the year {resolved_year} A.D.",
+        )
+        return
+
+    min_century = min(current_century, dest_century)
+    max_century = max(current_century, dest_century)
+    candidates = [year for year in available if min_century <= year <= max_century]
+    if not candidates:
+        _set_ions(player, 0)
+        _persist_state(ctx, player)
+        bus.push(
+            "SYSTEM/WARN",
+            "ZAAAPPPP!!!! You suddenly feel something has gone terribly wrong!",
+        )
+        return
+
+    chosen_year = random.choice(candidates)
+    resolved_year = _resolved_year(ctx, chosen_year)
+    if resolved_year is None:
+        return
+    _set_ions(player, 0)
+    player["pos"] = [resolved_year, 0, 0]
+    _persist_state(ctx, player)
+    bus.push(
+        "SYSTEM/WARN",
+        "ZAAAPPPP!!!! You suddenly feel something has gone terribly wrong!",
+    )
 
 
 def register(dispatch, ctx) -> None:
