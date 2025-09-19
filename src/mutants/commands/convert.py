@@ -194,20 +194,6 @@ def convert_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
                 iid,
                 item_id,
             )
-        players = state.get("players")
-        if isinstance(players, list):
-            filtered: list[dict[str, object]] = []
-            for entry in players:
-                if not isinstance(entry, dict):
-                    continue
-                if entry.get("id") == state.get("active_id"):
-                    filtered.append(entry)
-                    break
-                entry_class = entry.get("class") or entry.get("name")
-                if isinstance(entry_class, str) and entry_class == klass:
-                    filtered.append(entry)
-            if filtered:
-                state["players"] = filtered
         pstate.set_ions_for_active(state, new_total)
         if pstate._pdbg_enabled():  # pragma: no cover - diagnostic hook
             after_state = pstate.load_state()
