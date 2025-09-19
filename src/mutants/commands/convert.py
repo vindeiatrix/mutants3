@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from typing import Any, Dict, List, Optional, Tuple
 
 from ..services import item_transfer as itx
@@ -9,49 +10,27 @@ from ..registries import items_instances as itemsreg
 from ..util.textnorm import normalize_item_query
 
 
-def _get_ions(player: Dict[str, object]) -> int:
-    if "Ions" in player:
-        try:
-            return int(player["Ions"])
-        except Exception:
-            return 0
-    if "ions" in player:
-        try:
-            return int(player["ions"])
-        except Exception:
-            return 0
-    stats = player.get("stats")
+LOG_P = logging.getLogger("mutants.playersdbg")
+
+
+def _legacy_ions(payload: Dict[str, Any]) -> int:
+    if not isinstance(payload, dict):
+        return 0
+    for key in ("Ions", "ions"):
+        if key in payload:
+            try:
+                return int(payload[key])
+            except Exception:
+                return 0
+    stats = payload.get("stats")
     if isinstance(stats, dict):
-        if "Ions" in stats:
-            try:
-                return int(stats["Ions"])
-            except Exception:
-                return 0
-        if "ions" in stats:
-            try:
-                return int(stats["ions"])
-            except Exception:
-                return 0
+        for key in ("Ions", "ions"):
+            if key in stats:
+                try:
+                    return int(stats[key])
+                except Exception:
+                    return 0
     return 0
-
-
-def _set_ions(player: Dict[str, object], value: int) -> None:
-    clamped = int(max(0, value))
-    if "Ions" in player:
-        player["Ions"] = clamped
-        return
-    if "ions" in player:
-        player["ions"] = clamped
-        return
-    stats = player.get("stats")
-    if isinstance(stats, dict):
-        if "Ions" in stats:
-            stats["Ions"] = clamped
-            return
-        if "ions" in stats:
-            stats["ions"] = clamped
-            return
-    player["Ions"] = clamped
 
 
 def _resolve_meta(catalog: Any, item_id: str) -> Dict[str, object]:
@@ -131,7 +110,7 @@ def convert_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
     bus = ctx["feedback_bus"]
     prefix = (arg or "").strip()
     if not prefix:
-        bus.push("SYSTEM/WARN", "You're not carrying a .")
+        bus.push("SYSTEM/WARN", "Usage: convert <item>")
         return {"ok": False, "reason": "missing_argument"}
 
     catalog = catreg.load_catalog() or {}
@@ -147,6 +126,31 @@ def convert_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
 
     value = _convert_value(item_id, catalog)
 
+    before = _legacy_ions(player)
+    klass = pstate.get_active_class(player)
+
+    try:
+        snapshot_state = pstate.load_state()
+    except Exception:
+        snapshot_state = None
+
+    if snapshot_state is not None:
+        klass_from_state = pstate.get_active_class(snapshot_state)
+        if isinstance(klass_from_state, str) and klass_from_state:
+            klass = klass_from_state
+        ion_map = snapshot_state.get("ions_by_class")
+        if isinstance(ion_map, dict) and isinstance(klass, str) and klass in ion_map:
+            before = pstate.get_ions_for_active(snapshot_state)
+        else:
+            alt = _legacy_ions(snapshot_state)
+            if alt or before == 0:
+                before = alt
+
+    if not isinstance(klass, str) or not klass:
+        klass = pstate.get_active_class(player)
+
+    new_total = max(0, before + value)
+
     inventory = list(player.get("inventory") or [])
     try:
         inventory.remove(iid)
@@ -154,9 +158,50 @@ def convert_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
         pass
     player["inventory"] = inventory
 
+    player["ions"] = new_total
+    player["Ions"] = new_total
+    active_profile = player.get("active")
+    if isinstance(active_profile, dict):
+        active_profile["ions"] = new_total
+        active_profile["Ions"] = new_total
+    stats = player.get("stats")
+    if isinstance(stats, dict):
+        stats["ions"] = new_total
+        stats["Ions"] = new_total
+    if isinstance(klass, str) and klass:
+        ion_map = player.get("ions_by_class")
+        if not isinstance(ion_map, dict):
+            ion_map = {}
+        ion_map[str(klass)] = new_total
+        player["ions_by_class"] = ion_map
+
     itemsreg.delete_instance(iid)
-    _set_ions(player, _get_ions(player) + value)
     itx._save_player(player)
+
+    try:
+        state = pstate.load_state()
+        if pstate._pdbg_enabled():  # pragma: no cover - diagnostic hook
+            pstate._pdbg_setup_file_logging()
+            LOG_P.info(
+                "[playersdbg] CONVERT before class=%s ions=%s add=%s iid=%s item=%s",
+                klass,
+                before,
+                value,
+                iid,
+                item_id,
+            )
+        pstate.set_ions_for_active(state, new_total)
+        if pstate._pdbg_enabled():  # pragma: no cover - diagnostic hook
+            after_state = pstate.load_state()
+            after = pstate.get_ions_for_active(after_state)
+            LOG_P.info(
+                "[playersdbg] CONVERT after  class=%s ions=%s",
+                pstate.get_active_class(after_state),
+                after,
+            )
+    except Exception:
+        bus.push("SYSTEM/WARN", "Failed to add ions.")
+        return {"ok": False, "reason": "ion_error"}
 
     name = _display_name(item_id, catalog)
     bus.push("SYSTEM/OK", f"The {name} vanishes with a flash!")

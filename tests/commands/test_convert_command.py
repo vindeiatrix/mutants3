@@ -44,7 +44,7 @@ def test_convert_requires_argument() -> None:
     ctx = {"feedback_bus": FakeBus()}
     result = convert_cmd("", ctx)
     assert result == {"ok": False, "reason": "missing_argument"}
-    assert ctx["feedback_bus"].events == [("SYSTEM/WARN", "You're not carrying a .")]
+    assert ctx["feedback_bus"].events == [("SYSTEM/WARN", "Usage: convert <item>")]
 
 
 def test_convert_not_found(monkeypatch, tmp_path) -> None:
@@ -80,4 +80,7 @@ def test_convert_success(monkeypatch, tmp_path) -> None:
         pdata = json.load(f)
     assert pdata["players"][0]["inventory"] == []
     assert pdata["players"][0]["ions"] == 85005
+    assert pdata["players"][0]["ions_by_class"] == {"Thief": 85005}
+    assert pdata["ions"] == 85005
+    assert pdata["ions_by_class"] == {"Thief": 85005}
     assert itemsreg.get_instance(iid) is None
