@@ -1,7 +1,4 @@
 from __future__ import annotations
-from typing import Dict, Any, Optional
-
-from __future__ import annotations
 
 from typing import Any, Dict, Optional
 
@@ -54,10 +51,10 @@ def set_active(active_id: str) -> Dict[str, Any]:
         next_class = prev_class
 
     state["active_id"] = active_id
-    updated_state = player_state.on_class_switch(prev_class, next_class, state)
-    updated_state["active_id"] = active_id
-    save_state(updated_state)
-    return updated_state
+    updated = player_state.on_class_switch(prev_class, next_class, state)
+    updated["active_id"] = active_id
+    save_state(updated)
+    return updated
 
 def resolve_candidate(state: Dict[str, Any], q: str) -> Optional[str]:
     """
