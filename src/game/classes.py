@@ -14,8 +14,8 @@ class Thief:
 
     name: str
     class_name: str = "Thief"
-    riblets: int = 0
-    ions: int = 0
+    riblets: List[str] = field(default_factory=list)
+    ions: Dict[str, int] = field(default_factory=dict)
     experience: int = 0
     stats: BaseStats = field(default_factory=lambda: {"agi": 8, "str": 4, "int": 4})
     inventory: List[str] = field(default_factory=list)
@@ -33,8 +33,8 @@ class Priest:
 
     name: str
     class_name: str = "Priest"
-    riblets: int = 0
-    ions: int = 0
+    riblets: List[str] = field(default_factory=list)
+    ions: Dict[str, int] = field(default_factory=dict)
     experience: int = 0
     stats: BaseStats = field(default_factory=lambda: {"agi": 3, "str": 3, "int": 9})
     inventory: List[str] = field(default_factory=list)
@@ -52,8 +52,8 @@ class Wizard:
 
     name: str
     class_name: str = "Wizard"
-    riblets: int = 0
-    ions: int = 0
+    riblets: List[str] = field(default_factory=list)
+    ions: Dict[str, int] = field(default_factory=dict)
     experience: int = 0
     stats: BaseStats = field(default_factory=lambda: {"agi": 4, "str": 2, "int": 10})
     inventory: List[str] = field(default_factory=list)
@@ -71,8 +71,8 @@ class Warrior:
 
     name: str
     class_name: str = "Warrior"
-    riblets: int = 0
-    ions: int = 0
+    riblets: List[str] = field(default_factory=list)
+    ions: Dict[str, int] = field(default_factory=dict)
     experience: int = 0
     stats: BaseStats = field(default_factory=lambda: {"agi": 5, "str": 9, "int": 2})
     inventory: List[str] = field(default_factory=list)
@@ -90,8 +90,8 @@ class Mage:
 
     name: str
     class_name: str = "Mage"
-    riblets: int = 0
-    ions: int = 0
+    riblets: List[str] = field(default_factory=list)
+    ions: Dict[str, int] = field(default_factory=dict)
     experience: int = 0
     stats: BaseStats = field(default_factory=lambda: {"agi": 5, "str": 3, "int": 9})
     inventory: List[str] = field(default_factory=list)
