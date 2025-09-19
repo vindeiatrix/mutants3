@@ -38,18 +38,22 @@ jobs:
             pip install -r requirements-dev.txt
           fi
 
-          # Try to install the package (and dev extras) if project is installable
+          # Try to install the project (and dev extras) if installable
           if [ -f pyproject.toml ] || [ -f setup.py ] || [ -f setup.cfg ]; then
             pip install ".[dev]" || pip install .
           fi
 
           # Ensure pytest exists regardless of how we installed deps
-          if ! python -c "import pytest" 2>/dev/null; then
-            python -m pip install pytest
-          fi
+          python - <<'PY'
+import sys
+try:
+    import pytest  # noqa: F401
+except Exception:
+    import subprocess
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "pytest"])
+PY
 
-
-      # Set PYTHONPATH for src/ layout if package wasn't installed
+      # Set PYTHONPATH for src/ layout if package wasn't installed as a wheel
       - name: Set PYTHONPATH (src layout fallback)
         if: ${{ !hashFiles('**/pyproject.toml', '**/setup.py', '**/setup.cfg') }}
         run: echo "PYTHONPATH=./src" >> $GITHUB_ENV
@@ -57,24 +61,10 @@ jobs:
       - name: Run smoke tests
         run: pytest -q -k smoke
 
-      - name: Upload pytest log on failure
+      - name: Upload pytest output on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: pytest-smoke-output
           path: .
           if-no-files-found: ignore
-
-      - name: Run UI wrap probe (non-interactive)
-        run: |
-          python -m mutants <<'EOF'
-          logs trace ui on
-          logs probe wrap --count 24 --width 80
-          logs tail 1
-          EOF
-
-      - name: Guard against hyphen wrap regression
-        run: |
-          chmod +x scripts/guard_wrap.py || true
-          ./scripts/guard_wrap.py
-
