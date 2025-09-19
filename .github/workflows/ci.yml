@@ -44,13 +44,10 @@ jobs:
           fi
 
           # Ensure pytest exists regardless of how we installed deps
-          python - <<'PY'
-import importlib, sys, subprocess
-try:
-    importlib.import_module("pytest")
-except ImportError:
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "pytest"])
-PY
+          if ! python -c "import pytest" 2>/dev/null; then
+            python -m pip install pytest
+          fi
+
 
       # Set PYTHONPATH for src/ layout if package wasn't installed
       - name: Set PYTHONPATH (src layout fallback)
