@@ -82,6 +82,20 @@ def load_state() -> Dict[str, Any]:
 
 
 def save_state(state: Dict[str, Any]) -> None:
+    # Safety net: never write a state without an ``active`` profile present.
+    active = state.get("active")
+    if not isinstance(active, dict):
+        try:
+            prev = load_state()
+            prev_active = prev.get("active") if isinstance(prev, dict) else None
+            if isinstance(prev_active, dict):
+                state["active"] = prev_active
+        except Exception:
+            # If we cannot backfill from disk, synthesize a minimal default.
+            state["active"] = {
+                "class": state.get("class") or state.get("name") or "Thief",
+                "pos": [2000, 0, 0],
+            }
     atomic_write_json(_player_path(), state)
     _playersdbg_log("SAVE", state)
 
@@ -285,3 +299,20 @@ def bind_inventory_to_active_class(player: Dict[str, Any]) -> None:
     bags[klass] = bag
     player["inventory"] = bag
     active["inventory"] = bag
+
+
+def _save_player(state: Dict[str, Any]) -> None:
+    """Persist ``state`` ensuring critical invariants are respected."""
+
+    ensure_active_profile(state, ctx={})
+    bind_inventory_to_active_class(state)
+
+    active = state.get("active")
+    klass = "Thief"
+    if isinstance(active, dict):
+        klass = str(active.get("class") or state.get("class") or "Thief")
+    bags = state.setdefault("bags", {})
+    inventory = state.get("inventory")
+    bags[klass] = list(inventory) if isinstance(inventory, list) else []
+
+    save_state(state)
