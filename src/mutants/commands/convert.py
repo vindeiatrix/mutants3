@@ -140,7 +140,11 @@ def convert_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
             klass = klass_from_state
         ion_map = snapshot_state.get("ions_by_class")
         if isinstance(ion_map, dict) and isinstance(klass, str) and klass in ion_map:
-            before = pstate.get_ions_for_active(snapshot_state)
+            state_before = pstate.get_ions_for_active(snapshot_state)
+            if before:
+                before = min(before, state_before)
+            else:
+                before = state_before
         else:
             alt = _legacy_ions(snapshot_state)
             if alt or before == 0:
@@ -190,6 +194,20 @@ def convert_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
                 iid,
                 item_id,
             )
+        players = state.get("players")
+        if isinstance(players, list):
+            filtered: list[dict[str, object]] = []
+            for entry in players:
+                if not isinstance(entry, dict):
+                    continue
+                if entry.get("id") == state.get("active_id"):
+                    filtered.append(entry)
+                    break
+                entry_class = entry.get("class") or entry.get("name")
+                if isinstance(entry_class, str) and entry_class == klass:
+                    filtered.append(entry)
+            if filtered:
+                state["players"] = filtered
         pstate.set_ions_for_active(state, new_total)
         if pstate._pdbg_enabled():  # pragma: no cover - diagnostic hook
             after_state = pstate.load_state()

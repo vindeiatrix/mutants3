@@ -168,6 +168,15 @@ def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
     steps = abs(dest_century - current_century) // 100
     full_cost = steps * ION_COST_PER_CENTURY
     ions = pstate.get_ions_for_active(currency_state)
+    player_ions = player.get("ions")
+    if player_ions is None:
+        player_ions = player.get("Ions")
+    try:
+        legacy_ions = int(player_ions) if player_ions is not None else None
+    except (TypeError, ValueError):
+        legacy_ions = None
+    if isinstance(legacy_ions, int) and legacy_ions >= 0:
+        ions = min(ions, legacy_ions) if ions else legacy_ions
 
     if ions < ION_COST_PER_CENTURY:
         bus.push("SYSTEM/WARN", "You don't have enough ions to create a portal.")
