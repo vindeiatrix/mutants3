@@ -133,15 +133,11 @@ def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
 
     def _update_ions(new_amount: int) -> int:
         nonlocal currency_state
+        result = pstate.set_ions_for_active(currency_state, new_amount)
         try:
-            result = pstate.set_ions_for_active(currency_state, new_amount)
+            currency_state = pstate.load_state()
         except Exception:
-            result = max(0, int(new_amount))
-        else:
-            try:
-                currency_state = pstate.load_state()
-            except Exception:
-                pass
+            pass
         player["ions"] = result
         player["Ions"] = result
         active_profile = player.get("active")

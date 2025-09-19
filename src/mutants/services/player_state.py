@@ -1020,6 +1020,28 @@ def get_active_class(state: Dict[str, Any]) -> str:
     return "Thief"
 
 
+def _prepare_active_storage(
+    state: Dict[str, Any]
+) -> Tuple[Dict[str, Any], Dict[str, Any], str]:
+    """Return ``(normalized_state, active_profile, class_name)`` for helpers."""
+
+    normalized = _normalize_player_state(state)
+    cls = get_active_class(normalized)
+
+    active = normalized.get("active")
+    if not isinstance(active, dict):
+        active = {}
+        normalized["active"] = active
+
+    if not isinstance(active.get("class"), str) or not active.get("class"):
+        active["class"] = cls
+
+    if not isinstance(normalized.get("class"), str) or not normalized.get("class"):
+        normalized["class"] = cls
+
+    return normalized, active, cls
+
+
 def get_ions_for_active(state: Dict[str, Any]) -> int:
     """Return the ion balance for the active class in ``state``."""
 
@@ -1036,17 +1058,15 @@ def get_ions_for_active(state: Dict[str, Any]) -> int:
 def set_ions_for_active(state: Dict[str, Any], amount: int) -> int:
     """Set ions for the active class to ``amount`` and persist."""
 
-    normalized = _normalize_player_state(state)
-    cls = get_active_class(normalized)
+    normalized, active, cls = _prepare_active_storage(state)
     ion_map = normalized.setdefault("ions_by_class", {})
     new_total = max(0, _coerce_int(amount, 0))
     ion_map[cls] = new_total
 
-    active = normalized.get("active")
-    if not isinstance(active, dict):
-        active = {}
-
-    _normalize_per_class_structures(normalized, cls, active)
+    normalized["ions"] = new_total
+    normalized["Ions"] = new_total
+    active["ions"] = new_total
+    active["Ions"] = new_total
 
     save_state(normalized)
     return new_total
@@ -1068,17 +1088,15 @@ def get_riblets_for_active(state: Dict[str, Any]) -> int:
 def set_riblets_for_active(state: Dict[str, Any], amount: int) -> int:
     """Set riblets for the active class to ``amount`` and persist."""
 
-    normalized = _normalize_player_state(state)
-    cls = get_active_class(normalized)
+    normalized, active, cls = _prepare_active_storage(state)
     rib_map = normalized.setdefault("riblets_by_class", {})
     new_total = max(0, _coerce_int(amount, 0))
     rib_map[cls] = new_total
 
-    active = normalized.get("active")
-    if not isinstance(active, dict):
-        active = {}
-
-    _normalize_per_class_structures(normalized, cls, active)
+    normalized["riblets"] = new_total
+    normalized["Riblets"] = new_total
+    active["riblets"] = new_total
+    active["Riblets"] = new_total
 
     save_state(normalized)
     return new_total
@@ -1132,17 +1150,13 @@ def get_exp_for_active(state: Dict[str, Any]) -> int:
 def set_exp_for_active(state: Dict[str, Any], amount: int) -> int:
     """Set experience points for the active class to ``amount`` and persist."""
 
-    normalized = _normalize_player_state(state)
-    cls = get_active_class(normalized)
+    normalized, active, cls = _prepare_active_storage(state)
     payload = normalized.setdefault("exp_by_class", {})
     new_value = max(0, _coerce_int(amount, 0))
     payload[cls] = new_value
 
-    active = normalized.get("active")
-    if not isinstance(active, dict):
-        active = {}
-
-    _normalize_per_class_structures(normalized, cls, active)
+    normalized["exp_points"] = new_value
+    active["exp_points"] = new_value
 
     save_state(normalized)
     return new_value
@@ -1164,17 +1178,13 @@ def get_level_for_active(state: Dict[str, Any]) -> int:
 def set_level_for_active(state: Dict[str, Any], amount: int) -> int:
     """Set the level for the active class to ``amount`` and persist."""
 
-    normalized = _normalize_player_state(state)
-    cls = get_active_class(normalized)
+    normalized, active, cls = _prepare_active_storage(state)
     payload = normalized.setdefault("level_by_class", {})
     new_value = max(1, _coerce_int(amount, 1))
     payload[cls] = new_value
 
-    active = normalized.get("active")
-    if not isinstance(active, dict):
-        active = {}
-
-    _normalize_per_class_structures(normalized, cls, active)
+    normalized["level"] = new_value
+    active["level"] = new_value
 
     save_state(normalized)
     return new_value
@@ -1193,24 +1203,31 @@ def get_hp_for_active(state: Dict[str, Any]) -> Dict[str, int]:
     return _empty_hp()
 
 
-def set_hp_for_active(state: Dict[str, Any], current: int, maximum: int) -> Dict[str, int]:
+def set_hp_for_active(
+    state: Dict[str, Any], hp: Mapping[str, Any], /, *legacy: Any
+) -> Dict[str, int]:
     """Set HP for the active class and persist the result."""
 
-    normalized = _normalize_player_state(state)
-    cls = get_active_class(normalized)
-    payload = normalized.setdefault("hp_by_class", {})
-    cur_val = max(0, _coerce_int(current, 0))
-    max_val = max(cur_val, max(0, _coerce_int(maximum, cur_val)))
-    payload[cls] = {"current": cur_val, "max": max_val}
+    if legacy:
+        current = _coerce_int(hp, 0)
+        max_raw = legacy[0] if legacy else current
+        maximum = _coerce_int(max_raw, current)
+        payload: Mapping[str, Any] = {"current": current, "max": maximum}
+    else:
+        payload = hp
 
-    active = normalized.get("active")
-    if not isinstance(active, dict):
-        active = {}
+    normalized, active, cls = _prepare_active_storage(state)
+    block = _normalize_hp_block(payload)
 
-    _normalize_per_class_structures(normalized, cls, active)
+    hp_map = normalized.setdefault("hp_by_class", {})
+    sanitized = dict(block)
+    hp_map[cls] = sanitized
+
+    normalized["hp"] = dict(sanitized)
+    active["hp"] = dict(sanitized)
 
     save_state(normalized)
-    return dict(payload[cls])
+    return dict(sanitized)
 
 
 def get_stats_for_active(state: Dict[str, Any]) -> Dict[str, int]:
@@ -1231,17 +1248,13 @@ def set_stats_for_active(
 ) -> Dict[str, int]:
     """Set ability scores for the active class and persist."""
 
-    normalized = _normalize_player_state(state)
-    cls = get_active_class(normalized)
+    normalized, active, cls = _prepare_active_storage(state)
     payload = normalized.setdefault("stats_by_class", {})
     sanitized = _normalize_stats_block(stats)
-    payload[cls] = sanitized
+    payload[cls] = dict(sanitized)
 
-    active = normalized.get("active")
-    if not isinstance(active, dict):
-        active = {}
-
-    _normalize_per_class_structures(normalized, cls, active)
+    normalized["stats"] = dict(sanitized)
+    active["stats"] = dict(sanitized)
 
     save_state(normalized)
     return dict(sanitized)
