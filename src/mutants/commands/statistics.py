@@ -15,8 +15,11 @@ def _int(value: object, default: int = 0) -> int:
 
 
 def statistics_cmd(arg: str, ctx) -> None:
-    _, active = pstate.get_active_pair()
+    # Get both the full state and the active player snapshot so we can read
+    # per-class currency maps (authoritative) in addition to legacy fields.
+    state, active = pstate.get_active_pair()
     player: Dict[str, object] = active if isinstance(active, dict) else {}
+    state_map: Mapping[str, object] = state if isinstance(state, Mapping) else {}
     bus = ctx["feedback_bus"]
 
     name = player.get("name", "Unknown")
@@ -42,8 +45,12 @@ def statistics_cmd(arg: str, ctx) -> None:
     hp_cur = _int(hp_map.get("current"))
     hp_max = _int(hp_map.get("max"))
     exp_pts = _int(player.get("exp_points"))
-    riblets = _int(player.get("riblets"))
-    ions = _int(player.get("ions"))
+    # Prefer authoritative per-class maps; fall back to legacy per-player fields.
+    cls_name = str(player.get("class", "Unknown"))
+    ions_map: Mapping[str, object] = state_map.get("ions_by_class", {}) if isinstance(state_map.get("ions_by_class"), Mapping) else {}
+    riblets_map: Mapping[str, object] = state_map.get("riblets_by_class", {}) if isinstance(state_map.get("riblets_by_class"), Mapping) else {}
+    ions = _int(ions_map.get(cls_name, player.get("ions")))
+    riblets = _int(riblets_map.get(cls_name, player.get("riblets")))
     level = _int(player.get("level"), default=1)
 
     armour = player.get("armour")
