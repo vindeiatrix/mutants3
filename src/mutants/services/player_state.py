@@ -231,7 +231,7 @@ def _check_invariants_and_log(state: Dict[str, Any], where: str) -> None:
 
     _pdbg_setup_file_logging()
     try:
-        ok, details = _evaluate_invariants(state)
+        ok, details = _evaluate_invariants_with_details(state)
     except Exception as exc:
         ok = False
         details = {"error": repr(exc)}
@@ -371,6 +371,73 @@ def _normalize_stats_block(payload: Any) -> Dict[str, int]:
     return normalized
 
 
+def _string_key(value: Any) -> Optional[str]:
+    if isinstance(value, str):
+        candidate = value
+    elif value is None:
+        return None
+    else:
+        try:
+            candidate = str(value)
+        except Exception:
+            return None
+    candidate = candidate.strip() if isinstance(candidate, str) else candidate
+    if not candidate:
+        return None
+    return candidate
+
+
+def _sanitize_spell_list(payload: Any) -> List[str]:
+    if not isinstance(payload, list):
+        return []
+    deduped: List[str] = []
+    seen: set[str] = set()
+    for item in payload:
+        if isinstance(item, str) and item:
+            key = item
+        elif item is None:
+            continue
+        else:
+            key = _string_key(item) or ""
+        if not key or key in seen:
+            continue
+        seen.add(key)
+        deduped.append(key)
+    return deduped
+
+
+def _sanitize_spell_container(payload: Any) -> Dict[str, List[str]]:
+    container: Dict[str, List[str]] = {"known": [], "prepared": []}
+    if isinstance(payload, Mapping):
+        container["known"] = _sanitize_spell_list(payload.get("known"))
+        container["prepared"] = _sanitize_spell_list(payload.get("prepared"))
+    return container
+
+
+def _sanitize_effect_dict(payload: Any) -> Dict[str, Any]:
+    if not isinstance(payload, Mapping):
+        return {}
+    sanitized: Dict[str, Any] = {}
+    for key, value in payload.items():
+        key_str = _string_key(key)
+        if not key_str:
+            continue
+        sanitized[key_str] = value
+    return sanitized
+
+
+def _sanitize_spell_effect_entry(payload: Any) -> Dict[str, Dict[str, Any]]:
+    if isinstance(payload, Mapping):
+        personal_payload = payload.get("personal")
+    else:
+        personal_payload = None
+    return {"personal": _sanitize_effect_dict(personal_payload)}
+
+
+def _sanitize_world_tile_effects(payload: Any) -> Dict[str, Any]:
+    return _sanitize_effect_dict(payload)
+
+
 def _empty_migration_snapshot() -> Dict[str, Optional[Any]]:
     return {
         "ions": None,
@@ -464,10 +531,11 @@ def _ensure_int_map(
 ) -> Dict[str, int]:
     raw_map = state.get(key)
     normalized: Dict[str, int] = {}
+    class_set = {cls for cls in classes if isinstance(cls, str) and cls}
     if isinstance(raw_map, dict):
         for name, value in raw_map.items():
             cls_name = _normalize_class_name(name)
-            if not cls_name:
+            if not cls_name or cls_name not in class_set:
                 continue
             normalized[cls_name] = _sanitize_class_int(value, default)
 
@@ -479,7 +547,13 @@ def _ensure_int_map(
 
         if cls_name in normalized:
             current_value = _sanitize_class_int(normalized[cls_name], default)
-            if current_value == default and has_fallback and fallback_value != default:
+            if (
+                has_fallback
+                and fallback_value != default
+                and fallback_value != current_value
+            ):
+                normalized[cls_name] = fallback_value
+            elif current_value == default and has_fallback and fallback_value != default:
                 normalized[cls_name] = fallback_value
             else:
                 normalized[cls_name] = current_value
@@ -568,6 +642,55 @@ def _ensure_stats_map(
         normalized[cls_name] = fallback_block
 
     state["stats_by_class"] = normalized
+    return normalized
+
+
+def _ensure_spells_map(state: Dict[str, Any], classes: Iterable[str]) -> Dict[str, Dict[str, List[str]]]:
+    raw_map = state.get("spells_by_class")
+    normalized: Dict[str, Dict[str, List[str]]] = {}
+    if isinstance(raw_map, Mapping):
+        for name, payload in raw_map.items():
+            cls_name = _string_key(name)
+            if not cls_name:
+                continue
+            normalized[cls_name] = _sanitize_spell_container(payload)
+
+    for cls_name in classes:
+        key = cls_name if isinstance(cls_name, str) and cls_name else None
+        if not key:
+            continue
+        if key not in normalized:
+            normalized[key] = {"known": [], "prepared": []}
+
+    state["spells_by_class"] = normalized
+    return normalized
+
+
+def _ensure_spell_effects_map(
+    state: Dict[str, Any], classes: Iterable[str]
+) -> Dict[str, Dict[str, Dict[str, Any]]]:
+    raw_map = state.get("spell_effects_by_class")
+    normalized: Dict[str, Dict[str, Dict[str, Any]]] = {}
+    if isinstance(raw_map, Mapping):
+        for name, payload in raw_map.items():
+            cls_name = _string_key(name)
+            if not cls_name:
+                continue
+            normalized[cls_name] = _sanitize_spell_effect_entry(payload)
+
+    for cls_name in classes:
+        key = cls_name if isinstance(cls_name, str) and cls_name else None
+        if not key:
+            continue
+        entry = normalized.get(key)
+        if entry is None:
+            normalized[key] = {"personal": {}}
+        else:
+            personal = entry.get("personal")
+            if not isinstance(personal, dict):
+                entry["personal"] = {}
+
+    state["spell_effects_by_class"] = normalized
     return normalized
 
 
@@ -699,6 +822,10 @@ def _normalize_per_class_structures(
     hp_map = _ensure_hp_map(state, classes, sources, active)
     stats_map = _ensure_stats_map(state, classes, sources, active)
 
+    _ensure_spells_map(state, classes)
+    _ensure_spell_effects_map(state, classes)
+    state["world_tile_effects"] = _sanitize_world_tile_effects(state.get("world_tile_effects"))
+
     _apply_maps_to_profiles(
         state,
         klass_name,
@@ -715,7 +842,7 @@ def _normalize_per_class_structures(
     return state
 
 
-def _evaluate_invariants(state: Dict[str, Any]) -> Tuple[bool, Dict[str, Any]]:
+def _evaluate_invariants_with_details(state: Dict[str, Any]) -> Tuple[bool, Dict[str, Any]]:
     details: Dict[str, Any] = {"map_counts": {}}
 
     if not isinstance(state, dict):
@@ -857,6 +984,80 @@ def _evaluate_invariants(state: Dict[str, Any]) -> Tuple[bool, Dict[str, Any]]:
         stats_map[cls_name] = _normalize_stats_block(stats_payload.get(cls_name))
     sanitized_maps["stats_by_class"] = stats_map
 
+    spells_payload = state.get("spells_by_class")
+    if isinstance(spells_payload, dict):
+        details["map_counts"]["spells_by_class"] = len(spells_payload)
+    else:
+        spells_payload = {}
+        details["map_counts"]["spells_by_class"] = 0
+        if details.get("failure") is None:
+            details["failure"] = "spells_by_class-not-dict"
+        ok = False
+
+    def _valid_spell_list(values: Any) -> bool:
+        if not isinstance(values, list):
+            return False
+        seen: set[str] = set()
+        for item in values:
+            if not isinstance(item, str) or not item or item in seen:
+                return False
+            seen.add(item)
+        return True
+
+    for cls_name in class_set:
+        if cls_name not in spells_payload:
+            if details.get("missing_pair") is None:
+                details["missing_pair"] = ("spells_by_class", cls_name)
+            ok = False
+        entry = spells_payload.get(cls_name)
+        if not isinstance(entry, Mapping):
+            if details.get("failure") is None:
+                details["failure"] = f"spells_by_class[{cls_name}]-not-dict"
+            ok = False
+            continue
+        for key in ("known", "prepared"):
+            values = entry.get(key)
+            if not _valid_spell_list(values):
+                if details.get("failure") is None:
+                    details["failure"] = f"spells_by_class[{cls_name}].{key}-invalid"
+                ok = False
+
+    effects_payload = state.get("spell_effects_by_class")
+    if isinstance(effects_payload, dict):
+        details["map_counts"]["spell_effects_by_class"] = len(effects_payload)
+    else:
+        effects_payload = {}
+        details["map_counts"]["spell_effects_by_class"] = 0
+        if details.get("failure") is None:
+            details["failure"] = "spell_effects_by_class-not-dict"
+        ok = False
+
+    for cls_name in class_set:
+        if cls_name not in effects_payload:
+            if details.get("missing_pair") is None:
+                details["missing_pair"] = ("spell_effects_by_class", cls_name)
+            ok = False
+        entry = effects_payload.get(cls_name)
+        if not isinstance(entry, Mapping):
+            if details.get("failure") is None:
+                details["failure"] = f"spell_effects_by_class[{cls_name}]-not-dict"
+            ok = False
+            continue
+        personal = entry.get("personal")
+        if not isinstance(personal, Mapping):
+            if details.get("failure") is None:
+                details["failure"] = f"spell_effects_by_class[{cls_name}].personal-not-dict"
+            ok = False
+
+    world_effects = state.get("world_tile_effects")
+    if isinstance(world_effects, Mapping):
+        details["map_counts"]["world_tile_effects"] = len(world_effects)
+    else:
+        details["map_counts"]["world_tile_effects"] = 0
+        if details.get("failure") is None:
+            details["failure"] = "world_tile_effects-not-dict"
+        ok = False
+
     ions_expected = sanitized_maps.get("ions_by_class", {}).get(klass, 0)
     riblets_expected = sanitized_maps.get("riblets_by_class", {}).get(klass, 0)
 
@@ -884,6 +1085,11 @@ def _evaluate_invariants(state: Dict[str, Any]) -> Tuple[bool, Dict[str, Any]]:
         details["mirror_mismatch"] = mirror_mismatch
 
     return ok and details.get("failure") is None, details
+
+
+def _evaluate_invariants(state: Dict[str, Any]) -> bool:
+    ok, _ = _evaluate_invariants_with_details(state)
+    return ok
 
 
 def _normalize_player_state(state: Dict[str, Any]) -> Dict[str, Any]:
@@ -1062,6 +1268,24 @@ def save_state(state: Dict[str, Any]) -> None:
     _check_invariants_and_log(normalized, "after save")
 
 
+def on_class_switch(
+    prev_class: Optional[str], next_class: Optional[str], state: Dict[str, Any]
+) -> Dict[str, Any]:
+    normalized_state = _normalize_player_state(state if isinstance(state, dict) else {})
+    prev = _normalize_class_name(prev_class)
+    nxt = _normalize_class_name(next_class)
+    if prev and prev != nxt:
+        effects_map = normalized_state.setdefault("spell_effects_by_class", {})
+        entry = effects_map.get(prev)
+        if isinstance(entry, Mapping):
+            sanitized_entry = _sanitize_spell_effect_entry(entry)
+        else:
+            sanitized_entry = {"personal": {}}
+        sanitized_entry["personal"] = {}
+        effects_map[prev] = sanitized_entry
+    return normalized_state
+
+
 def get_active_class(state: Dict[str, Any]) -> str:
     """Return the class name for the active player in ``state``."""
 
@@ -1110,6 +1334,28 @@ def get_ions_for_active(state: Dict[str, Any]) -> int:
         value = ion_map.get(cls)
         if value is not None:
             return _coerce_int(value, 0)
+    # Fallback to legacy scalar locations when class-scoped entries are missing.
+    legacy_candidates: List[Any] = [
+        normalized.get("ions"),
+        normalized.get("Ions"),
+    ]
+    active = normalized.get("active")
+    if isinstance(active, Mapping):
+        legacy_candidates.extend([active.get("ions"), active.get("Ions")])
+    players = normalized.get("players")
+    if isinstance(players, list):
+        for player in players:
+            if not isinstance(player, Mapping):
+                continue
+            player_class = _normalize_class_name(player.get("class"))
+            if player_class == cls or (
+                player.get("id") == normalized.get("active_id") and player_class is None
+            ):
+                legacy_candidates.extend([player.get("ions"), player.get("Ions")])
+                break
+    for candidate in legacy_candidates:
+        if candidate is not None:
+            return _coerce_int(candidate, 0)
     return 0
 
 
@@ -1125,6 +1371,19 @@ def set_ions_for_active(state: Dict[str, Any], amount: int) -> int:
     normalized["Ions"] = new_total
     active["ions"] = new_total
     active["Ions"] = new_total
+    players = normalized.get("players")
+    if isinstance(players, list):
+        for player in players:
+            if not isinstance(player, Mapping):
+                continue
+            player_class = _normalize_class_name(player.get("class")) or _normalize_class_name(
+                player.get("name")
+            )
+            player_id = player.get("id")
+            if player_class == cls or player_id == normalized.get("active_id"):
+                player["ions"] = new_total
+                player["Ions"] = new_total
+                break
 
     save_state(normalized)
     return new_total
@@ -1155,6 +1414,19 @@ def set_riblets_for_active(state: Dict[str, Any], amount: int) -> int:
     normalized["Riblets"] = new_total
     active["riblets"] = new_total
     active["Riblets"] = new_total
+    players = normalized.get("players")
+    if isinstance(players, list):
+        for player in players:
+            if not isinstance(player, Mapping):
+                continue
+            player_class = _normalize_class_name(player.get("class")) or _normalize_class_name(
+                player.get("name")
+            )
+            player_id = player.get("id")
+            if player_class == cls or player_id == normalized.get("active_id"):
+                player["riblets"] = new_total
+                player["Riblets"] = new_total
+                break
 
     save_state(normalized)
     return new_total
@@ -1187,6 +1459,18 @@ def set_exhaustion_for_active(state: Dict[str, Any], amount: int) -> int:
         active = {}
 
     _normalize_per_class_structures(normalized, cls, active)
+    players = normalized.get("players")
+    if isinstance(players, list):
+        for player in players:
+            if not isinstance(player, Mapping):
+                continue
+            player_class = _normalize_class_name(player.get("class")) or _normalize_class_name(
+                player.get("name")
+            )
+            player_id = player.get("id")
+            if player_class == cls or player_id == normalized.get("active_id"):
+                player["exhaustion"] = new_value
+                break
 
     save_state(normalized)
     return new_value
@@ -1215,6 +1499,18 @@ def set_exp_for_active(state: Dict[str, Any], amount: int) -> int:
 
     normalized["exp_points"] = new_value
     active["exp_points"] = new_value
+    players = normalized.get("players")
+    if isinstance(players, list):
+        for player in players:
+            if not isinstance(player, Mapping):
+                continue
+            player_class = _normalize_class_name(player.get("class")) or _normalize_class_name(
+                player.get("name")
+            )
+            player_id = player.get("id")
+            if player_class == cls or player_id == normalized.get("active_id"):
+                player["exp_points"] = new_value
+                break
 
     save_state(normalized)
     return new_value
@@ -1243,6 +1539,18 @@ def set_level_for_active(state: Dict[str, Any], amount: int) -> int:
 
     normalized["level"] = new_value
     active["level"] = new_value
+    players = normalized.get("players")
+    if isinstance(players, list):
+        for player in players:
+            if not isinstance(player, Mapping):
+                continue
+            player_class = _normalize_class_name(player.get("class")) or _normalize_class_name(
+                player.get("name")
+            )
+            player_id = player.get("id")
+            if player_class == cls or player_id == normalized.get("active_id"):
+                player["level"] = new_value
+                break
 
     save_state(normalized)
     return new_value
@@ -1284,6 +1592,19 @@ def set_hp_for_active(
     normalized["hp"] = dict(sanitized)
     active["hp"] = dict(sanitized)
 
+    players = normalized.get("players")
+    if isinstance(players, list):
+        for player in players:
+            if not isinstance(player, Mapping):
+                continue
+            player_class = _normalize_class_name(player.get("class")) or _normalize_class_name(
+                player.get("name")
+            )
+            player_id = player.get("id")
+            if player_class == cls or player_id == normalized.get("active_id"):
+                player["hp"] = dict(sanitized)
+                break
+
     save_state(normalized)
     return dict(sanitized)
 
@@ -1313,6 +1634,19 @@ def set_stats_for_active(
 
     normalized["stats"] = dict(sanitized)
     active["stats"] = dict(sanitized)
+
+    players = normalized.get("players")
+    if isinstance(players, list):
+        for player in players:
+            if not isinstance(player, Mapping):
+                continue
+            player_class = _normalize_class_name(player.get("class")) or _normalize_class_name(
+                player.get("name")
+            )
+            player_id = player.get("id")
+            if player_class == cls or player_id == normalized.get("active_id"):
+                player["stats"] = dict(sanitized)
+                break
 
     save_state(normalized)
     return dict(sanitized)

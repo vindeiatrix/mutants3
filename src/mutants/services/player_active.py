@@ -1,20 +1,19 @@
 from __future__ import annotations
 from typing import Dict, Any, Optional
-from pathlib import Path
-from mutants.io.atomic import atomic_write_json
-import json, os
 
-PLAYER_PATH = Path(os.getcwd()) / "state" / "playerlivestate.json"
+from __future__ import annotations
 
-def _path() -> Path:
-    return PLAYER_PATH
+from typing import Any, Dict, Optional
+
+from mutants.services import player_state
+
 
 def load_state() -> Dict[str, Any]:
-    with _path().open("r", encoding="utf-8") as f:
-        return json.load(f)
+    return player_state.load_state()
+
 
 def save_state(state: Dict[str, Any]) -> None:
-    atomic_write_json(_path(), state)
+    player_state.save_state(state)
 
 def set_active(active_id: str) -> Dict[str, Any]:
     """
@@ -27,9 +26,38 @@ def set_active(active_id: str) -> Dict[str, Any]:
         raise ValueError(f"Unknown player id: {active_id}")
     if state.get("active_id") == active_id:
         return state
+    prev_class = player_state.get_active_class(state)
+
+    target_player: Optional[Dict[str, Any]] = None
+    players = state.get("players", [])
+    if isinstance(players, list):
+        for player in players:
+            if not isinstance(player, dict):
+                continue
+            if player.get("id") == active_id:
+                target_player = player
+                break
+
+    def _extract_class(payload: Optional[Dict[str, Any]]) -> Optional[str]:
+        if not isinstance(payload, dict):
+            return None
+        candidate = payload.get("class")
+        if isinstance(candidate, str) and candidate:
+            return candidate
+        candidate = payload.get("name")
+        if isinstance(candidate, str) and candidate:
+            return candidate
+        return None
+
+    next_class = _extract_class(target_player)
+    if not next_class:
+        next_class = prev_class
+
     state["active_id"] = active_id
-    save_state(state)
-    return state
+    updated_state = player_state.on_class_switch(prev_class, next_class, state)
+    updated_state["active_id"] = active_id
+    save_state(updated_state)
+    return updated_state
 
 def resolve_candidate(state: Dict[str, Any], q: str) -> Optional[str]:
     """
