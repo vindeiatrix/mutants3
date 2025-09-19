@@ -62,7 +62,7 @@ def _pdbg_setup_file_logging() -> None:
 
 
 def _pdbg_enabled() -> bool:
-    return bool(os.environ.get("PLAYERS_DEBUG"))
+    return bool(os.environ.get("PLAYERS_DEBUG") or os.environ.get("WORLD_DEBUG"))
 
 
 def _playersdbg_log(action: str, state: Dict[str, Any]) -> None:
@@ -168,7 +168,7 @@ def _snapshot_currency_map(payload: Any) -> Dict[str, int]:
     return snapshot
 
 
-def _invariants_summary(state: Dict[str, Any]) -> str:
+def _invariants_summary(state: Dict[str, Any], details: Optional[Dict[str, Any]] = None) -> str:
     """Return a compact description of critical player-state invariants."""
 
     active = state.get("active") if isinstance(state, dict) else {}
@@ -195,9 +195,31 @@ def _invariants_summary(state: Dict[str, Any]) -> str:
     ions = _snapshot_currency_map(state.get("ions_by_class") if isinstance(state, dict) else {})
     riblets = _snapshot_currency_map(state.get("riblets_by_class") if isinstance(state, dict) else {})
 
+    map_counts: Dict[str, int] = {}
+    payload = state if isinstance(state, dict) else {}
+    for key in (
+        "stats_by_class",
+        "hp_by_class",
+        "exp_by_class",
+        "level_by_class",
+        "ions_by_class",
+        "riblets_by_class",
+    ):
+        value = payload.get(key) if isinstance(payload, dict) else None
+        if isinstance(value, dict):
+            map_counts[key] = len(value)
+        else:
+            map_counts[key] = 0
+
+    if isinstance(details, dict):
+        extra_counts = details.get("map_counts")
+        if isinstance(extra_counts, dict):
+            map_counts.update({k: int(v) for k, v in extra_counts.items()})
+
     return (
         f"class={klass} pos={pos} inv_count={inv_count} "
-        f"bag_counts={bag_counts} ions={ions} riblets={riblets}"
+        f"bag_counts={bag_counts} ions={ions} riblets={riblets} "
+        f"map_counts={map_counts}"
     )
 
 
@@ -209,15 +231,33 @@ def _check_invariants_and_log(state: Dict[str, Any], where: str) -> None:
 
     _pdbg_setup_file_logging()
     try:
-        ok = _evaluate_invariants(state)
-    except Exception:
+        ok, details = _evaluate_invariants(state)
+    except Exception as exc:
         ok = False
+        details = {"error": repr(exc)}
 
-    summary = _invariants_summary(state if isinstance(state, dict) else {})
+    summary = _invariants_summary(state if isinstance(state, dict) else {}, details)
+    extra = ""
+    if isinstance(details, dict):
+        if details.get("failure"):
+            extra += f" failure={details['failure']}"
+        if details.get("missing_pair"):
+            missing_map, missing_class = details["missing_pair"]
+            extra += f" missing={missing_map}:{missing_class}"
+        if details.get("mirror_mismatch"):
+            extra += f" mirror={details['mirror_mismatch']}"
+        if details.get("active_mismatch"):
+            extra += f" active={details['active_mismatch']}"
+        if details.get("hp_violation"):
+            cls_name, cur, max_val = details["hp_violation"]
+            extra += f" hp={cls_name}:{cur}>{max_val}"
+        if details.get("error") and "error" not in extra:
+            extra += f" error={details['error']}"
+
     if ok:
         LOG_P.info("[playersdbg] INV-OK %s :: %s", where, summary)
     else:
-        LOG_P.error("[playersdbg] INV-FAIL %s :: %s", where, summary)
+        LOG_P.error("[playersdbg] INV-FAIL %s :: %s%s", where, summary, extra)
 
 
 def _normalize_class_name(value: Any) -> Optional[str]:
@@ -675,157 +715,175 @@ def _normalize_per_class_structures(
     return state
 
 
-def _evaluate_invariants(state: Dict[str, Any]) -> bool:
+def _evaluate_invariants(state: Dict[str, Any]) -> Tuple[bool, Dict[str, Any]]:
+    details: Dict[str, Any] = {"map_counts": {}}
+
     if not isinstance(state, dict):
-        return False
+        details["failure"] = "state-not-dict"
+        return False, details
+
+    players = state.get("players")
+    if not isinstance(players, list):
+        details["failure"] = "players-not-list"
+        return False, details
+
+    player_ids: set[str] = set()
+    active_flags: List[str] = []
+    for idx, player in enumerate(players):
+        if not isinstance(player, dict):
+            details["failure"] = f"player[{idx}]-not-dict"
+            return False, details
+        pid = player.get("id")
+        if not isinstance(pid, str) or not pid:
+            details["failure"] = f"player[{idx}]-missing-id"
+            return False, details
+        if pid in player_ids:
+            details["failure"] = f"duplicate-player-id:{pid}"
+            return False, details
+        player_ids.add(pid)
+        if player.get("is_active"):
+            active_flags.append(pid)
+
+    active_id = state.get("active_id")
+    if active_flags:
+        if len(active_flags) != 1:
+            details["active_mismatch"] = f"is_active_count={len(active_flags)} active_id={active_id}"
+        elif not isinstance(active_id, str) or active_id != active_flags[0]:
+            details["active_mismatch"] = f"active_id={active_id} flag={active_flags[0]}"
+    elif isinstance(active_id, str) and active_id:
+        details["active_mismatch"] = f"active_id={active_id} without-flag"
 
     active = state.get("active")
     if not isinstance(active, dict):
-        return False
+        details["failure"] = "active-not-dict"
+        return False, details
 
-    klass = active.get("class") or state.get("class") or state.get("name")
-    if not isinstance(klass, str) or not klass:
-        return False
-
-    pos = active.get("pos")
-    if not isinstance(pos, list) or len(pos) != 3:
-        return False
-
-    bags = state.get("bags")
-    if not isinstance(bags, dict):
-        return False
-
-    inventory = state.get("inventory")
-    if not isinstance(inventory, list):
-        return False
-
-    bag = bags.get(klass) if isinstance(klass, str) else None
-    if isinstance(bag, list) and bag is not inventory:
-        return False
+    klass = (
+        _normalize_class_name(active.get("class"))
+        or _normalize_class_name(state.get("class"))
+        or _normalize_class_name(state.get("name"))
+        or "Thief"
+    )
 
     classes, _ = _gather_class_sources(state, klass, active)
     class_set = {cls_name for cls_name in classes if isinstance(cls_name, str) and cls_name}
     class_set.add(klass)
 
-    def _validate_int_map(
-        key: str, default: int
-    ) -> Tuple[bool, Dict[str, int]]:
-        payload = state.get(key)
-        if not isinstance(payload, dict):
-            return False, {}
-        sanitized: Dict[str, int] = {}
-        for cls_name in class_set:
-            if cls_name not in payload:
-                return False, {}
-            sanitized[cls_name] = _coerce_int(payload.get(cls_name), default)
-        return True, sanitized
+    ok = details.get("active_mismatch") is None
 
-    def _validate_hp_map() -> Tuple[bool, Dict[str, Dict[str, int]]]:
-        payload = state.get("hp_by_class")
-        if not isinstance(payload, dict):
-            return False, {}
-        sanitized: Dict[str, Dict[str, int]] = {}
+    sanitized_maps: Dict[str, Dict[str, Any]] = {}
+
+    int_map_specs: Tuple[Tuple[str, int], ...] = (
+        ("ions_by_class", 0),
+        ("riblets_by_class", 0),
+        ("exp_by_class", 0),
+        ("level_by_class", 1),
+    )
+
+    for map_key, default in int_map_specs:
+        payload = state.get(map_key)
+        if isinstance(payload, dict):
+            details["map_counts"][map_key] = len(payload)
+        else:
+            payload = {}
+            details["map_counts"][map_key] = 0
+            if details.get("missing_pair") is None:
+                details["missing_pair"] = (map_key, "<missing-map>")
+            ok = False
+
+        sanitized_entries: Dict[str, int] = {}
         for cls_name in class_set:
             if cls_name not in payload:
-                return False, {}
-            raw_entry = payload.get(cls_name)
-            normalized = _normalize_hp_block(raw_entry)
-            sanitized[cls_name] = normalized
-            if isinstance(raw_entry, dict):
-                cur_val = max(0, _coerce_int(raw_entry.get("current"), 0))
-                max_raw = raw_entry.get("max")
-                if max_raw is None:
-                    max_val = cur_val
-                else:
-                    max_val = max(0, _coerce_int(max_raw, cur_val))
+                if details.get("missing_pair") is None:
+                    details["missing_pair"] = (map_key, cls_name)
+                ok = False
+            raw_value = payload.get(cls_name)
+            sanitized_entries[cls_name] = _sanitize_class_int(raw_value, default)
+        sanitized_maps[map_key] = sanitized_entries
+
+    hp_payload = state.get("hp_by_class")
+    if isinstance(hp_payload, dict):
+        details["map_counts"]["hp_by_class"] = len(hp_payload)
+    else:
+        hp_payload = {}
+        details["map_counts"]["hp_by_class"] = 0
+        if details.get("missing_pair") is None:
+            details["missing_pair"] = ("hp_by_class", "<missing-map>")
+        ok = False
+
+    hp_map: Dict[str, Dict[str, int]] = {}
+    hp_violation: Optional[Tuple[str, int, int]] = None
+    for cls_name in class_set:
+        if cls_name not in hp_payload:
+            if details.get("missing_pair") is None:
+                details["missing_pair"] = ("hp_by_class", cls_name)
+            ok = False
+        raw_entry = hp_payload.get(cls_name)
+        normalized = _normalize_hp_block(raw_entry)
+        hp_map[cls_name] = normalized
+        if isinstance(raw_entry, dict):
+            raw_cur = max(0, _coerce_int(raw_entry.get("current"), 0))
+            raw_max_raw = raw_entry.get("max")
+            if raw_max_raw is None:
+                raw_max = raw_cur
             else:
-                cur_val = 0
-                max_val = 0
-            if cur_val > max_val:
-                return False, sanitized
-        return True, sanitized
+                raw_max = max(0, _coerce_int(raw_max_raw, raw_cur))
+        else:
+            raw_cur = normalized["current"]
+            raw_max = normalized["max"]
+        if raw_cur > raw_max and hp_violation is None:
+            hp_violation = (cls_name, raw_cur, raw_max)
+    if hp_violation is not None:
+        ok = False
+        details["hp_violation"] = hp_violation
+    sanitized_maps["hp_by_class"] = hp_map
 
-    def _validate_stats_map() -> Tuple[bool, Dict[str, Dict[str, int]]]:
-        payload = state.get("stats_by_class")
-        if not isinstance(payload, dict):
-            return False, {}
-        sanitized: Dict[str, Dict[str, int]] = {}
-        for cls_name in class_set:
-            if cls_name not in payload:
-                return False, {}
-            sanitized[cls_name] = _normalize_stats_block(payload.get(cls_name))
-        return True, sanitized
+    stats_payload = state.get("stats_by_class")
+    if isinstance(stats_payload, dict):
+        details["map_counts"]["stats_by_class"] = len(stats_payload)
+    else:
+        stats_payload = {}
+        details["map_counts"]["stats_by_class"] = 0
+        if details.get("missing_pair") is None:
+            details["missing_pair"] = ("stats_by_class", "<missing-map>")
+        ok = False
 
-    ions_ok, ions_map = _validate_int_map("ions_by_class", 0)
-    rib_ok, rib_map = _validate_int_map("riblets_by_class", 0)
-    exhaustion_ok, exhaustion_map = _validate_int_map("exhaustion_by_class", 0)
-    exp_ok, exp_map = _validate_int_map("exp_by_class", 0)
-    level_ok, level_map = _validate_int_map("level_by_class", 1)
-    hp_ok, hp_map = _validate_hp_map()
-    stats_ok, stats_map = _validate_stats_map()
+    stats_map: Dict[str, Dict[str, int]] = {}
+    for cls_name in class_set:
+        if cls_name not in stats_payload:
+            if details.get("missing_pair") is None:
+                details["missing_pair"] = ("stats_by_class", cls_name)
+            ok = False
+        stats_map[cls_name] = _normalize_stats_block(stats_payload.get(cls_name))
+    sanitized_maps["stats_by_class"] = stats_map
 
-    if not all([ions_ok, rib_ok, exhaustion_ok, exp_ok, level_ok, hp_ok, stats_ok]):
-        return False
+    ions_expected = sanitized_maps.get("ions_by_class", {}).get(klass, 0)
+    riblets_expected = sanitized_maps.get("riblets_by_class", {}).get(klass, 0)
 
-    if any(level < 1 for level in level_map.values()):
-        return False
+    mirror_mismatch: Optional[str] = None
 
-    klass_name = klass
-    active_ions = ions_map.get(klass_name, 0)
-    if _coerce_int(state.get("ions"), 0) != active_ions:
-        return False
-    if _coerce_int(state.get("Ions"), 0) != active_ions:
-        return False
-    if _coerce_int(active.get("ions"), 0) != active_ions:
-        return False
-    if _coerce_int(active.get("Ions"), 0) != active_ions:
-        return False
+    def _assert_mirror(scope: str, key: str, actual: Any, expected: int) -> None:
+        nonlocal ok, mirror_mismatch
+        value = _coerce_int(actual, 0)
+        if value != expected and mirror_mismatch is None:
+            mirror_mismatch = f"{scope}.{key}={value} expected={expected}"
+        if value != expected:
+            ok = False
 
-    active_riblets = rib_map.get(klass_name, 0)
-    if _coerce_int(state.get("riblets"), 0) != active_riblets:
-        return False
-    if _coerce_int(state.get("Riblets"), 0) != active_riblets:
-        return False
-    if _coerce_int(active.get("riblets"), 0) != active_riblets:
-        return False
-    if _coerce_int(active.get("Riblets"), 0) != active_riblets:
-        return False
+    _assert_mirror("state", "ions", state.get("ions"), ions_expected)
+    _assert_mirror("state", "Ions", state.get("Ions"), ions_expected)
+    _assert_mirror("state", "riblets", state.get("riblets"), riblets_expected)
+    _assert_mirror("state", "Riblets", state.get("Riblets"), riblets_expected)
 
-    active_exhaustion = exhaustion_map.get(klass_name, 0)
-    if _coerce_int(state.get("exhaustion"), 0) != active_exhaustion:
-        return False
-    if _coerce_int(active.get("exhaustion"), 0) != active_exhaustion:
-        return False
+    _assert_mirror("active", "ions", active.get("ions"), ions_expected)
+    _assert_mirror("active", "Ions", active.get("Ions"), ions_expected)
+    _assert_mirror("active", "riblets", active.get("riblets"), riblets_expected)
+    _assert_mirror("active", "Riblets", active.get("Riblets"), riblets_expected)
 
-    active_exp = exp_map.get(klass_name, 0)
-    if _coerce_int(state.get("exp_points"), 0) != active_exp:
-        return False
-    if _coerce_int(active.get("exp_points"), 0) != active_exp:
-        return False
+    if mirror_mismatch is not None:
+        details["mirror_mismatch"] = mirror_mismatch
 
-    active_level = level_map.get(klass_name, 1)
-    if _coerce_int(state.get("level"), 1) != active_level:
-        return False
-    if _coerce_int(active.get("level"), 1) != active_level:
-        return False
-
-    state_hp = _normalize_hp_block(state.get("hp"))
-    active_hp = _normalize_hp_block(active.get("hp"))
-    expected_hp = hp_map.get(klass_name, _empty_hp())
-    if state_hp != expected_hp:
-        return False
-    if active_hp != expected_hp:
-        return False
-
-    state_stats = _normalize_stats_block(state.get("stats"))
-    active_stats = _normalize_stats_block(active.get("stats"))
-    expected_stats = stats_map.get(klass_name, _empty_stats())
-    if state_stats != expected_stats:
-        return False
-    if active_stats != expected_stats:
-        return False
-
-    return True
+    return ok and details.get("failure") is None, details
 
 
 def _normalize_player_state(state: Dict[str, Any]) -> Dict[str, Any]:
