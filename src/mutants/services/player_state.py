@@ -24,11 +24,16 @@ def _pdbg_setup_file_logging() -> None:
     try:
         log_dir = Path("state") / "logs"
         log_dir.mkdir(parents=True, exist_ok=True)
-        handler = logging.FileHandler(log_dir / "players_debug.log", encoding="utf-8")
-        handler.setLevel(logging.INFO)
-        handler.setFormatter(logging.Formatter("%(asctime)s %(name)s: %(message)s"))
-        LOG_P.handlers.clear()
-        LOG_P.addHandler(handler)
+        log_path = log_dir / "players_debug.log"
+        if not any(
+            isinstance(handler, logging.FileHandler)
+            and getattr(handler, "baseFilename", None) == str(log_path)
+            for handler in LOG_P.handlers
+        ):
+            handler = logging.FileHandler(log_path, encoding="utf-8")
+            handler.setLevel(logging.INFO)
+            handler.setFormatter(logging.Formatter("%(asctime)s %(name)s: %(message)s"))
+            LOG_P.addHandler(handler)
         LOG_P.setLevel(logging.INFO)
         LOG_P.propagate = False
         _PDBG_CONFIGURED = True
