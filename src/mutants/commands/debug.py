@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import shlex
 
 from ..registries import items_instances as itemsreg
@@ -7,6 +8,9 @@ from ..registries import items_catalog
 from ..services import item_transfer as it
 from ..services import player_state as pstate
 from ..util.textnorm import normalize_item_query
+
+
+LOG_P = logging.getLogger("mutants.playersdbg")
 
 
 def _pos_from_ctx(ctx) -> tuple[int, int, int]:
@@ -66,34 +70,52 @@ def _add_to_inventory(ctx, item_id: str, count: int) -> None:
     itemsreg.save_instances()
 
 
-def _adjust_ions(ctx, delta: int) -> None:
-    """Adjust the active player's ion count by ``delta`` and persist the change."""
+def _set_currency_for_active(ctx, currency: str, amount: int) -> None:
+    """Set a per-class currency to ``amount`` with detailed debug logging."""
 
     bus = ctx["feedback_bus"]
-    result = {"applied": False, "change": 0, "total": 0}
+    state = pstate.load_state()
+    cls_name = pstate.get_active_class(state)
 
-    def _mutate(state, active):
-        result["applied"] = True
-        current = int(active.get("ions") or 0)
-        new_total = max(0, current + delta)
-        result["change"] = new_total - current
-        result["total"] = new_total
-        active["ions"] = new_total
+    if currency == "ions":
+        getter = pstate.get_ions_for_active
+        setter = pstate.set_ions_for_active
+    elif currency == "riblets":
+        getter = pstate.get_riblets_for_active
+        setter = pstate.set_riblets_for_active
+    else:  # pragma: no cover - defensive guard for future callers
+        raise ValueError(f"Unknown currency '{currency}'")
 
-    pstate.mutate_active(_mutate)
+    before = getter(state)
+    pstate._check_invariants_and_log(state, f"before debug {currency}")
 
-    if not result["applied"]:
-        bus.push("SYSTEM/ERROR", "No player available to modify ions.")
-        return
+    if pstate._pdbg_enabled():
+        pstate._pdbg_setup_file_logging()
+        LOG_P.info(
+            "[playersdbg] DEBUG-%s before class=%s %s=%s",
+            currency.upper(),
+            cls_name,
+            currency,
+            before,
+        )
 
-    change = int(result["change"])
-    total = int(result["total"])
-    if change > 0:
-        bus.push("SYSTEM/OK", f"added {change} ions. (total: {total})")
-    elif change < 0:
-        bus.push("SYSTEM/OK", f"removed {abs(change)} ions. (total: {total})")
-    else:
-        bus.push("SYSTEM/INFO", f"Ion total unchanged. (total: {total})")
+    setter(state, amount)
+
+    state_after = pstate.load_state()
+    after = getter(state_after)
+
+    if pstate._pdbg_enabled():
+        LOG_P.info(
+            "[playersdbg] DEBUG-%s after  class=%s %s=%s :: %s",
+            currency.upper(),
+            cls_name,
+            currency,
+            after,
+            pstate._invariants_summary(state_after),
+        )
+
+    pstate._check_invariants_and_log(state_after, f"after debug {currency}")
+    bus.push("SYSTEM/OK", f"Set {currency} for {cls_name} to {after}.")
 
 
 def debug_add_cmd(arg: str, ctx):
@@ -149,7 +171,7 @@ def debug_cmd(arg: str, ctx):
                 "SYSTEM/WARN", "Ion amount must be an integer (e.g. 100 or -25)."
             )
             return
-        _adjust_ions(ctx, amount)
+        _set_currency_for_active(ctx, "ions", amount)
         return
 
     if parts[0] in {"riblets", "riblet", "rib"}:
@@ -165,12 +187,7 @@ def debug_cmd(arg: str, ctx):
                 "SYSTEM/WARN", "Riblet amount must be an integer (e.g. 50)."
             )
             return
-        state = pstate.load_state()
-        cls_name = pstate.get_active_class(state)
-        new_total = pstate.set_riblets_for_active(state, amount)
-        ctx["feedback_bus"].push(
-            "SYSTEM/OK", f"Set riblets for {cls_name} to {new_total}."
-        )
+        _set_currency_for_active(ctx, "riblets", amount)
         return
 
     ctx["feedback_bus"].push(
