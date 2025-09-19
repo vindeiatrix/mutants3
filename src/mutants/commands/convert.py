@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any, Dict, List, Optional, Tuple
 
 from ..services import item_transfer as itx
+from ..services import player_state as pstate
 from ..registries import items_catalog as catreg
 from ..registries import items_instances as itemsreg
 from ..util.textnorm import normalize_item_query
@@ -135,6 +136,8 @@ def convert_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
 
     catalog = catreg.load_catalog() or {}
     player = itx._load_player()
+    pstate.ensure_active_profile(player, ctx)
+    pstate.bind_inventory_to_active_class(player)
     itx._ensure_inventory(player)
 
     iid, item_id = _choose_inventory_item(player, prefix, catalog)

@@ -36,9 +36,23 @@ def _ensure_inventory(p: Dict[str, Any]) -> None:
 
     inv = p.get("inventory")
     if not isinstance(inv, list):
-        p["inventory"] = []
-        return
-    p["inventory"] = [i for i in inv if i]
+        normalized: List[str] = []
+    else:
+        normalized = [i for i in inv if i]
+    p["inventory"] = normalized
+
+    active = p.get("active")
+    if isinstance(active, dict):
+        active["inventory"] = normalized
+        klass = active.get("class") or p.get("class")
+    else:
+        klass = p.get("class")
+
+    if klass is not None:
+        klass_str = str(klass)
+        bags = p.get("bags")
+        if isinstance(bags, dict):
+            bags[klass_str] = normalized
 
 
 def _load_state() -> Dict[str, Any]:
@@ -285,6 +299,8 @@ def _pos_from_ctx(ctx) -> tuple[int, int, int]:
 
 def pick_from_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
     player = _load_player()
+    pstate.ensure_active_profile(player, ctx)
+    pstate.bind_inventory_to_active_class(player)
     _ensure_inventory(player)
     year, x, y = _pos_from_ctx(ctx)
     # Command-side probe (before filtering/mutation)
@@ -451,6 +467,8 @@ def pick_from_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
 
 def drop_to_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
     player = _load_player()
+    pstate.ensure_active_profile(player, ctx)
+    pstate.bind_inventory_to_active_class(player)
     _ensure_inventory(player)
     inv = list(player.get("inventory", []))
     if not inv:
@@ -513,6 +531,8 @@ def drop_to_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
 
 def throw_to_direction(ctx, direction: str, prefix: str, *, seed: Optional[int] = None) -> Dict:
     player = _load_player()
+    pstate.ensure_active_profile(player, ctx)
+    pstate.bind_inventory_to_active_class(player)
     _ensure_inventory(player)
     inv = list(player.get("inventory", []))
     if not inv:

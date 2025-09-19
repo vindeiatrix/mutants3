@@ -53,6 +53,8 @@ def _add_to_inventory(ctx, item_id: str, count: int) -> None:
     """Create *count* instances of item_id and add them to the active player's inventory."""
     year, x, y = _pos_from_ctx(ctx)
     p = it._load_player()
+    pstate.ensure_active_profile(p, ctx)
+    pstate.bind_inventory_to_active_class(p)
     it._ensure_inventory(p)
     inv = p["inventory"]
     for _ in range(count):
