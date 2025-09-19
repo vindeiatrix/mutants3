@@ -15,6 +15,16 @@ LOG_P = logging.getLogger("mutants.playersdbg")
 _PDBG_CONFIGURED = False
 
 _STAT_KEYS: Tuple[str, ...] = ("str", "int", "wis", "dex", "con", "cha")
+_IONS_KEYS: Tuple[str, ...] = ("ions", "Ions")
+_RIBLETS_KEYS: Tuple[str, ...] = ("riblets", "Riblets")
+_EXP_KEYS: Tuple[str, ...] = (
+    "exp_points",
+    "experience_points",
+    "experience",
+    "ExpPoints",
+    "ExperiencePoints",
+)
+_LEVEL_KEYS: Tuple[str, ...] = ("level", "Level")
 
 
 def _empty_stats() -> Dict[str, int]:
@@ -132,6 +142,17 @@ def _coerce_int(value: Any, default: int = 0) -> int:
         return int(value)
     except (TypeError, ValueError):
         return default
+
+
+def _sanitize_class_int(value: Any, default: int) -> int:
+    """Return ``value`` coerced to ``int`` honoring ``default`` domain rules."""
+
+    sanitized = _coerce_int(value, default)
+    if default <= 0:
+        return max(0, sanitized)
+    if default == 1:
+        return max(1, sanitized)
+    return sanitized
 
 
 def _snapshot_currency_map(payload: Any) -> Dict[str, int]:
@@ -294,6 +315,8 @@ def _normalize_hp_block(payload: Any) -> Dict[str, int]:
         if max_raw is None:
             max_raw = current
         maximum = max(0, _coerce_int(max_raw, current))
+        if current > maximum:
+            current = maximum
     else:
         current = 0
         maximum = 0
@@ -306,6 +329,88 @@ def _normalize_stats_block(payload: Any) -> Dict[str, int]:
         for key in _STAT_KEYS:
             normalized[key] = _coerce_int(payload.get(key), 0)
     return normalized
+
+
+def _empty_migration_snapshot() -> Dict[str, Optional[Any]]:
+    return {
+        "ions": None,
+        "riblets": None,
+        "exp": None,
+        "level": None,
+        "hp": None,
+        "stats": None,
+    }
+
+
+def _capture_legacy_payload(
+    snapshots: Dict[str, Dict[str, Optional[Any]]], cls_name: Optional[str], payload: Any
+) -> None:
+    if not cls_name or not isinstance(payload, Mapping):
+        return
+
+    snapshot = snapshots.setdefault(cls_name, _empty_migration_snapshot())
+
+    if snapshot["ions"] is None:
+        for key in _IONS_KEYS:
+            if key in payload:
+                snapshot["ions"] = _sanitize_class_int(payload.get(key), 0)
+                break
+
+    if snapshot["riblets"] is None:
+        for key in _RIBLETS_KEYS:
+            if key in payload:
+                snapshot["riblets"] = _sanitize_class_int(payload.get(key), 0)
+                break
+
+    if snapshot["exp"] is None:
+        for key in _EXP_KEYS:
+            if key in payload:
+                snapshot["exp"] = _sanitize_class_int(payload.get(key), 0)
+                break
+
+    if snapshot["level"] is None:
+        for key in _LEVEL_KEYS:
+            if key in payload:
+                snapshot["level"] = _sanitize_class_int(payload.get(key), 1)
+                break
+
+    if snapshot["hp"] is None and "hp" in payload:
+        snapshot["hp"] = _normalize_hp_block(payload.get("hp"))
+
+    if snapshot["stats"] is None and "stats" in payload:
+        stats_payload = payload.get("stats")
+        if isinstance(stats_payload, Mapping):
+            snapshot["stats"] = _normalize_stats_block(stats_payload)
+
+
+def _collect_legacy_snapshots(state: Dict[str, Any]) -> Dict[str, Dict[str, Optional[Any]]]:
+    snapshots: Dict[str, Dict[str, Optional[Any]]] = {}
+
+    players = state.get("players")
+    if isinstance(players, list):
+        for player in players:
+            if not isinstance(player, dict):
+                continue
+            cls_name = (
+                _normalize_class_name(player.get("class"))
+                or _normalize_class_name(player.get("name"))
+            )
+            _capture_legacy_payload(snapshots, cls_name, player)
+
+    active = state.get("active")
+    if isinstance(active, dict):
+        active_class = (
+            _normalize_class_name(active.get("class"))
+            or _normalize_class_name(active.get("name"))
+        )
+        _capture_legacy_payload(snapshots, active_class, active)
+
+    root_class = _normalize_class_name(state.get("class")) or _normalize_class_name(
+        state.get("name")
+    )
+    _capture_legacy_payload(snapshots, root_class, state)
+
+    return snapshots
 
 
 def _ensure_int_map(
@@ -324,15 +429,23 @@ def _ensure_int_map(
             cls_name = _normalize_class_name(name)
             if not cls_name:
                 continue
-            normalized[cls_name] = _coerce_int(value, default)
+            normalized[cls_name] = _sanitize_class_int(value, default)
 
     for cls_name in classes:
-        if cls_name in normalized:
-            normalized[cls_name] = _coerce_int(normalized[cls_name], default)
-            continue
         candidates = _source_candidates_for_class(cls_name, class_sources, active, state)
         fallback = _extract_scalar(candidates, fallback_keys)
-        normalized[cls_name] = _coerce_int(fallback, default)
+        has_fallback = fallback is not None
+        fallback_value = _sanitize_class_int(fallback, default)
+
+        if cls_name in normalized:
+            current_value = _sanitize_class_int(normalized[cls_name], default)
+            if current_value == default and has_fallback and fallback_value != default:
+                normalized[cls_name] = fallback_value
+            else:
+                normalized[cls_name] = current_value
+            continue
+
+        normalized[cls_name] = fallback_value
 
     state[key] = normalized
     return normalized
@@ -354,9 +467,6 @@ def _ensure_hp_map(
             normalized[cls_name] = _normalize_hp_block(payload)
 
     for cls_name in classes:
-        if cls_name in normalized:
-            normalized[cls_name] = _normalize_hp_block(normalized[cls_name])
-            continue
         candidates = _source_candidates_for_class(cls_name, class_sources, active, state)
         block: Any = None
         for src in candidates:
@@ -365,7 +475,17 @@ def _ensure_hp_map(
             block = src.get("hp")
             if block is not None:
                 break
-        normalized[cls_name] = _normalize_hp_block(block)
+        fallback_block = _normalize_hp_block(block)
+
+        if cls_name in normalized:
+            current_block = _normalize_hp_block(normalized[cls_name])
+            if current_block == _empty_hp() and block is not None:
+                normalized[cls_name] = fallback_block
+            else:
+                normalized[cls_name] = current_block
+            continue
+
+        normalized[cls_name] = fallback_block
 
     state["hp_by_class"] = normalized
     return normalized
@@ -387,9 +507,6 @@ def _ensure_stats_map(
             normalized[cls_name] = _normalize_stats_block(payload)
 
     for cls_name in classes:
-        if cls_name in normalized:
-            normalized[cls_name] = _normalize_stats_block(normalized[cls_name])
-            continue
         candidates = _source_candidates_for_class(cls_name, class_sources, active, state)
         block: Any = None
         for src in candidates:
@@ -398,7 +515,17 @@ def _ensure_stats_map(
             block = src.get("stats")
             if block is not None:
                 break
-        normalized[cls_name] = _normalize_stats_block(block)
+        fallback_block = _normalize_stats_block(block)
+
+        if cls_name in normalized:
+            current_block = _normalize_stats_block(normalized[cls_name])
+            if current_block == _empty_stats() and block is not None:
+                normalized[cls_name] = fallback_block
+            else:
+                normalized[cls_name] = current_block
+            continue
+
+        normalized[cls_name] = fallback_block
 
     state["stats_by_class"] = normalized
     return normalized
@@ -487,7 +614,7 @@ def _normalize_per_class_structures(
     ions_map = _ensure_int_map(
         state,
         "ions_by_class",
-        ("ions", "Ions"),
+        _IONS_KEYS,
         0,
         classes,
         sources,
@@ -496,7 +623,7 @@ def _normalize_per_class_structures(
     rib_map = _ensure_int_map(
         state,
         "riblets_by_class",
-        ("riblets", "Riblets"),
+        _RIBLETS_KEYS,
         0,
         classes,
         sources,
@@ -514,7 +641,7 @@ def _normalize_per_class_structures(
     exp_map = _ensure_int_map(
         state,
         "exp_by_class",
-        ("exp_points", "experience_points", "experience", "ExpPoints", "ExperiencePoints"),
+        _EXP_KEYS,
         0,
         classes,
         sources,
@@ -523,7 +650,7 @@ def _normalize_per_class_structures(
     level_map = _ensure_int_map(
         state,
         "level_by_class",
-        ("level", "Level"),
+        _LEVEL_KEYS,
         1,
         classes,
         sources,
@@ -772,15 +899,65 @@ def migrate_per_class_fields(state: Dict[str, Any]) -> Dict[str, Any]:
     if not isinstance(state, dict):
         return state
 
-    ensure_active_profile(state, ctx={})
-    active = state.get("active")
+    legacy_snapshot = copy.deepcopy(state)
+    legacy_values = _collect_legacy_snapshots(legacy_snapshot)
+
+    normalized = _normalize_player_state(state)
+
+    active = normalized.get("active")
     if not isinstance(active, dict):
         active = {}
+        normalized["active"] = active
 
-    klass_raw = active.get("class") or state.get("class") or state.get("name")
+    klass_raw = active.get("class") or normalized.get("class") or normalized.get("name")
     klass = str(klass_raw) if isinstance(klass_raw, str) and klass_raw else "Thief"
 
-    return _normalize_per_class_structures(state, klass, active)
+    ions_map = normalized.setdefault("ions_by_class", {})
+    rib_map = normalized.setdefault("riblets_by_class", {})
+    exp_map = normalized.setdefault("exp_by_class", {})
+    level_map = normalized.setdefault("level_by_class", {})
+    hp_map = normalized.setdefault("hp_by_class", {})
+    stats_map = normalized.setdefault("stats_by_class", {})
+
+    for cls_name, payload in legacy_values.items():
+        if not isinstance(cls_name, str) or not cls_name:
+            continue
+
+        ions_value = payload.get("ions")
+        if ions_value is not None:
+            if cls_name not in ions_map or _sanitize_class_int(ions_map.get(cls_name), 0) == 0:
+                ions_map[cls_name] = _sanitize_class_int(ions_value, 0)
+
+        rib_value = payload.get("riblets")
+        if rib_value is not None:
+            if cls_name not in rib_map or _sanitize_class_int(rib_map.get(cls_name), 0) == 0:
+                rib_map[cls_name] = _sanitize_class_int(rib_value, 0)
+
+        exp_value = payload.get("exp")
+        if exp_value is not None:
+            if cls_name not in exp_map or _sanitize_class_int(exp_map.get(cls_name), 0) == 0:
+                exp_map[cls_name] = _sanitize_class_int(exp_value, 0)
+
+        level_value = payload.get("level")
+        if level_value is not None:
+            if cls_name not in level_map or _sanitize_class_int(level_map.get(cls_name), 1) == 1:
+                level_map[cls_name] = _sanitize_class_int(level_value, 1)
+
+        hp_value = payload.get("hp")
+        if hp_value is not None:
+            existing_hp = hp_map.get(cls_name)
+            if not isinstance(existing_hp, Mapping) or _normalize_hp_block(existing_hp) == _empty_hp():
+                hp_map[cls_name] = _normalize_hp_block(hp_value)
+
+        stats_value = payload.get("stats")
+        if stats_value is not None:
+            existing_stats = stats_map.get(cls_name)
+            if not isinstance(existing_stats, Mapping) or _normalize_stats_block(existing_stats) == _empty_stats():
+                stats_map[cls_name] = _normalize_stats_block(stats_value)
+
+    _normalize_per_class_structures(normalized, klass, active)
+
+    return normalized
 
 
 def load_state() -> Dict[str, Any]:
@@ -789,11 +966,11 @@ def load_state() -> Dict[str, Any]:
         with path.open("r", encoding="utf-8") as f:
             state: Dict[str, Any] = json.load(f)
         before = json.dumps(state, sort_keys=True, ensure_ascii=False)
-        normalized = _normalize_player_state(state)
-        after = json.dumps(normalized, sort_keys=True, ensure_ascii=False)
+        migrated = migrate_per_class_fields(state)
+        after = json.dumps(migrated, sort_keys=True, ensure_ascii=False)
         if after != before:
-            _persist_canonical(normalized)
-        state = normalized
+            _persist_canonical(migrated)
+        state = migrated
     except (FileNotFoundError, json.JSONDecodeError):
         state = {"players": [], "active_id": None}
     _playersdbg_log("LOAD", state)
@@ -821,8 +998,7 @@ def save_state(state: Dict[str, Any]) -> None:
                 "class": to_save.get("class") or to_save.get("name") or "Thief",
                 "pos": [2000, 0, 0],
             }
-    migrate_per_class_fields(to_save)
-    normalized = _normalize_player_state(to_save)
+    normalized = migrate_per_class_fields(to_save)
     _persist_canonical(normalized)
     _playersdbg_log("SAVE", normalized)
     _check_invariants_and_log(normalized, "after save")
