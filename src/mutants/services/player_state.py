@@ -547,13 +547,8 @@ def _ensure_int_map(
 
         if cls_name in normalized:
             current_value = _sanitize_class_int(normalized[cls_name], default)
-            if (
-                has_fallback
-                and fallback_value != default
-                and fallback_value != current_value
-            ):
-                normalized[cls_name] = fallback_value
-            elif current_value == default and has_fallback and fallback_value != default:
+            # SEED-ONLY: keep any established non-default; seed only when default
+            if current_value == default and has_fallback and fallback_value != default:
                 normalized[cls_name] = fallback_value
             else:
                 normalized[cls_name] = current_value
@@ -1173,8 +1168,7 @@ def migrate_per_class_fields(state: Dict[str, Any]) -> Dict[str, Any]:
         active = {}
         normalized["active"] = active
 
-    klass_raw = active.get("class") or normalized.get("class") or normalized.get("name")
-    klass = str(klass_raw) if isinstance(klass_raw, str) and klass_raw else "Thief"
+    klass = get_active_class(normalized)
 
     ions_map = normalized.setdefault("ions_by_class", {})
     rib_map = normalized.setdefault("riblets_by_class", {})
@@ -1287,19 +1281,32 @@ def on_class_switch(
 
 
 def get_active_class(state: Dict[str, Any]) -> str:
-    """Return the class name for the active player in ``state``."""
+    """Return the active class, preferring multi-profile resolution."""
 
     if not isinstance(state, dict):
         return "Thief"
+
+    players = state.get("players")
+    active_id = state.get("active_id")
+    if isinstance(players, list) and active_id:
+        for player in players:
+            if not isinstance(player, Mapping):
+                continue
+            if player.get("id") != active_id:
+                continue
+            candidate = player.get("class") or player.get("name")
+            if isinstance(candidate, str) and candidate:
+                return candidate
+            break
+
     active = state.get("active")
-    if isinstance(active, dict):
+    if isinstance(active, Mapping):
         klass = active.get("class") or active.get("name")
         if isinstance(klass, str) and klass:
             return klass
+
     fallback = state.get("class") or state.get("name")
-    if isinstance(fallback, str) and fallback:
-        return fallback
-    return "Thief"
+    return fallback if isinstance(fallback, str) and fallback else "Thief"
 
 
 def _prepare_active_storage(
