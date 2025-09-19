@@ -168,6 +168,8 @@ def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
         return
 
     player = itx._load_player()
+    pstate.ensure_active_profile(player, ctx)
+    pstate.bind_inventory_to_active_class(player)
     itx._ensure_inventory(player)
     pos = player.get("pos") or [2000, 0, 0]
     try:

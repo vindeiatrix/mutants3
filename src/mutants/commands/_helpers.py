@@ -4,10 +4,14 @@ from typing import Optional
 from ..registries import items_catalog, items_instances as itemsreg
 from ..util.textnorm import normalize_item_query as normalize
 from ..services import item_transfer as itx
+from ..services import player_state as pstate
 
 
 def inventory_iids_for_active_player(ctx) -> list[str]:
     p = itx._load_player()
+    pstate.ensure_active_profile(p, ctx)
+    pstate.bind_inventory_to_active_class(p)
+    itx._ensure_inventory(p)
     inv = p.get("inventory") or []
     return [str(i) for i in inv]
 

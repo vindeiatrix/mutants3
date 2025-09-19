@@ -6,6 +6,7 @@ from mutants.registries.world import BASE_GATE
 from mutants.registries import dynamics as dyn
 from mutants.registries import items_instances as itemsreg, items_catalog
 from ..services import item_transfer as it  # live inventory access
+from mutants.services import player_state as pstate
 from mutants.util.directions import OPP, DELTA
 
 from .argcmd import PosArg, PosArgSpec, run_argcmd_positional
@@ -19,10 +20,13 @@ def _active(state: Dict[str, Any]) -> Dict[str, Any]:
     return (state.get("players") or [{}])[0]
 
 
-def _has_matching_key(required: Optional[str]) -> tuple[bool, bool]:
+def _has_matching_key(ctx: Dict[str, Any], required: Optional[str]) -> tuple[bool, bool]:
     """Return (has_any_key, matches_required)."""
     cat = items_catalog.load_catalog()
     p = it._load_player()
+    pstate.ensure_active_profile(p, ctx)
+    pstate.bind_inventory_to_active_class(p)
+    it._ensure_inventory(p)
     inv = p.get("inventory") or []
     has_any = False
     for iid in inv:
@@ -87,7 +91,7 @@ def unlock_cmd(arg: str, ctx: Dict[str, Any]) -> None:
         if not locked:
             return {"ok": False, "reason": "not_locked"}
 
-        has_any, matches = _has_matching_key(required)
+        has_any, matches = _has_matching_key(ctx, required)
         if not has_any:
             return {"ok": False, "reason": "no_key"}
         if not matches:

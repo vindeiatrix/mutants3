@@ -6,6 +6,7 @@ from mutants.registries.world import BASE_GATE
 from mutants.registries import dynamics as dyn
 from mutants.registries import items_instances as itemsreg, items_catalog
 from ..services import item_transfer as it  # source of truth for player inventory
+from mutants.services import player_state as pstate
 from mutants.util.directions import OPP, DELTA
 
 from .argcmd import PosArg, PosArgSpec, run_argcmd_positional
@@ -23,6 +24,9 @@ def _has_any_key(ctx: Dict[str, Any]) -> tuple[bool, Optional[str]]:
     """Return (has_key, key_type) by scanning the live player state."""
     cat = items_catalog.load_catalog()
     p = it._load_player()  # live inventory (same source as GET/DROP/THROW)
+    pstate.ensure_active_profile(p, ctx)
+    pstate.bind_inventory_to_active_class(p)
+    it._ensure_inventory(p)
     inv = p.get("inventory") or []
     for iid in inv:
         inst = itemsreg.get_instance(iid) or {}
