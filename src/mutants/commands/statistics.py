@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import Dict
+from collections.abc import Mapping
 
 from mutants.services import player_state as pstate
 
@@ -45,12 +46,10 @@ def statistics_cmd(arg: str, ctx) -> None:
     ions = pstate.get_ions_for_active(state)
 
     armour = player.get("armour")
-    if isinstance(armour, Mapping):
-        wearing = armour.get("wearing")
-        ac = _int(armour.get("armour_class"))
-    else:
-        wearing = None
-        ac = 0
+    if not isinstance(armour, Mapping):
+        armour = {}
+    wearing = armour.get("wearing")
+    ac = _int(armour.get("armour_class"), 0)
 
     bus.push("SYSTEM/OK", f"Name: {name} / Mutant {cls}")
     bus.push("SYSTEM/OK", f"Exhaustion : {exhaustion}")
