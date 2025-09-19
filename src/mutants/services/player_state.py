@@ -133,14 +133,25 @@ def _normalize_player_state(state: Dict[str, Any]) -> Dict[str, Any]:
     if isinstance(raw_inventory, list):
         cleaned_inventory = [item for item in raw_inventory if item is not None]
 
+    bag_from_top = [item for item in cleaned_inventory if item is not None]
     bags = state.get("bags")
     if not isinstance(bags, dict):
         bags = {}
         state["bags"] = bags
-        bag = list(cleaned_inventory)
+        bag = bag_from_top
     else:
         existing_bag = bags.get(klass)
-        if isinstance(existing_bag, list):
+        if bag_from_top:
+            normalized_existing = [
+                [item for item in (bags.get(name) or []) if item is not None]
+                for name in bags
+                if name != klass and isinstance(bags.get(name), list)
+            ]
+            if bag_from_top in normalized_existing:
+                bag = [item for item in existing_bag if item is not None] if isinstance(existing_bag, list) else []
+            else:
+                bag = bag_from_top
+        elif isinstance(existing_bag, list):
             bag = [item for item in existing_bag if item is not None]
         else:
             bag = []
