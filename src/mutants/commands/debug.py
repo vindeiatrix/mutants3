@@ -127,7 +127,8 @@ def debug_cmd(arg: str, ctx):
     parts = shlex.split(arg.strip())
     if not parts:
         ctx["feedback_bus"].push(
-            "SYSTEM/INFO", "Usage: debug add <item_id> [qty] | debug ions <amount>"
+            "SYSTEM/INFO",
+            "Usage: debug add <item_id> [qty] | debug ions <amount> | debug riblets <amount>",
         )
         return
 
@@ -137,7 +138,9 @@ def debug_cmd(arg: str, ctx):
 
     if parts[0] in {"ions", "ion"}:
         if len(parts) < 2:
-            ctx["feedback_bus"].push("SYSTEM/INFO", "Usage: debug ions <amount>")
+            ctx["feedback_bus"].push(
+                "SYSTEM/INFO", "Usage: debug ions <amount>"
+            )
             return
         try:
             amount = int(parts[1])
@@ -149,8 +152,30 @@ def debug_cmd(arg: str, ctx):
         _adjust_ions(ctx, amount)
         return
 
+    if parts[0] in {"riblets", "riblet", "rib"}:
+        if len(parts) < 2:
+            ctx["feedback_bus"].push(
+                "SYSTEM/INFO", "Usage: debug riblets <amount>"
+            )
+            return
+        try:
+            amount = int(parts[1])
+        except ValueError:
+            ctx["feedback_bus"].push(
+                "SYSTEM/WARN", "Riblet amount must be an integer (e.g. 50)."
+            )
+            return
+        state = pstate.load_state()
+        cls_name = pstate.get_active_class(state)
+        new_total = pstate.set_riblets_for_active(state, amount)
+        ctx["feedback_bus"].push(
+            "SYSTEM/OK", f"Set riblets for {cls_name} to {new_total}."
+        )
+        return
+
     ctx["feedback_bus"].push(
-        "SYSTEM/INFO", "Usage: debug add <item_id> [qty] | debug ions <amount>"
+        "SYSTEM/INFO",
+        "Usage: debug add <item_id> [qty] | debug ions <amount> | debug riblets <amount>",
     )
 
 

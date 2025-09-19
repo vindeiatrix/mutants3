@@ -91,6 +91,15 @@ def _has_profile_payload(state: Dict[str, Any]) -> bool:
     return False
 
 
+def _coerce_int(value: Any, default: int = 0) -> int:
+    """Best-effort conversion of ``value`` to ``int`` with ``default`` fallback."""
+
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
+
+
 def _normalize_player_state(state: Dict[str, Any]) -> Dict[str, Any]:
     """Return ``state`` in canonical form for single-player data structures."""
 
@@ -140,6 +149,52 @@ def _normalize_player_state(state: Dict[str, Any]) -> Dict[str, Any]:
     state["inventory"] = bags[klass]
     active["inventory"] = bags[klass]
 
+    # 4) normalize per-class currencies
+    def _normalize_currency(
+        key: str, fallback_keys: Tuple[str, ...]
+    ) -> Dict[str, int]:
+        raw_map = state.get(key)
+        normalized: Dict[str, int] = {}
+        if isinstance(raw_map, dict):
+            for name, value in raw_map.items():
+                if not isinstance(name, str) or not name:
+                    continue
+                normalized[name] = _coerce_int(value, 0)
+        state[key] = normalized
+
+        current = normalized.get(klass)
+        if current is None:
+            fallback: Any = None
+            # try values on the active profile first
+            if isinstance(active, dict):
+                for fk in fallback_keys:
+                    fallback = active.get(fk.lower())
+                    if fallback is not None:
+                        break
+                    fallback = active.get(fk)
+                    if fallback is not None:
+                        break
+            if fallback is None:
+                for fk in fallback_keys:
+                    if fk in state:
+                        fallback = state.get(fk)
+                        if fallback is not None:
+                            break
+            normalized[klass] = _coerce_int(fallback, 0)
+        else:
+            normalized[klass] = _coerce_int(current, 0)
+
+        lower_name = fallback_keys[0]
+        upper_name = fallback_keys[-1]
+        if isinstance(active, dict):
+            active[lower_name] = normalized[klass]
+        state[lower_name] = normalized[klass]
+        state[upper_name] = normalized[klass]
+        return normalized
+
+    _normalize_currency("ions_by_class", ("ions", "Ions"))
+    _normalize_currency("riblets_by_class", ("riblets", "Riblets"))
+
     return state
 
 
@@ -183,6 +238,54 @@ def save_state(state: Dict[str, Any]) -> None:
     normalized = _normalize_player_state(to_save)
     _persist_canonical(normalized)
     _playersdbg_log("SAVE", normalized)
+
+
+def get_active_class(state: Dict[str, Any]) -> str:
+    """Return the class name for the active player in ``state``."""
+
+    if not isinstance(state, dict):
+        return "Thief"
+    active = state.get("active")
+    if isinstance(active, dict):
+        klass = active.get("class") or active.get("name")
+        if isinstance(klass, str) and klass:
+            return klass
+    fallback = state.get("class") or state.get("name")
+    if isinstance(fallback, str) and fallback:
+        return fallback
+    return "Thief"
+
+
+def get_riblets_for_active(state: Dict[str, Any]) -> int:
+    """Return the riblet balance for the active class in ``state``."""
+
+    normalized = _normalize_player_state(state)
+    cls = get_active_class(normalized)
+    rib_map = normalized.get("riblets_by_class", {})
+    if isinstance(rib_map, dict):
+        value = rib_map.get(cls)
+        if value is not None:
+            return _coerce_int(value, 0)
+    return 0
+
+
+def set_riblets_for_active(state: Dict[str, Any], amount: int) -> int:
+    """Set riblets for the active class to ``amount`` and persist."""
+
+    normalized = _normalize_player_state(state)
+    cls = get_active_class(normalized)
+    rib_map = normalized.setdefault("riblets_by_class", {})
+    new_total = max(0, _coerce_int(amount, 0))
+    rib_map[cls] = new_total
+
+    active = normalized.get("active")
+    if isinstance(active, dict):
+        active["riblets"] = new_total
+    normalized["riblets"] = new_total
+    normalized["Riblets"] = new_total
+
+    save_state(normalized)
+    return new_total
 
 
 def get_active_pair(
