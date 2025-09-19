@@ -91,8 +91,9 @@ def _load_player() -> Dict[str, Any]:
     legacy_inv = state.get("inventory")
     if isinstance(legacy_inv, list):
         cleaned = [str(i) for i in legacy_inv if i]
-        if cleaned and not player.get("inventory"):
+        if cleaned:
             player["inventory"] = cleaned.copy()
+            _ensure_inventory(player)
         state["inventory"] = cleaned
     return player
 
@@ -144,6 +145,24 @@ def _save_player(player: Dict[str, Any]) -> None:
         state.setdefault("players", [])
     player["inventory"] = inv
     state["inventory"] = list(inv)
+    klass_raw = player.get("class") or player.get("name")
+    if not klass_raw:
+        active_profile = state.get("active")
+        if isinstance(active_profile, dict):
+            klass_raw = active_profile.get("class") or active_profile.get("name")
+    if isinstance(klass_raw, str) and klass_raw:
+        klass = klass_raw
+        bags = state.get("bags")
+        if not isinstance(bags, dict):
+            bags = {}
+        bags[klass] = list(inv)
+        state["bags"] = bags
+        active_profile = state.get("active")
+        if isinstance(active_profile, dict):
+            if not isinstance(active_profile.get("bags"), dict):
+                active_profile["bags"] = {}
+            active_profile["bags"][klass] = list(inv)
+            active_profile["inventory"] = list(inv)
     # Mirror to legacy top-level slot so older tooling/tests stay in sync.
     pstate.save_state(state)
     _STATE_CACHE = None
@@ -269,6 +288,17 @@ def _pick_first_match_by_prefix(
         # Otherwise surface candidate names to disambiguate.
         return (None, names)
     return (None, None)
+
+
+def _remove_first(seq: List[str], target: str) -> List[str]:
+    """Return *seq* without the first occurrence of *target* (if present)."""
+
+    remaining = list(seq)
+    try:
+        remaining.remove(target)
+    except ValueError:
+        return remaining
+    return remaining
 
 
 def _rng(seed: Optional[int]) -> random.Random:
@@ -397,7 +427,7 @@ def pick_from_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
             itemsreg.clear_position(swap_iid)
             inv.append(swap_iid)
         itemsreg.set_position(drop_iid, year, x, y)
-        inv = [i for i in inv if i != drop_iid]
+        inv = _remove_first(inv, drop_iid)
         player["inventory"] = inv
         overflow_info = {"inv_overflow_drop": drop_iid}
 
@@ -489,7 +519,7 @@ def drop_to_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
         return {"ok": False, "reason": "armor_cannot_drop"}
     year, x, y = _pos_from_ctx(ctx)
     itemsreg.set_position(iid, year, x, y)
-    inv = [i for i in inv if i != iid]
+    inv = _remove_first(inv, iid)
     player["inventory"] = inv
     overflow_info = None
     rng = _rng(seed)
@@ -503,7 +533,7 @@ def drop_to_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
         if len(inv) > INV_CAP:
             drop_iid = rng.choice(inv)
             itemsreg.set_position(drop_iid, year, x, y)
-            inv = [i for i in inv if i != drop_iid]
+            inv = _remove_first(inv, drop_iid)
             player["inventory"] = inv
             overflow_info = {"ground_overflow_pick": pick, "inv_overflow_drop": drop_iid}
         else:
@@ -578,7 +608,7 @@ def throw_to_direction(ctx, direction: str, prefix: str, *, seed: Optional[int] 
                 nbr.get("gate_state"),
             )
     itemsreg.set_position(iid, year, drop_x, drop_y)
-    inv = [i for i in inv if i != iid]
+    inv = _remove_first(inv, iid)
     player["inventory"] = inv
     overflow_info = None
     rng = _rng(seed)
@@ -592,7 +622,7 @@ def throw_to_direction(ctx, direction: str, prefix: str, *, seed: Optional[int] 
         if len(inv) > INV_CAP:
             drop_iid = rng.choice(inv)
             itemsreg.set_position(drop_iid, year, drop_x, drop_y)
-            inv = [i for i in inv if i != drop_iid]
+            inv = _remove_first(inv, drop_iid)
             player["inventory"] = inv
             overflow_info = {"ground_overflow_pick": pick, "inv_overflow_drop": drop_iid}
         else:
