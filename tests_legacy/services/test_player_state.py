@@ -168,7 +168,7 @@ def test_active_setters_affect_only_active_class(monkeypatch):
     normalized = copy.deepcopy(saved["state"])
     player_state.set_level_for_active(normalized, 6)
     normalized = copy.deepcopy(saved["state"])
-    player_state.set_hp_for_active(normalized, 31, 40)
+    player_state.set_hp_for_active(normalized, {"current": 31, "max": 40})
     normalized = copy.deepcopy(saved["state"])
     player_state.set_stats_for_active(
         normalized,
