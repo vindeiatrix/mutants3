@@ -16,6 +16,7 @@ from mutants.ui.logsink import LogSink
 from mutants.ui.themes import Theme, load_theme
 from mutants.ui import styles as st
 from ..registries import items_instances as itemsreg
+from mutants.engine import session
 
 LOG = logging.getLogger(__name__)
 WORLD_DEBUG = os.getenv("WORLD_DEBUG") == "1"
@@ -52,6 +53,17 @@ def build_context() -> Dict[str, Any]:
     """Build the application context."""
     info = ensure_runtime()
     state = ensure_player_state()
+    active = state.get("active") if isinstance(state, dict) else None
+    active_class = None
+    if isinstance(active, dict):
+        candidate = active.get("class")
+        if isinstance(candidate, str) and candidate:
+            active_class = candidate
+    if not active_class:
+        candidate = state.get("class") if isinstance(state, dict) else None
+        if isinstance(candidate, str) and candidate:
+            active_class = candidate
+    session.set_active_class(active_class)
     cfg = info.get("config", {})
     bus = FeedbackBus()
     theme_path = cfg.get("theme_path", str(DEFAULT_THEME_PATH))
@@ -82,6 +94,7 @@ def build_context() -> Dict[str, Any]:
         "config": cfg,
         "render_next": False,
         "peek_vm": None,
+        "session": {"active_class": active_class} if active_class else {},
     }
     global _CURRENT_CTX
     _CURRENT_CTX = ctx

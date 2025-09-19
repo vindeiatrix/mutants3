@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from typing import Tuple
 
-from mutants.services import player_active as act
 from mutants.services import player_state as pstate
 from mutants.services import player_reset
+from mutants.engine import session
 
 
 ROW_FMT = "{idx:>2}. Mutant {cls:<7}  Level: {lvl:<2}  Year: {yr:<4}  ({x:>2} {y:>2})"
@@ -91,7 +91,43 @@ def handle_input(raw: str, ctx: dict) -> None:
     if not target_id:
         bus.push("SYSTEM/ERROR", "No player id for that slot.")
         return
-    new_state = act.set_active(target_id)
-    ctx["player_state"] = new_state
+    selected_player = players[idx - 1]
+    class_name = str(
+        (selected_player.get("class") or selected_player.get("name") or "Thief")
+    )
+    class_name = class_name.strip()
+    if not class_name:
+        class_name = "Thief"
+
+    year_val = 2000
+    sel_pos = selected_player.get("pos")
+    if isinstance(sel_pos, (list, tuple)) and sel_pos:
+        try:
+            year_val = int(sel_pos[0])
+        except Exception:
+            year_val = 2000
+    if year_val == 2000:
+        try:
+            year_candidate = int(selected_player.get("year"))
+        except Exception:
+            year_candidate = None
+        if isinstance(year_candidate, int):
+            year_val = year_candidate
+
+    state["active_id"] = target_id
+    state["active"] = {"class": class_name, "pos": [int(year_val), 0, 0]}
+    state.pop("class", None)
+
+    if isinstance(players, list):
+        for entry in players:
+            if isinstance(entry, dict):
+                entry["is_active"] = bool(entry.get("id") == target_id)
+
+    session.set_active_class(class_name)
+    session_ctx = ctx.setdefault("session", {})
+    if isinstance(session_ctx, dict):
+        session_ctx["active_class"] = class_name
+    pstate.save_state(state)
+    ctx["player_state"] = pstate.load_state()
     ctx["mode"] = None
     ctx["render_next"] = True
