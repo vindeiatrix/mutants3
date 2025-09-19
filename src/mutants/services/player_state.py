@@ -54,20 +54,44 @@ def _playersdbg_log(action: str, state: Dict[str, Any]) -> None:
         if not isinstance(active, dict):
             active = {}
         klass = active.get("class") or state.get("class") or "?"
-        inventory: List[str] = []
+
         raw_inv = state.get("inventory")
         if not isinstance(raw_inv, list):
             raw_inv = active.get("inventory") if isinstance(active, dict) else None
-        if isinstance(raw_inv, list):
-            inventory = [str(i) for i in raw_inv if i is not None]
+        inventory: List[str] = [str(i) for i in raw_inv or [] if i is not None]
+
+        ions_map: Dict[str, int] = {}
+        raw_ions = state.get("ions_by_class")
+        if isinstance(raw_ions, dict):
+            ions_map = {
+                str(name): _coerce_int(amount, 0)
+                for name, amount in raw_ions.items()
+                if isinstance(name, str) and name
+            }
+
+        rib_map: Dict[str, int] = {}
+        raw_riblets = state.get("riblets_by_class")
+        if isinstance(raw_riblets, dict):
+            rib_map = {
+                str(name): _coerce_int(amount, 0)
+                for name, amount in raw_riblets.items()
+                if isinstance(name, str) and name
+            }
+
+        active_ions = ions_map.get(klass, _coerce_int(state.get("Ions", state.get("ions")), 0))
+        active_riblets = rib_map.get(klass, _coerce_int(state.get("Riblets", state.get("riblets")), 0))
+
         LOG_P.info(
-            "[playersdbg] %s class=%s path=%s inv_iids=%s pos=%s ions=%s",
+            "[playersdbg] %s path=%s class=%s inv_iids=%s pos=%s ions=%s riblets=%s ions_map=%s riblets_map=%s",
             action,
-            klass,
             str(_player_path()),
+            klass,
             inventory,
             active.get("pos"),
-            state.get("Ions", state.get("ions")),
+            active_ions,
+            active_riblets,
+            ions_map,
+            rib_map,
         )
     except Exception:  # pragma: no cover - defensive logging only
         pass
@@ -98,6 +122,98 @@ def _coerce_int(value: Any, default: int = 0) -> int:
         return int(value)
     except (TypeError, ValueError):
         return default
+
+
+def _snapshot_currency_map(payload: Any) -> Dict[str, int]:
+    """Return a sanitized snapshot of a currency mapping."""
+
+    if not isinstance(payload, dict):
+        return {}
+    snapshot: Dict[str, int] = {}
+    for name, amount in payload.items():
+        if not isinstance(name, str) or not name:
+            continue
+        snapshot[name] = _coerce_int(amount, 0)
+    return snapshot
+
+
+def _invariants_summary(state: Dict[str, Any]) -> str:
+    """Return a compact description of critical player-state invariants."""
+
+    active = state.get("active") if isinstance(state, dict) else {}
+    if not isinstance(active, dict):
+        active = {}
+    klass = active.get("class") or state.get("class") or "?"
+    pos = active.get("pos")
+
+    bags = state.get("bags") if isinstance(state, dict) else None
+    if isinstance(bags, dict):
+        bag_counts = {
+            str(name): len(contents) if isinstance(contents, list) else -1
+            for name, contents in bags.items()
+        }
+    else:
+        bag_counts = {}
+
+    inventory = state.get("inventory") if isinstance(state, dict) else None
+    if isinstance(inventory, list):
+        inv_count = len(inventory)
+    else:
+        inv_count = -1
+
+    ions = _snapshot_currency_map(state.get("ions_by_class") if isinstance(state, dict) else {})
+    riblets = _snapshot_currency_map(state.get("riblets_by_class") if isinstance(state, dict) else {})
+
+    return (
+        f"class={klass} pos={pos} inv_count={inv_count} "
+        f"bag_counts={bag_counts} ions={ions} riblets={riblets}"
+    )
+
+
+def _check_invariants_and_log(state: Dict[str, Any], where: str) -> None:
+    """Emit diagnostic logs describing whether invariants hold for ``state``."""
+
+    if not _pdbg_enabled():
+        return
+
+    _pdbg_setup_file_logging()
+    ok = True
+    try:
+        if not isinstance(state, dict):
+            ok = False
+        else:
+            active = state.get("active")
+            if not isinstance(active, dict):
+                ok = False
+            else:
+                klass = active.get("class")
+                pos = active.get("pos")
+                if not isinstance(klass, str) or not klass:
+                    ok = False
+                if not isinstance(pos, list) or len(pos) != 3:
+                    ok = False
+
+            bags = state.get("bags")
+            if not isinstance(bags, dict):
+                ok = False
+
+            inventory = state.get("inventory")
+            if not isinstance(inventory, list):
+                ok = False
+
+            if ok and isinstance(bags, dict) and isinstance(active, dict):
+                klass = active.get("class")
+                bag = bags.get(klass) if isinstance(klass, str) else None
+                if isinstance(bag, list) and bag is not inventory:
+                    ok = False
+    except Exception:
+        ok = False
+
+    summary = _invariants_summary(state if isinstance(state, dict) else {})
+    if ok:
+        LOG_P.info("[playersdbg] INV-OK %s :: %s", where, summary)
+    else:
+        LOG_P.error("[playersdbg] INV-FAIL %s :: %s", where, summary)
 
 
 def _normalize_player_state(state: Dict[str, Any]) -> Dict[str, Any]:
@@ -223,6 +339,7 @@ def load_state() -> Dict[str, Any]:
     except (FileNotFoundError, json.JSONDecodeError):
         state = {"players": [], "active_id": None}
     _playersdbg_log("LOAD", state)
+    _check_invariants_and_log(state, "after load")
     return state
 
 
@@ -249,6 +366,7 @@ def save_state(state: Dict[str, Any]) -> None:
     normalized = _normalize_player_state(to_save)
     _persist_canonical(normalized)
     _playersdbg_log("SAVE", normalized)
+    _check_invariants_and_log(normalized, "after save")
 
 
 def get_active_class(state: Dict[str, Any]) -> str:
@@ -265,6 +383,38 @@ def get_active_class(state: Dict[str, Any]) -> str:
     if isinstance(fallback, str) and fallback:
         return fallback
     return "Thief"
+
+
+def get_ions_for_active(state: Dict[str, Any]) -> int:
+    """Return the ion balance for the active class in ``state``."""
+
+    normalized = _normalize_player_state(state)
+    cls = get_active_class(normalized)
+    ion_map = normalized.get("ions_by_class", {})
+    if isinstance(ion_map, dict):
+        value = ion_map.get(cls)
+        if value is not None:
+            return _coerce_int(value, 0)
+    return 0
+
+
+def set_ions_for_active(state: Dict[str, Any], amount: int) -> int:
+    """Set ions for the active class to ``amount`` and persist."""
+
+    normalized = _normalize_player_state(state)
+    cls = get_active_class(normalized)
+    ion_map = normalized.setdefault("ions_by_class", {})
+    new_total = max(0, _coerce_int(amount, 0))
+    ion_map[cls] = new_total
+
+    active = normalized.get("active")
+    if isinstance(active, dict):
+        active["ions"] = new_total
+    normalized["ions"] = new_total
+    normalized["Ions"] = new_total
+
+    save_state(normalized)
+    return new_total
 
 
 def get_riblets_for_active(state: Dict[str, Any]) -> int:
