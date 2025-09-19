@@ -1,4 +1,5 @@
 from __future__ import annotations
+import copy
 import json
 import logging
 import os
@@ -70,11 +71,83 @@ def _player_path() -> Path:
     return Path(os.getcwd()) / "state" / "playerlivestate.json"
 
 
+def _persist_canonical(state: Dict[str, Any]) -> None:
+    """Write ``state`` to disk without mutating logging state."""
+
+    atomic_write_json(_player_path(), state)
+
+
+def _has_profile_payload(state: Dict[str, Any]) -> bool:
+    """Return True if ``state`` appears to represent a single-player profile."""
+
+    for key in ("active", "inventory", "bags", "class", "name", "year"):
+        if key in state:
+            return True
+    return False
+
+
+def _normalize_player_state(state: Dict[str, Any]) -> Dict[str, Any]:
+    """Return ``state`` in canonical form for single-player data structures."""
+
+    if not isinstance(state, dict):
+        return {"players": [], "active_id": None}
+    if not _has_profile_payload(state):
+        return state
+
+    ensure_active_profile(state, ctx={})
+
+    active = state.get("active")
+    if not isinstance(active, dict):
+        active = {}
+        state["active"] = active
+
+    klass_raw = active.get("class") or state.get("class") or state.get("name")
+    klass = str(klass_raw) if isinstance(klass_raw, str) and klass_raw else "Thief"
+    active["class"] = klass
+    if "class" not in state or not state.get("class"):
+        state["class"] = klass
+
+    raw_inventory: Optional[List[Any]]
+    inv_top = state.get("inventory")
+    if isinstance(inv_top, list):
+        raw_inventory = inv_top
+    else:
+        active_inv = active.get("inventory") if isinstance(active, dict) else None
+        raw_inventory = active_inv if isinstance(active_inv, list) else None
+
+    cleaned_inventory = []
+    if isinstance(raw_inventory, list):
+        cleaned_inventory = [item for item in raw_inventory if item is not None]
+
+    bags = state.get("bags")
+    if not isinstance(bags, dict):
+        bags = {}
+        state["bags"] = bags
+
+    if not cleaned_inventory:
+        existing_bag = bags.get(klass)
+        if isinstance(existing_bag, list):
+            cleaned_inventory = [item for item in existing_bag if item is not None]
+
+    bag = list(cleaned_inventory)
+    bags[klass] = bag
+    state["inventory"] = bag
+    active["inventory"] = bag
+
+    return state
+
+
 def load_state() -> Dict[str, Any]:
     path = _player_path()
     try:
         with path.open("r", encoding="utf-8") as f:
             state: Dict[str, Any] = json.load(f)
+        before = json.dumps(state, sort_keys=True, ensure_ascii=False)
+        normalized = _normalize_player_state(state)
+        after = json.dumps(normalized, sort_keys=True, ensure_ascii=False)
+        if after != before:
+            _persist_canonical(normalized)
+        state = normalized
     except (FileNotFoundError, json.JSONDecodeError):
         state = {"players": [], "active_id": None}
     _playersdbg_log("LOAD", state)
@@ -83,21 +156,27 @@ def load_state() -> Dict[str, Any]:
 
 def save_state(state: Dict[str, Any]) -> None:
     # Safety net: never write a state without an ``active`` profile present.
-    active = state.get("active")
+    to_save: Dict[str, Any]
+    if isinstance(state, dict):
+        to_save = copy.deepcopy(state)
+    else:
+        to_save = {}
+    active = to_save.get("active")
     if not isinstance(active, dict):
         try:
             prev = load_state()
             prev_active = prev.get("active") if isinstance(prev, dict) else None
             if isinstance(prev_active, dict):
-                state["active"] = prev_active
+                to_save["active"] = copy.deepcopy(prev_active)
         except Exception:
             # If we cannot backfill from disk, synthesize a minimal default.
-            state["active"] = {
-                "class": state.get("class") or state.get("name") or "Thief",
+            to_save["active"] = {
+                "class": to_save.get("class") or to_save.get("name") or "Thief",
                 "pos": [2000, 0, 0],
             }
-    atomic_write_json(_player_path(), state)
-    _playersdbg_log("SAVE", state)
+    normalized = _normalize_player_state(to_save)
+    _persist_canonical(normalized)
+    _playersdbg_log("SAVE", normalized)
 
 
 def get_active_pair(
