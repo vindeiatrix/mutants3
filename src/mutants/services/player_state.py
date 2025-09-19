@@ -239,6 +239,19 @@ def _infer_class_from_ctx(ctx: Any) -> Optional[str]:
     if ctx is None:
         return None
 
+    if hasattr(ctx, "session"):
+        session_obj = getattr(ctx, "session", None)
+        candidate = getattr(session_obj, "active_class", None)
+        if isinstance(candidate, str) and candidate:
+            return candidate
+
+    if isinstance(ctx, dict) and "session" in ctx:
+        session_payload = ctx["session"]
+        if isinstance(session_payload, dict):
+            candidate = session_payload.get("active_class")
+            if isinstance(candidate, str) and candidate:
+                return candidate
+
     def _pull(obj: Any, key: str) -> Any:
         if isinstance(obj, dict):
             return obj.get(key)
@@ -317,9 +330,18 @@ def ensure_active_profile(player: Dict[str, Any], ctx: Any) -> None:
         active = {}
         player["active"] = active
 
-    klass = active.get("class") or player.get("class") or player.get("name")
-    if not isinstance(klass, str) or not klass:
-        klass = _infer_class_from_ctx(ctx) or "Thief"
+    klass_candidate = active.get("class")
+    klass = klass_candidate if isinstance(klass_candidate, str) and klass_candidate else None
+    if not klass:
+        candidate = player.get("class") or player.get("name")
+        if isinstance(candidate, str) and candidate:
+            klass = candidate
+    if not klass:
+        inferred = _infer_class_from_ctx(ctx)
+        if isinstance(inferred, str) and inferred:
+            klass = inferred
+    if not klass:
+        klass = "Thief"
     active["class"] = klass
     if "class" not in player or not player.get("class"):
         player["class"] = klass

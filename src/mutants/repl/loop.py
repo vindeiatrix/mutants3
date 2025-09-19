@@ -11,6 +11,7 @@ def main() -> None:
     ctx = build_context()
     dispatch = Dispatch()
     dispatch.set_feedback_bus(ctx["feedback_bus"])
+    dispatch.set_context(ctx)
 
     # Auto-register all commands in mutants.commands
     register_all(dispatch, ctx)

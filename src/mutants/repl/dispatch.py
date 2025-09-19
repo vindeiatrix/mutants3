@@ -1,8 +1,10 @@
 from __future__ import annotations
 import sys
-from typing import Callable, Dict, List, Optional
+from types import SimpleNamespace
+from typing import Callable, Dict, List, Optional, Any
 
 from mutants.util.directions import resolve_dir
+from mutants.engine import session as session_state
 
 
 class Dispatch:
@@ -15,16 +17,50 @@ class Dispatch:
         self._cmds: Dict[str, Callable[[str], None]] = {}
         self._aliases: Dict[str, str] = {}
         self._bus = None  # optional feedback bus
+        self._ctx: Any | None = None
 
     # Optional: REPL can call this after building ctx.
     def set_feedback_bus(self, bus) -> None:
         self._bus = bus
+
+    def set_context(self, ctx: Any) -> None:
+        """Remember the REPL context so session metadata can be injected."""
+
+        self._ctx = ctx
 
     def _warn(self, msg: str) -> None:
         if self._bus is not None:
             self._bus.push("SYSTEM/WARN", msg)
         else:
             print(msg, file=sys.stderr)
+
+    def _inject_session_context(self) -> None:
+        if self._ctx is None:
+            return
+
+        active_class = session_state.get_active_class()
+
+        if hasattr(self._ctx, "session"):
+            session_obj = getattr(self._ctx, "session")
+            if isinstance(session_obj, dict):
+                session_obj["active_class"] = active_class
+            elif isinstance(session_obj, SimpleNamespace):
+                session_obj.active_class = active_class
+            elif session_obj is None:
+                namespace = SimpleNamespace(active_class=active_class)
+                try:
+                    setattr(self._ctx, "session", namespace)
+                except Exception:
+                    namespace = None
+                if namespace is not None:
+                    session_obj = namespace
+
+        if isinstance(self._ctx, dict):
+            session_dict = self._ctx.get("session")
+            if not isinstance(session_dict, dict):
+                session_dict = {}
+                self._ctx["session"] = session_dict
+            session_dict["active_class"] = active_class
 
     def register(self, name: str, fn: Callable[[str], None]) -> None:
         self._cmds[name.lower()] = fn
@@ -66,6 +102,7 @@ class Dispatch:
         if dir_name and dir_name in self._cmds:
             fn = self._cmds.get(dir_name)
             if fn:
+                self._inject_session_context()
                 fn(arg)
             return dir_name
         name = self._resolve_prefix(token)
@@ -75,5 +112,6 @@ class Dispatch:
         if not fn:
             self._warn(f'Command handler missing for "{name}".')
             return None
+        self._inject_session_context()
         fn(arg)
         return name
