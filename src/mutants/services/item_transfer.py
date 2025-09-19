@@ -220,20 +220,9 @@ def _choose_instance_from_prefix(
             info["candidates"] = tips
         return None, info
 
-    if len(filtered) > 1:
-        exact = [t for t in filtered if t[0].lower() == qq or normalize_item_query(t[1]) == q]
-        if len(exact) == 1:
-            return exact[0][2], None
-        # If all candidates resolve to the same canonical name, treat as non-ambiguous.
-        names_norm = {normalize_item_query(t[1]) for t in filtered}
-        if len(names_norm) == 1:
-            return filtered[0][2], None
-        names = [name for _, name, _ in filtered]
-        return None, {
-            "reason": "ambiguous",
-            "message": f"Ambiguous: {', '.join(names[:5])}.",
-            "candidates": names,
-        }
+    for item_id, name, inst in filtered:
+        if item_id.lower() == qq or normalize_item_query(name) == q:
+            return inst, None
 
     return filtered[0][2], None
 
