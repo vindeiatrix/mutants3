@@ -11,24 +11,27 @@ def test_independence() -> None:
     e = Mage("Sera")
 
     a.add_item("lockpick")
-    a.riblets = 111
-    a.ions = 7
+    a.riblets.append("shadow shard")
+    a.ions["volt"] = 1
     a.add_xp(10)
 
     b.add_item("rosary")
-    b.riblets = 222
-    b.ions = 9
+    b.riblets.append("holy mote")
+    b.ions["bless"] = 3
     b.add_xp(20)
 
     assert a.inventory == ["lockpick"]
     assert b.inventory == ["rosary"]
 
-    assert a.riblets == 111
-    assert b.riblets == 222
+    assert "shadow shard" in a.riblets
+    assert "shadow shard" not in b.riblets
 
-    assert a.ions == 7
-    assert b.ions == 9
+    assert "holy mote" in b.riblets
+    assert "holy mote" not in a.riblets
 
-    assert c.ions == 0
-    assert d.riblets == 0
+    assert a.ions == {"volt": 1}
+    assert b.ions == {"bless": 3}
+
+    assert c.ions == {}
+    assert d.riblets == []
     assert e.inventory == []

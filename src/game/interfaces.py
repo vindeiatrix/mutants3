@@ -8,8 +8,8 @@ class Character(Protocol):
 
     name: str
     class_name: str
-    riblets: int
-    ions: int
+    riblets: List[str]
+    ions: Dict[str, int]
     experience: int
     stats: Dict[str, int]
     inventory: List[str]
