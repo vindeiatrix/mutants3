@@ -86,53 +86,6 @@ def _available_years(ctx: Dict[str, Any]) -> list[int]:
     return sorted(set(sanitized))
 
 
-def _get_ions(player: Dict[str, Any]) -> int:
-    if not isinstance(player, dict):
-        return 0
-    if "Ions" in player:
-        try:
-            return int(player["Ions"])
-        except Exception:
-            return 0
-    if "ions" in player:
-        try:
-            return int(player["ions"])
-        except Exception:
-            return 0
-    stats = player.get("stats")
-    if isinstance(stats, dict):
-        if "Ions" in stats:
-            try:
-                return int(stats["Ions"])
-            except Exception:
-                return 0
-        if "ions" in stats:
-            try:
-                return int(stats["ions"])
-            except Exception:
-                return 0
-    return 0
-
-
-def _set_ions(player: Dict[str, Any], amount: int) -> None:
-    clamped = int(max(0, amount))
-    if "Ions" in player:
-        player["Ions"] = clamped
-        return
-    if "ions" in player:
-        player["ions"] = clamped
-        return
-    stats = player.get("stats")
-    if isinstance(stats, dict):
-        if "Ions" in stats:
-            stats["Ions"] = clamped
-            return
-        if "ions" in stats:
-            stats["ions"] = clamped
-            return
-    player["Ions"] = clamped
-
-
 def _resolved_year(ctx: Dict[str, Any], target: int) -> Optional[int]:
     loader = ctx.get("world_loader", load_nearest_year)
     try:
@@ -171,6 +124,32 @@ def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
     pstate.ensure_active_profile(player, ctx)
     pstate.bind_inventory_to_active_class(player)
     itx._ensure_inventory(player)
+    currency_state = ctx.get("player_state") if isinstance(ctx.get("player_state"), dict) else None
+    if not isinstance(currency_state, dict):
+        try:
+            currency_state = pstate.load_state()
+        except Exception:
+            currency_state = {}
+
+    def _update_ions(new_amount: int) -> int:
+        nonlocal currency_state
+        try:
+            result = pstate.set_ions_for_active(currency_state, new_amount)
+        except Exception:
+            result = max(0, int(new_amount))
+        else:
+            try:
+                currency_state = pstate.load_state()
+            except Exception:
+                pass
+        player["ions"] = result
+        player["Ions"] = result
+        active_profile = player.get("active")
+        if isinstance(active_profile, dict):
+            active_profile["ions"] = result
+            active_profile["Ions"] = result
+        return result
+
     pos = player.get("pos") or [2000, 0, 0]
     try:
         current_year = int(pos[0])
@@ -192,7 +171,7 @@ def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
 
     steps = abs(dest_century - current_century) // 100
     full_cost = steps * ION_COST_PER_CENTURY
-    ions = _get_ions(player)
+    ions = pstate.get_ions_for_active(currency_state)
 
     if ions < ION_COST_PER_CENTURY:
         bus.push("SYSTEM/WARN", "You don't have enough ions to create a portal.")
@@ -202,7 +181,8 @@ def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
         resolved_year = _resolved_year(ctx, dest_century)
         if resolved_year is None:
             return
-        _set_ions(player, ions - full_cost)
+        new_total = ions - full_cost
+        _update_ions(new_total)
         player["pos"] = [resolved_year, 0, 0]
         _persist_state(ctx, player)
         bus.push(
@@ -215,7 +195,7 @@ def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
     max_century = max(current_century, dest_century)
     candidates = [year for year in available if min_century <= year <= max_century]
     if not candidates:
-        _set_ions(player, 0)
+        _update_ions(0)
         _persist_state(ctx, player)
         bus.push(
             "SYSTEM/WARN",
@@ -227,7 +207,7 @@ def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
     resolved_year = _resolved_year(ctx, chosen_year)
     if resolved_year is None:
         return
-    _set_ions(player, 0)
+    _update_ions(0)
     player["pos"] = [resolved_year, 0, 0]
     _persist_state(ctx, player)
     bus.push(
