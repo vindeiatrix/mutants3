@@ -4,7 +4,7 @@ import json
 import logging
 import os
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, Iterable, List, Mapping, Optional, Tuple
 
 from mutants.io.atomic import atomic_write_json
 
@@ -13,6 +13,16 @@ LOG_P = logging.getLogger("mutants.playersdbg")
 
 
 _PDBG_CONFIGURED = False
+
+_STAT_KEYS: Tuple[str, ...] = ("str", "int", "wis", "dex", "con", "cha")
+
+
+def _empty_stats() -> Dict[str, int]:
+    return {key: 0 for key in _STAT_KEYS}
+
+
+def _empty_hp() -> Dict[str, int]:
+    return {"current": 0, "max": 0}
 
 
 def _pdbg_setup_file_logging() -> None:
@@ -177,35 +187,8 @@ def _check_invariants_and_log(state: Dict[str, Any], where: str) -> None:
         return
 
     _pdbg_setup_file_logging()
-    ok = True
     try:
-        if not isinstance(state, dict):
-            ok = False
-        else:
-            active = state.get("active")
-            if not isinstance(active, dict):
-                ok = False
-            else:
-                klass = active.get("class")
-                pos = active.get("pos")
-                if not isinstance(klass, str) or not klass:
-                    ok = False
-                if not isinstance(pos, list) or len(pos) != 3:
-                    ok = False
-
-            bags = state.get("bags")
-            if not isinstance(bags, dict):
-                ok = False
-
-            inventory = state.get("inventory")
-            if not isinstance(inventory, list):
-                ok = False
-
-            if ok and isinstance(bags, dict) and isinstance(active, dict):
-                klass = active.get("class")
-                bag = bags.get(klass) if isinstance(klass, str) else None
-                if isinstance(bag, list) and bag is not inventory:
-                    ok = False
+        ok = _evaluate_invariants(state)
     except Exception:
         ok = False
 
@@ -214,6 +197,508 @@ def _check_invariants_and_log(state: Dict[str, Any], where: str) -> None:
         LOG_P.info("[playersdbg] INV-OK %s :: %s", where, summary)
     else:
         LOG_P.error("[playersdbg] INV-FAIL %s :: %s", where, summary)
+
+
+def _normalize_class_name(value: Any) -> Optional[str]:
+    if isinstance(value, str) and value:
+        return value
+    return None
+
+
+def _gather_class_sources(
+    state: Dict[str, Any], klass: str, active: Dict[str, Any]
+) -> Tuple[Iterable[str], Dict[str, Dict[str, Any]]]:
+    classes: List[str] = []
+    sources: Dict[str, Dict[str, Any]] = {}
+
+    players = state.get("players")
+    if isinstance(players, list):
+        for player in players:
+            if not isinstance(player, dict):
+                continue
+            candidate = (
+                _normalize_class_name(player.get("class"))
+                or _normalize_class_name(player.get("name"))
+            )
+            if not candidate:
+                continue
+            if candidate not in sources:
+                sources[candidate] = player
+            classes.append(candidate)
+
+    active_class = _normalize_class_name(active.get("class")) if isinstance(active, dict) else None
+    fallback_class = _normalize_class_name(klass) or active_class
+    if fallback_class:
+        classes.append(fallback_class)
+        if fallback_class not in sources and isinstance(active, dict):
+            sources[fallback_class] = active
+
+    root_candidates = (
+        _normalize_class_name(state.get("class")),
+        _normalize_class_name(state.get("name")),
+    )
+    for candidate in root_candidates:
+        if candidate and candidate not in sources and isinstance(active, dict):
+            sources[candidate] = active
+        if candidate:
+            classes.append(candidate)
+
+    if not classes:
+        classes.append("Thief")
+
+    unique_classes = []
+    seen: set[str] = set()
+    for cls_name in classes:
+        if cls_name not in seen:
+            unique_classes.append(cls_name)
+            seen.add(cls_name)
+
+    return unique_classes, sources
+
+
+def _source_candidates_for_class(
+    cls_name: str,
+    class_sources: Dict[str, Dict[str, Any]],
+    active: Dict[str, Any],
+    state: Dict[str, Any],
+) -> List[Dict[str, Any]]:
+    candidates: List[Dict[str, Any]] = []
+    primary = class_sources.get(cls_name)
+    if isinstance(primary, dict):
+        candidates.append(primary)
+    if isinstance(active, dict) and active is not primary:
+        candidates.append(active)
+    if state is not primary and state is not active:
+        candidates.append(state)
+    return candidates
+
+
+def _extract_scalar(
+    sources: Iterable[Dict[str, Any]], keys: Iterable[str]
+) -> Optional[Any]:
+    for src in sources:
+        if not isinstance(src, dict):
+            continue
+        for key in keys:
+            if key in src:
+                return src[key]
+    return None
+
+
+def _normalize_hp_block(payload: Any) -> Dict[str, int]:
+    current = 0
+    maximum = 0
+    if isinstance(payload, dict):
+        current = max(0, _coerce_int(payload.get("current"), 0))
+        max_raw = payload.get("max")
+        if max_raw is None:
+            max_raw = current
+        maximum = max(0, _coerce_int(max_raw, current))
+    else:
+        current = 0
+        maximum = 0
+    return {"current": current, "max": maximum}
+
+
+def _normalize_stats_block(payload: Any) -> Dict[str, int]:
+    normalized = _empty_stats()
+    if isinstance(payload, Mapping):
+        for key in _STAT_KEYS:
+            normalized[key] = _coerce_int(payload.get(key), 0)
+    return normalized
+
+
+def _ensure_int_map(
+    state: Dict[str, Any],
+    key: str,
+    fallback_keys: Tuple[str, ...],
+    default: int,
+    classes: Iterable[str],
+    class_sources: Dict[str, Dict[str, Any]],
+    active: Dict[str, Any],
+) -> Dict[str, int]:
+    raw_map = state.get(key)
+    normalized: Dict[str, int] = {}
+    if isinstance(raw_map, dict):
+        for name, value in raw_map.items():
+            cls_name = _normalize_class_name(name)
+            if not cls_name:
+                continue
+            normalized[cls_name] = _coerce_int(value, default)
+
+    for cls_name in classes:
+        if cls_name in normalized:
+            normalized[cls_name] = _coerce_int(normalized[cls_name], default)
+            continue
+        candidates = _source_candidates_for_class(cls_name, class_sources, active, state)
+        fallback = _extract_scalar(candidates, fallback_keys)
+        normalized[cls_name] = _coerce_int(fallback, default)
+
+    state[key] = normalized
+    return normalized
+
+
+def _ensure_hp_map(
+    state: Dict[str, Any],
+    classes: Iterable[str],
+    class_sources: Dict[str, Dict[str, Any]],
+    active: Dict[str, Any],
+) -> Dict[str, Dict[str, int]]:
+    raw_map = state.get("hp_by_class")
+    normalized: Dict[str, Dict[str, int]] = {}
+    if isinstance(raw_map, dict):
+        for name, payload in raw_map.items():
+            cls_name = _normalize_class_name(name)
+            if not cls_name:
+                continue
+            normalized[cls_name] = _normalize_hp_block(payload)
+
+    for cls_name in classes:
+        if cls_name in normalized:
+            normalized[cls_name] = _normalize_hp_block(normalized[cls_name])
+            continue
+        candidates = _source_candidates_for_class(cls_name, class_sources, active, state)
+        block: Any = None
+        for src in candidates:
+            if not isinstance(src, dict):
+                continue
+            block = src.get("hp")
+            if block is not None:
+                break
+        normalized[cls_name] = _normalize_hp_block(block)
+
+    state["hp_by_class"] = normalized
+    return normalized
+
+
+def _ensure_stats_map(
+    state: Dict[str, Any],
+    classes: Iterable[str],
+    class_sources: Dict[str, Dict[str, Any]],
+    active: Dict[str, Any],
+) -> Dict[str, Dict[str, int]]:
+    raw_map = state.get("stats_by_class")
+    normalized: Dict[str, Dict[str, int]] = {}
+    if isinstance(raw_map, dict):
+        for name, payload in raw_map.items():
+            cls_name = _normalize_class_name(name)
+            if not cls_name:
+                continue
+            normalized[cls_name] = _normalize_stats_block(payload)
+
+    for cls_name in classes:
+        if cls_name in normalized:
+            normalized[cls_name] = _normalize_stats_block(normalized[cls_name])
+            continue
+        candidates = _source_candidates_for_class(cls_name, class_sources, active, state)
+        block: Any = None
+        for src in candidates:
+            if not isinstance(src, dict):
+                continue
+            block = src.get("stats")
+            if block is not None:
+                break
+        normalized[cls_name] = _normalize_stats_block(block)
+
+    state["stats_by_class"] = normalized
+    return normalized
+
+
+def _apply_maps_to_profiles(
+    state: Dict[str, Any],
+    klass: str,
+    active: Dict[str, Any],
+    ions_map: Dict[str, int],
+    rib_map: Dict[str, int],
+    exhaustion_map: Dict[str, int],
+    exp_map: Dict[str, int],
+    level_map: Dict[str, int],
+    hp_map: Dict[str, Dict[str, int]],
+    stats_map: Dict[str, Dict[str, int]],
+) -> None:
+    players = state.get("players")
+    if isinstance(players, list):
+        for player in players:
+            if not isinstance(player, dict):
+                continue
+            cls_name = (
+                _normalize_class_name(player.get("class"))
+                or _normalize_class_name(player.get("name"))
+            )
+            if not cls_name:
+                continue
+            ion_val = ions_map.get(cls_name, 0)
+            rib_val = rib_map.get(cls_name, 0)
+            player["ions"] = ion_val
+            player["Ions"] = ion_val
+            player["riblets"] = rib_val
+            player["Riblets"] = rib_val
+            player["exhaustion"] = exhaustion_map.get(cls_name, 0)
+            player["exp_points"] = exp_map.get(cls_name, 0)
+            player["level"] = level_map.get(cls_name, 1)
+            player["hp"] = dict(hp_map.get(cls_name, _empty_hp()))
+            player["stats"] = dict(stats_map.get(cls_name, _empty_stats()))
+
+    klass_name = klass if isinstance(klass, str) and klass else "Thief"
+    active_hp = dict(hp_map.get(klass_name, _empty_hp()))
+    active_stats = dict(stats_map.get(klass_name, _empty_stats()))
+    active_ions = ions_map.get(klass_name, 0)
+    active_riblets = rib_map.get(klass_name, 0)
+    active_exhaustion = exhaustion_map.get(klass_name, 0)
+    active_exp = exp_map.get(klass_name, 0)
+    active_level = level_map.get(klass_name, 1)
+
+    if isinstance(active, dict):
+        active["ions"] = active_ions
+        active["Ions"] = active_ions
+        active["riblets"] = active_riblets
+        active["Riblets"] = active_riblets
+        active["exhaustion"] = active_exhaustion
+        active["exp_points"] = active_exp
+        active["level"] = active_level
+        active["hp"] = active_hp
+        active["stats"] = active_stats
+
+    state["ions"] = active_ions
+    state["Ions"] = active_ions
+    state["riblets"] = active_riblets
+    state["Riblets"] = active_riblets
+    state["exhaustion"] = active_exhaustion
+    state["exp_points"] = active_exp
+    state["level"] = active_level
+    state["hp"] = dict(active_hp)
+    state["stats"] = dict(active_stats)
+
+
+def _normalize_per_class_structures(
+    state: Dict[str, Any], klass: str, active: Dict[str, Any]
+) -> Dict[str, Any]:
+    if not isinstance(state, dict):
+        return state
+
+    if not isinstance(active, dict):
+        active = {}
+
+    classes, sources = _gather_class_sources(state, klass, active)
+    klass_name = klass if isinstance(klass, str) and klass else "Thief"
+    if klass_name not in classes:
+        classes = list(classes) + [klass_name]
+
+    ions_map = _ensure_int_map(
+        state,
+        "ions_by_class",
+        ("ions", "Ions"),
+        0,
+        classes,
+        sources,
+        active,
+    )
+    rib_map = _ensure_int_map(
+        state,
+        "riblets_by_class",
+        ("riblets", "Riblets"),
+        0,
+        classes,
+        sources,
+        active,
+    )
+    exhaustion_map = _ensure_int_map(
+        state,
+        "exhaustion_by_class",
+        ("exhaustion", "Exhaustion"),
+        0,
+        classes,
+        sources,
+        active,
+    )
+    exp_map = _ensure_int_map(
+        state,
+        "exp_by_class",
+        ("exp_points", "experience_points", "experience", "ExpPoints", "ExperiencePoints"),
+        0,
+        classes,
+        sources,
+        active,
+    )
+    level_map = _ensure_int_map(
+        state,
+        "level_by_class",
+        ("level", "Level"),
+        1,
+        classes,
+        sources,
+        active,
+    )
+    hp_map = _ensure_hp_map(state, classes, sources, active)
+    stats_map = _ensure_stats_map(state, classes, sources, active)
+
+    _apply_maps_to_profiles(
+        state,
+        klass_name,
+        active,
+        ions_map,
+        rib_map,
+        exhaustion_map,
+        exp_map,
+        level_map,
+        hp_map,
+        stats_map,
+    )
+
+    return state
+
+
+def _evaluate_invariants(state: Dict[str, Any]) -> bool:
+    if not isinstance(state, dict):
+        return False
+
+    active = state.get("active")
+    if not isinstance(active, dict):
+        return False
+
+    klass = active.get("class") or state.get("class") or state.get("name")
+    if not isinstance(klass, str) or not klass:
+        return False
+
+    pos = active.get("pos")
+    if not isinstance(pos, list) or len(pos) != 3:
+        return False
+
+    bags = state.get("bags")
+    if not isinstance(bags, dict):
+        return False
+
+    inventory = state.get("inventory")
+    if not isinstance(inventory, list):
+        return False
+
+    bag = bags.get(klass) if isinstance(klass, str) else None
+    if isinstance(bag, list) and bag is not inventory:
+        return False
+
+    classes, _ = _gather_class_sources(state, klass, active)
+    class_set = {cls_name for cls_name in classes if isinstance(cls_name, str) and cls_name}
+    class_set.add(klass)
+
+    def _validate_int_map(
+        key: str, default: int
+    ) -> Tuple[bool, Dict[str, int]]:
+        payload = state.get(key)
+        if not isinstance(payload, dict):
+            return False, {}
+        sanitized: Dict[str, int] = {}
+        for cls_name in class_set:
+            if cls_name not in payload:
+                return False, {}
+            sanitized[cls_name] = _coerce_int(payload.get(cls_name), default)
+        return True, sanitized
+
+    def _validate_hp_map() -> Tuple[bool, Dict[str, Dict[str, int]]]:
+        payload = state.get("hp_by_class")
+        if not isinstance(payload, dict):
+            return False, {}
+        sanitized: Dict[str, Dict[str, int]] = {}
+        for cls_name in class_set:
+            if cls_name not in payload:
+                return False, {}
+            raw_entry = payload.get(cls_name)
+            normalized = _normalize_hp_block(raw_entry)
+            sanitized[cls_name] = normalized
+            if isinstance(raw_entry, dict):
+                cur_val = max(0, _coerce_int(raw_entry.get("current"), 0))
+                max_raw = raw_entry.get("max")
+                if max_raw is None:
+                    max_val = cur_val
+                else:
+                    max_val = max(0, _coerce_int(max_raw, cur_val))
+            else:
+                cur_val = 0
+                max_val = 0
+            if cur_val > max_val:
+                return False, sanitized
+        return True, sanitized
+
+    def _validate_stats_map() -> Tuple[bool, Dict[str, Dict[str, int]]]:
+        payload = state.get("stats_by_class")
+        if not isinstance(payload, dict):
+            return False, {}
+        sanitized: Dict[str, Dict[str, int]] = {}
+        for cls_name in class_set:
+            if cls_name not in payload:
+                return False, {}
+            sanitized[cls_name] = _normalize_stats_block(payload.get(cls_name))
+        return True, sanitized
+
+    ions_ok, ions_map = _validate_int_map("ions_by_class", 0)
+    rib_ok, rib_map = _validate_int_map("riblets_by_class", 0)
+    exhaustion_ok, exhaustion_map = _validate_int_map("exhaustion_by_class", 0)
+    exp_ok, exp_map = _validate_int_map("exp_by_class", 0)
+    level_ok, level_map = _validate_int_map("level_by_class", 1)
+    hp_ok, hp_map = _validate_hp_map()
+    stats_ok, stats_map = _validate_stats_map()
+
+    if not all([ions_ok, rib_ok, exhaustion_ok, exp_ok, level_ok, hp_ok, stats_ok]):
+        return False
+
+    if any(level < 1 for level in level_map.values()):
+        return False
+
+    klass_name = klass
+    active_ions = ions_map.get(klass_name, 0)
+    if _coerce_int(state.get("ions"), 0) != active_ions:
+        return False
+    if _coerce_int(state.get("Ions"), 0) != active_ions:
+        return False
+    if _coerce_int(active.get("ions"), 0) != active_ions:
+        return False
+    if _coerce_int(active.get("Ions"), 0) != active_ions:
+        return False
+
+    active_riblets = rib_map.get(klass_name, 0)
+    if _coerce_int(state.get("riblets"), 0) != active_riblets:
+        return False
+    if _coerce_int(state.get("Riblets"), 0) != active_riblets:
+        return False
+    if _coerce_int(active.get("riblets"), 0) != active_riblets:
+        return False
+    if _coerce_int(active.get("Riblets"), 0) != active_riblets:
+        return False
+
+    active_exhaustion = exhaustion_map.get(klass_name, 0)
+    if _coerce_int(state.get("exhaustion"), 0) != active_exhaustion:
+        return False
+    if _coerce_int(active.get("exhaustion"), 0) != active_exhaustion:
+        return False
+
+    active_exp = exp_map.get(klass_name, 0)
+    if _coerce_int(state.get("exp_points"), 0) != active_exp:
+        return False
+    if _coerce_int(active.get("exp_points"), 0) != active_exp:
+        return False
+
+    active_level = level_map.get(klass_name, 1)
+    if _coerce_int(state.get("level"), 1) != active_level:
+        return False
+    if _coerce_int(active.get("level"), 1) != active_level:
+        return False
+
+    state_hp = _normalize_hp_block(state.get("hp"))
+    active_hp = _normalize_hp_block(active.get("hp"))
+    expected_hp = hp_map.get(klass_name, _empty_hp())
+    if state_hp != expected_hp:
+        return False
+    if active_hp != expected_hp:
+        return False
+
+    state_stats = _normalize_stats_block(state.get("stats"))
+    active_stats = _normalize_stats_block(active.get("stats"))
+    expected_stats = stats_map.get(klass_name, _empty_stats())
+    if state_stats != expected_stats:
+        return False
+    if active_stats != expected_stats:
+        return False
+
+    return True
 
 
 def _normalize_player_state(state: Dict[str, Any]) -> Dict[str, Any]:
@@ -276,53 +761,26 @@ def _normalize_player_state(state: Dict[str, Any]) -> Dict[str, Any]:
     state["inventory"] = bags[klass]
     active["inventory"] = bags[klass]
 
-    # 4) normalize per-class currencies
-    def _normalize_currency(
-        key: str, fallback_keys: Tuple[str, ...]
-    ) -> Dict[str, int]:
-        raw_map = state.get(key)
-        normalized: Dict[str, int] = {}
-        if isinstance(raw_map, dict):
-            for name, value in raw_map.items():
-                if not isinstance(name, str) or not name:
-                    continue
-                normalized[name] = _coerce_int(value, 0)
-        state[key] = normalized
-
-        current = normalized.get(klass)
-        if current is None:
-            fallback: Any = None
-            # try values on the active profile first
-            if isinstance(active, dict):
-                for fk in fallback_keys:
-                    fallback = active.get(fk.lower())
-                    if fallback is not None:
-                        break
-                    fallback = active.get(fk)
-                    if fallback is not None:
-                        break
-            if fallback is None:
-                for fk in fallback_keys:
-                    if fk in state:
-                        fallback = state.get(fk)
-                        if fallback is not None:
-                            break
-            normalized[klass] = _coerce_int(fallback, 0)
-        else:
-            normalized[klass] = _coerce_int(current, 0)
-
-        lower_name = fallback_keys[0]
-        upper_name = fallback_keys[-1]
-        if isinstance(active, dict):
-            active[lower_name] = normalized[klass]
-        state[lower_name] = normalized[klass]
-        state[upper_name] = normalized[klass]
-        return normalized
-
-    _normalize_currency("ions_by_class", ("ions", "Ions"))
-    _normalize_currency("riblets_by_class", ("riblets", "Riblets"))
+    _normalize_per_class_structures(state, klass, active)
 
     return state
+
+
+def migrate_per_class_fields(state: Dict[str, Any]) -> Dict[str, Any]:
+    """Populate per-class structures from legacy scalar fields when needed."""
+
+    if not isinstance(state, dict):
+        return state
+
+    ensure_active_profile(state, ctx={})
+    active = state.get("active")
+    if not isinstance(active, dict):
+        active = {}
+
+    klass_raw = active.get("class") or state.get("class") or state.get("name")
+    klass = str(klass_raw) if isinstance(klass_raw, str) and klass_raw else "Thief"
+
+    return _normalize_per_class_structures(state, klass, active)
 
 
 def load_state() -> Dict[str, Any]:
@@ -363,6 +821,7 @@ def save_state(state: Dict[str, Any]) -> None:
                 "class": to_save.get("class") or to_save.get("name") or "Thief",
                 "pos": [2000, 0, 0],
             }
+    migrate_per_class_fields(to_save)
     normalized = _normalize_player_state(to_save)
     _persist_canonical(normalized)
     _playersdbg_log("SAVE", normalized)
@@ -408,10 +867,10 @@ def set_ions_for_active(state: Dict[str, Any], amount: int) -> int:
     ion_map[cls] = new_total
 
     active = normalized.get("active")
-    if isinstance(active, dict):
-        active["ions"] = new_total
-    normalized["ions"] = new_total
-    normalized["Ions"] = new_total
+    if not isinstance(active, dict):
+        active = {}
+
+    _normalize_per_class_structures(normalized, cls, active)
 
     save_state(normalized)
     return new_total
@@ -440,13 +899,176 @@ def set_riblets_for_active(state: Dict[str, Any], amount: int) -> int:
     rib_map[cls] = new_total
 
     active = normalized.get("active")
-    if isinstance(active, dict):
-        active["riblets"] = new_total
-    normalized["riblets"] = new_total
-    normalized["Riblets"] = new_total
+    if not isinstance(active, dict):
+        active = {}
+
+    _normalize_per_class_structures(normalized, cls, active)
 
     save_state(normalized)
     return new_total
+
+
+def get_exhaustion_for_active(state: Dict[str, Any]) -> int:
+    """Return the exhaustion value for the active class in ``state``."""
+
+    normalized = _normalize_player_state(state)
+    cls = get_active_class(normalized)
+    payload = normalized.get("exhaustion_by_class", {})
+    if isinstance(payload, dict):
+        value = payload.get(cls)
+        if value is not None:
+            return _coerce_int(value, 0)
+    return 0
+
+
+def set_exhaustion_for_active(state: Dict[str, Any], amount: int) -> int:
+    """Set exhaustion for the active class to ``amount`` and persist."""
+
+    normalized = _normalize_player_state(state)
+    cls = get_active_class(normalized)
+    payload = normalized.setdefault("exhaustion_by_class", {})
+    new_value = max(0, _coerce_int(amount, 0))
+    payload[cls] = new_value
+
+    active = normalized.get("active")
+    if not isinstance(active, dict):
+        active = {}
+
+    _normalize_per_class_structures(normalized, cls, active)
+
+    save_state(normalized)
+    return new_value
+
+
+def get_exp_for_active(state: Dict[str, Any]) -> int:
+    """Return the experience points for the active class in ``state``."""
+
+    normalized = _normalize_player_state(state)
+    cls = get_active_class(normalized)
+    payload = normalized.get("exp_by_class", {})
+    if isinstance(payload, dict):
+        value = payload.get(cls)
+        if value is not None:
+            return _coerce_int(value, 0)
+    return 0
+
+
+def set_exp_for_active(state: Dict[str, Any], amount: int) -> int:
+    """Set experience points for the active class to ``amount`` and persist."""
+
+    normalized = _normalize_player_state(state)
+    cls = get_active_class(normalized)
+    payload = normalized.setdefault("exp_by_class", {})
+    new_value = max(0, _coerce_int(amount, 0))
+    payload[cls] = new_value
+
+    active = normalized.get("active")
+    if not isinstance(active, dict):
+        active = {}
+
+    _normalize_per_class_structures(normalized, cls, active)
+
+    save_state(normalized)
+    return new_value
+
+
+def get_level_for_active(state: Dict[str, Any]) -> int:
+    """Return the level for the active class in ``state``."""
+
+    normalized = _normalize_player_state(state)
+    cls = get_active_class(normalized)
+    payload = normalized.get("level_by_class", {})
+    if isinstance(payload, dict):
+        value = payload.get(cls)
+        if value is not None:
+            return max(1, _coerce_int(value, 1))
+    return 1
+
+
+def set_level_for_active(state: Dict[str, Any], amount: int) -> int:
+    """Set the level for the active class to ``amount`` and persist."""
+
+    normalized = _normalize_player_state(state)
+    cls = get_active_class(normalized)
+    payload = normalized.setdefault("level_by_class", {})
+    new_value = max(1, _coerce_int(amount, 1))
+    payload[cls] = new_value
+
+    active = normalized.get("active")
+    if not isinstance(active, dict):
+        active = {}
+
+    _normalize_per_class_structures(normalized, cls, active)
+
+    save_state(normalized)
+    return new_value
+
+
+def get_hp_for_active(state: Dict[str, Any]) -> Dict[str, int]:
+    """Return the HP block for the active class in ``state``."""
+
+    normalized = _normalize_player_state(state)
+    cls = get_active_class(normalized)
+    payload = normalized.get("hp_by_class", {})
+    if isinstance(payload, dict):
+        entry = payload.get(cls)
+        if isinstance(entry, dict):
+            return dict(_normalize_hp_block(entry))
+    return _empty_hp()
+
+
+def set_hp_for_active(state: Dict[str, Any], current: int, maximum: int) -> Dict[str, int]:
+    """Set HP for the active class and persist the result."""
+
+    normalized = _normalize_player_state(state)
+    cls = get_active_class(normalized)
+    payload = normalized.setdefault("hp_by_class", {})
+    cur_val = max(0, _coerce_int(current, 0))
+    max_val = max(cur_val, max(0, _coerce_int(maximum, cur_val)))
+    payload[cls] = {"current": cur_val, "max": max_val}
+
+    active = normalized.get("active")
+    if not isinstance(active, dict):
+        active = {}
+
+    _normalize_per_class_structures(normalized, cls, active)
+
+    save_state(normalized)
+    return dict(payload[cls])
+
+
+def get_stats_for_active(state: Dict[str, Any]) -> Dict[str, int]:
+    """Return the ability scores for the active class in ``state``."""
+
+    normalized = _normalize_player_state(state)
+    cls = get_active_class(normalized)
+    payload = normalized.get("stats_by_class", {})
+    if isinstance(payload, dict):
+        entry = payload.get(cls)
+        if isinstance(entry, Mapping):
+            return dict(_normalize_stats_block(entry))
+    return _empty_stats()
+
+
+def set_stats_for_active(
+    state: Dict[str, Any], stats: Mapping[str, Any]
+) -> Dict[str, int]:
+    """Set ability scores for the active class and persist."""
+
+    normalized = _normalize_player_state(state)
+    cls = get_active_class(normalized)
+    payload = normalized.setdefault("stats_by_class", {})
+    sanitized = _normalize_stats_block(stats)
+    payload[cls] = sanitized
+
+    active = normalized.get("active")
+    if not isinstance(active, dict):
+        active = {}
+
+    _normalize_per_class_structures(normalized, cls, active)
+
+    save_state(normalized)
+    return dict(sanitized)
 
 
 def get_active_pair(
