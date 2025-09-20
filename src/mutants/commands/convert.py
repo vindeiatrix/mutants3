@@ -72,7 +72,10 @@ def _choose_inventory_item(
     prefix: str,
     catalog: Any,
 ) -> Tuple[Optional[str], Optional[str]]:
-    inventory: List[str] = list(player.get("inventory") or [])
+    inventory: List[str] = [str(i) for i in (player.get("inventory") or []) if i]
+    equipped = pstate.get_equipped_armour_id(player)
+    if equipped:
+        inventory = [iid for iid in inventory if iid != equipped]
     if not inventory:
         return None, None
 
@@ -173,11 +176,7 @@ def convert_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
         stats["ions"] = new_total
         stats["Ions"] = new_total
     if isinstance(klass, str) and klass:
-        ion_map = player.get("ions_by_class")
-        if not isinstance(ion_map, dict):
-            ion_map = {}
-        ion_map[str(klass)] = new_total
-        player["ions_by_class"] = ion_map
+        player["ions_by_class"] = {str(klass): new_total}
 
     itemsreg.delete_instance(iid)
     itx._save_player(player)
@@ -194,6 +193,9 @@ def convert_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
                 iid,
                 item_id,
             )
+        if isinstance(klass, str) and klass:
+            state["ions_by_class"] = {str(klass): new_total}
+            state["_sparse_ions_by_class"] = True
         pstate.set_ions_for_active(state, new_total)
         if pstate._pdbg_enabled():  # pragma: no cover - diagnostic hook
             after_state = pstate.load_state()

@@ -580,6 +580,8 @@ def _ensure_int_map(
     classes: Iterable[str],
     class_sources: Dict[str, Dict[str, Any]],
     active: Dict[str, Any],
+    *,
+    fill_missing: bool = True,
 ) -> Dict[str, int]:
     raw_map = state.get(key)
     normalized: Dict[str, int] = {}
@@ -599,13 +601,14 @@ def _ensure_int_map(
 
         if cls_name in normalized:
             current_value = _sanitize_class_int(normalized[cls_name], default)
-            # SEED-ONLY: keep any established non-default; seed only when default
-            if current_value == default and has_fallback and fallback_value != default:
+            if has_fallback and fallback_value != current_value:
                 normalized[cls_name] = fallback_value
             else:
                 normalized[cls_name] = current_value
             continue
 
+        if not fill_missing:
+            continue
         normalized[cls_name] = fallback_value
 
     state[key] = normalized
@@ -692,6 +695,97 @@ def _ensure_stats_map(
     return normalized
 
 
+def _sanitize_equipped_iid(value: Any) -> Optional[str]:
+    """Return a normalized armour instance id from assorted payload shapes."""
+
+    if isinstance(value, str):
+        stripped = value.strip()
+        return stripped or None
+    if isinstance(value, Mapping):
+        for key in ("iid", "instance_id", "wearing", "armour", "armor"):
+            candidate = value.get(key)
+            sanitized = _sanitize_equipped_iid(candidate)
+            if sanitized:
+                return sanitized
+    return None
+
+
+def _ensure_equipment_map(
+    state: Dict[str, Any],
+    classes: Iterable[str],
+    class_sources: Dict[str, Dict[str, Any]],
+    active: Dict[str, Any],
+) -> Dict[str, Dict[str, Optional[str]]]:
+    raw_map = state.get("equipment_by_class")
+    normalized: Dict[str, Dict[str, Optional[str]]] = {}
+    if isinstance(raw_map, Mapping):
+        for name, payload in raw_map.items():
+            cls_name = _normalize_class_name(name)
+            if not cls_name:
+                continue
+            armour_value: Any
+            if isinstance(payload, Mapping):
+                armour_value = payload.get("armour")
+            else:
+                armour_value = payload
+            normalized[cls_name] = {"armour": _sanitize_equipped_iid(armour_value)}
+
+    for cls_name in classes:
+        key = cls_name if isinstance(cls_name, str) and cls_name else None
+        if not key:
+            continue
+        current_entry = normalized.get(key)
+        current_value = (
+            _sanitize_equipped_iid(current_entry.get("armour"))
+            if isinstance(current_entry, Mapping)
+            else None
+        )
+        if current_value:
+            normalized[key] = {"armour": current_value}
+            continue
+
+        fallback: Optional[str] = None
+        for source in _source_candidates_for_class(key, class_sources, active, state):
+            if not isinstance(source, Mapping):
+                continue
+            eq_map = source.get("equipment_by_class")
+            if isinstance(eq_map, Mapping):
+                entry = eq_map.get(key)
+                if isinstance(entry, Mapping):
+                    fallback = _sanitize_equipped_iid(entry.get("armour"))
+                else:
+                    fallback = _sanitize_equipped_iid(entry)
+                if fallback:
+                    break
+            direct = source.get("armour")
+            if isinstance(direct, Mapping):
+                fallback = _sanitize_equipped_iid(direct.get("wearing"))
+            else:
+                fallback = _sanitize_equipped_iid(direct)
+            if fallback:
+                break
+            legacy_direct = source.get("armor")
+            fallback = _sanitize_equipped_iid(legacy_direct)
+            if fallback:
+                break
+        normalized[key] = {"armour": fallback}
+
+    state["equipment_by_class"] = normalized
+    return normalized
+
+
+def _set_armour_view(payload: Dict[str, Any], armour_iid: Optional[str]) -> None:
+    if not isinstance(payload, dict):
+        return
+    existing = payload.get("armour")
+    if isinstance(existing, Mapping):
+        block = dict(existing)
+    else:
+        block = {}
+    block["wearing"] = armour_iid
+    payload["armour"] = block
+
+
 def _ensure_spells_map(state: Dict[str, Any], classes: Iterable[str]) -> Dict[str, Dict[str, List[str]]]:
     raw_map = state.get("spells_by_class")
     normalized: Dict[str, Dict[str, List[str]]] = {}
@@ -752,6 +846,7 @@ def _apply_maps_to_profiles(
     level_map: Dict[str, int],
     hp_map: Dict[str, Dict[str, int]],
     stats_map: Dict[str, Dict[str, int]],
+    equipment_map: Dict[str, Dict[str, Optional[str]]],
 ) -> None:
     players = state.get("players")
     if isinstance(players, list):
@@ -776,6 +871,17 @@ def _apply_maps_to_profiles(
             player["hp"] = dict(hp_map.get(cls_name, _empty_hp()))
             player["stats"] = dict(stats_map.get(cls_name, _empty_stats()))
 
+            armour_entry = equipment_map.get(cls_name)
+            armour_iid = None
+            if isinstance(armour_entry, Mapping):
+                armour_iid = _sanitize_equipped_iid(armour_entry.get("armour"))
+            elif armour_entry is not None:
+                armour_iid = _sanitize_equipped_iid(armour_entry)
+            equipment = player.setdefault("equipment_by_class", {})
+            if isinstance(equipment, dict):
+                equipment[cls_name] = {"armour": armour_iid}
+            _set_armour_view(player, armour_iid)
+
     klass_name = klass if isinstance(klass, str) and klass else "Thief"
     active_hp = dict(hp_map.get(klass_name, _empty_hp()))
     active_stats = dict(stats_map.get(klass_name, _empty_stats()))
@@ -792,9 +898,21 @@ def _apply_maps_to_profiles(
         active["Riblets"] = active_riblets
         active["exhaustion"] = active_exhaustion
         active["exp_points"] = active_exp
-        active["level"] = active_level
-        active["hp"] = active_hp
-        active["stats"] = active_stats
+    active["level"] = active_level
+    active["hp"] = active_hp
+    active["stats"] = active_stats
+
+    active_armour_entry = equipment_map.get(klass_name)
+    armour_iid = None
+    if isinstance(active_armour_entry, Mapping):
+        armour_iid = _sanitize_equipped_iid(active_armour_entry.get("armour"))
+    elif active_armour_entry is not None:
+        armour_iid = _sanitize_equipped_iid(active_armour_entry)
+    active_equipment = active.setdefault("equipment_by_class", {})
+    if isinstance(active_equipment, dict):
+        active_equipment[klass_name] = {"armour": armour_iid}
+    _set_armour_view(active, armour_iid)
+    _set_armour_view(state, armour_iid)
 
     state["ions"] = active_ions
     state["Ions"] = active_ions
@@ -808,7 +926,7 @@ def _apply_maps_to_profiles(
 
 
 def _normalize_per_class_structures(
-    state: Dict[str, Any], klass: str, active: Dict[str, Any]
+    state: Dict[str, Any], klass: str, active: Dict[str, Any], *, sparse_ions: bool = False
 ) -> Dict[str, Any]:
     if not isinstance(state, dict):
         return state
@@ -829,6 +947,7 @@ def _normalize_per_class_structures(
         classes,
         sources,
         active,
+        fill_missing=not sparse_ions,
     )
     rib_map = _ensure_int_map(
         state,
@@ -869,6 +988,8 @@ def _normalize_per_class_structures(
     hp_map = _ensure_hp_map(state, classes, sources, active)
     stats_map = _ensure_stats_map(state, classes, sources, active)
 
+    equipment_map = _ensure_equipment_map(state, classes, sources, active)
+
     _ensure_spells_map(state, classes)
     _ensure_spell_effects_map(state, classes)
     state["world_tile_effects"] = _sanitize_world_tile_effects(state.get("world_tile_effects"))
@@ -884,6 +1005,7 @@ def _normalize_per_class_structures(
         level_map,
         hp_map,
         stats_map,
+        equipment_map,
     )
 
     return state
@@ -1205,7 +1327,9 @@ def _normalize_player_state(state: Dict[str, Any]) -> Dict[str, Any]:
     state["inventory"] = bags[klass]
     active["inventory"] = bags[klass]
 
-    _normalize_per_class_structures(state, klass, active)
+    sparse_ions = bool(state.get("_sparse_ions_by_class"))
+
+    _normalize_per_class_structures(state, klass, active, sparse_ions=sparse_ions)
 
     return state
 
@@ -1228,6 +1352,8 @@ def migrate_per_class_fields(state: Dict[str, Any]) -> Dict[str, Any]:
 
     klass = get_active_class(normalized)
 
+    sparse_ions = bool(normalized.pop("_sparse_ions_by_class", False))
+
     ions_map = normalized.setdefault("ions_by_class", {})
     rib_map = normalized.setdefault("riblets_by_class", {})
     exp_map = normalized.setdefault("exp_by_class", {})
@@ -1241,8 +1367,11 @@ def migrate_per_class_fields(state: Dict[str, Any]) -> Dict[str, Any]:
 
         ions_value = payload.get("ions")
         if ions_value is not None:
-            if cls_name not in ions_map or _sanitize_class_int(ions_map.get(cls_name), 0) == 0:
-                ions_map[cls_name] = _sanitize_class_int(ions_value, 0)
+            if sparse_ions and cls_name != klass:
+                pass
+            else:
+                if cls_name not in ions_map or _sanitize_class_int(ions_map.get(cls_name), 0) == 0:
+                    ions_map[cls_name] = _sanitize_class_int(ions_value, 0)
 
         rib_value = payload.get("riblets")
         if rib_value is not None:
@@ -1271,7 +1400,7 @@ def migrate_per_class_fields(state: Dict[str, Any]) -> Dict[str, Any]:
             if not isinstance(existing_stats, Mapping) or _normalize_stats_block(existing_stats) == _empty_stats():
                 stats_map[cls_name] = _normalize_stats_block(stats_value)
 
-    _normalize_per_class_structures(normalized, klass, active)
+    _normalize_per_class_structures(normalized, klass, active, sparse_ions=sparse_ions)
 
     return normalized
 
@@ -1436,6 +1565,7 @@ def set_ions_for_active(state: Dict[str, Any], amount: int) -> int:
     normalized["Ions"] = new_total
     active["ions"] = new_total
     active["Ions"] = new_total
+    active["ions_by_class"] = dict(ion_map)
     players = normalized.get("players")
     if isinstance(players, list):
         for player in players:
@@ -1448,6 +1578,7 @@ def set_ions_for_active(state: Dict[str, Any], amount: int) -> int:
             if player_class == cls or player_id == normalized.get("active_id"):
                 player["ions"] = new_total
                 player["Ions"] = new_total
+                player["ions_by_class"] = dict(ion_map)
                 break
 
     save_state(normalized)
@@ -1495,6 +1626,181 @@ def set_riblets_for_active(state: Dict[str, Any], amount: int) -> int:
 
     save_state(normalized)
     return new_total
+
+
+def get_equipped_armour_id(state: Dict[str, Any]) -> Optional[str]:
+    """Return the instance id of the equipped armour for the active class."""
+
+    if not isinstance(state, Mapping):
+        return None
+
+    cls = get_active_class(state)
+
+    def _from_payload(payload: Any) -> Optional[str]:
+        if not isinstance(payload, Mapping):
+            return None
+        equipment = payload.get("equipment_by_class")
+        if isinstance(equipment, Mapping):
+            entry = equipment.get(cls)
+            if isinstance(entry, Mapping):
+                candidate = _sanitize_equipped_iid(entry.get("armour"))
+                if candidate:
+                    return candidate
+            elif entry is not None:
+                candidate = _sanitize_equipped_iid(entry)
+                if candidate:
+                    return candidate
+        direct = payload.get("armour")
+        if isinstance(direct, Mapping):
+            candidate = _sanitize_equipped_iid(direct.get("wearing"))
+            if candidate:
+                return candidate
+        candidate = _sanitize_equipped_iid(direct)
+        if candidate:
+            return candidate
+        legacy = payload.get("armor")
+        return _sanitize_equipped_iid(legacy)
+
+    candidates: List[Mapping[str, Any]] = []
+    candidates.append(state)
+    active = state.get("active")
+    if isinstance(active, Mapping):
+        candidates.append(active)
+    players = state.get("players")
+    active_id = state.get("active_id")
+    if isinstance(players, list):
+        for idx, player in enumerate(players):
+            if not isinstance(player, Mapping):
+                continue
+            if active_id:
+                if player.get("id") != active_id:
+                    continue
+                candidates.append(player)
+                break
+            if idx == 0:
+                candidates.append(player)
+                break
+
+    for payload in candidates:
+        armour_iid = _from_payload(payload)
+        if armour_iid:
+            return armour_iid
+
+    return _from_payload(state)
+
+
+def equip_armour(iid: str) -> str:
+    """Equip the given armour instance for the active class."""
+
+    sanitized = _sanitize_equipped_iid(iid)
+    if not sanitized:
+        raise ValueError("armour iid must be a non-empty string")
+
+    state = load_state()
+    normalized, active, cls = _prepare_active_storage(state)
+
+    bags = normalized.setdefault("bags", {})
+    existing_bag = bags.get(cls)
+    bag_list = [str(item) for item in existing_bag or [] if item]
+    if sanitized not in bag_list:
+        raise ValueError("armour iid is not present in the active inventory")
+
+    equipment_map = normalized.setdefault("equipment_by_class", {})
+    entry = equipment_map.setdefault(cls, {"armour": None})
+    current = _sanitize_equipped_iid(entry.get("armour"))
+    if current and current != sanitized:
+        raise ValueError("armour slot already occupied")
+
+    entry["armour"] = sanitized
+    bag_list = [item for item in bag_list if item != sanitized]
+    bags[cls] = list(bag_list)
+    normalized["inventory"] = list(bag_list)
+    active["inventory"] = list(bag_list)
+
+    active_equipment = active.setdefault("equipment_by_class", {})
+    if isinstance(active_equipment, dict):
+        active_equipment[cls] = {"armour": sanitized}
+    _set_armour_view(active, sanitized)
+    _set_armour_view(normalized, sanitized)
+
+    players = normalized.get("players")
+    active_id = normalized.get("active_id")
+    if isinstance(players, list):
+        for idx, player in enumerate(players):
+            if not isinstance(player, Mapping):
+                continue
+            is_active = False
+            if active_id:
+                is_active = player.get("id") == active_id
+            else:
+                is_active = idx == 0
+            if not is_active:
+                continue
+            player.setdefault("bags", {})[cls] = list(bag_list)
+            player["inventory"] = list(bag_list)
+            slot_map = player.setdefault("equipment_by_class", {})
+            if isinstance(slot_map, dict):
+                slot_map[cls] = {"armour": sanitized}
+            _set_armour_view(player, sanitized)
+            break
+
+    save_state(normalized)
+    return sanitized
+
+
+def unequip_armour() -> Optional[str]:
+    """Remove and return the equipped armour instance for the active class."""
+
+    state = load_state()
+    normalized, active, cls = _prepare_active_storage(state)
+
+    equipment_map = normalized.setdefault("equipment_by_class", {})
+    entry = equipment_map.setdefault(cls, {"armour": None})
+    current = _sanitize_equipped_iid(entry.get("armour"))
+    if not current:
+        return None
+
+    bags = normalized.setdefault("bags", {})
+    existing_bag = bags.get(cls)
+    bag_list = [str(item) for item in existing_bag or [] if item]
+    if current in bag_list:
+        raise ValueError("armour instance already present in inventory")
+
+    bag_list.append(current)
+    bags[cls] = list(bag_list)
+    normalized["inventory"] = list(bag_list)
+    active["inventory"] = list(bag_list)
+
+    entry["armour"] = None
+    active_equipment = active.setdefault("equipment_by_class", {})
+    if isinstance(active_equipment, dict):
+        active_equipment[cls] = {"armour": None}
+    _set_armour_view(active, None)
+    _set_armour_view(normalized, None)
+
+    players = normalized.get("players")
+    active_id = normalized.get("active_id")
+    if isinstance(players, list):
+        for idx, player in enumerate(players):
+            if not isinstance(player, Mapping):
+                continue
+            is_active = False
+            if active_id:
+                is_active = player.get("id") == active_id
+            else:
+                is_active = idx == 0
+            if not is_active:
+                continue
+            player.setdefault("bags", {})[cls] = list(bag_list)
+            player["inventory"] = list(bag_list)
+            slot_map = player.setdefault("equipment_by_class", {})
+            if isinstance(slot_map, dict):
+                slot_map[cls] = {"armour": None}
+            _set_armour_view(player, None)
+            break
+
+    save_state(normalized)
+    return current
 
 
 def get_exhaustion_for_active(state: Dict[str, Any]) -> int:
@@ -1926,6 +2232,10 @@ def bind_inventory_to_active_class(player: Dict[str, Any]) -> None:
     inventory = player.get("inventory")
     inv_list = list(inventory) if isinstance(inventory, list) else []
 
+    equipped = get_equipped_armour_id(player)
+    if not equipped and isinstance(active, dict):
+        equipped = get_equipped_armour_id(active)
+
     bag = bags.get(klass)
     if isinstance(bag, list):
         if inv_list and bag is not inv_list:
@@ -1938,6 +2248,16 @@ def bind_inventory_to_active_class(player: Dict[str, Any]) -> None:
     bags[klass] = bag
     player["inventory"] = bag
     active["inventory"] = bag
+
+    equipment_map = player.setdefault("equipment_by_class", {})
+    if isinstance(equipment_map, dict):
+        equipment_map[klass] = {"armour": equipped}
+    if isinstance(active, dict):
+        active_equipment = active.setdefault("equipment_by_class", {})
+        if isinstance(active_equipment, dict):
+            active_equipment[klass] = {"armour": equipped}
+    _set_armour_view(player, equipped)
+    _set_armour_view(active, equipped)
 
 
 def _save_player(state: Dict[str, Any]) -> None:

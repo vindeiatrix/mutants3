@@ -3,8 +3,10 @@ from __future__ import annotations
 from typing import Dict
 from collections.abc import Mapping
 
+from mutants.registries import items_catalog, items_instances as itemsreg
 from mutants.services import player_state as pstate
 from mutants.services.combat_calc import armour_class_for_active, dex_bonus_for_active
+from mutants.ui.item_display import item_label
 
 from . import inv as inv_cmd_mod
 
@@ -46,10 +48,23 @@ def statistics_cmd(arg: str, ctx) -> None:
     riblets = pstate.get_riblets_for_active(state)
     ions = pstate.get_ions_for_active(state)
 
-    armour = player.get("armour")
-    if not isinstance(armour, Mapping):
-        armour = {}
-    wearing = armour.get("wearing")
+    cat = items_catalog.load_catalog()
+    armour_iid = pstate.get_equipped_armour_id(state)
+    armour_status = "None"
+    if armour_iid:
+        inst = itemsreg.get_instance(armour_iid)
+        if inst:
+            tpl_id = inst.get("item_id") or inst.get("catalog_id") or inst.get("id")
+            tpl = cat.get(str(tpl_id)) if tpl_id and cat else {}
+            armour_status = item_label(inst, tpl or {}, show_charges=False)
+        else:
+            armour_status = str(armour_iid)
+    else:
+        armour = player.get("armour")
+        if isinstance(armour, Mapping):
+            wearing = armour.get("wearing")
+            if wearing is not None:
+                armour_status = str(wearing)
 
     bus.push("SYSTEM/OK", f"Name: {name} / Mutant {cls}")
     bus.push("SYSTEM/OK", f"Exhaustion : {exhaustion}")
@@ -61,7 +76,6 @@ def statistics_cmd(arg: str, ctx) -> None:
     bus.push("SYSTEM/OK", f"Exp. Points : {exp_pts:<6} Level: {level}")
     bus.push("SYSTEM/OK", f"Riblets     : {riblets}")
     bus.push("SYSTEM/OK", f"Ions        : {ions}")
-    armour_status = "None" if wearing is None else wearing
     armour_class = armour_class_for_active(state)
     dex_bonus = dex_bonus_for_active(state)
     bus.push(
