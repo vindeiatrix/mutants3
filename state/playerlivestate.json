@@ -42,7 +42,12 @@
       },
       "notes": "",
       "Ions": 30000,
-      "Riblets": 0
+      "Riblets": 0,
+      "equipment_by_class": {
+        "Thief": {
+          "armour": null
+        }
+      }
     },
     {
       "id": "player_priest",
@@ -86,7 +91,12 @@
       },
       "notes": "",
       "Ions": 30000,
-      "Riblets": 0
+      "Riblets": 0,
+      "equipment_by_class": {
+        "Priest": {
+          "armour": null
+        }
+      }
     },
     {
       "id": "player_wizard",
@@ -130,7 +140,12 @@
       },
       "notes": "",
       "Ions": 30000,
-      "Riblets": 0
+      "Riblets": 0,
+      "equipment_by_class": {
+        "Wizard": {
+          "armour": null
+        }
+      }
     },
     {
       "id": "player_warrior",
@@ -174,7 +189,12 @@
       },
       "notes": "",
       "Ions": 30000,
-      "Riblets": 0
+      "Riblets": 0,
+      "equipment_by_class": {
+        "Warrior": {
+          "armour": null
+        }
+      }
     },
     {
       "id": "player_mage",
@@ -218,7 +238,12 @@
       },
       "notes": "",
       "Ions": 30000,
-      "Riblets": 0
+      "Riblets": 0,
+      "equipment_by_class": {
+        "Mage": {
+          "armour": null
+        }
+      }
     }
   ],
   "active_id": "player_thief",
@@ -248,7 +273,15 @@
       0,
       0
     ],
-    "inventory": []
+    "inventory": [],
+    "equipment_by_class": {
+      "Thief": {
+        "armour": null
+      }
+    },
+    "armour": {
+      "wearing": null
+    }
   },
   "ions_by_class": {
     "Thief": 30000,
@@ -377,5 +410,65 @@
   "bags": {
     "Thief": []
   },
-  "inventory": []
+  "inventory": [],
+  "equipment_by_class": {
+    "Thief": {
+      "armour": null
+    },
+    "Priest": {
+      "armour": null
+    },
+    "Wizard": {
+      "armour": null
+    },
+    "Warrior": {
+      "armour": null
+    },
+    "Mage": {
+      "armour": null
+    }
+  },
+  "spells_by_class": {
+    "Thief": {
+      "known": [],
+      "prepared": []
+    },
+    "Priest": {
+      "known": [],
+      "prepared": []
+    },
+    "Wizard": {
+      "known": [],
+      "prepared": []
+    },
+    "Warrior": {
+      "known": [],
+      "prepared": []
+    },
+    "Mage": {
+      "known": [],
+      "prepared": []
+    }
+  },
+  "spell_effects_by_class": {
+    "Thief": {
+      "personal": {}
+    },
+    "Priest": {
+      "personal": {}
+    },
+    "Wizard": {
+      "personal": {}
+    },
+    "Warrior": {
+      "personal": {}
+    },
+    "Mage": {
+      "personal": {}
+    }
+  },
+  "world_tile_effects": {},
+  "armour": {
+    "wearing": null
+  }
 }

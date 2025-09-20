@@ -38,7 +38,8 @@ def _ensure_inventory(p: Dict[str, Any]) -> None:
     if not isinstance(inv, list):
         normalized: List[str] = []
     else:
-        normalized = [i for i in inv if i]
+        normalized = [str(i) for i in inv if i]
+
     p["inventory"] = normalized
 
     active = p.get("active")
@@ -87,6 +88,9 @@ def _load_player() -> Dict[str, Any]:
         return {}
     if "armour" in player and "armor" not in player:
         player["armor"] = player.pop("armour")
+    equipment = state.get("equipment_by_class")
+    if isinstance(equipment, dict):
+        player.setdefault("equipment_by_class", equipment)
     _ensure_inventory(player)
     legacy_inv = state.get("inventory")
     if isinstance(legacy_inv, list):
@@ -163,15 +167,28 @@ def _save_player(player: Dict[str, Any]) -> None:
                 active_profile["bags"] = {}
             active_profile["bags"][klass] = list(inv)
             active_profile["inventory"] = list(inv)
+    equipment_map = player.get("equipment_by_class")
+    if isinstance(equipment_map, dict):
+        state["equipment_by_class"] = dict(equipment_map)
     # Mirror to legacy top-level slot so older tooling/tests stay in sync.
     pstate.save_state(state)
     _STATE_CACHE = None
 
 
 def _armor_iid(p: Dict) -> Optional[str]:
+    equipped = pstate.get_equipped_armour_id(p)
+    if equipped:
+        return equipped
     a = p.get("armor") or p.get("armour")
     if isinstance(a, dict):
-        return a.get("iid") or a.get("instance_id")
+        candidate = (
+            a.get("iid")
+            or a.get("instance_id")
+            or a.get("wearing")
+            or a.get("armour")
+            or a.get("armor")
+        )
+        return str(candidate) if candidate else None
     if isinstance(a, str):
         return a
     return None
@@ -490,7 +507,10 @@ def drop_to_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
     pstate.bind_inventory_to_active_class(player)
     _ensure_inventory(player)
     inv = list(player.get("inventory", []))
+    equipped = _armor_iid(player)
     if not inv:
+        if not prefix and equipped:
+            return {"ok": False, "reason": "armor_cannot_drop"}
         return {"ok": False, "reason": "inventory_empty"}
     iid: Optional[str] = None
     if prefix:
@@ -514,6 +534,21 @@ def drop_to_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
     else:
         iid = inv[0]
     if not iid:
+        if prefix and equipped:
+            q = normalize_item_query(prefix)
+            if q:
+                inst = itemsreg.get_instance(equipped) or {}
+                item_id = (
+                    inst.get("item_id")
+                    or inst.get("catalog_id")
+                    or inst.get("id")
+                    or equipped
+                )
+                name = idisp.canonical_name(str(item_id))
+                norm_name = normalize_item_query(name)
+                norm_id = normalize_item_query(str(item_id))
+                if norm_name.startswith(q) or norm_id.startswith(q):
+                    return {"ok": False, "reason": "armor_cannot_drop"}
         return {"ok": False, "reason": "not_found", "where": "inventory"}
     if iid == _armor_iid(player):
         return {"ok": False, "reason": "armor_cannot_drop"}
@@ -554,7 +589,10 @@ def throw_to_direction(ctx, direction: str, prefix: str, *, seed: Optional[int] 
     pstate.bind_inventory_to_active_class(player)
     _ensure_inventory(player)
     inv = list(player.get("inventory", []))
+    equipped = _armor_iid(player)
     if not inv:
+        if not prefix and equipped:
+            return {"ok": False, "reason": "armor_cannot_drop"}
         return {"ok": False, "reason": "inventory_empty"}
     iid: Optional[str] = None
     if prefix:
@@ -577,6 +615,21 @@ def throw_to_direction(ctx, direction: str, prefix: str, *, seed: Optional[int] 
     else:
         iid = inv[0]
     if not iid:
+        if prefix and equipped:
+            q = normalize_item_query(prefix)
+            if q:
+                inst = itemsreg.get_instance(equipped) or {}
+                item_id = (
+                    inst.get("item_id")
+                    or inst.get("catalog_id")
+                    or inst.get("id")
+                    or equipped
+                )
+                name = idisp.canonical_name(str(item_id))
+                norm_name = normalize_item_query(name)
+                norm_id = normalize_item_query(str(item_id))
+                if norm_name.startswith(q) or norm_id.startswith(q):
+                    return {"ok": False, "reason": "armor_cannot_drop"}
         return {"ok": False, "reason": "not_found", "where": "inventory"}
     if iid == _armor_iid(player):
         return {"ok": False, "reason": "armor_cannot_drop"}

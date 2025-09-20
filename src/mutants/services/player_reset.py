@@ -55,6 +55,9 @@ def _reset_fields_from_template(player: Dict[str, Any], template: Dict[str, Any]
         "wearing": template.get("armour_start", None),
         "armour_class": compute_ac_from_dex(dex),
     }
+    cls_name = str(player.get("class") or template.get("class") or "Thief")
+    equipment_map = player.setdefault("equipment_by_class", {})
+    equipment_map[cls_name] = {"armour": None}
     player["readied_spell"] = template.get("readied_spell_start", None)
     player["target_monster_id"] = None
     player["inventory"] = []

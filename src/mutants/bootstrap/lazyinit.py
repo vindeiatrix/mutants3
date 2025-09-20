@@ -124,6 +124,7 @@ def make_player_from_template(t: Dict[str, Any], make_active: bool = False) -> D
             "wearing": t.get("armour_start", None),
             "armour_class": compute_ac_from_dex(dex),  # DEX-only at start
         },
+        "equipment_by_class": {cls: {"armour": None}},
         "readied_spell": t.get("readied_spell_start", None),
         "target_monster_id": None,
 

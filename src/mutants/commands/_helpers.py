@@ -12,8 +12,11 @@ def inventory_iids_for_active_player(ctx) -> list[str]:
     pstate.ensure_active_profile(p, ctx)
     pstate.bind_inventory_to_active_class(p)
     itx._ensure_inventory(p)
-    inv = p.get("inventory") or []
-    return [str(i) for i in inv]
+    inv = [str(i) for i in (p.get("inventory") or []) if i]
+    equipped = pstate.get_equipped_armour_id(p)
+    if equipped:
+        inv = [iid for iid in inv if iid != equipped]
+    return inv
 
 
 def find_inventory_item_by_prefix(ctx, token: str) -> Optional[str]:

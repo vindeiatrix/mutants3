@@ -33,8 +33,14 @@ def _resolve_weight(inst, tpl) -> int | None:
 
 
 def inv_cmd(arg: str, ctx):
-    _, player = pstate.get_active_pair()
-    inv = list(player.get("inventory") or [])
+    state, player = pstate.get_active_pair()
+    pstate.bind_inventory_to_active_class(player)
+    inv = [str(i) for i in (player.get("inventory") or []) if i]
+    equipped = pstate.get_equipped_armour_id(state)
+    if not equipped:
+        equipped = pstate.get_equipped_armour_id(player)
+    if equipped:
+        inv = [iid for iid in inv if iid != equipped]
     cat = items_catalog.load_catalog()
     names = []
     total_weight = 0
