@@ -107,23 +107,43 @@ def test_travel_cross_century_full_cost(monkeypatch: pytest.MonkeyPatch) -> None
 
     ctx = make_ctx(bus, years=[2000, 2100, 2300], loader=_loader)
     player = {"id": "player_thief", "pos": [2100, 1, 2], "inventory": [], "ions": 7000}
-    saved: dict[str, object] = {}
+    state = {
+        "players": [
+            {"id": "player_thief", "pos": [2100, 1, 2], "ions": 7000},
+        ],
+        "active_id": "player_thief",
+        "active": {"id": "player_thief", "pos": [2100, 1, 2], "ions": 7000},
+    }
+    save_calls: list[dict[str, object]] = []
 
     monkeypatch.setattr("mutants.commands.travel.itx._load_player", lambda: player)
     monkeypatch.setattr("mutants.commands.travel.itx._ensure_inventory", lambda _: None)
     monkeypatch.setattr(
         "mutants.commands.travel.itx._save_player",
-        lambda payload: saved.update({"player": payload.copy()}),
+        lambda _: pytest.fail("_save_player should not be called for travel moves"),
     )
-    new_state = {"players": [player], "active_id": "player_thief"}
-    monkeypatch.setattr("mutants.commands.travel.pstate.load_state", lambda: new_state)
+
+    def _load_state() -> dict[str, object]:
+        return state
+
+    def _save_state(payload: dict[str, object]) -> None:
+        snapshot = dict(payload)
+        save_calls.append(snapshot)
+        state.clear()
+        state.update(snapshot)
+
+    monkeypatch.setattr("mutants.commands.travel.pstate.load_state", _load_state)
+    monkeypatch.setattr("mutants.commands.travel.pstate.save_state", _save_state)
 
     travel_cmd("2300", ctx)
 
-    assert saved["player"]["pos"] == [2300, 0, 0]
-    assert saved["player"]["ions"] == 1000
-    assert ctx["player_state"] is new_state
+    assert player["ions"] == 1000
+    assert state["players"][0]["pos"] == [2300, 0, 0]
+    assert state["active"]["pos"] == [2300, 0, 0]
+    assert ctx["player_state"]["players"][0]["pos"] == [2300, 0, 0]
+    assert ctx["player_state"]["active"]["pos"] == [2300, 0, 0]
     assert ctx["render_next"] is False
+    assert save_calls, "expected save_state to be invoked"
     assert bus.events[-1] == (
         "SYSTEM/OK",
         "ZAAAPPPPP!! You've been sent to the year 2300 A.D.",
@@ -141,6 +161,16 @@ def test_travel_requires_minimum_ions(monkeypatch: pytest.MonkeyPatch) -> None:
         "mutants.commands.travel.itx._save_player",
         lambda _: pytest.fail("_save_player should not be called"),
     )
+    state = {
+        "players": [
+            {"id": "player_thief", "pos": [2000, 0, 0], "ions": 2000},
+        ],
+        "active_id": "player_thief",
+        "active": {"id": "player_thief", "pos": [2000, 0, 0], "ions": 2000},
+        "ions": 2000,
+    }
+    monkeypatch.setattr("mutants.commands.travel.pstate.load_state", lambda: state)
+    monkeypatch.setattr("mutants.commands.travel.pstate.save_state", lambda _: None)
 
     travel_cmd("2200", ctx)
 
@@ -159,24 +189,44 @@ def test_travel_partial_jump(monkeypatch: pytest.MonkeyPatch) -> None:
 
     ctx = make_ctx(bus, years=[2000, 2300, 2500], loader=_loader)
     player = {"id": "player_thief", "pos": [2000, 0, 0], "inventory": [], "ions": 4000}
-    saved: dict[str, object] = {}
+    state = {
+        "players": [
+            {"id": "player_thief", "pos": [2000, 0, 0], "ions": 4000},
+        ],
+        "active_id": "player_thief",
+        "active": {"id": "player_thief", "pos": [2000, 0, 0], "ions": 4000},
+    }
+    save_calls: list[dict[str, object]] = []
 
     monkeypatch.setattr("mutants.commands.travel.itx._load_player", lambda: player)
     monkeypatch.setattr("mutants.commands.travel.itx._ensure_inventory", lambda _: None)
     monkeypatch.setattr(
         "mutants.commands.travel.itx._save_player",
-        lambda payload: saved.update({"player": payload.copy()}),
+        lambda _: pytest.fail("_save_player should not be called for travel moves"),
     )
-    new_state = {"players": [player], "active_id": "player_thief"}
-    monkeypatch.setattr("mutants.commands.travel.pstate.load_state", lambda: new_state)
+
+    def _load_state() -> dict[str, object]:
+        return state
+
+    def _save_state(payload: dict[str, object]) -> None:
+        snapshot = dict(payload)
+        save_calls.append(snapshot)
+        state.clear()
+        state.update(snapshot)
+
+    monkeypatch.setattr("mutants.commands.travel.pstate.load_state", _load_state)
+    monkeypatch.setattr("mutants.commands.travel.pstate.save_state", _save_state)
     monkeypatch.setattr("mutants.commands.travel.random.choice", lambda seq: seq[1])
 
     travel_cmd("2550", ctx)
 
-    assert saved["player"]["pos"] == [2300, 0, 0]
-    assert saved["player"]["ions"] == 0
-    assert ctx["player_state"] is new_state
+    assert player["ions"] == 0
+    assert state["players"][0]["pos"] == [2300, 0, 0]
+    assert state["active"]["pos"] == [2300, 0, 0]
+    assert ctx["player_state"]["players"][0]["pos"] == [2300, 0, 0]
+    assert ctx["player_state"]["active"]["pos"] == [2300, 0, 0]
     assert ctx["render_next"] is False
+    assert save_calls, "expected save_state to be invoked"
     assert bus.events[-1] == (
         "SYSTEM/WARN",
         "ZAAAPPPP!!!! You suddenly feel something has gone terribly wrong!",
