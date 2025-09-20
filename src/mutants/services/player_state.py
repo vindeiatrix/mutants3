@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any, Callable, Dict, Iterable, List, Mapping, Optional, Tuple
 
 from mutants.io.atomic import atomic_write_json
+from mutants.registries import items_instances as itemsreg
 
 
 LOG_P = logging.getLogger("mutants.playersdbg")
@@ -264,6 +265,57 @@ def _normalize_class_name(value: Any) -> Optional[str]:
     if isinstance(value, str) and value:
         return value
     return None
+
+
+def _evaluate_item_instance_invariants() -> Tuple[bool, Dict[str, Any]]:
+    summary: Dict[str, Any] = {}
+
+    try:
+        snapshot = itemsreg.snapshot_instances()
+    except Exception as exc:  # pragma: no cover - defensive only
+        summary["error"] = repr(exc)
+        return False, summary
+
+    summary["count"] = len(snapshot)
+    invalid_levels: List[str] = []
+    missing_condition: List[str] = []
+    stray_condition: List[str] = []
+
+    broken_ids = {itemsreg.BROKEN_WEAPON_ID, itemsreg.BROKEN_ARMOUR_ID}
+
+    for inst in snapshot:
+        iid_raw = inst.get("instance_id") or inst.get("iid") or inst.get("item_id")
+        iid = str(iid_raw) if iid_raw is not None else "<unknown>"
+
+        try:
+            level_val = int(inst.get("enchant_level", 0))
+        except (TypeError, ValueError):
+            level_val = -1
+        if level_val < 0:
+            invalid_levels.append(iid)
+
+        item_id_raw = inst.get("item_id") or inst.get("catalog_id") or inst.get("id")
+        item_id = str(item_id_raw) if item_id_raw is not None else ""
+        broken = item_id in broken_ids
+        has_condition = "condition" in inst
+
+        if broken and has_condition:
+            stray_condition.append(iid)
+        if not broken and not has_condition:
+            missing_condition.append(iid)
+
+    if invalid_levels:
+        summary["invalid_enchant_count"] = len(invalid_levels)
+        summary["invalid_enchant_sample"] = invalid_levels[:5]
+    if missing_condition:
+        summary["missing_condition_count"] = len(missing_condition)
+        summary["missing_condition_sample"] = missing_condition[:5]
+    if stray_condition:
+        summary["broken_condition_count"] = len(stray_condition)
+        summary["broken_condition_sample"] = stray_condition[:5]
+
+    ok = not (invalid_levels or missing_condition or stray_condition)
+    return ok, summary
 
 
 def _gather_class_sources(
@@ -1078,6 +1130,12 @@ def _evaluate_invariants_with_details(state: Dict[str, Any]) -> Tuple[bool, Dict
 
     if mirror_mismatch is not None:
         details["mirror_mismatch"] = mirror_mismatch
+
+    items_ok, items_summary = _evaluate_item_instance_invariants()
+    details["items_instances"] = items_summary
+    if not items_ok and details.get("failure") is None:
+        details["failure"] = "items-instances"
+    ok = ok and items_ok
 
     return ok and details.get("failure") is None, details
 
