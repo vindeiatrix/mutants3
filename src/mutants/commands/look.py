@@ -10,6 +10,7 @@ from mutants.app.context import build_room_vm
 from .argcmd import coerce_direction
 from ._helpers import find_inventory_item_by_prefix
 from mutants.registries import items_catalog, items_instances as itemsreg
+from mutants.ui.item_display import describe_instance
 
 DIR_CODE = {"north": "N", "south": "S", "east": "E", "west": "W"}
 
@@ -59,7 +60,7 @@ def look_cmd(arg: str, ctx: Dict[str, Any]) -> None:
         inst = itemsreg.get_instance(iid) or {}
         cat = items_catalog.load_catalog()
         tpl = cat.get(inst.get("item_id")) or {}
-        desc = tpl.get("description") or "You examine it."
+        desc = describe_instance(iid)
         if tpl.get("uses_charges") or tpl.get("charges_max") is not None:
             ch = int(inst.get("charges", 0))
             desc = f"{desc}  Charges: {ch}."

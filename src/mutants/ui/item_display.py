@@ -4,7 +4,9 @@ from __future__ import annotations
 import json
 import re
 from pathlib import Path
-from typing import Dict, List
+from typing import Any, Dict, List, Tuple
+
+from ..registries import items_catalog, items_instances as itemsreg
 
 ROOT = Path(__file__).resolve().parents[3]
 CATALOG_PATH = ROOT / "state" / "items" / "catalog.json"
@@ -12,6 +14,99 @@ OVERRIDES_PATH = ROOT / "state" / "items" / "naming_overrides.json"
 
 _CAT_CACHE: Dict[str, Dict] = {}
 _OVR_CACHE: Dict[str, str] = {}
+
+_WEAPON_WEAR_TIERS: List[Tuple[int, str]] = [
+    (80, "Only faint scuffs mar its surface; it's still battle-ready."),
+    (60, "Nicks along the edge speak to frequent clashes."),
+    (40, "Dents and chips have dulled its threat."),
+    (20, "Splits run along its frame; it barely holds together."),
+    (1, "It's moments from breaking apart entirely."),
+]
+
+_ARMOUR_WEAR_TIERS: List[Tuple[int, str]] = [
+    (80, "Light scratches trace the armour's finish."),
+    (60, "Dings and bent plates show hard campaigning."),
+    (40, "Seams gape and padding is badly worn."),
+    (20, "Cracks crawl across the armour; protection is waning."),
+    (1, "It's nearly useless, more burden than bulwark."),
+]
+
+
+def _coerce_enchant_level(value: Any) -> int:
+    try:
+        level = int(value)
+    except (TypeError, ValueError):
+        return 0
+    return max(0, min(100, level))
+
+
+def _coerce_condition(value: Any) -> int:
+    try:
+        amount = int(value)
+    except (TypeError, ValueError):
+        return 100
+    return max(0, min(100, amount))
+
+
+def _catalog_description(template: Dict[str, Any]) -> str:
+    if isinstance(template, dict):
+        desc = template.get("description")
+        if isinstance(desc, str) and desc:
+            return desc
+    return "You examine it."
+
+
+def _resolve_template(inst: Dict[str, Any], catalog: Any) -> Dict[str, Any]:
+    if not catalog:
+        return {}
+    tpl_id: str = ""
+    if inst:
+        for key in ("item_id", "catalog_id", "id"):
+            candidate = inst.get(key)
+            if candidate is None:
+                continue
+            tpl_id = str(candidate)
+            if tpl_id:
+                break
+    if not tpl_id and inst:
+        tpl_id = str(inst.get("iid") or inst.get("instance_id") or "")
+    if not tpl_id:
+        return {}
+    template = catalog.get(tpl_id)
+    return template if isinstance(template, dict) else {}
+
+
+def describe_instance(iid: str) -> str:
+    """Return a narrative description for an item instance."""
+
+    inst = itemsreg.get_instance(iid) or {}
+    try:
+        catalog = items_catalog.load_catalog()
+    except (FileNotFoundError, ValueError):
+        catalog = None
+    template = _resolve_template(inst, catalog)
+    base_description = _catalog_description(template)
+
+    if not inst:
+        return base_description
+
+    item_id = str(inst.get("item_id") or inst.get("catalog_id") or inst.get("id") or "")
+    if item_id in {itemsreg.BROKEN_WEAPON_ID, itemsreg.BROKEN_ARMOUR_ID}:
+        return base_description
+
+    enchant_level = _coerce_enchant_level(inst.get("enchant_level"))
+    if enchant_level >= 1:
+        return f"{base_description} It bears a +{enchant_level} enchantment."
+
+    condition = _coerce_condition(inst.get("condition"))
+    if condition >= 100 or condition == 0:
+        return base_description
+
+    tiers = _ARMOUR_WEAR_TIERS if bool(template.get("armour")) else _WEAPON_WEAR_TIERS
+    for threshold, line in tiers:
+        if condition >= threshold:
+            return line
+    return tiers[-1][1]
 
 
 def _load_catalog() -> Dict[str, Dict]:
