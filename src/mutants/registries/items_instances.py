@@ -4,7 +4,7 @@ import json
 import logging
 import uuid
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional
+from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 from mutants.io.atomic import atomic_write_json
 from . import items_catalog
@@ -15,6 +15,83 @@ CATALOG_PATH = "state/items/catalog.json"
 
 LOG = logging.getLogger("mutants.itemsdbg")
 
+BROKEN_WEAPON_ID = "broken_weapon"
+BROKEN_ARMOUR_ID = "broken_armour"
+_BROKEN_ITEM_IDS = {BROKEN_WEAPON_ID, BROKEN_ARMOUR_ID}
+
+
+def _instance_id(inst: Dict[str, Any]) -> str:
+    value = inst.get("iid") or inst.get("instance_id")
+    return str(value) if value is not None else ""
+
+
+def _item_id(inst: Dict[str, Any]) -> str:
+    value = inst.get("item_id") or inst.get("catalog_id") or inst.get("id")
+    return str(value) if value is not None else ""
+
+
+def _sanitize_enchant_level(value: Any) -> int:
+    try:
+        level = int(value)
+    except (TypeError, ValueError):
+        level = 0
+    return max(0, min(100, level))
+
+
+def _sanitize_condition(value: Any) -> int:
+    try:
+        amount = int(value)
+    except (TypeError, ValueError):
+        amount = 100
+    return max(1, min(100, amount))
+
+
+def _is_broken_item_id(item_id: str) -> bool:
+    return item_id in _BROKEN_ITEM_IDS
+
+
+def _normalize_instance(inst: Dict[str, Any]) -> bool:
+    changed = False
+
+    if not isinstance(inst, dict):
+        return False
+
+    iid = _instance_id(inst)
+    if iid and inst.get("instance_id") != iid:
+        inst["instance_id"] = iid
+        changed = True
+    if iid and inst.get("iid") != iid:
+        inst["iid"] = iid
+        changed = True
+
+    level = _sanitize_enchant_level(inst.get("enchant_level"))
+    if inst.get("enchant_level") != level:
+        inst["enchant_level"] = level
+        changed = True
+
+    item_id = _item_id(inst)
+    broken = _is_broken_item_id(item_id)
+
+    if broken:
+        if "condition" in inst:
+            inst.pop("condition", None)
+            changed = True
+    else:
+        condition = _sanitize_condition(inst.get("condition"))
+        if inst.get("condition") != condition:
+            inst["condition"] = condition
+            changed = True
+
+    return changed
+
+
+def _normalize_instances(instances: Iterable[Dict[str, Any]]) -> bool:
+    changed = False
+    for inst in instances:
+        if _normalize_instance(inst):
+            changed = True
+    return changed
+
 class ItemsInstances:
     """
     Registry for altered (unique) item instances.
@@ -23,9 +100,10 @@ class ItemsInstances:
     """
     def __init__(self, path: str, items: List[Dict[str, Any]]):
         self._path = Path(path)
+        normalized = _normalize_instances(items)
         self._items: List[Dict[str, Any]] = items
         self._by_id: Dict[str, Dict[str, Any]] = {it["instance_id"]: it for it in items if "instance_id" in it}
-        self._dirty = False
+        self._dirty = normalized
 
     # ----- Queries -----
 
@@ -38,6 +116,7 @@ class ItemsInstances:
     # ----- Mutations -----
 
     def _add(self, inst: Dict[str, Any]) -> Dict[str, Any]:
+        _normalize_instance(inst)
         self._items.append(inst)
         self._by_id[inst["instance_id"]] = inst
         self._dirty = True
@@ -54,6 +133,8 @@ class ItemsInstances:
             "item_id": base_item["item_id"],
             "enchanted": "no",
             "wear": 0,
+            "enchant_level": 0,
+            "condition": 100,
         }
         charges_max = int(base_item.get("charges_max", 0) or 0)
         if charges_max > 0:
@@ -65,7 +146,7 @@ class ItemsInstances:
     def apply_enchant(self, instance_id: str, level: int) -> Dict[str, Any]:
         inst = self._by_id[instance_id]
         inst["enchanted"] = "yes"
-        inst["enchant_level"] = int(level)
+        inst["enchant_level"] = _sanitize_enchant_level(level)
         self._dirty = True
         return inst
 
@@ -157,6 +238,8 @@ def _load_instances_raw() -> List[Dict[str, Any]]:
             len(duplicates),
             duplicates[:5],
         )
+
+    _normalize_instances(items)
 
     return items
 
@@ -334,6 +417,9 @@ def _cache() -> List[Dict[str, Any]]:
         _CACHE_PATH = path_key
         _CACHE_MTIME = mtime
 
+    if _CACHE is not None:
+        _normalize_instances(_CACHE)
+
     assert _CACHE is not None
     return _CACHE
 
@@ -393,6 +479,79 @@ def delete_instance(iid: str) -> int:
     removed = before - len(raw)
     _save_instances_raw(raw)
     return removed
+
+
+def get_enchant_level(iid: str) -> int:
+    inst = get_instance(iid)
+    if not inst:
+        return 0
+    level = _sanitize_enchant_level(inst.get("enchant_level"))
+    if inst.get("enchant_level") != level:
+        inst["enchant_level"] = level
+    return level
+
+
+def is_enchanted(iid: str) -> bool:
+    inst = get_instance(iid)
+    if not inst:
+        return False
+    enchanted_flag = inst.get("enchanted")
+    if isinstance(enchanted_flag, str) and enchanted_flag.lower() == "yes":
+        return True
+    return get_enchant_level(iid) > 0
+
+
+def _is_broken_instance(inst: Dict[str, Any]) -> bool:
+    return _is_broken_item_id(_item_id(inst))
+
+
+def get_condition(iid: str) -> int:
+    inst = get_instance(iid)
+    if not inst:
+        return 0
+    if _is_broken_instance(inst):
+        inst.pop("condition", None)
+        return 0
+    condition = _sanitize_condition(inst.get("condition"))
+    if inst.get("condition") != condition:
+        inst["condition"] = condition
+    return condition
+
+
+def set_condition(iid: str, value: int) -> int:
+    inst = get_instance(iid)
+    if not inst:
+        raise KeyError(iid)
+    if is_enchanted(iid):
+        return get_condition(iid)
+    if _is_broken_instance(inst):
+        inst.pop("condition", None)
+        return 0
+    amount = _sanitize_condition(value)
+    inst["condition"] = amount
+    return amount
+
+
+def crack_instance(iid: str) -> Optional[Dict[str, Any]]:
+    inst = get_instance(iid)
+    if not inst:
+        return None
+
+    current_item_id = _item_id(inst)
+    catalog = items_catalog.load_catalog()
+    tpl = catalog.get(current_item_id) if catalog else None
+    is_armour = bool(tpl.get("armour")) if isinstance(tpl, dict) else False
+    inst["item_id"] = BROKEN_ARMOUR_ID if is_armour else BROKEN_WEAPON_ID
+    inst.pop("condition", None)
+    _normalize_instance(inst)
+    return inst
+
+
+def snapshot_instances() -> List[Dict[str, Any]]:
+    """Return a shallow copy of the cached instances list."""
+
+    return [inst.copy() for inst in _cache()]
+
 
 def clear_position(iid: str) -> None:
     """Back-compat: clear by iid (may hit wrong object if duplicate iids exist)."""
@@ -467,11 +626,14 @@ def create_and_save_instance(item_id: str, year: int, x: int, y: int, origin: st
         "x": int(x),
         "y": int(y),
         "origin": origin,
+        "enchant_level": 0,
+        "condition": 100,
     }
     cat = items_catalog.load_catalog()
     tpl = cat.get(str(item_id)) if cat else None
     if tpl and int(tpl.get("charges_max", 0) or 0) > 0:
         inst["charges"] = int(tpl.get("charges_max"))
+    _normalize_instance(inst)
     raw.append(inst)
     _save_instances_raw(raw)
     return iid
