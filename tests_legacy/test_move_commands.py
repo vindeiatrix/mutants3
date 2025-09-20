@@ -21,6 +21,8 @@ def make_ctx():
 
 def test_look_renders_room(capsys):
     ctx = make_ctx()
+    p = active(ctx["player_state"])
+    p["pos"] = [2000, 0, 0]
     look_cmd("", ctx)
     render_frame(ctx)
     out = capsys.readouterr().out
