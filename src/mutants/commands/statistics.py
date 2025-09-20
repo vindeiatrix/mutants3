@@ -4,6 +4,7 @@ from typing import Dict
 from collections.abc import Mapping
 
 from mutants.services import player_state as pstate
+from mutants.services.combat_calc import armour_class_for_active, dex_bonus_for_active
 
 from . import inv as inv_cmd_mod
 
@@ -49,7 +50,6 @@ def statistics_cmd(arg: str, ctx) -> None:
     if not isinstance(armour, Mapping):
         armour = {}
     wearing = armour.get("wearing")
-    ac = _int(armour.get("armour_class"), 0)
 
     bus.push("SYSTEM/OK", f"Name: {name} / Mutant {cls}")
     bus.push("SYSTEM/OK", f"Exhaustion : {exhaustion}")
@@ -62,7 +62,13 @@ def statistics_cmd(arg: str, ctx) -> None:
     bus.push("SYSTEM/OK", f"Riblets     : {riblets}")
     bus.push("SYSTEM/OK", f"Ions        : {ions}")
     armour_status = "None" if wearing is None else wearing
-    bus.push("SYSTEM/OK", f"Wearing Armor : {armour_status}  Armour Class: {ac}")
+    armour_class = armour_class_for_active(state)
+    dex_bonus = dex_bonus_for_active(state)
+    bus.push(
+        "SYSTEM/OK",
+        "Wearing Armor : "
+        f"{armour_status}  Armour Class: {armour_class}  (Dex bonus: +{dex_bonus})",
+    )
     bus.push("SYSTEM/OK", "Ready to Combat: NO ONE")
     bus.push("SYSTEM/OK", "Readied Spell  : No spell memorized.")
     bus.push("SYSTEM/OK", f"Year A.D. : {year}")
