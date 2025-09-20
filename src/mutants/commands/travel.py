@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import random
+from collections.abc import Mapping
 from pathlib import Path
 from typing import Any, Dict, Iterable, Optional
 
@@ -124,20 +125,35 @@ def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
     pstate.ensure_active_profile(player, ctx)
     pstate.bind_inventory_to_active_class(player)
     itx._ensure_inventory(player)
-    currency_state = ctx.get("player_state") if isinstance(ctx.get("player_state"), dict) else None
-    if not isinstance(currency_state, dict):
-        try:
-            currency_state = pstate.load_state()
-        except Exception:
+    # Always operate on a fresh canonical state for currency to avoid stale ctx copies.
+    try:
+        loaded_state = pstate.load_state()
+    except Exception:
+        currency_state: Dict[str, Any] = {}
+    else:
+        if isinstance(loaded_state, dict):
+            currency_state = loaded_state
+        elif isinstance(loaded_state, Mapping):
+            currency_state = dict(loaded_state)
+        else:
             currency_state = {}
 
     def _update_ions(new_amount: int) -> int:
+        """Persist ions for the active class (fresh state-in, fresh state-out)."""
+
         nonlocal currency_state
+        # Persist via helper (updates per-class map + mirrors + active snapshot).
         result = pstate.set_ions_for_active(currency_state, new_amount)
+        # Reload to keep ctx in sync for subsequent reads in this command.
         try:
-            currency_state = pstate.load_state()
+            reloaded_state = pstate.load_state()
         except Exception:
             pass
+        else:
+            if isinstance(reloaded_state, dict):
+                currency_state = reloaded_state
+            elif isinstance(reloaded_state, Mapping):
+                currency_state = dict(reloaded_state)
         player["ions"] = result
         player["Ions"] = result
         active_profile = player.get("active")
@@ -167,16 +183,8 @@ def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
 
     steps = abs(dest_century - current_century) // 100
     full_cost = steps * ION_COST_PER_CENTURY
+    # Read ions strictly from per-class storage for the active class.
     ions = pstate.get_ions_for_active(currency_state)
-    player_ions = player.get("ions")
-    if player_ions is None:
-        player_ions = player.get("Ions")
-    try:
-        legacy_ions = int(player_ions) if player_ions is not None else None
-    except (TypeError, ValueError):
-        legacy_ions = None
-    if isinstance(legacy_ions, int) and legacy_ions >= 0:
-        ions = min(ions, legacy_ions) if ions else legacy_ions
 
     if ions < ION_COST_PER_CENTURY:
         bus.push("SYSTEM/WARN", "You don't have enough ions to create a portal.")
@@ -200,6 +208,7 @@ def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
     max_century = max(current_century, dest_century)
     candidates = [year for year in available if min_century <= year <= max_century]
     if not candidates:
+        # Spend everything we can to get as far as possible (as before), then persist.
         _update_ions(0)
         _persist_state(ctx, player)
         bus.push(
