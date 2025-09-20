@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import random
 from collections.abc import Mapping
 from pathlib import Path
@@ -138,11 +139,27 @@ def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
         else:
             currency_state = {}
 
+    # Debug logger (same as CONVERT uses). Only emits when playersdbg is enabled.
+    LOG_P = logging.getLogger("playersdbg")
+    if pstate._pdbg_enabled():  # pragma: no cover - diagnostic hook
+        pstate._pdbg_setup_file_logging()
+        try:
+            LOG_P.info(
+                "[playersdbg] TRAVEL start active_id=%s class=%s pos=%s",
+                currency_state.get("active_id"),
+                pstate.get_active_class(currency_state),
+                (player.get("pos") or [None, None, None]),
+            )
+        except Exception:
+            pass
+
     def _update_ions(new_amount: int) -> int:
         """Persist ions for the active class (fresh state-in, fresh state-out)."""
 
         nonlocal currency_state
         # Persist via helper (updates per-class map + mirrors + active snapshot).
+        before_cls = pstate.get_active_class(currency_state)
+        before_ions = pstate.get_ions_for_active(currency_state)
         result = pstate.set_ions_for_active(currency_state, new_amount)
         # Reload to keep ctx in sync for subsequent reads in this command.
         try:
@@ -154,6 +171,20 @@ def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
                 currency_state = reloaded_state
             elif isinstance(reloaded_state, Mapping):
                 currency_state = dict(reloaded_state)
+        if pstate._pdbg_enabled():  # pragma: no cover - diagnostic hook
+            try:
+                after_cls = pstate.get_active_class(currency_state)
+                after_ions = pstate.get_ions_for_active(currency_state)
+                LOG_P.info(
+                    "[playersdbg] TRAVEL write ions class=%s->%s before=%s write=%s after=%s",
+                    before_cls,
+                    after_cls,
+                    before_ions,
+                    new_amount,
+                    after_ions,
+                )
+            except Exception:
+                pass
         player["ions"] = result
         player["Ions"] = result
         active_profile = player.get("active")
@@ -185,9 +216,29 @@ def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
     full_cost = steps * ION_COST_PER_CENTURY
     # Read ions strictly from per-class storage for the active class.
     ions = pstate.get_ions_for_active(currency_state)
+    if pstate._pdbg_enabled():  # pragma: no cover - diagnostic hook
+        try:
+            LOG_P.info(
+                "[playersdbg] TRAVEL cost class=%s steps=%s cost=%s ions_before=%s",
+                pstate.get_active_class(currency_state),
+                steps,
+                full_cost,
+                ions,
+            )
+        except Exception:
+            pass
 
     if ions < ION_COST_PER_CENTURY:
         bus.push("SYSTEM/WARN", "You don't have enough ions to create a portal.")
+        if pstate._pdbg_enabled():  # pragma: no cover
+            try:
+                LOG_P.info(
+                    "[playersdbg] TRAVEL abort reason=insufficient ions=%s min_cost=%s",
+                    ions,
+                    ION_COST_PER_CENTURY,
+                )
+            except Exception:
+                pass
         return
 
     if ions >= full_cost:
@@ -198,6 +249,15 @@ def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
         _update_ions(new_total)
         player["pos"] = [resolved_year, 0, 0]
         _persist_state(ctx, player)
+        if pstate._pdbg_enabled():  # pragma: no cover
+            try:
+                LOG_P.info(
+                    "[playersdbg] TRAVEL full_move resolved=%s ions_after=%s",
+                    resolved_year,
+                    pstate.get_ions_for_active(currency_state),
+                )
+            except Exception:
+                pass
         bus.push(
             "SYSTEM/OK",
             f"ZAAAPPPPP!! You've been sent to the year {resolved_year} A.D.",
@@ -211,6 +271,14 @@ def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
         # Spend everything we can to get as far as possible (as before), then persist.
         _update_ions(0)
         _persist_state(ctx, player)
+        if pstate._pdbg_enabled():  # pragma: no cover
+            try:
+                LOG_P.info(
+                    "[playersdbg] TRAVEL partial_move candidates=0 ions_after=%s",
+                    pstate.get_ions_for_active(currency_state),
+                )
+            except Exception:
+                pass
         bus.push(
             "SYSTEM/WARN",
             "ZAAAPPPP!!!! You suddenly feel something has gone terribly wrong!",
