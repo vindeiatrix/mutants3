@@ -5,7 +5,11 @@ from collections.abc import Mapping
 
 from mutants.registries import items_catalog, items_instances as itemsreg
 from mutants.services import player_state as pstate
-from mutants.services.combat_calc import armour_class_for_active, dex_bonus_for_active
+from mutants.services.combat_calc import (
+    armour_class_for_active,
+    armour_class_from_equipped,
+    dex_bonus_for_active,
+)
 from mutants.ui.item_display import item_label
 
 from . import inv as inv_cmd_mod
@@ -78,10 +82,12 @@ def statistics_cmd(arg: str, ctx) -> None:
     bus.push("SYSTEM/OK", f"Ions        : {ions}")
     armour_class = armour_class_for_active(state)
     dex_bonus = dex_bonus_for_active(state)
+    armour_bonus = armour_class_from_equipped(state)
     bus.push(
         "SYSTEM/OK",
         "Wearing Armor : "
-        f"{armour_status}  Armour Class: {armour_class}  (Dex bonus: +{dex_bonus})",
+        f"{armour_status}  Armour Class: {armour_class}  "
+        f"(Dex bonus: +{dex_bonus}, Armour: +{armour_bonus})",
     )
     bus.push("SYSTEM/OK", "Ready to Combat: NO ONE")
     bus.push("SYSTEM/OK", "Readied Spell  : No spell memorized.")
