@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import copy
+
 import pytest
 
 from mutants.commands.travel import _floor_to_century, _parse_year, travel_cmd
@@ -82,16 +84,22 @@ def test_travel_same_century_returns_to_origin(monkeypatch: pytest.MonkeyPatch) 
     monkeypatch.setattr("mutants.commands.travel.itx._ensure_inventory", lambda _: None)
     monkeypatch.setattr(
         "mutants.commands.travel.itx._save_player",
-        lambda payload: saved.update({"player": payload.copy()}),
+        lambda _: pytest.fail("_save_player should not be called for same-century travel"),
     )
     new_state = {"players": [player], "active_id": "player_thief"}
     monkeypatch.setattr("mutants.commands.travel.pstate.load_state", lambda: new_state)
+    monkeypatch.setattr(
+        "mutants.commands.travel.pstate.save_state",
+        lambda payload: saved.update({"state": copy.deepcopy(payload)}),
+    )
 
     travel_cmd("2150", ctx)
 
-    assert saved["player"]["pos"] == [2100, 0, 0]
-    assert saved["player"]["ions"] == 9000
-    assert ctx["player_state"] is new_state
+    assert "state" in saved, "expected save_state to persist position"
+    assert saved["state"]["players"][0]["pos"] == [2100, 0, 0]
+    assert player["ions"] == 9000
+    assert player["pos"] == [2100, 0, 0]
+    assert ctx["player_state"]["players"][0]["pos"] == [2100, 0, 0]
     assert ctx["render_next"] is False
     assert bus.events[-1] == (
         "SYSTEM/OK",

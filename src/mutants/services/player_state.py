@@ -768,7 +768,16 @@ def _ensure_equipment_map(
             fallback = _sanitize_equipped_iid(legacy_direct)
             if fallback:
                 break
-        normalized[key] = {"armour": fallback}
+        # Enforce invariant: equipped armour must be present in the class's bag.
+        equipped = fallback
+        try:
+            bags_map = state.get("bags_by_class") or state.get("bags") or {}
+            class_bag = list(bags_map.get(key) or [])
+        except Exception:
+            class_bag = []
+        if equipped and equipped not in class_bag:
+            equipped = None
+        normalized[key] = {"armour": equipped}
 
     state["equipment_by_class"] = normalized
     return normalized

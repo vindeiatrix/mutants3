@@ -167,10 +167,7 @@ def _save_player(player: Dict[str, Any]) -> None:
                 active_profile["bags"] = {}
             active_profile["bags"][klass] = list(inv)
             active_profile["inventory"] = list(inv)
-    equipment_map = player.get("equipment_by_class")
-    if isinstance(equipment_map, dict):
-        state["equipment_by_class"] = dict(equipment_map)
-    # Mirror to legacy top-level slot so older tooling/tests stay in sync.
+    # Persist inventory and other canonical fields only; equipment is owned by pstate helpers.
     pstate.save_state(state)
     _STATE_CACHE = None
 
