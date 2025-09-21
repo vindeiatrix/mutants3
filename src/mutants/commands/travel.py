@@ -98,13 +98,6 @@ def _resolved_year(ctx: Dict[str, Any], target: int) -> Optional[int]:
     return int(getattr(world, "year", int(target)))
 
 
-def _persist_state(ctx: Dict[str, Any], player: Dict[str, Any]) -> None:
-    itx._save_player(player)
-    ctx["player_state"] = pstate.load_state()
-    if "render_next" in ctx:
-        ctx["render_next"] = False
-
-
 def _persist_pos_only(resolved_year: int) -> Optional[Dict[str, Any]]:
     """Write only the active player's position to canonical state."""
 
@@ -238,7 +231,11 @@ def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
         if resolved_year is None:
             return
         player["pos"] = [resolved_year, 0, 0]
-        _persist_state(ctx, player)
+        new_state = _persist_pos_only(resolved_year)
+        if isinstance(new_state, Mapping):
+            ctx["player_state"] = dict(new_state)
+            if "render_next" in ctx:
+                ctx["render_next"] = False
         bus.push(
             "SYSTEM/OK",
             f"You're already in the {_century_index(dest_century)}th Century!",
