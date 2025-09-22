@@ -8,6 +8,7 @@ from typing import Any, Callable, Dict, Iterable, List, Mapping, Optional, Tuple
 
 from mutants.io.atomic import atomic_write_json
 from mutants.registries import items_instances as itemsreg
+from .equip_debug import _edbg_enabled, _edbg_log
 
 
 LOG_P = logging.getLogger("mutants.playersdbg")
@@ -860,6 +861,101 @@ def _ensure_wielded_map(
     return normalized
 
 
+def _log_wield_invariants(status: str, summary: str, healed: Iterable[str]) -> None:
+    """Emit debug logs describing the outcome of wield invariant checks."""
+
+    pdgb_active = _pdbg_enabled()
+    edbg_active = _edbg_enabled()
+    if not (pdgb_active or edbg_active):
+        return
+
+    healed_list = [entry for entry in healed if entry]
+    healed_render = "|".join(healed_list)
+
+    if pdgb_active:
+        _pdbg_setup_file_logging()
+        if healed_render:
+            LOG_P.info("[playersdbg] %s wield :: %s healed=%s", status, summary, healed_render)
+        else:
+            LOG_P.info("[playersdbg] %s wield :: %s", status, summary)
+
+    if edbg_active:
+        payload: Dict[str, Any] = {"status": status, "summary": summary}
+        if healed_render:
+            payload["healed"] = healed_render
+        _edbg_log("[ equip ] state=wield-invariants", **payload)
+
+
+def _enforce_wield_invariants(
+    state: Dict[str, Any],
+    classes: Iterable[str],
+    equipment_map: Mapping[str, Mapping[str, Optional[str]]],
+    wield_map: Dict[str, Optional[str]],
+    *,
+    active_class: str,
+) -> None:
+    """Ensure wield invariants hold and emit debug logging if needed."""
+
+    if not isinstance(wield_map, dict):
+        return
+
+    class_names: set[str] = set()
+    for cls in classes:
+        if isinstance(cls, str) and cls:
+            class_names.add(cls)
+    if isinstance(active_class, str) and active_class:
+        class_names.add(active_class)
+    for cls in list(wield_map.keys()):
+        normalized = _normalize_class_name(cls)
+        if normalized:
+            class_names.add(normalized)
+
+    bags_by_class = state.get("bags_by_class")
+    bags_fallback = state.get("bags")
+    bags_map: Mapping[str, Any] = bags_by_class if isinstance(bags_by_class, Mapping) else {}
+    fallback_map: Mapping[str, Any] = bags_fallback if isinstance(bags_fallback, Mapping) else {}
+
+    healed: List[str] = []
+    summary_parts: List[str] = []
+
+    for cls_name in sorted(class_names):
+        bag_payload = bags_map.get(cls_name)
+        if not isinstance(bag_payload, list):
+            fallback_payload = fallback_map.get(cls_name)
+            bag_payload = fallback_payload if isinstance(fallback_payload, list) else []
+        bag_items = [str(item) for item in bag_payload if item is not None]
+
+        equipment_entry = equipment_map.get(cls_name)
+        armour_iid: Optional[str]
+        if isinstance(equipment_entry, Mapping):
+            armour_iid = _sanitize_equipped_iid(equipment_entry.get("armour"))
+        else:
+            armour_iid = _sanitize_equipped_iid(equipment_entry)
+
+        original_weapon = _sanitize_equipped_iid(wield_map.get(cls_name))
+        violation: Optional[str] = None
+        if original_weapon and original_weapon not in bag_items:
+            violation = "bag"
+        elif original_weapon and armour_iid and armour_iid == original_weapon:
+            violation = "armour"
+
+        final_weapon: Optional[str]
+        has_entry = cls_name in wield_map
+        if violation:
+            final_weapon = None
+            healed.append(f"{cls_name}:{violation}:{original_weapon}")
+        else:
+            final_weapon = original_weapon
+
+        if violation or has_entry:
+            wield_map[cls_name] = final_weapon
+
+        summary_parts.append(f"{cls_name}:{final_weapon or '-'}")
+
+    summary = " ".join(summary_parts) if summary_parts else "<no-classes>"
+    _log_wield_invariants("INV-OK", summary, healed)
+
+
 def _set_armour_view(payload: Dict[str, Any], armour_iid: Optional[str]) -> None:
     if not isinstance(payload, dict):
         return
@@ -1096,6 +1192,14 @@ def _normalize_per_class_structures(
 
     equipment_map = _ensure_equipment_map(state, classes, sources, active)
     wield_map = _ensure_wielded_map(state, classes, sources, active)
+
+    _enforce_wield_invariants(
+        state,
+        classes,
+        equipment_map,
+        wield_map,
+        active_class=klass_name,
+    )
 
     _ensure_spells_map(state, classes)
     _ensure_spell_effects_map(state, classes)

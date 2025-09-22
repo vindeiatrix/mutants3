@@ -83,6 +83,50 @@ def _base_state() -> dict[str, object]:
     }
 
 
+def test_normalize_clears_wield_missing_from_bag():
+    base = _base_state()
+    base["bags_by_class"] = {"Thief": [], "Wizard": []}
+    base["wielded_by_class"] = {"Thief": "weapon-1"}
+    base["wielded"] = "weapon-1"
+    base["active"]["wielded"] = "weapon-1"
+
+    normalized = player_state._normalize_player_state(copy.deepcopy(base))
+
+    assert normalized["wielded_by_class"]["Thief"] is None
+    assert normalized["active"]["wielded"] is None
+    assert (
+        normalized["active"].get("wielded_by_class", {}).get("Thief") is None
+    )
+
+    thief = next(player for player in normalized["players"] if player["class"] == "Thief")
+    assert thief.get("wielded") is None
+    assert thief.get("wielded_by_class", {}).get("Thief") is None
+
+
+def test_normalize_clears_wield_matching_armour():
+    base = _base_state()
+    base["bags"]["Thief"] = ["arm-1", "weapon-2"]
+    base["bags_by_class"] = {"Thief": ["arm-1", "weapon-2"], "Wizard": []}
+    base["wielded_by_class"] = {"Thief": "arm-1"}
+    base["wielded"] = "arm-1"
+    base["active"]["wielded"] = "arm-1"
+    base["equipment_by_class"] = {"Thief": {"armour": "arm-1"}}
+    base["active"]["equipment_by_class"] = {"Thief": {"armour": "arm-1"}}
+    base["players"][0]["equipment_by_class"] = {"Thief": {"armour": "arm-1"}}
+
+    normalized = player_state._normalize_player_state(copy.deepcopy(base))
+
+    assert normalized["wielded_by_class"]["Thief"] is None
+    assert normalized["active"]["wielded"] is None
+    assert (
+        normalized["active"].get("wielded_by_class", {}).get("Thief") is None
+    )
+
+    thief = next(player for player in normalized["players"] if player["class"] == "Thief")
+    assert thief.get("wielded") is None
+    assert thief.get("wielded_by_class", {}).get("Thief") is None
+
+
 def test_migrate_per_class_fields_populates_maps():
     state = {
         "active": {"class": "Thief", "pos": [2000, 0, 0]},
