@@ -167,6 +167,56 @@ def test_wear_rejects_when_too_heavy(command_env):
     assert pstate.get_equipped_armour_id(pstate.load_state()) is None
 
 
+def test_wear_requires_strength_for_150_lb_armour(command_env):
+    stats = {"str": 14, "dex": 8, "int": 0, "wis": 0, "con": 0, "cha": 0}
+    command_env["setup"](
+        bag_items=["massive_armour#bag"],
+        equipped=None,
+        stats=stats,
+        catalog={
+            "massive_armour": {
+                "name": "Massive Armour",
+                "armour": True,
+                "armour_class": 7,
+                "weight": 150,
+            }
+        },
+        instances={"massive_armour#bag": "massive_armour"},
+    )
+
+    ctx, bus = _ctx(pstate.load_state())
+    result = wear.wear_cmd("massive", ctx)
+
+    assert result == {"ok": False, "reason": "insufficient_strength"}
+    assert any("You don't have the strength to put that on!" in msg for _, msg in bus.msgs)
+    assert pstate.get_equipped_armour_id(pstate.load_state()) is None
+
+
+def test_wear_allows_149_lb_armour_with_strength_fourteen(command_env):
+    stats = {"str": 14, "dex": 8, "int": 0, "wis": 0, "con": 0, "cha": 0}
+    command_env["setup"](
+        bag_items=["heavy_brigandine#bag"],
+        equipped=None,
+        stats=stats,
+        catalog={
+            "heavy_brigandine": {
+                "name": "Heavy Brigandine",
+                "armour": True,
+                "armour_class": 6,
+                "weight": 149,
+            }
+        },
+        instances={"heavy_brigandine#bag": "heavy_brigandine"},
+    )
+
+    ctx, bus = _ctx(pstate.load_state())
+    result = wear.wear_cmd("heavy", ctx)
+
+    assert result["ok"] is True
+    assert any("You've just put on the Heavy Brigandine." in msg for _, msg in bus.msgs)
+    assert pstate.get_equipped_armour_id(pstate.load_state()) == "heavy_brigandine#bag"
+
+
 def test_wear_allows_enchanted_armour_with_reduced_weight(command_env):
     stats = {"str": 2, "dex": 12, "int": 0, "wis": 0, "con": 0, "cha": 0}
     command_env["setup"](
