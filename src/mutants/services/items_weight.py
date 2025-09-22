@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import Any, Mapping, Optional
 
+from ..registries import items_catalog as catreg
+
 
 def _coerce_weight(value: Any) -> Optional[int]:
     if value is None:
@@ -14,14 +16,10 @@ def _coerce_weight(value: Any) -> Optional[int]:
         return None
 
 
-def effective_weight(
+def _resolve_base_weight(
     instance: Mapping[str, Any] | None, template: Mapping[str, Any] | None
 ) -> int:
-    """Return the effective weight for an item instance.
-
-    Prefers explicit effective-weight overrides, falling back to standard weight
-    metadata from the instance and catalog template.
-    """
+    """Resolve the base weight for an item instance ignoring enchantments."""
 
     for payload in (instance, template):
         if not isinstance(payload, Mapping):
@@ -43,3 +41,59 @@ def effective_weight(
                 return weight
 
     return 0
+
+
+def _template_for_instance(instance: Mapping[str, Any] | None) -> Mapping[str, Any] | None:
+    if not isinstance(instance, Mapping):
+        return None
+
+    item_id = (
+        instance.get("item_id")
+        or instance.get("catalog_id")
+        or instance.get("id")
+        or instance.get("template_id")
+    )
+    if not item_id:
+        return None
+
+    catalog = catreg.load_catalog() or {}
+    template = catalog.get(str(item_id))
+    if isinstance(template, Mapping):
+        return template
+    return None
+
+
+def get_effective_weight(
+    instance: Mapping[str, Any] | None, template: Mapping[str, Any] | None = None
+) -> int:
+    """Return the effective carried weight for ``instance``.
+
+    Applies enchantment-based weight reduction while enforcing the 10 lb floor
+    for heavier items. Callers may provide a catalog ``template`` to avoid
+    redundant lookups; otherwise the template is loaded from the catalog.
+    """
+
+    resolved_template = template if isinstance(template, Mapping) else _template_for_instance(instance)
+    base_weight = _resolve_base_weight(instance, resolved_template)
+    if base_weight <= 0:
+        return 0
+
+    enchant_level = 0
+    if isinstance(instance, Mapping):
+        try:
+            enchant_level = int(instance.get("enchant_level", 0))
+        except (TypeError, ValueError):
+            enchant_level = 0
+
+    if enchant_level >= 1 and base_weight > 10:
+        return max(10, base_weight - (10 * enchant_level))
+
+    return base_weight
+
+
+def effective_weight(
+    instance: Mapping[str, Any] | None, template: Mapping[str, Any] | None
+) -> int:
+    """Backward-compatible wrapper for legacy imports."""
+
+    return get_effective_weight(instance, template)

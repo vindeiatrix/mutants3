@@ -7,7 +7,7 @@ from ..registries import items_instances as itemsreg
 from ..services import item_transfer as itx
 from ..services import player_state as pstate
 from ..services.equip_debug import _edbg_enabled, _edbg_log
-from ..services.items_weight import effective_weight
+from ..services.items_weight import get_effective_weight
 from .convert import _choose_inventory_item, _display_name
 from .wear import _bag_count, _catalog_template, _pos_repr
 
@@ -103,7 +103,7 @@ def wield_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
 
     inst = itemsreg.get_instance(iid) or {}
     template = _catalog_template(catalog, item_id)
-    weight = max(0, effective_weight(inst, template))
+    weight = max(0, get_effective_weight(inst, template))
     required = weight // 5
     name = _display_name(item_id, catalog)
 

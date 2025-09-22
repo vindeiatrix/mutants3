@@ -7,6 +7,7 @@ from ..registries import items_instances as itemsreg
 from ..services import player_state as pstate
 from ..services import item_transfer as itx
 from ..services.equip_debug import _edbg_enabled, _edbg_log
+from ..services.items_weight import get_effective_weight
 from .convert import _choose_inventory_item, _display_name
 
 
@@ -43,13 +44,6 @@ def _is_armour(item_id: str, catalog: Dict[str, Dict[str, object]]) -> bool:
     if not isinstance(template, dict):
         return False
     return bool(template.get("armour"))
-
-
-def _armour_weight(item_id: str, catalog: Dict[str, Dict[str, object]]) -> int:
-    template = catalog.get(item_id)
-    if not isinstance(template, dict):
-        return 0
-    return max(0, _coerce_int(template.get("weight"), 0))
 
 
 def _inventory_items(payload: object) -> Iterable[str]:
@@ -181,7 +175,9 @@ def wear_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
     template = _catalog_template(catalog, item_id)
     armour_flag = bool(template.get("armour"))
     armour_class = _coerce_int(template.get("armour_class"), 0)
-    weight = _armour_weight(item_id, catalog)
+    inst = itemsreg.get_instance(iid) or {}
+    weight = max(0, get_effective_weight(inst, template))
+    required = weight // 10
     broken = item_id == itemsreg.BROKEN_ARMOUR_ID or armour_class == 0
     if _edbg_enabled():
         _edbg_log(
@@ -193,6 +189,7 @@ def wear_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
                 "item_id": repr(item_id),
                 "armour": armour_flag,
                 "weight": weight,
+                "required": required,
                 "ac": armour_class,
                 "broken": broken,
             },
@@ -211,12 +208,12 @@ def wear_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
 
     stats = pstate.get_stats_for_active(stats_state)
     strength = _coerce_int(stats.get("str"), 0)
-    gate_ok = strength >= weight
+    gate_ok = strength >= required
     if _edbg_enabled():
         comp = ">=" if gate_ok else "<"
         outcome = "pass" if gate_ok else "fail"
         _edbg_log(
-            f"[ equip ] gate strength={strength} {comp} weight={weight} -> {outcome}",
+            f"[ equip ] gate strength={strength} {comp} required={required} weight={weight} -> {outcome}",
         )
     if not gate_ok:
         if _edbg_enabled():
@@ -224,7 +221,7 @@ def wear_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
                 "[ equip ] reject=strength_gate",
                 cmd="wear",
                 prefix=repr(prefix),
-                **{"strength": strength, "weight": weight},
+                **{"strength": strength, "required": required, "weight": weight},
             )
         bus.push("SYSTEM/WARN", "You don't have the strength to put that on!")
         return {"ok": False, "reason": "insufficient_strength"}
