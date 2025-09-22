@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from math import floor
 from typing import Dict, Iterable, Optional, Tuple
 
 from ..registries import items_catalog as catreg
@@ -177,7 +178,7 @@ def wear_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
     armour_class = _coerce_int(template.get("armour_class"), 0)
     inst = itemsreg.get_instance(iid) or {}
     weight = max(0, get_effective_weight(inst, template))
-    required = weight // 10
+    required = max(0, floor(weight / 10))
     broken = item_id == itemsreg.BROKEN_ARMOUR_ID or armour_class == 0
     if _edbg_enabled():
         _edbg_log(
