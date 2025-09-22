@@ -54,17 +54,30 @@ def _display_name(item_id: str, catalog: Any) -> str:
     return str(meta.get("display") or meta.get("name") or item_id)
 
 
-def _convert_value(item_id: str, catalog: Any) -> int:
+def _convert_value(item_id: str, catalog: Any, iid: Optional[str] = None) -> int:
     meta = _resolve_meta(catalog, item_id)
     if not meta:
         return 0
     for key in ("convert_ions", "ion_value", "value"):
         if key in meta:
             try:
-                return int(meta[key])
+                base_value = int(meta[key])
             except Exception:
                 return 0
-    return 0
+            else:
+                break
+    else:
+        return 0
+
+    if not iid:
+        return base_value
+
+    try:
+        level = itemsreg.get_enchant_level(iid)
+    except Exception:
+        level = 0
+
+    return base_value + _enchant_convert_bonus(level)
 
 
 def _enchant_convert_bonus(level: int) -> int:
@@ -78,14 +91,7 @@ def _enchant_convert_bonus(level: int) -> int:
 
 
 def _convert_payout(iid: str, item_id: str, catalog: Any) -> int:
-    base_value = _convert_value(item_id, catalog)
-    if not iid:
-        return base_value
-    try:
-        level = itemsreg.get_enchant_level(iid)
-    except Exception:
-        level = 0
-    return base_value + _enchant_convert_bonus(level)
+    return _convert_value(item_id, catalog, iid if iid else None)
 
 
 def _choose_inventory_item(
