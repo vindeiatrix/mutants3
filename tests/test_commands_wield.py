@@ -138,16 +138,18 @@ def command_env(monkeypatch):
         catalog_data.update(copy.deepcopy(catalog))
         instances_list.clear()
         for iid, meta in instances.items():
+            payload = dict(meta)
+            item_id = payload.pop("item_id", None)
+            enchant_level = payload.pop("enchant_level", 0)
             inst = {
                 "iid": iid,
                 "instance_id": iid,
-                "item_id": meta.get("item_id"),
+                "item_id": item_id,
                 "enchanted": "no",
-                "enchant_level": 0,
+                "enchant_level": enchant_level,
                 "condition": 100,
             }
-            if "weight" in meta:
-                inst["weight"] = meta["weight"]
+            inst.update(payload)
             instances_list.append(inst)
         from mutants.services import item_transfer as itx
 
@@ -194,6 +196,24 @@ def test_wield_strength_gate_failure(command_env):
     assert result["ok"] is False
     assert any("You don't have the strength to wield that!" in msg for _, msg in bus.msgs)
     assert pstate.get_wielded_weapon_id(pstate.load_state()) is None
+
+
+def test_wield_allows_enchanted_weapon_with_reduced_weight(command_env):
+    stats = {"str": 4, "dex": 10, "int": 0, "wis": 0, "con": 0, "cha": 0}
+    command_env["setup"](
+        bag_items=["warhammer#bag"],
+        stats=stats,
+        catalog={"warhammer": {"name": "Warhammer", "weight": 40}},
+        instances={"warhammer#bag": {"item_id": "warhammer", "enchant_level": 2}},
+    )
+
+    state_before = pstate.load_state()
+    ctx, bus = _ctx(state_before)
+    result = wield.wield_cmd("war", ctx)
+
+    assert result["ok"] is True
+    assert any("You wield the Warhammer." in msg for _, msg in bus.msgs)
+    assert pstate.get_wielded_weapon_id(pstate.load_state()) == "warhammer#bag"
 
 
 def test_wield_uses_prefix_resolution(command_env):

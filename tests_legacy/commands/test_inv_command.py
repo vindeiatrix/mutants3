@@ -67,3 +67,40 @@ def test_inv_reports_total_weight_when_known(monkeypatch):
     )
     # Display line uses NBSP for the article binding. Ensure item is listed.
     assert any("Sword" in msg for _, msg in bus.events[1:])
+
+
+def test_inv_totals_use_enchanted_weight(monkeypatch):
+    bus, ctx = _mk_ctx()
+
+    inv = ["hammer#1"]
+    inst = {
+        "iid": "hammer#1",
+        "instance_id": "hammer#1",
+        "item_id": "warhammer",
+        "weight": 40,
+        "enchant_level": 3,
+    }
+
+    monkeypatch.setattr(
+        inv_cmd.pstate,
+        "get_active_pair",
+        lambda: ({"players": []}, {"inventory": inv}),
+    )
+    monkeypatch.setattr(
+        inv_cmd.itemsreg, "get_instance", lambda iid: inst if iid == "hammer#1" else None
+    )
+
+    class DummyCatalog:
+        def get(self, item_id: str):
+            if item_id == "warhammer":
+                return {"item_id": "warhammer", "weight": 40}
+            return {}
+
+    monkeypatch.setattr(inv_cmd.items_catalog, "load_catalog", lambda: DummyCatalog())
+
+    inv_cmd.inv_cmd("", ctx)
+
+    assert bus.events[0] == (
+        "SYSTEM/OK",
+        "You are carrying the following items:  (Total Weight: 10 LB's)",
+    )

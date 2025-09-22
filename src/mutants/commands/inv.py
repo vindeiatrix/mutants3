@@ -1,6 +1,7 @@
 from __future__ import annotations
 from mutants.registries import items_catalog, items_instances as itemsreg
 from mutants.services import player_state as pstate
+from mutants.services.items_weight import get_effective_weight
 from ..ui.item_display import item_label, number_duplicates, with_article
 from ..ui import wrap as uwrap
 from ..ui.textutils import harden_final_display
@@ -20,16 +21,10 @@ def _coerce_weight(value):
 
 
 def _resolve_weight(inst, tpl) -> int | None:
-    """Resolve the weight for an item instance using overrides and catalog."""
+    """Resolve the effective weight for an item instance."""
 
-    raw = inst.get("weight")
-    if raw is None and tpl:
-        for key in ("weight", "weight_lbs", "lbs"):
-            if key in tpl:
-                raw = tpl.get(key)
-                if raw is not None:
-                    break
-    return _coerce_weight(raw)
+    weight = get_effective_weight(inst, tpl)
+    return _coerce_weight(weight)
 
 
 def inv_cmd(arg: str, ctx):
@@ -56,7 +51,7 @@ def inv_cmd(arg: str, ctx):
 
         weight = _resolve_weight(inst, tpl or {})
         if weight is not None:
-            total_weight += weight
+            total_weight += max(0, weight)
 
     numbered = number_duplicates(names)
     display = [harden_final_display(with_article(n)) for n in numbered]

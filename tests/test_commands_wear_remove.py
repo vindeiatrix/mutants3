@@ -95,22 +95,29 @@ def command_env(monkeypatch):
         equipped: str | None,
         stats: dict[str, int],
         catalog: dict[str, dict[str, object]],
-        instances: dict[str, str],
+        instances: dict[str, dict[str, object] | str],
     ) -> None:
         state_store.clear()
         state_store.update(_make_state(bag_items, equipped, stats))
         catalog_data.clear()
         catalog_data.update(copy.deepcopy(catalog))
         instances_list.clear()
-        for iid, item_id in instances.items():
+        for iid, meta in instances.items():
+            if isinstance(meta, str):
+                item_id = meta
+                extra: dict[str, object] = {}
+            else:
+                item_id = meta.get("item_id")
+                extra = {k: v for k, v in meta.items() if k != "item_id"}
             inst = {
                 "iid": iid,
                 "instance_id": iid,
                 "item_id": item_id,
                 "enchanted": "no",
-                "enchant_level": 0,
+                "enchant_level": extra.pop("enchant_level", 0),
                 "condition": 100,
             }
+            inst.update(extra)
             instances_list.append(inst)
         itx._STATE_CACHE = None
 
@@ -148,7 +155,7 @@ def test_wear_rejects_when_too_heavy(command_env):
         bag_items=["chain_mail#bag"],
         equipped=None,
         stats=stats,
-        catalog={"chain_mail": {"name": "Chain Mail", "armour": True, "weight": 6}},
+        catalog={"chain_mail": {"name": "Chain Mail", "armour": True, "weight": 40}},
         instances={"chain_mail#bag": "chain_mail"},
     )
 
@@ -158,6 +165,33 @@ def test_wear_rejects_when_too_heavy(command_env):
 
     assert any("You don't have the strength to put that on!" in msg for _, msg in bus.msgs)
     assert pstate.get_equipped_armour_id(pstate.load_state()) is None
+
+
+def test_wear_allows_enchanted_armour_with_reduced_weight(command_env):
+    stats = {"str": 2, "dex": 12, "int": 0, "wis": 0, "con": 0, "cha": 0}
+    command_env["setup"](
+        bag_items=["plate_mail#bag"],
+        equipped=None,
+        stats=stats,
+        catalog={
+            "plate_mail": {
+                "name": "Plate Mail",
+                "armour": True,
+                "weight": 40,
+                "armour_class": 6,
+            }
+        },
+        instances={
+            "plate_mail#bag": {"item_id": "plate_mail", "enchant_level": 2},
+        },
+    )
+
+    ctx, bus = _ctx(pstate.load_state())
+    result = wear.wear_cmd("plate", ctx)
+
+    assert result["ok"] is True
+    assert any("You've just put on the Plate Mail." in msg for _, msg in bus.msgs)
+    assert pstate.get_equipped_armour_id(pstate.load_state()) == "plate_mail#bag"
 
 
 def test_remove_fails_when_bag_full(command_env):

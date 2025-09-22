@@ -14,6 +14,7 @@ from mutants.engine import edge_resolver as ER
 from mutants.registries import dynamics as dyn
 from mutants.util.directions import vec as dir_vec
 from mutants.services import player_state as pstate
+from ..services.items_weight import get_effective_weight
 
 _STATE_CACHE: Optional[Dict[str, Any]] = None
 
@@ -28,6 +29,14 @@ def _pdbg_enabled() -> bool:
 
 GROUND_CAP = 6
 INV_CAP = 10  # worn armor excluded elsewhere
+
+
+# --- Value coercion helpers ---
+def _coerce_int(value: Any, default: int = 0) -> int:
+    try:
+        return int(value)
+    except Exception:
+        return default
 
 
 # --- Inventory helpers (used by debug.py and services here) ---
@@ -261,6 +270,7 @@ def _choose_instance_from_prefix(
 
 
 def _ground_ordered_ids(year: int, x: int, y: int) -> List[str]:
+    catalog = catreg.load_catalog() or {}
     insts = itemsreg.list_instances_at(year, x, y)
     groups: Dict[str, List[Dict]] = {}
     order: List[str] = []
@@ -343,6 +353,7 @@ def pick_from_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
         pass
 
     insts = itemsreg.list_instances_at(year, x, y)
+    catalog = catreg.load_catalog() or {}
     if _pdbg_enabled():
         try:
             before_inv = list(player.get("inventory") or [])
@@ -422,6 +433,23 @@ def pick_from_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
             "reason": "not_found",
             "where": "ground",
             "message": "No such item on the ground here.",
+        }
+
+    template = catalog.get(str(item_id)) if item_id else None
+    template_map = template if isinstance(template, dict) else None
+    weight = max(0, get_effective_weight(chosen_inst, template_map))
+    required = weight // 10
+    state_for_stats = _STATE_CACHE if isinstance(_STATE_CACHE, dict) else pstate.load_state()
+    stats = pstate.get_stats_for_active(state_for_stats)
+    strength = _coerce_int(stats.get("str"), 0)
+    if strength < required:
+        return {
+            "ok": False,
+            "reason": "insufficient_strength",
+            "where": "ground",
+            "message": "You don't have enough strength to pick that up!",
+            "required": required,
+            "weight": weight,
         }
 
     ok = itemsreg.clear_position_at(chosen_iid, year, x, y)
