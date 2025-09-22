@@ -70,6 +70,17 @@ def statistics_cmd(arg: str, ctx) -> None:
             if wearing is not None:
                 armour_status = str(wearing)
 
+    weapon_iid = pstate.get_wielded_weapon_id(state)
+    weapon_status = "None"
+    if weapon_iid:
+        inst = itemsreg.get_instance(weapon_iid)
+        if inst:
+            tpl_id = inst.get("item_id") or inst.get("catalog_id") or inst.get("id")
+            tpl = cat.get(str(tpl_id)) if tpl_id and cat else {}
+            weapon_status = item_label(inst, tpl or {}, show_charges=False)
+        else:
+            weapon_status = str(weapon_iid)
+
     bus.push("SYSTEM/OK", f"Name: {name} / Mutant {cls}")
     bus.push("SYSTEM/OK", f"Exhaustion : {exhaustion}")
 
@@ -80,6 +91,7 @@ def statistics_cmd(arg: str, ctx) -> None:
     bus.push("SYSTEM/OK", f"Exp. Points : {exp_pts:<6} Level: {level}")
     bus.push("SYSTEM/OK", f"Riblets     : {riblets}")
     bus.push("SYSTEM/OK", f"Ions        : {ions}")
+    bus.push("SYSTEM/OK", f"Wielding    : {weapon_status}")
     armour_class = armour_class_for_active(state)
     dex_bonus = dex_bonus_for_active(state)
     armour_bonus = armour_class_from_equipped(state)
