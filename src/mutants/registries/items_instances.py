@@ -19,6 +19,18 @@ BROKEN_WEAPON_ID = "broken_weapon"
 BROKEN_ARMOUR_ID = "broken_armour"
 _BROKEN_ITEM_IDS = {BROKEN_WEAPON_ID, BROKEN_ARMOUR_ID}
 
+_SPELL_COMPONENT_KEYS = ("spell_component", "spell_components")
+
+NOT_ENCHANTABLE_REASONS = (
+    "ranged",
+    "spell_component",
+    "condition",
+    "potion",
+    "spawnable",
+    "broken",
+    "max_enchant",
+)
+
 
 def _instance_id(inst: Dict[str, Any]) -> str:
     value = inst.get("iid") or inst.get("instance_id")
@@ -28,6 +40,16 @@ def _instance_id(inst: Dict[str, Any]) -> str:
 def _item_id(inst: Dict[str, Any]) -> str:
     value = inst.get("item_id") or inst.get("catalog_id") or inst.get("id")
     return str(value) if value is not None else ""
+
+
+def _coerce_bool(value: Any) -> bool:
+    if isinstance(value, str):
+        lv = value.strip().lower()
+        if lv in {"yes", "true", "1"}:
+            return True
+        if lv in {"no", "false", "0"}:
+            return False
+    return bool(value)
 
 
 def _sanitize_enchant_level(value: Any) -> int:
@@ -82,6 +104,11 @@ def _normalize_instance(inst: Dict[str, Any]) -> bool:
             inst["condition"] = condition
             changed = True
 
+    god_tier_flag = _coerce_bool(inst.get("god_tier")) if "god_tier" in inst else False
+    if inst.get("god_tier") != god_tier_flag or "god_tier" not in inst:
+        inst["god_tier"] = god_tier_flag
+        changed = True
+
     return changed
 
 
@@ -91,6 +118,71 @@ def _normalize_instances(instances: Iterable[Dict[str, Any]]) -> bool:
         if _normalize_instance(inst):
             changed = True
     return changed
+
+
+def _has_spell_component(template: Optional[Dict[str, Any]]) -> bool:
+    if not isinstance(template, dict):
+        return False
+    return any(_coerce_bool(template.get(key)) for key in _SPELL_COMPONENT_KEYS)
+
+
+def _collect_enchant_blockers(
+    inst: Dict[str, Any], template: Optional[Dict[str, Any]]
+) -> List[str]:
+    reasons: List[str] = []
+    tpl = template if isinstance(template, dict) else {}
+
+    if _coerce_bool(tpl.get("ranged")):
+        reasons.append("ranged")
+    if _has_spell_component(tpl):
+        reasons.append("spell_component")
+    if _coerce_bool(tpl.get("potion")):
+        reasons.append("potion")
+    if _coerce_bool(tpl.get("spawnable")):
+        reasons.append("spawnable")
+
+    broken = _is_broken_instance(inst) or _is_broken_item_id(str(tpl.get("item_id", "")))
+    if broken:
+        reasons.append("broken")
+
+    if not broken:
+        condition = _sanitize_condition(inst.get("condition"))
+        if inst.get("condition") != condition:
+            inst["condition"] = condition
+        if condition < 100:
+            reasons.append("condition")
+
+    level = _sanitize_enchant_level(inst.get("enchant_level"))
+    if inst.get("enchant_level") != level:
+        inst["enchant_level"] = level
+    if level >= 100:
+        reasons.append("max_enchant")
+
+    return reasons
+
+
+def enchant_blockers_for(
+    iid: str, *, template: Optional[Dict[str, Any]] = None
+) -> List[str]:
+    inst = get_instance(iid)
+    if not inst:
+        return ["missing_instance"]
+
+    tpl = template
+    if tpl is None:
+        try:
+            catalog = items_catalog.load_catalog()
+        except FileNotFoundError:
+            catalog = None
+        if catalog:
+            tpl_id = _item_id(inst)
+            tpl = catalog.get(tpl_id) if tpl_id else None
+
+    return _collect_enchant_blockers(inst, tpl)
+
+
+def is_enchantable(iid: str, *, template: Optional[Dict[str, Any]] = None) -> bool:
+    return not enchant_blockers_for(iid, template=template)
 
 class ItemsInstances:
     """
@@ -135,6 +227,7 @@ class ItemsInstances:
             "wear": 0,
             "enchant_level": 0,
             "condition": 100,
+            "god_tier": _coerce_bool(base_item.get("god_tier")),
         }
         charges_max = int(base_item.get("charges_max", 0) or 0)
         if charges_max > 0:
@@ -628,11 +721,14 @@ def create_and_save_instance(item_id: str, year: int, x: int, y: int, origin: st
         "origin": origin,
         "enchant_level": 0,
         "condition": 100,
+        "god_tier": False,
     }
     cat = items_catalog.load_catalog()
     tpl = cat.get(str(item_id)) if cat else None
     if tpl and int(tpl.get("charges_max", 0) or 0) > 0:
         inst["charges"] = int(tpl.get("charges_max"))
+    if tpl:
+        inst["god_tier"] = _coerce_bool(tpl.get("god_tier"))
     _normalize_instance(inst)
     raw.append(inst)
     _save_instances_raw(raw)

@@ -48,6 +48,7 @@ def test_armour_class_with_equipped_instance(monkeypatch):
 
     monkeypatch.setattr(combat_calc.itemsreg, "get_instance", fake_get_instance)
     monkeypatch.setattr(combat_calc.items_catalog, "load_catalog", lambda: dummy_catalog)
+    monkeypatch.setattr(combat_calc.itemsreg, "get_enchant_level", lambda _: 0)
 
     assert combat_calc.armour_class_from_equipped(state) == 2
     assert combat_calc.armour_class_for_active(state) == 4
@@ -63,3 +64,21 @@ def test_armour_class_from_direct_template(monkeypatch):
 
     assert combat_calc.armour_class_from_equipped(state) == 1
     assert combat_calc.armour_class_for_active(state) == 1
+
+
+def test_armour_class_adds_enchant_bonus(monkeypatch):
+    state = _base_state(dex=10, armour="armour#2")
+
+    def fake_get_instance(iid: str):
+        if iid == "armour#2":
+            return {"iid": iid, "item_id": "chain_mail"}
+        return None
+
+    dummy_catalog = DummyCatalog({"chain_mail": {"armour_class": 3}})
+
+    monkeypatch.setattr(combat_calc.itemsreg, "get_instance", fake_get_instance)
+    monkeypatch.setattr(combat_calc.items_catalog, "load_catalog", lambda: dummy_catalog)
+    monkeypatch.setattr(combat_calc.itemsreg, "get_enchant_level", lambda iid: 3 if iid == "armour#2" else 0)
+
+    assert combat_calc.armour_class_from_equipped(state) == 6
+    assert combat_calc.armour_class_for_active(state) == 7

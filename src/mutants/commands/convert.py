@@ -67,6 +67,27 @@ def _convert_value(item_id: str, catalog: Any) -> int:
     return 0
 
 
+def _enchant_convert_bonus(level: int) -> int:
+    try:
+        normalized = int(level)
+    except (TypeError, ValueError):
+        normalized = 0
+    if normalized <= 0:
+        return 0
+    return 10100 * normalized
+
+
+def _convert_payout(iid: str, item_id: str, catalog: Any) -> int:
+    base_value = _convert_value(item_id, catalog)
+    if not iid:
+        return base_value
+    try:
+        level = itemsreg.get_enchant_level(iid)
+    except Exception:
+        level = 0
+    return base_value + _enchant_convert_bonus(level)
+
+
 def _choose_inventory_item(
     player: Dict[str, object],
     prefix: str,
@@ -127,7 +148,7 @@ def convert_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
         bus.push("SYSTEM/WARN", f"You're not carrying a {prefix}.")
         return {"ok": False, "reason": "not_found"}
 
-    value = _convert_value(item_id, catalog)
+    value = _convert_payout(iid, item_id, catalog)
 
     before = _legacy_ions(player)
     klass = pstate.get_active_class(player)
