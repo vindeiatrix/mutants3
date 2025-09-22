@@ -44,7 +44,9 @@ def armour_class_from_equipped(state) -> int:
     if not template:
         return 0
 
-    return max(0, _coerce_int(template.get("armour_class")))
+    enchant_level = itemsreg.get_enchant_level(armour_iid)
+    base_ac = max(0, _coerce_int(template.get("armour_class")))
+    return base_ac + max(0, enchant_level)
 
 
 def dex_bonus_for_active(state) -> int:
