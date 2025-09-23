@@ -101,7 +101,49 @@ def statistics_cmd(arg: str, ctx) -> None:
         f"{armour_status}  Armour Class: {armour_class}  "
         f"(Dex bonus: +{dex_bonus}, Armour: +{armour_bonus})",
     )
-    bus.push("SYSTEM/OK", "Ready to Combat: NO ONE")
+    ready_target_label = "NO ONE"
+    ready_target_id = pstate.get_ready_target_for_active(state)
+    if ready_target_id:
+        monsters_state = ctx.get("monsters")
+        target_record: Mapping[str, object] | None = None
+        if monsters_state and hasattr(monsters_state, "list_at"):
+            try:
+                pos = player.get("pos") if isinstance(player, Mapping) else None
+                if isinstance(pos, (list, tuple)) and len(pos) >= 3:
+                    pos_year = int(pos[0])
+                    pos_x = int(pos[1])
+                    pos_y = int(pos[2])
+                    for mon in monsters_state.list_at(pos_year, pos_x, pos_y):  # type: ignore[attr-defined]
+                        mid_raw = mon.get("id") or mon.get("instance_id") or mon.get("monster_id")
+                        mid = str(mid_raw) if mid_raw else ""
+                        if mid == ready_target_id:
+                            target_record = mon
+                            break
+            except Exception:
+                target_record = None
+        if target_record:
+            hp_block = target_record.get("hp")
+            is_alive = True
+            if isinstance(hp_block, Mapping):
+                try:
+                    is_alive = int(hp_block.get("current", 0)) > 0
+                except (TypeError, ValueError):
+                    is_alive = True
+            if is_alive:
+                ready_target_label = str(
+                    target_record.get("name")
+                    or target_record.get("monster_id")
+                    or ready_target_id
+                )
+            else:
+                pstate.clear_ready_target_for_active(reason="stats-target-dead")
+                ready_target_id = None
+        elif monsters_state:
+            pstate.clear_ready_target_for_active(reason="stats-target-missing")
+            ready_target_id = None
+        if ready_target_id and ready_target_label == "NO ONE":
+            ready_target_label = ready_target_id
+    bus.push("SYSTEM/OK", f"Ready to Combat: {ready_target_label}")
     bus.push("SYSTEM/OK", "Readied Spell  : No spell memorized.")
     bus.push("SYSTEM/OK", f"Year A.D. : {year}")
     bus.push("SYSTEM/OK", "")

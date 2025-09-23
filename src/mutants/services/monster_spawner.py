@@ -210,6 +210,7 @@ def _clone_template(template: Mapping[str, Any], pos: Pos) -> Dict[str, Any]:
         "readied_spell": None,
         "target_player_id": None,
         "target_monster_id": None,
+        "ready_target": None,
         "taunt": str(template.get("taunt", "")),
         "innate_attack": _copy_innate_attack(template),
         "spells": [str(s) for s in template.get("spells", []) if isinstance(s, (str, int))],

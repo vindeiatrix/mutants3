@@ -126,8 +126,10 @@ def make_player_from_template(t: Dict[str, Any], make_active: bool = False) -> D
         },
         "equipment_by_class": {cls: {"armour": None}},
         "wielded_by_class": {cls: None},
+        "ready_target_by_class": {cls: None},
         "wielded": None,
         "readied_spell": t.get("readied_spell_start", None),
+        "ready_target": None,
         "target_monster_id": None,
 
         "inventory": inventory,

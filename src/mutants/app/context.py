@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Dict, Iterable, List
+from typing import Any, Dict, Iterable, List, Mapping
 
 import os, logging
 
@@ -16,7 +16,7 @@ from mutants.ui.logsink import LogSink
 from mutants.ui.themes import Theme, load_theme
 from mutants.ui import styles as st
 from ..registries import items_instances as itemsreg
-from mutants.services import monster_leveling, monsters_state
+from mutants.services import monster_leveling, monsters_state, player_state as pstate
 from mutants.engine import session
 
 LOG = logging.getLogger(__name__)
@@ -148,13 +148,32 @@ def build_room_vm(
             dirs[d] = {k: e.get(k) for k in ("base", "gate_state", "key_type")}
 
     monsters_here: List[Dict[str, str]] = []
+    monster_ids: set[str] = set()
     if monsters:
         try:
             for m in monsters.list_at(year, x, y):  # type: ignore[attr-defined]
                 name = m.get("name") or m.get("monster_id", "?")
-                monsters_here.append({"name": name})
+                raw_id = m.get("id") or m.get("instance_id") or m.get("monster_id")
+                mid = str(raw_id) if raw_id else ""
+                hp_block = m.get("hp") if isinstance(m, Mapping) else None
+                is_alive = True
+                if isinstance(hp_block, Mapping):
+                    try:
+                        is_alive = int(hp_block.get("current", 0)) > 0
+                    except (TypeError, ValueError):
+                        is_alive = True
+                entry: Dict[str, str] = {"name": name}
+                if mid:
+                    entry["id"] = mid
+                monsters_here.append(entry)
+                if mid and is_alive:
+                    monster_ids.add(mid)
         except Exception:
-            pass
+            monster_ids.clear()
+    try:
+        pstate.ensure_active_ready_target_in(monster_ids, reason="tile-mismatch")
+    except Exception:
+        pass
 
     ground_ids: List[str] = []
     if items and hasattr(items, "list_ids_at"):

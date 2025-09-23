@@ -17,6 +17,7 @@
       "readied_spell":{"type":["string","null"]},
       "target_player_id":{"type":["string","null"]},
       "target_monster_id":{"type":["string","null"]},
+      "ready_target":{"type":["string","null"]},
       "taunt":{"type":"string"},
       "innate_attack":{
         "type":"object",

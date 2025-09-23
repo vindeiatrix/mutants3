@@ -16,6 +16,26 @@ LOG_P = logging.getLogger("mutants.playersdbg")
 
 _PDBG_CONFIGURED = False
 
+
+def _combat_log_set(target: Optional[str], actor: Optional[str]) -> None:
+    if not _pdbg_enabled() or not target:
+        return
+    try:
+        _pdbg_setup_file_logging()
+        LOG_P.info("COMBAT/SET target=%s by=%s", target, actor or "?")
+    except Exception:  # pragma: no cover - debug logging
+        pass
+
+
+def _combat_log_clear(reason: str) -> None:
+    if not _pdbg_enabled():
+        return
+    try:
+        _pdbg_setup_file_logging()
+        LOG_P.info("COMBAT/CLEAR reason=%s", reason)
+    except Exception:  # pragma: no cover - debug logging
+        pass
+
 _STAT_KEYS: Tuple[str, ...] = ("str", "int", "wis", "dex", "con", "cha")
 _IONS_KEYS: Tuple[str, ...] = ("ions", "Ions")
 _RIBLETS_KEYS: Tuple[str, ...] = ("riblets", "Riblets")
@@ -500,6 +520,7 @@ def _empty_migration_snapshot() -> Dict[str, Optional[Any]]:
         "hp": None,
         "stats": None,
         "wielded": None,
+        "ready_target": None,
     }
 
 
@@ -555,6 +576,19 @@ def _capture_legacy_payload(
         sanitized = _sanitize_equipped_iid(candidate)
         if sanitized:
             snapshot["wielded"] = sanitized
+
+    if snapshot["ready_target"] is None:
+        candidate: Any = None
+        ready_map = payload.get("ready_target_by_class")
+        if isinstance(ready_map, Mapping):
+            candidate = ready_map.get(cls_name)
+        if candidate is None and "ready_target" in payload:
+            candidate = payload.get("ready_target")
+        if candidate is None and "target_monster_id" in payload:
+            candidate = payload.get("target_monster_id")
+        sanitized_target = _sanitize_ready_target(candidate)
+        if sanitized_target:
+            snapshot["ready_target"] = sanitized_target
 
 
 def _collect_legacy_snapshots(state: Dict[str, Any]) -> Dict[str, Dict[str, Optional[Any]]]:
@@ -725,6 +759,19 @@ def _sanitize_equipped_iid(value: Any) -> Optional[str]:
     return None
 
 
+def _sanitize_ready_target(value: Any) -> Optional[str]:
+    if value is None:
+        return None
+    if isinstance(value, str):
+        token = value.strip()
+        return token or None
+    try:
+        token = str(value).strip()
+    except Exception:
+        return None
+    return token or None
+
+
 def _ensure_equipment_map(
     state: Dict[str, Any],
     classes: Iterable[str],
@@ -858,6 +905,55 @@ def _ensure_wielded_map(
         normalized[key] = candidate
 
     state["wielded_by_class"] = normalized
+    return normalized
+
+
+def _ensure_ready_target_map(
+    state: Dict[str, Any],
+    classes: Iterable[str],
+    class_sources: Dict[str, Dict[str, Any]],
+    active: Dict[str, Any],
+) -> Dict[str, Optional[str]]:
+    raw_map = state.get("ready_target_by_class")
+    normalized: Dict[str, Optional[str]] = {}
+    if isinstance(raw_map, Mapping):
+        for name, value in raw_map.items():
+            cls_name = _normalize_class_name(name)
+            if not cls_name:
+                continue
+            normalized[cls_name] = _sanitize_ready_target(value)
+
+    for cls_name in classes:
+        key = cls_name if isinstance(cls_name, str) and cls_name else None
+        if not key:
+            continue
+        current = _sanitize_ready_target(normalized.get(key))
+        if current:
+            normalized[key] = current
+            continue
+
+        fallback: Optional[str] = None
+        for source in _source_candidates_for_class(key, class_sources, active, state):
+            if not isinstance(source, Mapping):
+                continue
+            ready_map = source.get("ready_target_by_class")
+            if isinstance(ready_map, Mapping):
+                fallback = _sanitize_ready_target(ready_map.get(key))
+                if fallback:
+                    break
+            candidate = source.get("ready_target")
+            if candidate is not None:
+                fallback = _sanitize_ready_target(candidate)
+                if fallback:
+                    break
+            candidate = source.get("target_monster_id")
+            if candidate is not None:
+                fallback = _sanitize_ready_target(candidate)
+                if fallback:
+                    break
+        normalized[key] = fallback
+
+    state["ready_target_by_class"] = normalized
     return normalized
 
 
@@ -1036,6 +1132,7 @@ def _apply_maps_to_profiles(
     stats_map: Dict[str, Dict[str, int]],
     equipment_map: Dict[str, Dict[str, Optional[str]]],
     wield_map: Dict[str, Optional[str]],
+    ready_map: Dict[str, Optional[str]],
 ) -> None:
     players = state.get("players")
     if isinstance(players, list):
@@ -1077,6 +1174,13 @@ def _apply_maps_to_profiles(
                 wielded_map[cls_name] = weapon_iid
             _set_wield_view(player, weapon_iid)
 
+            ready_target = _sanitize_ready_target(ready_map.get(cls_name))
+            ready_map_entry = player.setdefault("ready_target_by_class", {})
+            if isinstance(ready_map_entry, dict):
+                ready_map_entry[cls_name] = ready_target
+            player["ready_target"] = ready_target
+            player["target_monster_id"] = ready_target
+
     klass_name = klass if isinstance(klass, str) and klass else "Thief"
     active_hp = dict(hp_map.get(klass_name, _empty_hp()))
     active_stats = dict(stats_map.get(klass_name, _empty_stats()))
@@ -1096,6 +1200,13 @@ def _apply_maps_to_profiles(
     active["level"] = active_level
     active["hp"] = active_hp
     active["stats"] = active_stats
+
+    ready_target_active = _sanitize_ready_target(ready_map.get(klass_name))
+    active_ready_map = active.setdefault("ready_target_by_class", {})
+    if isinstance(active_ready_map, dict):
+        active_ready_map[klass_name] = ready_target_active
+    active["ready_target"] = ready_target_active
+    active["target_monster_id"] = ready_target_active
 
     active_armour_entry = equipment_map.get(klass_name)
     armour_iid = None
@@ -1192,6 +1303,7 @@ def _normalize_per_class_structures(
 
     equipment_map = _ensure_equipment_map(state, classes, sources, active)
     wield_map = _ensure_wielded_map(state, classes, sources, active)
+    ready_map = _ensure_ready_target_map(state, classes, sources, active)
 
     _enforce_wield_invariants(
         state,
@@ -1218,6 +1330,7 @@ def _normalize_per_class_structures(
         stats_map,
         equipment_map,
         wield_map,
+        ready_map,
     )
 
     return state
@@ -1317,6 +1430,21 @@ def _evaluate_invariants_with_details(state: Dict[str, Any]) -> Tuple[bool, Dict
         details["map_counts"]["hp_by_class"] = 0
         if details.get("missing_pair") is None:
             details["missing_pair"] = ("hp_by_class", "<missing-map>")
+        ok = False
+
+    ready_payload = state.get("ready_target_by_class")
+    if isinstance(ready_payload, dict):
+        details["map_counts"]["ready_target_by_class"] = len(ready_payload)
+        for cls_name in class_set:
+            if cls_name not in ready_payload:
+                if details.get("missing_pair") is None:
+                    details["missing_pair"] = ("ready_target_by_class", cls_name)
+                ok = False
+    else:
+        ready_payload = {}
+        details["map_counts"]["ready_target_by_class"] = 0
+        if details.get("missing_pair") is None:
+            details["missing_pair"] = ("ready_target_by_class", "<missing-map>")
         ok = False
 
     hp_map: Dict[str, Dict[str, int]] = {}
@@ -1572,6 +1700,7 @@ def migrate_per_class_fields(state: Dict[str, Any]) -> Dict[str, Any]:
     level_map = normalized.setdefault("level_by_class", {})
     hp_map = normalized.setdefault("hp_by_class", {})
     stats_map = normalized.setdefault("stats_by_class", {})
+    ready_map = normalized.setdefault("ready_target_by_class", {})
 
     for cls_name, payload in legacy_values.items():
         if not isinstance(cls_name, str) or not cls_name:
@@ -1619,6 +1748,13 @@ def migrate_per_class_fields(state: Dict[str, Any]) -> Dict[str, Any]:
             sanitized_wield = _sanitize_equipped_iid(wield_value)
             if sanitized_wield and not current_wield:
                 wield_map[cls_name] = sanitized_wield
+
+        target_value = payload.get("ready_target")
+        if target_value is not None:
+            current_ready = _sanitize_ready_target(ready_map.get(cls_name))
+            sanitized_ready = _sanitize_ready_target(target_value)
+            if sanitized_ready and not current_ready:
+                ready_map[cls_name] = sanitized_ready
 
     _normalize_per_class_structures(normalized, klass, active, sparse_ions=sparse_ions)
 
@@ -2353,6 +2489,154 @@ def set_stats_for_active(
 
     save_state(normalized)
     return dict(sanitized)
+
+
+def get_ready_target_map(state: Dict[str, Any]) -> Dict[str, Optional[str]]:
+    """Return a mapping of class name to sanitized ready-target ids."""
+
+    normalized = _normalize_player_state(state)
+    payload = normalized.get("ready_target_by_class")
+    result: Dict[str, Optional[str]] = {}
+    if isinstance(payload, Mapping):
+        for name, value in payload.items():
+            cls_name = _normalize_class_name(name)
+            if not cls_name:
+                continue
+            result[cls_name] = _sanitize_ready_target(value)
+    return result
+
+
+def get_ready_target_for_active(state: Dict[str, Any]) -> Optional[str]:
+    """Return the ready target id for the active class when present."""
+
+    normalized = _normalize_player_state(state)
+    cls = get_active_class(normalized)
+    payload = normalized.get("ready_target_by_class")
+    if isinstance(payload, Mapping):
+        candidate = payload.get(cls)
+        sanitized = _sanitize_ready_target(candidate)
+        if sanitized:
+            return sanitized
+    active = normalized.get("active")
+    if isinstance(active, Mapping):
+        candidate = active.get("ready_target") or active.get("target_monster_id")
+        sanitized = _sanitize_ready_target(candidate)
+        if sanitized:
+            return sanitized
+    return None
+
+
+def _update_ready_target_for_active(
+    monster_id: Optional[str], *, reason: Optional[str] = None
+) -> Tuple[Optional[str], Optional[str]]:
+    state = load_state()
+    normalized, _active, cls = _prepare_active_storage(state)
+    ready_map = normalized.setdefault("ready_target_by_class", {})
+    if not isinstance(ready_map, dict):
+        ready_map = {}
+        normalized["ready_target_by_class"] = ready_map
+
+    current = _sanitize_ready_target(ready_map.get(cls))
+    sanitized = _sanitize_ready_target(monster_id)
+    if current == sanitized:
+        return current, sanitized
+
+    ready_map[cls] = sanitized
+    active = normalized.get("active")
+    if isinstance(active, Mapping):
+        active_ready = active.setdefault("ready_target_by_class", {})
+        if isinstance(active_ready, dict):
+            active_ready[cls] = sanitized
+        active["ready_target"] = sanitized
+        active["target_monster_id"] = sanitized
+
+    players = normalized.get("players")
+    if isinstance(players, list):
+        for player in players:
+            if not isinstance(player, Mapping):
+                continue
+            player_class = (
+                _normalize_class_name(player.get("class"))
+                or _normalize_class_name(player.get("name"))
+            )
+            if player_class != cls:
+                continue
+            ready_entry = player.setdefault("ready_target_by_class", {})
+            if isinstance(ready_entry, dict):
+                ready_entry[cls] = sanitized
+            player["ready_target"] = sanitized
+            player["target_monster_id"] = sanitized
+            break
+    save_state(normalized)
+
+    if sanitized:
+        _combat_log_set(sanitized, cls)
+    elif current:
+        _combat_log_clear(reason or "update")
+    return current, sanitized
+
+
+def set_ready_target_for_active(monster_id: Optional[str]) -> Optional[str]:
+    """Set the ready target for the active class and persist."""
+
+    _, new_value = _update_ready_target_for_active(monster_id)
+    return new_value
+
+
+def clear_ready_target_for_active(*, reason: Optional[str] = None) -> Optional[str]:
+    """Clear the ready target for the active class if set."""
+
+    previous, _ = _update_ready_target_for_active(None, reason=reason or "clear")
+    return previous
+
+
+def clear_ready_target_for(monster_id: str, *, reason: Optional[str] = None) -> Dict[str, Any]:
+    """Clear ready targets referencing ``monster_id`` for all classes."""
+
+    sanitized = _sanitize_ready_target(monster_id)
+    if sanitized is None:
+        return load_state()
+
+    state = load_state()
+    normalized, _active, _cls = _prepare_active_storage(state)
+    ready_map = normalized.setdefault("ready_target_by_class", {})
+    if not isinstance(ready_map, dict):
+        ready_map = {}
+        normalized["ready_target_by_class"] = ready_map
+
+    changed = False
+    for key, value in list(ready_map.items()):
+        if _sanitize_ready_target(value) == sanitized:
+            ready_map[key] = None
+            changed = True
+
+    if not changed:
+        return normalized
+
+    normalized["ready_target_by_class"] = dict(ready_map)
+    save_state(normalized)
+    _combat_log_clear(reason or f"match:{sanitized}")
+    return normalized
+
+
+def ensure_active_ready_target_in(
+    monster_ids: Iterable[str], *, reason: str = "missing"
+) -> Optional[str]:
+    """Ensure the active ready target remains within ``monster_ids``."""
+
+    valid_ids = {
+        token
+        for token in (_sanitize_ready_target(mid) for mid in monster_ids)
+        if token
+    }
+    state = load_state()
+    current = get_ready_target_for_active(state)
+    if not current:
+        return None
+    if current not in valid_ids:
+        clear_ready_target_for_active(reason=reason)
+        return None
+    return current
 
 
 def get_active_pair(

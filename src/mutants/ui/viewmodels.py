@@ -15,8 +15,9 @@ class Coords(TypedDict):
     y: int
 
 
-class Thing(TypedDict):
+class Thing(TypedDict, total=False):
     name: str
+    id: str
 
 
 class RoomVM(TypedDict, total=False):
