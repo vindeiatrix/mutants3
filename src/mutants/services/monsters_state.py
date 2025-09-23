@@ -38,6 +38,19 @@ def _sanitize_hp(payload: Mapping[str, Any] | None) -> Dict[str, int]:
     return {"current": cur, "max": cap}
 
 
+def _sanitize_ready_target(value: Any) -> Optional[str]:
+    if value is None:
+        return None
+    if isinstance(value, str):
+        token = value.strip()
+        return token or None
+    try:
+        token = str(value).strip()
+    except Exception:
+        return None
+    return token or None
+
+
 def _dedup_ints(values: Iterable[Any]) -> List[int]:
     deduped: List[int] = []
     seen: set[int] = set()
@@ -464,6 +477,11 @@ class MonstersState:
             except Exception:
                 pass
 
+        try:
+            pstate.clear_ready_target_for(monster_id, reason="monster-dead")
+        except Exception:
+            pass
+
         self.mark_dirty()
         return {
             "monster": monster,
@@ -554,6 +572,17 @@ def _normalize_monsters(monsters: List[Dict[str, Any]], *, catalog: Mapping[str,
                     break
         derived = _compute_derived(stats=monster["stats"], armour_payload=armour_payload, weapon_payload=weapon_payload)
         monster["derived"] = derived
+
+        ready_target = _sanitize_ready_target(monster.get("ready_target"))
+        legacy_target = _sanitize_ready_target(monster.get("target_monster_id"))
+        final_target = ready_target or legacy_target
+        if final_target:
+            monster["ready_target"] = final_target
+            monster["target_monster_id"] = final_target
+        else:
+            monster["ready_target"] = None
+            if "target_monster_id" in monster:
+                monster["target_monster_id"] = None
 
         normalized.append(monster)
 

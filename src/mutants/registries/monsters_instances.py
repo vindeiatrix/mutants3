@@ -19,6 +19,7 @@ class MonstersInstances:
       armour_wearing: item_id|instance_id|null,
       readied_spell: spell_id|null,
       target_player_id: str|null, target_monster_id: str|null,
+      ready_target: str|null,
       taunt: str
     }
     """
@@ -93,6 +94,7 @@ class MonstersInstances:
             "readied_spell": None,
             "target_player_id": None,
             "target_monster_id": None,
+            "ready_target": None,
             "taunt": base.get("taunt", ""),
             # Copy innate attack block for quick access (optional, but handy for combat)
             "innate_attack": {
@@ -112,8 +114,18 @@ class MonstersInstances:
     def set_target_player(self, instance_id: str, player_id: Optional[str]) -> None:
         m = self._by_id[instance_id]; m["target_player_id"] = player_id; self._dirty = True
 
+    def set_ready_target(self, instance_id: str, target_id: Optional[str]) -> None:
+        monster = self._by_id[instance_id]
+        if target_id is None:
+            sanitized = None
+        else:
+            sanitized = str(target_id).strip() or None
+        monster["ready_target"] = sanitized
+        monster["target_monster_id"] = sanitized
+        self._dirty = True
+
     def set_target_monster(self, instance_id: str, other_id: Optional[str]) -> None:
-        m = self._by_id[instance_id]; m["target_monster_id"] = other_id; self._dirty = True
+        self.set_ready_target(instance_id, other_id)
 
     # ---------- Persistence ----------
     def save(self) -> None:

@@ -99,6 +99,8 @@ def move(dir_code: str, ctx: Dict[str, Any]) -> None:
         pstate.mutate_active(_persist)
     except Exception:
         LOG.exception("Failed to autosave position after move.")
+    else:
+        pstate.clear_ready_target_for_active(reason="player-moved")
     # Successful movement requests a render of the new room.
     ctx["render_next"] = True
     # Do not echo success movement like "You head north." Original shows next room immediately.
