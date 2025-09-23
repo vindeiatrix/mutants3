@@ -209,6 +209,7 @@ def wear_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
 
     stats = pstate.get_stats_for_active(stats_state)
     strength = _coerce_int(stats.get("str"), 0)
+    monster_actor = itx.actor_is_monster(ctx)
     gate_ok = strength >= required
     if _edbg_enabled():
         comp = ">=" if gate_ok else "<"
@@ -216,7 +217,14 @@ def wear_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
         _edbg_log(
             f"[ equip ] gate strength={strength} {comp} required={required} weight={weight} -> {outcome}",
         )
-    if not gate_ok:
+        if not gate_ok and monster_actor:
+            _edbg_log(
+                "[ equip ] gate bypass=monster",
+                cmd="wear",
+                prefix=repr(prefix),
+                **{"strength": strength, "required": required, "weight": weight},
+            )
+    if not gate_ok and not monster_actor:
         if _edbg_enabled():
             _edbg_log(
                 "[ equip ] reject=strength_gate",
