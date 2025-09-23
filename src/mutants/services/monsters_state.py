@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import uuid
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Mapping, MutableMapping, Optional
@@ -8,6 +9,7 @@ from typing import Any, Dict, Iterable, List, Mapping, MutableMapping, Optional
 from mutants.io.atomic import atomic_write_json
 from mutants.registries import items_catalog
 from mutants.services import items_weight
+from mutants.services import player_state as pstate
 
 DEFAULT_MONSTERS_PATH = Path("state/monsters/instances.json")
 
@@ -381,8 +383,35 @@ class MonstersState:
         monster = self._by_id.get(monster_id)
         if not monster:
             return False
+        before_level = _sanitize_int(monster.get("level"), minimum=1, fallback=1)
+        before_stats = _sanitize_stats(monster.get("stats"))
+        before_hp = _sanitize_hp(monster.get("hp"))
         _apply_level_gain(monster)
         self.mark_dirty()
+        if pstate._pdbg_enabled():  # pragma: no cover - diagnostic logging
+            try:
+                pstate._pdbg_setup_file_logging()
+                after_level = _sanitize_int(monster.get("level"), minimum=1, fallback=before_level)
+                delta_level = after_level - before_level
+                after_stats = _sanitize_stats(monster.get("stats"))
+                stat_tokens = []
+                for key in ("str", "dex", "con", "int", "wis", "cha"):
+                    delta = after_stats.get(key, 0) - before_stats.get(key, 0)
+                    if delta:
+                        stat_tokens.append(f"{key}:{delta:+d}")
+                stats_summary = ",".join(stat_tokens) if stat_tokens else "none"
+                after_hp = _sanitize_hp(monster.get("hp"))
+                hp_delta = after_hp["max"] - before_hp["max"]
+                LOG_P.info(
+                    "[playersdbg] MON-LVL id=%s lvl=%s Δlvl=%+d stats=%s hp=%+d",
+                    monster_id,
+                    after_level,
+                    delta_level,
+                    stats_summary,
+                    hp_delta,
+                )
+            except Exception:
+                pass
         return True
 
     def kill_monster(self, monster_id: str) -> Dict[str, Any]:
@@ -398,14 +427,17 @@ class MonstersState:
                 break
 
         drops: List[Dict[str, Any]] = []
+        bag_items: List[Dict[str, Any]] = []
         bag = monster.get("bag")
         if isinstance(bag, list):
             for item in bag:
                 if isinstance(item, Mapping):
                     drops.append(item)
+                    bag_items.append(item)
 
         armour = monster.get("armour_slot")
-        if isinstance(armour, Mapping):
+        armour_dropped = isinstance(armour, Mapping)
+        if armour_dropped:
             drops.append(armour)
 
         monster["bag"] = []
@@ -417,6 +449,20 @@ class MonstersState:
             hp_block["current"] = 0
 
         _refresh_monster_derived(monster)
+
+        if pstate._pdbg_enabled():  # pragma: no cover - diagnostic logging
+            try:
+                pstate._pdbg_setup_file_logging()
+                LOG_P.info(
+                    "[playersdbg] MON-KILL id=%s pos=%s drops=%s bag=%s armour=%s",
+                    monster_id,
+                    monster.get("pos"),
+                    len(drops),
+                    len(bag_items),
+                    "yes" if armour_dropped else "no",
+                )
+            except Exception:
+                pass
 
         self.mark_dirty()
         return {
@@ -585,3 +631,4 @@ def normalize_records(
             catalog = {}
 
     return _normalize_monsters([dict(m) for m in records], catalog=catalog)
+LOG_P = logging.getLogger("mutants.playersdbg")

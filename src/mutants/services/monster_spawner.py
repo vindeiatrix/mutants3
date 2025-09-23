@@ -22,6 +22,7 @@ rate limit regardless of how often ``tick`` is invoked.
 
 from __future__ import annotations
 
+import logging
 import random
 import time
 import uuid
@@ -29,6 +30,10 @@ from dataclasses import dataclass
 from typing import Any, Callable, Dict, Iterable, List, Mapping, MutableMapping
 
 from mutants.registries import monsters_instances as mon_instances
+from mutants.services import player_state as pstate
+
+
+LOG_P = logging.getLogger("mutants.playersdbg")
 
 
 Year = int
@@ -322,6 +327,33 @@ class MonsterSpawnerController:
         pos = list(self._rng.choice(year_state.tiles))
         instance = _clone_template(template, pos)
         self._instances._add(instance)
+        if pstate._pdbg_enabled():  # pragma: no cover - diagnostic logging
+            try:
+                pstate._pdbg_setup_file_logging()
+                hp = instance.get("hp")
+                hp_summary = "?/?"
+                if isinstance(hp, Mapping):
+                    cur = hp.get("current")
+                    cap = hp.get("max")
+                    hp_summary = f"{cur}/{cap}"
+                inv_count = 0
+                inventory = instance.get("inventory")
+                if isinstance(inventory, list):
+                    for entry in inventory:
+                        if isinstance(entry, Mapping):
+                            inv_count += 1
+                LOG_P.info(
+                    "[playersdbg] MON-SPAWN id=%s kind=%s pos=%s lvl=%s hp=%s inv=%s armour=%s",
+                    instance.get("instance_id"),
+                    instance.get("monster_id"),
+                    instance.get("pos"),
+                    instance.get("level"),
+                    hp_summary,
+                    inv_count,
+                    instance.get("armour_wearing") or "-",
+                )
+            except Exception:
+                pass
         self._instances.save()
         self._schedule_next(year_state, now)
 
