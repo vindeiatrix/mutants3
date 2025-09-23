@@ -293,6 +293,65 @@ def _compute_derived(
     return derived
 
 
+def _refresh_monster_derived(monster: MutableMapping[str, Any]) -> None:
+    stats = _sanitize_stats(monster.get("stats"))
+    monster["stats"] = stats
+
+    bag = monster.get("bag")
+    if not isinstance(bag, list):
+        bag = []
+        monster["bag"] = bag
+
+    armour = monster.get("armour_slot")
+    armour_payload = _derive_armour_payload(armour)
+
+    weapon_payload = None
+    wielded = monster.get("wielded")
+    if isinstance(bag, list) and wielded:
+        for item in bag:
+            if isinstance(item, Mapping) and item.get("iid") == wielded:
+                weapon_payload = _derive_weapon_payload(item, stats=stats)
+                break
+
+    monster["derived"] = _compute_derived(
+        stats=stats,
+        armour_payload=armour_payload,
+        weapon_payload=weapon_payload,
+    )
+
+
+def _level_up_stats(stats: MutableMapping[str, int]) -> None:
+    for key in ("str", "dex", "con", "int", "wis", "cha"):
+        stats[key] = _sanitize_int(stats.get(key), fallback=0) + 10
+
+
+def _level_up_hp(hp: MutableMapping[str, int]) -> None:
+    payload = _sanitize_hp(hp)
+    payload["max"] += 10
+    payload["current"] = payload["max"]
+    hp.clear()
+    hp.update(payload)
+
+
+def _apply_level_gain(monster: MutableMapping[str, Any]) -> None:
+    current_level = _sanitize_int(monster.get("level"), minimum=1, fallback=1)
+    monster["level"] = current_level + 1
+
+    stats = monster.get("stats")
+    if not isinstance(stats, MutableMapping):
+        stats = {}
+        monster["stats"] = stats
+    _level_up_stats(stats)
+
+    hp = monster.get("hp")
+    if not isinstance(hp, MutableMapping):
+        hp = {}
+        monster["hp"] = hp
+    _level_up_hp(hp)
+
+    _refresh_monster_derived(monster)
+
+
 class MonstersState:
     def __init__(self, path: Path, monsters: List[Dict[str, Any]]):
         self._path = path
@@ -317,6 +376,14 @@ class MonstersState:
 
     def mark_dirty(self) -> None:
         self._dirty = True
+
+    def level_up_monster(self, monster_id: str) -> bool:
+        monster = self._by_id.get(monster_id)
+        if not monster:
+            return False
+        _apply_level_gain(monster)
+        self.mark_dirty()
+        return True
 
     def save(self) -> None:
         if not self._dirty:
