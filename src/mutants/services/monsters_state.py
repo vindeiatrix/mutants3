@@ -385,6 +385,46 @@ class MonstersState:
         self.mark_dirty()
         return True
 
+    def kill_monster(self, monster_id: str) -> Dict[str, Any]:
+        """Remove a monster from the state and return its dropped items."""
+
+        monster = self._by_id.pop(monster_id, None)
+        if not monster:
+            return {"monster": None, "drops": [], "pos": None}
+
+        for idx, entry in enumerate(self._monsters):
+            if entry is monster or entry.get("id") == monster_id:
+                del self._monsters[idx]
+                break
+
+        drops: List[Dict[str, Any]] = []
+        bag = monster.get("bag")
+        if isinstance(bag, list):
+            for item in bag:
+                if isinstance(item, Mapping):
+                    drops.append(item)
+
+        armour = monster.get("armour_slot")
+        if isinstance(armour, Mapping):
+            drops.append(armour)
+
+        monster["bag"] = []
+        monster["armour_slot"] = None
+        monster["wielded"] = None
+
+        hp_block = monster.get("hp")
+        if isinstance(hp_block, MutableMapping):
+            hp_block["current"] = 0
+
+        _refresh_monster_derived(monster)
+
+        self.mark_dirty()
+        return {
+            "monster": monster,
+            "drops": drops,
+            "pos": monster.get("pos"),
+        }
+
     def save(self) -> None:
         if not self._dirty:
             return

@@ -96,6 +96,16 @@ def _resolve_item_payload(item: Any) -> MutableMapping[str, Any]:
 
 
 def _resolve_attacker_strength(attacker_state: Any) -> int:
+    if isinstance(attacker_state, Mapping):
+        derived = attacker_state.get("derived") if isinstance(attacker_state.get("derived"), Mapping) else None
+        if isinstance(derived, Mapping) and derived.get("str_bonus") is not None:
+            return max(0, _coerce_int(derived.get("str_bonus"), 0))
+
+        stats_block = attacker_state.get("stats") if isinstance(attacker_state.get("stats"), Mapping) else None
+        if isinstance(stats_block, Mapping) and stats_block.get("str") is not None:
+            strength = _coerce_int(stats_block.get("str"), 0)
+            return max(0, strength // 10)
+
     stats = pstate.get_stats_for_active(attacker_state)
     strength = _coerce_int(stats.get("str"), 0)
     return max(0, strength // 10)

@@ -74,3 +74,19 @@ def test_compute_base_damage_uses_helpers(monkeypatch):
 
     assert damage_engine.compute_base_damage({}, {}, {}) == 27
 
+
+def test_get_attacker_power_handles_monster_state():
+    monster = {"stats": {"str": 47}}
+    weapon = {"base_power": 5, "enchant_level": 15}
+
+    # strength bonus = floor(47/10) = 4; enchant bonus = 60
+    assert damage_engine.get_attacker_power(weapon, monster) == 5 + 60 + 4
+
+
+def test_get_total_ac_handles_monster_state():
+    armour = {"item_id": "leather", "enchant_level": 3, "derived": {"armour_class": 6}}
+    monster = {"stats": {"dex": 28}, "armour_slot": armour}
+
+    # dex bonus = 2, armour = 6 (base 3 + enchant 3)
+    assert damage_engine.get_total_ac(monster) == 8
+
