@@ -83,9 +83,13 @@ def read_config() -> Dict:
     return {}
 
 def ensure_instances_files() -> None:
-    for path in [ITEMS_DIR / "instances.json", MONS_DIR / "instances.json"]:
-        if not path.exists():
-            atomic_write_json(path, [])
+    items_path = ITEMS_DIR / "instances.json"
+    if not items_path.exists():
+        atomic_write_json(items_path, [])
+
+    monsters_path = MONS_DIR / "instances.json"
+    if not monsters_path.exists():
+        atomic_write_json(monsters_path, {"monsters": []})
 
 def ensure_theme_files(default_theme: str = "bbs") -> Dict[str, bool]:
     created = {"bbs": False, "mono": False}
