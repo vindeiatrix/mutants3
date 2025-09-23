@@ -16,7 +16,7 @@ from mutants.ui.logsink import LogSink
 from mutants.ui.themes import Theme, load_theme
 from mutants.ui import styles as st
 from ..registries import items_instances as itemsreg
-from mutants.services import monsters_state
+from mutants.services import monster_leveling, monsters_state
 from mutants.engine import session
 
 LOG = logging.getLogger(__name__)
@@ -80,12 +80,14 @@ def build_context() -> Dict[str, Any]:
     st.reload_colors_map()
     st.set_ansi_enabled(theme.ansi_enabled)
     sink = LogSink()
+    monsters = monsters_state.load_state()
     bus.subscribe(sink.handle)
+    monster_leveling.attach(bus, monsters)
     ctx: Dict[str, Any] = {
         "player_state": state,
         # Multi-year aware loader: exact year if present, otherwise closest available.
         "world_loader": load_nearest_year,
-        "monsters": monsters_state.load_state(),
+        "monsters": monsters,
         "items": itemsreg,
         "headers": ROOM_HEADERS,
         "feedback_bus": bus,
