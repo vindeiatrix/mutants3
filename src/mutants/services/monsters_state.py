@@ -448,3 +448,33 @@ def invalidate_cache() -> None:
     _CACHE = None
     _CACHE_PATH = None
     _CACHE_MTIME = None
+
+
+def normalize_records(
+    records: Iterable[Mapping[str, Any]],
+    *,
+    catalog: Mapping[str, Any] | None = None,
+) -> List[Dict[str, Any]]:
+    """Normalize raw monster records using the same rules as ``load_state``.
+
+    Parameters
+    ----------
+    records:
+        Iterable of raw monster records (dict-like objects).
+    catalog:
+        Optional item catalog mapping used to derive armour/weapon payloads.
+        If omitted the catalog will be loaded via ``items_catalog``.
+
+    Returns
+    -------
+    list of dict
+        Normalized monsters ready for persistence.
+    """
+
+    if catalog is None:
+        try:
+            catalog = items_catalog.load_catalog()
+        except FileNotFoundError:
+            catalog = {}
+
+    return _normalize_monsters([dict(m) for m in records], catalog=catalog)
