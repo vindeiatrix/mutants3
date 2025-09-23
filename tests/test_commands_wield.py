@@ -198,6 +198,26 @@ def test_wield_strength_gate_failure(command_env):
     assert pstate.get_wielded_weapon_id(pstate.load_state()) is None
 
 
+def test_monster_wield_bypasses_strength_gate(command_env):
+    stats = {"str": 1, "dex": 10, "int": 0, "wis": 0, "con": 0, "cha": 0}
+    command_env["setup"](
+        bag_items=["warhammer#bag"],
+        stats=stats,
+        catalog={"warhammer": {"name": "Warhammer", "weight": 25}},
+        instances={"warhammer#bag": {"item_id": "warhammer"}},
+    )
+
+    state_before = pstate.load_state()
+    ctx, bus = _ctx(state_before)
+    ctx["actor_kind"] = "monster"
+
+    result = wield.wield_cmd("war", ctx)
+
+    assert result["ok"] is True
+    assert not any("You don't have the strength to wield that!" in msg for _, msg in bus.msgs)
+    assert pstate.get_wielded_weapon_id(pstate.load_state()) == "warhammer#bag"
+
+
 def test_wield_allows_enchanted_weapon_with_reduced_weight(command_env):
     stats = {"str": 4, "dex": 10, "int": 0, "wis": 0, "con": 0, "cha": 0}
     command_env["setup"](

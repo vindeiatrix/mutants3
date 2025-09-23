@@ -167,6 +167,27 @@ def test_wear_rejects_when_too_heavy(command_env):
     assert pstate.get_equipped_armour_id(pstate.load_state()) is None
 
 
+def test_monster_wear_bypasses_strength_gate(command_env):
+    stats = {"str": 1, "dex": 10, "int": 0, "wis": 0, "con": 0, "cha": 0}
+    command_env["setup"](
+        bag_items=["chain_mail#bag"],
+        equipped=None,
+        stats=stats,
+        catalog={"chain_mail": {"name": "Chain Mail", "armour": True, "weight": 40}},
+        instances={"chain_mail#bag": "chain_mail"},
+    )
+
+    state = pstate.load_state()
+    ctx, bus = _ctx(state)
+    ctx["actor_kind"] = "monster"
+
+    result = wear.wear_cmd("chain", ctx)
+
+    assert result["ok"] is True
+    assert not any("You don't have the strength to put that on!" in msg for _, msg in bus.msgs)
+    assert pstate.get_equipped_armour_id(pstate.load_state()) == "chain_mail#bag"
+
+
 def test_wear_requires_strength_for_150_lb_armour(command_env):
     stats = {"str": 14, "dex": 8, "int": 0, "wis": 0, "con": 0, "cha": 0}
     command_env["setup"](

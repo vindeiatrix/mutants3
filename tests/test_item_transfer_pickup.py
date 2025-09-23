@@ -123,3 +123,17 @@ def test_pickup_strength_gate_respects_enchant_reduction(pickup_env):
     assert result["ok"] is True
     assert pickup_env["player"]["inventory"] == ["warhammer#ground"]
     assert pickup_env["ground"] == []
+
+
+def test_monster_pickup_bypasses_strength_gate(pickup_env):
+    pickup_env["add_ground_item"]("colossus#ground", "colossus", weight=160, enchant_level=0)
+    pickup_env["set_strength"](1)
+
+    monster_ctx = dict(pickup_env["ctx"])
+    monster_ctx["actor_kind"] = "monster"
+
+    result = itx.pick_from_ground(monster_ctx, "col")
+
+    assert result["ok"] is True
+    assert pickup_env["player"]["inventory"] == ["colossus#ground"]
+    assert pickup_env["ground"] == []

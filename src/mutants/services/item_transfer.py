@@ -4,7 +4,7 @@ import logging
 import os
 import random
 import time
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Mapping, Optional, Tuple
 from ..ui import item_display as idisp
 from ..registries import items_catalog as catreg
 from ..registries import items_instances as itemsreg
@@ -442,7 +442,8 @@ def pick_from_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
     state_for_stats = _STATE_CACHE if isinstance(_STATE_CACHE, dict) else pstate.load_state()
     stats = pstate.get_stats_for_active(state_for_stats)
     strength = _coerce_int(stats.get("str"), 0)
-    if strength < required:
+    monster_actor = actor_is_monster(ctx)
+    if strength < required and not monster_actor:
         return {
             "ok": False,
             "reason": "insufficient_strength",
@@ -451,6 +452,16 @@ def pick_from_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
             "required": required,
             "weight": weight,
         }
+    if strength < required and monster_actor and _pdbg_enabled():
+        try:
+            LOG_P.info(
+                "[playersdbg] PICKUP bypass=strength_gate actor=monster strength=%s required=%s weight=%s",
+                strength,
+                required,
+                weight,
+            )
+        except Exception:  # pragma: no cover - defensive logging only
+            pass
 
     ok = itemsreg.clear_position_at(chosen_iid, year, x, y)
     if not ok:
@@ -714,3 +725,39 @@ def throw_to_direction(ctx, direction: str, prefix: str, *, seed: Optional[int] 
         "inv_count": len(player.get("inventory", [])),
         "blocked": blocked,
     }
+
+
+def _coerce_str(value: Any) -> Optional[str]:
+    if isinstance(value, str) and value:
+        return value
+    try:
+        return str(value) if value else None
+    except Exception:
+        return None
+
+
+def actor_is_monster(ctx: Mapping[str, Any] | None) -> bool:
+    """Return ``True`` when the acting entity should bypass strength gates."""
+
+    if not isinstance(ctx, Mapping):
+        return False
+
+    actor = ctx.get("actor")
+    if isinstance(actor, Mapping):
+        for key in ("kind", "type", "actor_kind"):
+            raw = _coerce_str(actor.get(key))
+            if raw and raw.lower() == "monster":
+                return True
+        if actor.get("is_monster"):
+            return True
+
+    raw_kind = _coerce_str(ctx.get("actor_kind"))
+    if raw_kind and raw_kind.lower() == "monster":
+        return True
+
+    if ctx.get("is_monster"):
+        return True
+
+    return False
+
+
