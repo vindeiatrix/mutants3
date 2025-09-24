@@ -99,6 +99,7 @@ def test_import_monsters_real_run_persists_and_normalizes(tmp_path, monkeypatch)
     assert monster["id"] == "bandit#1"
     bag_iid = monster["bag"][0]["iid"]
     assert bag_iid
+    assert monster["bag"][0]["origin"] == "native"
     assert monster["wielded"] == bag_iid
     assert report.imported_count == 1
     assert report.minted_iids >= 1

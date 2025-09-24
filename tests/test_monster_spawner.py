@@ -96,6 +96,7 @@ def test_spawner_respects_rate_limit_and_floor(instances):
     assert spawn["ions"] == 5 and spawn["riblets"] == 3
     assert spawn["innate_attack"]["name"] == "Slash"
     assert spawn["armour_wearing"] in {entry.get("instance_id") for entry in spawn["inventory"]}
+    assert all(entry.get("origin") == "native" for entry in spawn["inventory"] if isinstance(entry, dict))
 
     scheduled = controller._years[2000].next_spawn_at
     assert 45 <= scheduled <= 75

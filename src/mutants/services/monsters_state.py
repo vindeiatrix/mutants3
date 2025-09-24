@@ -162,6 +162,17 @@ def _normalize_item(
         changed = True
     sanitized["iid"] = iid
 
+    origin_raw = item.get("origin")
+    if isinstance(origin_raw, str):
+        origin_token = origin_raw.strip().lower()
+    else:
+        origin_token = ""
+    if not origin_token:
+        origin_token = "native"
+    if origin_raw != origin_token:
+        changed = True
+    sanitized["origin"] = origin_token
+
     tags = _normalize_tags(item.get("tags"))
     if tags:
         sanitized["tags"] = tags
