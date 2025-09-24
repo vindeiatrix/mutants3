@@ -8,6 +8,7 @@ import pytest
 from mutants.commands import strike
 from mutants.registries import items_catalog, items_instances as itemsreg
 from mutants.services import damage_engine, player_state as pstate
+from mutants.services.item_transfer import GROUND_CAP
 
 
 class Bus:
@@ -142,6 +143,8 @@ def in_memory_instances(monkeypatch):
         return data
 
     monkeypatch.setattr(itemsreg, "_cache", fake_cache)
+    monkeypatch.setattr(itemsreg, "_save_instances_raw", lambda raw: None)
+    monkeypatch.setattr(itemsreg, "save_instances", lambda: None)
     return data
 
 
@@ -419,3 +422,115 @@ def test_strike_can_kill_when_target_weakened(strike_env, monkeypatch):
     assert monsters.killed == ["ogre#1"]
     assert any(kind == "COMBAT/KILL" for kind, _, _ in bus.msgs)
     assert pstate.get_ready_target_for_active(pstate.load_state()) is None
+
+
+def test_strike_kill_awards_currencies_and_drops_loot(strike_env, monkeypatch):
+    strike_env["setup"](
+        stats={"str": 200},
+        weapon={
+            "iid": "warhammer#1",
+            "item_id": "warhammer",
+            "base_power": 60,
+            "enchant_level": 0,
+            "condition": 100,
+            "name": "Warhammer",
+        },
+        ready_target="ogre#1",
+    )
+    strike_env["catalog"].update(
+        {
+            "warhammer": {"name": "Warhammer", "base_power": 60},
+            "club": {"name": "Club", "base_power": 5},
+            "skull": {"name": "Skull"},
+        }
+    )
+    monster = _make_monster(hp=6, max_hp=12, ac=0)
+    monster.update({"pos": [2000, 1, 1], "ions": 12, "riblets": 7, "level": 3})
+
+    drop_entry = {"item_id": "club", "condition": 55}
+
+    class LootMonsters(DummyMonsters):
+        def kill_monster(self, monster_id: str) -> Dict[str, Any]:
+            summary = super().kill_monster(monster_id)
+            monster_payload = summary.get("monster") if isinstance(summary, dict) else None
+            pos = monster_payload.get("pos") if isinstance(monster_payload, dict) else None
+            return {"monster": monster_payload or {}, "drops": [dict(drop_entry)], "pos": pos}
+
+    monsters = LootMonsters([monster])
+    bus = Bus()
+    ctx = {"feedback_bus": bus, "monsters": monsters}
+
+    monkeypatch.setattr(pstate, "get_wielded_weapon_id", lambda payload=None: "warhammer#1")
+
+    result = strike.strike_cmd("", ctx)
+
+    assert result.get("killed") is True
+    state_after = pstate.load_state()
+    assert pstate.get_ions_for_active(state_after) == 12
+    assert pstate.get_riblets_for_active(state_after) == 7
+    assert pstate.get_exp_for_active(state_after) == 300
+
+    ground_items = itemsreg.list_instances_at(2000, 1, 1)
+    item_ids = {inst.get("item_id") for inst in ground_items}
+    assert "club" in item_ids and "skull" in item_ids
+    assert any("crumbles to dust" in text for _, text, _ in bus.msgs)
+
+
+def test_strike_kill_vaporizes_when_ground_full(strike_env, monkeypatch):
+    strike_env["setup"](
+        stats={"str": 200},
+        weapon={
+            "iid": "warhammer#1",
+            "item_id": "warhammer",
+            "base_power": 60,
+            "enchant_level": 0,
+            "condition": 100,
+            "name": "Warhammer",
+        },
+        ready_target="ogre#1",
+    )
+    strike_env["catalog"].update(
+        {
+            "warhammer": {"name": "Warhammer", "base_power": 60},
+            "club": {"name": "Club", "base_power": 5},
+            "skull": {"name": "Skull"},
+        }
+    )
+    for idx in range(GROUND_CAP):
+        strike_env["instances"].append(
+            {
+                "iid": f"ground#{idx}",
+                "instance_id": f"ground#{idx}",
+                "item_id": f"junk{idx}",
+                "pos": {"year": 2000, "x": 1, "y": 1},
+                "year": 2000,
+                "x": 1,
+                "y": 1,
+            }
+        )
+        strike_env["catalog"][f"junk{idx}"] = {"name": f"Junk {idx}"}
+
+    monster = _make_monster(hp=6, max_hp=12, ac=0)
+    monster.update({"pos": [2000, 1, 1], "ions": 5, "riblets": 3, "level": 2})
+
+    class LootMonsters(DummyMonsters):
+        def kill_monster(self, monster_id: str) -> Dict[str, Any]:
+            summary = super().kill_monster(monster_id)
+            monster_payload = summary.get("monster") if isinstance(summary, dict) else None
+            pos = monster_payload.get("pos") if isinstance(monster_payload, dict) else None
+            return {"monster": monster_payload or {}, "drops": [{"item_id": "club"}], "pos": pos}
+
+    monsters = LootMonsters([monster])
+    bus = Bus()
+    ctx = {"feedback_bus": bus, "monsters": monsters}
+
+    monkeypatch.setattr(pstate, "get_wielded_weapon_id", lambda payload=None: "warhammer#1")
+
+    strike.strike_cmd("", ctx)
+
+    ground_items = itemsreg.list_instances_at(2000, 1, 1)
+    assert len(ground_items) == GROUND_CAP
+    item_ids = {inst.get("item_id") for inst in ground_items}
+    assert "club" not in item_ids and "skull" not in item_ids
+    vapor_msgs = [text for _, text, _ in bus.msgs if "vaporizes" in text]
+    assert vapor_msgs

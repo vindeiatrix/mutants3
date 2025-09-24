@@ -9,6 +9,7 @@ from typing import Any, Callable, Iterable, Mapping, MutableMapping, Optional
 from mutants.commands import convert as convert_cmd
 from mutants.commands import strike
 from mutants.registries import items_catalog, items_instances as itemsreg
+from mutants.services import combat_loot
 from mutants.services import damage_engine, items_wear, monsters_state, player_state as pstate
 from mutants.ui import item_display
 
@@ -19,6 +20,13 @@ MIN_INNATE_DAMAGE = strike.MIN_INNATE_DAMAGE
 
 
 ActionFn = Callable[[MutableMapping[str, Any], MutableMapping[str, Any], random.Random], bool]
+
+
+def _coerce_int(value: Any, default: int = 0) -> int:
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
 
 
 def _monster_display_name(monster: Mapping[str, Any]) -> str:
@@ -253,6 +261,137 @@ def _apply_weapon_wear(
     _refresh_monster(monster)
 
 
+def _collect_player_items(state: Mapping[str, Any], active: Mapping[str, Any], cls: str) -> list[str]:
+    collected: list[str] = []
+
+    def _append(items: Iterable[Any]) -> None:
+        for item in items:
+            if not item:
+                continue
+            token = str(item)
+            if token and token not in collected:
+                collected.append(token)
+
+    if isinstance(state.get("inventory"), list):
+        _append(state.get("inventory"))
+    if isinstance(active.get("inventory"), list):
+        _append(active.get("inventory"))
+
+    bags = state.get("bags") if isinstance(state.get("bags"), Mapping) else {}
+    if isinstance(bags, Mapping):
+        bag_items = bags.get(cls)
+        if isinstance(bag_items, list):
+            _append(bag_items)
+
+    bags_by_class = state.get("bags_by_class") if isinstance(state.get("bags_by_class"), Mapping) else {}
+    if isinstance(bags_by_class, Mapping):
+        bag_items = bags_by_class.get(cls)
+        if isinstance(bag_items, list):
+            _append(bag_items)
+
+    players = state.get("players")
+    if isinstance(players, list):
+        for player in players:
+            if not isinstance(player, Mapping):
+                continue
+            if isinstance(player.get("inventory"), list):
+                _append(player.get("inventory"))
+            pbags = player.get("bags") if isinstance(player.get("bags"), Mapping) else {}
+            if isinstance(pbags, Mapping):
+                bag_items = pbags.get(cls)
+                if isinstance(bag_items, list):
+                    _append(bag_items)
+    return collected
+
+
+def _clear_player_inventory(state: MutableMapping[str, Any], active: MutableMapping[str, Any], cls: str) -> None:
+    scopes: list[MutableMapping[str, Any]] = []
+    scopes.append(state)
+    if isinstance(active, MutableMapping):
+        scopes.append(active)
+    players = state.get("players")
+    if isinstance(players, list):
+        for player in players:
+            if isinstance(player, MutableMapping):
+                scopes.append(player)
+
+    for scope in scopes:
+        bags = scope.setdefault("bags", {})
+        if isinstance(bags, MutableMapping):
+            bags[cls] = []
+        if isinstance(scope.get("bags_by_class"), MutableMapping):
+            scope["bags_by_class"][cls] = []  # type: ignore[index]
+        scope["inventory"] = []
+        equip_map = scope.get("equipment_by_class")
+        if isinstance(equip_map, MutableMapping):
+            equip_map[cls] = {"armour": None}
+        wield_map = scope.get("wielded_by_class")
+        if isinstance(wield_map, MutableMapping):
+            wield_map[cls] = None
+        scope["wielded"] = None
+        armour = scope.get("armour")
+        if isinstance(armour, MutableMapping):
+            armour["wearing"] = None
+        elif armour is not None:
+            scope["armour"] = {"wearing": None}
+
+
+def _handle_player_death(
+    monster: MutableMapping[str, Any],
+    ctx: MutableMapping[str, Any],
+    state: MutableMapping[str, Any],
+    active: MutableMapping[str, Any],
+    bus: Any,
+) -> None:
+    label = _monster_display_name(monster)
+    killer_id = str(monster.get("id") or monster.get("instance_id") or "monster")
+    victim_id = str(active.get("id") or state.get("active_id") or "player")
+    victim_class = pstate.get_active_class(state)
+
+    if hasattr(bus, "push"):
+        bus.push("COMBAT/INFO", f"{label} slays you!")
+        bus.push(
+            "COMBAT/KILL",
+            f"{label} slays you!",
+            killer_id=killer_id,
+            victim_id=victim_id,
+            victim_class=victim_class,
+        )
+
+    ions = pstate.get_ions_for_active(state)
+    if ions:
+        monster["ions"] = _coerce_int(monster.get("ions"), 0) + ions
+        pstate.set_ions_for_active(state, 0)
+
+    riblets = pstate.get_riblets_for_active(state)
+    if riblets:
+        monster["riblets"] = _coerce_int(monster.get("riblets"), 0) + riblets
+        pstate.set_riblets_for_active(state, 0)
+
+    pos = combat_loot.coerce_pos(active.get("pos")) or combat_loot.coerce_pos(state.get("pos"))
+    if pos is None:
+        pos = (2000, 0, 0)
+
+    catalog = _load_catalog()
+    inventory_iids = _collect_player_items(state, active, victim_class)
+    dropped: list[str] = []
+    if inventory_iids:
+        dropped.extend(combat_loot.drop_existing_iids(inventory_iids, pos))
+    armour_iid = pstate.get_equipped_armour_id(state)
+    if armour_iid and armour_iid not in dropped:
+        dropped.extend(combat_loot.drop_existing_iids([armour_iid], pos))
+    if dropped:
+        combat_loot.enforce_capacity(pos, dropped, bus=bus, catalog=catalog)
+
+    _clear_player_inventory(state, active, victim_class)
+    try:
+        pstate.clear_ready_target_for_active(reason="player-dead")
+    except Exception:
+        pass
+    pstate.save_state(state)
+    _mark_monsters_dirty(ctx)
+
+
 def _apply_player_damage(
     monster: MutableMapping[str, Any],
     ctx: MutableMapping[str, Any],
@@ -299,6 +438,9 @@ def _apply_player_damage(
     label = _monster_display_name(monster)
     if hasattr(bus, "push"):
         bus.push("COMBAT/INFO", f"{label} strikes you for {final_damage} damage.")
+    if final_damage > 0 and new_hp <= 0:
+        if isinstance(state, MutableMapping) and isinstance(active, MutableMapping):
+            _handle_player_death(monster, ctx, state, active, bus)
     return True
 
 

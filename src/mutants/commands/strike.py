@@ -1,8 +1,10 @@
 from __future__ import annotations
 
-from typing import Any, Dict, Mapping, MutableMapping, Optional
+from typing import Any, Dict, Mapping, MutableMapping, Optional, Sequence
 
 from mutants.registries import items_catalog, items_instances as itemsreg
+from mutants.registries.monsters_catalog import exp_for as monster_exp_for, load_monsters_catalog
+from mutants.services import combat_loot
 from mutants.services import damage_engine, items_wear, monsters_state, player_state as pstate
 from mutants.ui.item_display import item_label
 
@@ -45,6 +47,22 @@ def _sanitize_hp(monster: Mapping[str, Any]) -> tuple[int, int]:
 def _is_alive(monster: Mapping[str, Any]) -> bool:
     current, _ = _sanitize_hp(monster)
     return current > 0
+
+
+def _coerce_int(value: Any, default: int = 0) -> int:
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def _coerce_pos(value: Any, fallback: Optional[Sequence[int]] = None) -> Optional[tuple[int, int, int]]:
+    pos = combat_loot.coerce_pos(value)
+    if pos is not None:
+        return pos
+    if fallback is None:
+        return None
+    return combat_loot.coerce_pos(fallback)
 
 
 def _resolve_target_armour(monster: Mapping[str, Any]) -> Optional[MutableMapping[str, Any]]:
@@ -175,6 +193,90 @@ def _clamp_melee_damage(monster: Mapping[str, Any], damage: int) -> int:
     return damage
 
 
+def _resolve_monster_payload(summary: Mapping[str, Any] | None, fallback: Mapping[str, Any]) -> Mapping[str, Any]:
+    if isinstance(summary, Mapping):
+        monster = summary.get("monster")
+        if isinstance(monster, Mapping):
+            return monster
+    return fallback
+
+
+def _resolve_drop_entries(summary: Mapping[str, Any] | None) -> list[Mapping[str, Any]]:
+    if not isinstance(summary, Mapping):
+        return []
+    drops = summary.get("drops")
+    if not isinstance(drops, Sequence):
+        return []
+    result: list[Mapping[str, Any]] = []
+    for entry in drops:
+        if isinstance(entry, Mapping):
+            result.append(entry)
+    return result
+
+
+def _monster_exp_bonus(monster_payload: Mapping[str, Any]) -> int:
+    bonus = _coerce_int(monster_payload.get("exp_bonus"), 0)
+    if bonus:
+        return bonus
+    monster_id = monster_payload.get("monster_id")
+    if not monster_id:
+        return 0
+    try:
+        catalog = load_monsters_catalog()
+    except FileNotFoundError:
+        return 0
+    base = catalog.get(str(monster_id)) if catalog else None
+    if isinstance(base, Mapping):
+        return _coerce_int(base.get("exp_bonus"), 0)
+    return 0
+
+
+def _award_player_progress(
+    *,
+    monster_payload: Mapping[str, Any],
+    state: Mapping[str, Any],
+    item_catalog: Mapping[str, Mapping[str, Any]],
+    summary: Mapping[str, Any] | None,
+    bus: Any,
+) -> None:
+    ions_reward = _coerce_int(monster_payload.get("ions"), 0)
+    if ions_reward:
+        current_ions = pstate.get_ions_for_active(state)
+        pstate.set_ions_for_active(state, current_ions + ions_reward)
+
+    riblets_reward = _coerce_int(monster_payload.get("riblets"), 0)
+    if riblets_reward:
+        current_riblets = pstate.get_riblets_for_active(state)
+        pstate.set_riblets_for_active(state, current_riblets + riblets_reward)
+
+    level = max(1, _coerce_int(monster_payload.get("level"), 1))
+    exp_bonus = _monster_exp_bonus(monster_payload)
+    exp_reward = monster_exp_for(level, exp_bonus)
+    if exp_reward:
+        current_exp = pstate.get_exp_for_active(state)
+        pstate.set_exp_for_active(state, current_exp + exp_reward)
+
+    pos = _coerce_pos(summary.get("pos") if isinstance(summary, Mapping) else None)
+    if pos is None:
+        pos = _coerce_pos(monster_payload.get("pos"))
+
+    if pos is None:
+        player_state = dict(state)
+        active = player_state.get("active") if isinstance(player_state, Mapping) else None
+        pos = _coerce_pos(active.get("pos")) if isinstance(active, Mapping) else None
+    if pos is None:
+        pos = _coerce_pos(state.get("pos")) if isinstance(state, Mapping) else None
+    if pos is None:
+        return
+
+    drop_entries = _resolve_drop_entries(summary)
+    minted: list[str] = []
+    if drop_entries:
+        minted.extend(combat_loot.drop_new_entries(drop_entries, pos))
+    minted.extend(combat_loot.spawn_skull(pos))
+    combat_loot.enforce_capacity(pos, minted, bus=bus, catalog=item_catalog)
+
+
 def _coerce_iid(value: Any) -> Optional[str]:
     if isinstance(value, str):
         stripped = value.strip()
@@ -294,13 +396,26 @@ def strike_cmd(arg: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
         killer_label = pstate.get_active_class(state)
         killer_meta = {"killer_id": killer_id, "killer_class": killer_label, "victim_id": target_id}
         finisher = getattr(monsters, "kill_monster", None)
+        summary: Mapping[str, Any] | None = None
         if callable(finisher):
             try:
-                finisher(target_id)
+                summary = finisher(target_id)
             except Exception:
-                pass
-        pstate.clear_ready_target_for_active(reason="monster-dead")
+                summary = None
         bus.push("COMBAT/KILL", f"You slay {label}!", **killer_meta)
+        try:
+            monster_payload = _resolve_monster_payload(summary, target)
+            _award_player_progress(
+                monster_payload=monster_payload,
+                state=state,
+                item_catalog=catalog,
+                summary=summary,
+                bus=bus,
+            )
+        except Exception:
+            pass
+        pstate.clear_ready_target_for_active(reason="monster-dead")
+        bus.push("COMBAT/INFO", f"{label} crumbles to dust.")
         result["killed"] = True
     else:
         marker = getattr(monsters, "mark_dirty", None)
