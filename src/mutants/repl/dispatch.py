@@ -1,10 +1,12 @@
 from __future__ import annotations
 import sys
+import logging
 from types import SimpleNamespace
 from typing import Callable, Dict, List, Optional, Any
 
 from mutants.util.directions import resolve_dir
 from mutants.engine import session as session_state
+from mutants.services import monster_ai
 
 
 class Dispatch:
@@ -18,6 +20,7 @@ class Dispatch:
         self._aliases: Dict[str, str] = {}
         self._bus = None  # optional feedback bus
         self._ctx: Any | None = None
+        self._log = logging.getLogger(__name__)
 
     # Optional: REPL can call this after building ctx.
     def set_feedback_bus(self, bus) -> None:
@@ -33,6 +36,14 @@ class Dispatch:
             self._bus.push("SYSTEM/WARN", msg)
         else:
             print(msg, file=sys.stderr)
+
+    def _post_command(self, token: str, resolved: Optional[str]) -> None:
+        if self._ctx is None:
+            return
+        try:
+            monster_ai.on_player_command(self._ctx, token=token, resolved=resolved)
+        except Exception:  # pragma: no cover - defensive
+            self._log.exception("Monster AI turn tick failed")
 
     def _inject_session_context(self) -> None:
         if self._ctx is None:
@@ -98,20 +109,26 @@ class Dispatch:
         return None
 
     def call(self, token: str, arg: str) -> Optional[str]:
+        resolved: Optional[str] = None
         dir_name = resolve_dir(token)
-        if dir_name and dir_name in self._cmds:
-            fn = self._cmds.get(dir_name)
-            if fn:
-                self._inject_session_context()
-                fn(arg)
-            return dir_name
-        name = self._resolve_prefix(token)
-        if not name:
-            return None
-        fn = self._cmds.get(name)
-        if not fn:
-            self._warn(f'Command handler missing for "{name}".')
-            return None
-        self._inject_session_context()
-        fn(arg)
-        return name
+        try:
+            if dir_name and dir_name in self._cmds:
+                fn = self._cmds.get(dir_name)
+                resolved = dir_name
+                if fn:
+                    self._inject_session_context()
+                    fn(arg)
+                return dir_name
+            name = self._resolve_prefix(token)
+            if not name:
+                return None
+            fn = self._cmds.get(name)
+            if not fn:
+                self._warn(f'Command handler missing for "{name}".')
+                return None
+            resolved = name
+            self._inject_session_context()
+            fn(arg)
+            return name
+        finally:
+            self._post_command(token, resolved)
