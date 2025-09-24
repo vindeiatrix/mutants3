@@ -66,12 +66,14 @@ def test_load_state_normalizes_monster_records(tmp_path, monkeypatch):
     assert weapon["condition"] == 100  # enchanted items are non-degrading
     assert weapon["derived"]["effective_weight"] == 20
     assert weapon["derived"]["base_damage"] == 13
+    assert weapon["origin"] == "native"
 
     armour = monster["armour_slot"]
     assert armour is not None
     assert armour["iid"] == "leather#bag"
     assert armour["condition"] == 100
     assert armour["derived"]["armour_class"] == 4
+    assert armour["origin"] == "native"
 
     assert monster["wielded"] == weapon["iid"]
 
@@ -150,6 +152,8 @@ def test_kill_monster_drops_items_and_clears_record(tmp_path):
     armour = monster["armour_slot"]
     weapon["condition"] = 17
     armour["condition"] = 12
+    assert weapon["origin"] == "native"
+    assert armour["origin"] == "native"
 
     summary = state.kill_monster("ogre#1")
 

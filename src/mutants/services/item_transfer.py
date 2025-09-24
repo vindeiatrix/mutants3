@@ -4,7 +4,7 @@ import logging
 import os
 import random
 import time
-from typing import Any, Dict, List, Mapping, Optional, Tuple
+from typing import Any, Dict, List, Mapping, MutableMapping, Optional, Tuple
 from ..ui import item_display as idisp
 from ..registries import items_catalog as catreg
 from ..registries import items_instances as itemsreg
@@ -466,6 +466,11 @@ def pick_from_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
     ok = itemsreg.clear_position_at(chosen_iid, year, x, y)
     if not ok:
         return {"ok": False, "reason": "That item is no longer on the ground here."}
+    if isinstance(chosen_inst, MutableMapping):
+        chosen_inst["origin"] = "world"
+    actual_inst = itemsreg.get_instance(chosen_iid)
+    if isinstance(actual_inst, MutableMapping):
+        actual_inst["origin"] = "world"
     inv = list(player.get("inventory", []))
     inv.append(chosen_iid)
     player["inventory"] = inv

@@ -88,6 +88,7 @@ def test_pickup_prefers_stronger_item(monkeypatch: pytest.MonkeyPatch) -> None:
 
     bag = monster.get("bag") or []
     assert any(entry.get("iid") == "strong" for entry in bag)
+    assert any(entry.get("origin") == "world" for entry in bag if entry.get("iid") == "strong")
     assert "strong" in monster_actions._picked_up_iids(monster)
 
 
@@ -96,8 +97,8 @@ def test_convert_only_uses_picked_items(monkeypatch: pytest.MonkeyPatch) -> None
         "id": "lich#1",
         "hp": {"current": 8, "max": 8},
         "bag": [
-            {"iid": "native", "item_id": "dagger", "enchant_level": 0},
-            {"iid": "pickup", "item_id": "wand", "enchant_level": 0},
+            {"iid": "native", "item_id": "dagger", "enchant_level": 0, "origin": "native"},
+            {"iid": "pickup", "item_id": "wand", "enchant_level": 0, "origin": "world"},
         ],
         "ions": 0,
     }

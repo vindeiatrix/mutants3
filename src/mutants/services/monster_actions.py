@@ -15,6 +15,9 @@ from mutants.ui import item_display
 
 LOG = logging.getLogger(__name__)
 
+ORIGIN_NATIVE = "native"
+ORIGIN_WORLD = "world"
+
 
 MIN_INNATE_DAMAGE = strike.MIN_INNATE_DAMAGE
 
@@ -168,6 +171,11 @@ def _bag_list(monster: MutableMapping[str, Any]) -> list[MutableMapping[str, Any
         cleaned: list[MutableMapping[str, Any]] = []
         for entry in bag:
             if isinstance(entry, MutableMapping):
+                origin = entry.get("origin")
+                if isinstance(origin, str) and origin.strip():
+                    entry["origin"] = origin.strip().lower()
+                else:
+                    entry["origin"] = ORIGIN_NATIVE
                 cleaned.append(entry)
         if cleaned is not bag:
             monster["bag"] = cleaned
@@ -212,6 +220,12 @@ def _build_bag_entry(
         derived["base_damage"] = max(0, base_power) + (4 * entry["enchant_level"])
     if derived:
         entry["derived"] = derived
+    origin_raw = inst.get("origin")
+    if isinstance(origin_raw, str) and origin_raw.strip():
+        origin_token = origin_raw.strip().lower()
+    else:
+        origin_token = ORIGIN_WORLD
+    entry["origin"] = origin_token
     return entry
 
 
@@ -478,6 +492,12 @@ def _pickup_from_ground(
     if not iid:
         return False
     iid_str = str(iid)
+    origin_token = ORIGIN_WORLD
+    if isinstance(best_inst, MutableMapping):
+        best_inst["origin"] = origin_token
+    actual_inst = itemsreg.get_instance(iid_str)
+    if isinstance(actual_inst, MutableMapping):
+        actual_inst["origin"] = origin_token
     if not itemsreg.clear_position_at(iid_str, year, x, y):
         return False
     entry = _build_bag_entry(monster, best_inst, catalog)
@@ -504,14 +524,17 @@ def _convert_item(
     if not bag:
         return False
     tracked = set(_picked_up_iids(monster))
-    if not tracked:
-        return False
     catalog = _load_catalog()
     best_entry: Optional[MutableMapping[str, Any]] = None
     best_value = 0
     for entry in bag:
         iid = entry.get("iid")
-        if not isinstance(iid, str) or iid not in tracked:
+        if not isinstance(iid, str):
+            continue
+        origin = entry.get("origin")
+        if not isinstance(origin, str) or origin.strip().lower() != ORIGIN_WORLD:
+            continue
+        if tracked and iid not in tracked:
             continue
         item_id = entry.get("item_id")
         if not isinstance(item_id, str) or not item_id:
@@ -592,10 +615,14 @@ def _action_weights(
     if maximum > 0:
         hp_ratio = current / maximum if maximum else 1.0
     bag = _bag_list(monster)
-    tracked = _picked_up_iids(monster)
+    world_items = [
+        entry
+        for entry in bag
+        if isinstance(entry, Mapping) and str(entry.get("origin", "")).lower() == ORIGIN_WORLD
+    ]
     weights: list[tuple[str, float]] = [("attack", 6.0)]
     pickup_weight = 1.5 if hp_ratio < 0.5 else 1.0
-    convert_weight = 1.0 if tracked else 0.0
+    convert_weight = 1.0 if world_items else 0.0
     if hp_ratio < 0.5 and convert_weight:
         convert_weight *= 1.5
     armour = monster.get("armour_slot")

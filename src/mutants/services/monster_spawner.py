@@ -129,6 +129,11 @@ def _clone_inventory(template: Mapping[str, Any]) -> tuple[List[Dict[str, Any]],
             entry["qty"] = qty
         minted = _mint_item_instance_id(template, raw)
         entry["instance_id"] = minted
+        origin_raw = raw.get("origin")
+        if isinstance(origin_raw, str) and origin_raw.strip():
+            entry["origin"] = origin_raw.strip().lower()
+        else:
+            entry["origin"] = "native"
         iid = raw.get("iid")
         if isinstance(iid, str) and iid:
             iid_map[iid] = minted
@@ -151,6 +156,11 @@ def _clone_inventory(template: Mapping[str, Any]) -> tuple[List[Dict[str, Any]],
             entry: Dict[str, Any] = {"instance_id": armour_iid}
             if armour.get("item_id"):
                 entry["item_id"] = str(armour["item_id"])
+            origin_raw = armour.get("origin") if isinstance(armour, Mapping) else None
+            if isinstance(origin_raw, str) and origin_raw.strip():
+                entry["origin"] = origin_raw.strip().lower()
+            else:
+                entry["origin"] = "native"
             if len(inventory) >= 4:
                 # drop the oldest non-armour item to make room
                 inventory.pop(0)

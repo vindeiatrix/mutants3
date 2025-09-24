@@ -100,7 +100,11 @@ def drop_new_entries(
         if entry.get("notes") is not None:
             inst["notes"] = entry.get("notes")
 
-        inst.setdefault("origin", origin)
+        entry_origin = entry.get("origin")
+        if isinstance(entry_origin, str) and entry_origin:
+            inst["origin"] = str(entry_origin)
+        else:
+            inst.setdefault("origin", origin)
         inst["pos"] = {"year": year, "x": x, "y": y}
         inst["year"] = year
         inst["x"] = x

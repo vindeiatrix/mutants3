@@ -12,6 +12,8 @@ from ..util.textnorm import normalize_item_query
 
 LOG_P = logging.getLogger("mutants.playersdbg")
 
+_ORIGIN_WORLD = "world"
+
 
 def _legacy_ions(payload: Dict[str, Any]) -> int:
     if not isinstance(payload, dict):
@@ -114,6 +116,9 @@ def _choose_inventory_item(
     for iid in inventory:
         inst = itemsreg.get_instance(iid)
         if not inst:
+            continue
+        origin = inst.get("origin")
+        if not isinstance(origin, str) or origin.strip().lower() != _ORIGIN_WORLD:
             continue
         item_id = (
             inst.get("item_id")
