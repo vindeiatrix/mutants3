@@ -6,6 +6,7 @@ from mutants.registries import items_catalog, items_instances as itemsreg
 from mutants.registries.monsters_catalog import exp_for as monster_exp_for, load_monsters_catalog
 from mutants.services import combat_loot
 from mutants.services import damage_engine, items_wear, monsters_state, player_state as pstate
+from mutants.debug import turnlog
 from mutants.ui.item_display import item_label
 
 MIN_INNATE_DAMAGE = 6
@@ -86,13 +87,17 @@ def _apply_weapon_wear(
         return None
     if not isinstance(result, Mapping):
         return None
-    if not result.get("cracked"):
-        return result  # wear applied but no crack to announce
+    payload = dict(result)
+    if not payload.get("cracked"):
+        return payload  # wear applied but no crack to announce
     inst = itemsreg.get_instance(weapon_iid) or {"item_id": weapon_iid}
     tpl = catalog.get(str(inst.get("item_id"))) or {}
     name = item_label(inst, tpl, show_charges=False)
     bus.push("COMBAT/INFO", f"Your {name} cracks!")
-    return dict(result)
+    payload.setdefault("iid", weapon_iid)
+    payload.setdefault("item_id", str(inst.get("item_id")))
+    payload["item_name"] = name
+    return payload
 
 
 def _sync_monster_armour_view(
@@ -166,7 +171,8 @@ def _apply_armour_wear(
         _sync_monster_armour_view(monster, armour, result)
     if not result:
         return None
-    if result.get("cracked"):
+    payload = dict(result)
+    if payload.get("cracked"):
         inst: Mapping[str, Any] | None = None
         if iid_str:
             inst = itemsreg.get_instance(iid_str)
@@ -177,7 +183,10 @@ def _apply_armour_wear(
         suffix = "'" if target_name.endswith("s") else "'s"
         name = item_label(inst, tpl, show_charges=False)
         bus.push("COMBAT/INFO", f"{target_name}{suffix} {name} cracks!")
-    return result
+        payload.setdefault("iid", iid_str)
+        payload.setdefault("item_id", str(inst.get("item_id")))
+        payload["item_name"] = name
+    return payload
 
 
 def _clamp_melee_damage(monster: Mapping[str, Any], damage: int) -> int:
@@ -367,10 +376,12 @@ def strike_cmd(arg: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
 
     wear_amount = items_wear.wear_from_event({"kind": "strike", "damage": final_damage})
 
+    weapon_wear: Mapping[str, Any] | None = None
+    armour_wear: Mapping[str, Any] | None = None
     if final_damage > 0:
-        _apply_weapon_wear(weapon_iid, wear_amount, catalog, bus)
+        weapon_wear = _apply_weapon_wear(weapon_iid, wear_amount, catalog, bus)
         if isinstance(target, MutableMapping):
-            _apply_armour_wear(target, wear_amount, catalog, bus)
+            armour_wear = _apply_armour_wear(target, wear_amount, catalog, bus)
 
     current_hp, max_hp = _sanitize_hp(target)
     new_hp = max(0, current_hp - final_damage)
@@ -390,7 +401,40 @@ def strike_cmd(arg: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
     label = _monster_display_name(target, target_id)
     bus.push("COMBAT/HIT", f"You strike {label} for {final_damage} damage.")
 
+    if weapon_wear and weapon_wear.get("cracked"):
+        turnlog.emit(
+            ctx,
+            "ITEM/CRACK",
+            owner="player",
+            item_id=weapon_wear.get("item_id"),
+            item_name=weapon_wear.get("item_name"),
+            iid=weapon_iid,
+            source="weapon",
+        )
+    if armour_wear and armour_wear.get("cracked"):
+        turnlog.emit(
+            ctx,
+            "ITEM/CRACK",
+            owner="monster",
+            target=target_id,
+            item_id=armour_wear.get("item_id"),
+            item_name=armour_wear.get("item_name"),
+            iid=armour_wear.get("iid"),
+            source="armour",
+        )
+
+    strike_meta = {
+        "actor": "player",
+        "target": target_id,
+        "target_name": label,
+        "damage": final_damage,
+        "remaining_hp": new_hp,
+        "weapon_iid": weapon_iid,
+    }
+
     killed = final_damage > 0 and new_hp <= 0
+    strike_meta["killed"] = killed
+    turnlog.emit(ctx, "COMBAT/STRIKE", **strike_meta)
     if killed:
         killer_id = str(active.get("id") or state.get("active_id") or "player")
         killer_label = pstate.get_active_class(state)
@@ -414,6 +458,15 @@ def strike_cmd(arg: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
             )
         except Exception:
             pass
+        drops = _resolve_drop_entries(summary)
+        turnlog.emit(
+            ctx,
+            "COMBAT/KILL",
+            actor=killer_id,
+            victim=target_id,
+            drops=len(drops),
+            source="player",
+        )
         pstate.clear_ready_target_for_active(reason="monster-dead")
         bus.push("COMBAT/INFO", f"{label} crumbles to dust.")
         result["killed"] = True

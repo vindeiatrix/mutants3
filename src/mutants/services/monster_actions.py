@@ -4,13 +4,14 @@ from __future__ import annotations
 
 import logging
 import random
-from typing import Any, Callable, Iterable, Mapping, MutableMapping, Optional
+from typing import Any, Callable, Dict, Iterable, Mapping, MutableMapping, Optional
 
 from mutants.commands import convert as convert_cmd
 from mutants.commands import strike
 from mutants.registries import items_catalog, items_instances as itemsreg
 from mutants.services import combat_loot
 from mutants.services import damage_engine, items_wear, monsters_state, player_state as pstate
+from mutants.debug import turnlog
 from mutants.ui import item_display
 
 LOG = logging.getLogger(__name__)
@@ -22,7 +23,7 @@ ORIGIN_WORLD = "world"
 MIN_INNATE_DAMAGE = strike.MIN_INNATE_DAMAGE
 
 
-ActionFn = Callable[[MutableMapping[str, Any], MutableMapping[str, Any], random.Random], bool]
+ActionFn = Callable[[MutableMapping[str, Any], MutableMapping[str, Any], random.Random], Any]
 
 
 def _coerce_int(value: Any, default: int = 0) -> int:
@@ -40,6 +41,13 @@ def _monster_display_name(monster: Mapping[str, Any]) -> str:
     if isinstance(ident, str) and ident:
         return ident
     return "The monster"
+
+
+def _monster_id(monster: Mapping[str, Any]) -> str:
+    ident = monster.get("id") or monster.get("instance_id") or monster.get("monster_id")
+    if isinstance(ident, str) and ident:
+        return ident
+    return "?"
 
 
 def _feedback_bus(ctx: MutableMapping[str, Any]) -> Any:
@@ -242,15 +250,16 @@ def _apply_weapon_wear(
     wear_amount: int,
     catalog: Mapping[str, Mapping[str, Any]],
     bus: Any,
-) -> None:
+    ctx: MutableMapping[str, Any] | None,
+) -> Mapping[str, Any] | None:
     if not weapon_iid or wear_amount <= 0:
-        return
+        return None
     try:
         result = items_wear.apply_wear(weapon_iid, wear_amount)
     except KeyError:
-        return
+        return None
     if not isinstance(result, Mapping):
-        return
+        return None
     bag = _bag_list(monster)
     for entry in bag:
         if entry.get("iid") == weapon_iid:
@@ -266,13 +275,25 @@ def _apply_weapon_wear(
                     entry.pop("condition", None)
                 entry["enchant_level"] = max(0, int(inst.get("enchant_level", 0) or 0))
             break
-    if result.get("cracked"):
+    payload = dict(result)
+    if payload.get("cracked"):
         inst = itemsreg.get_instance(weapon_iid) or {"item_id": weapon_iid}
         tpl = catalog.get(str(inst.get("item_id"))) or {}
         name = item_display.item_label(inst, tpl, show_charges=False)
         if bus is not None and hasattr(bus, "push"):
             bus.push("COMBAT/INFO", f"{_monster_display_name(monster)}'s {name} cracks!")
+        turnlog.emit(
+            ctx,
+            "ITEM/CRACK",
+            owner="monster",
+            owner_id=_monster_id(monster),
+            item_id=str(inst.get("item_id")),
+            item_name=name,
+            iid=weapon_iid,
+            source="weapon",
+        )
     _refresh_monster(monster)
+    return payload
 
 
 def _collect_player_items(state: Mapping[str, Any], active: Mapping[str, Any], cls: str) -> list[str]:
@@ -397,6 +418,16 @@ def _handle_player_death(
     if dropped:
         combat_loot.enforce_capacity(pos, dropped, bus=bus, catalog=catalog)
 
+    turnlog.emit(
+        ctx,
+        "COMBAT/KILL",
+        actor=killer_id,
+        victim=victim_id,
+        victim_class=victim_class,
+        drops=len(dropped),
+        source="monster",
+    )
+
     _clear_player_inventory(state, active, victim_class)
     try:
         pstate.clear_ready_target_for_active(reason="player-dead")
@@ -441,7 +472,14 @@ def _apply_player_damage(
         wear_amount = items_wear.wear_from_event({"kind": "monster-attack", "damage": final_damage})
         catalog = _load_catalog()
         bus_obj = bus if hasattr(bus, "push") else None
-        _apply_weapon_wear(monster, str(weapon_iid) if weapon_iid else None, wear_amount, catalog, bus_obj)
+        _apply_weapon_wear(
+            monster,
+            str(weapon_iid) if weapon_iid else None,
+            wear_amount,
+            catalog,
+            bus_obj,
+            ctx if isinstance(ctx, MutableMapping) else None,
+        )
         if weapon_iid:
             _mark_monsters_dirty(ctx)
     new_hp = max(0, current - final_damage)
@@ -452,7 +490,18 @@ def _apply_player_damage(
     label = _monster_display_name(monster)
     if hasattr(bus, "push"):
         bus.push("COMBAT/INFO", f"{label} strikes you for {final_damage} damage.")
-    if final_damage > 0 and new_hp <= 0:
+    killed_flag = final_damage > 0 and new_hp <= 0
+    if final_damage > 0:
+        turnlog.emit(
+            ctx,
+            "AI/ACT/ATTACK",
+            monster=_monster_id(monster),
+            damage=final_damage,
+            hp_after=new_hp,
+            killed=killed_flag,
+            weapon=str(weapon_iid) if weapon_iid else None,
+        )
+    if killed_flag:
         if isinstance(state, MutableMapping) and isinstance(active, MutableMapping):
             _handle_player_death(monster, ctx, state, active, bus)
     return True
@@ -512,14 +561,23 @@ def _pickup_from_ground(
         inst = {"item_id": entry.get("item_id"), "iid": iid_str}
         name = item_display.item_label(inst, tpl, show_charges=False)
         bus.push("COMBAT/INFO", f"{_monster_display_name(monster)} picks up {name}.")
-    return True
+    turnlog.emit(
+        ctx,
+        "AI/ACT/PICKUP",
+        monster=_monster_id(monster),
+        iid=iid_str,
+        item_id=entry.get("item_id"),
+        item_name=name,
+        origin=entry.get("origin"),
+    )
+    return {"ok": True, "iid": iid_str, "item_id": entry.get("item_id"), "item_name": name}
 
 
 def _convert_item(
     monster: MutableMapping[str, Any],
     ctx: MutableMapping[str, Any],
     rng: random.Random,
-) -> bool:
+) -> Any:
     bag = _bag_list(monster)
     if not bag:
         return False
@@ -563,14 +621,32 @@ def _convert_item(
             "COMBAT/INFO",
             f"{label} converts loot worth {best_value} ions.",
         )
-    return True
+    turnlog.emit(
+        ctx,
+        "AI/ACT/CONVERT",
+        monster=_monster_id(monster),
+        iid=iid,
+        item_id=best_entry.get("item_id"),
+        ions=best_value,
+    )
+    turnlog.emit(
+        ctx,
+        "ITEM/CONVERT",
+        owner="monster",
+        owner_id=_monster_id(monster),
+        iid=iid,
+        item_id=best_entry.get("item_id"),
+        ions=best_value,
+        source="monster",
+    )
+    return {"ok": True, "iid": iid, "item_id": best_entry.get("item_id"), "ions": best_value}
 
 
 def _remove_broken_armour(
     monster: MutableMapping[str, Any],
     ctx: MutableMapping[str, Any],
     rng: random.Random,
-) -> bool:
+) -> Any:
     armour = monster.get("armour_slot")
     if not isinstance(armour, MutableMapping):
         return False
@@ -583,18 +659,28 @@ def _remove_broken_armour(
     bus = _feedback_bus(ctx)
     if hasattr(bus, "push"):
         bus.push("COMBAT/INFO", f"{_monster_display_name(monster)} discards broken armour.")
-    return True
+    turnlog.emit(
+        ctx,
+        "AI/ACT/REMOVE_ARMOUR",
+        monster=_monster_id(monster),
+    )
+    return {"ok": True}
 
 
 def _heal_stub(
     monster: MutableMapping[str, Any],
     ctx: MutableMapping[str, Any],
     rng: random.Random,
-) -> bool:
+) -> Any:
     bus = _feedback_bus(ctx)
     if hasattr(bus, "push"):
         bus.push("COMBAT/INFO", f"{_monster_display_name(monster)}'s body is glowing.")
-    return True
+    turnlog.emit(
+        ctx,
+        "AI/ACT/HEAL",
+        monster=_monster_id(monster),
+    )
+    return {"ok": True}
 
 
 _ACTION_TABLE: dict[str, ActionFn] = {
@@ -679,7 +765,18 @@ def execute_random_action(monster: Any, ctx: Any, *, rng: Any | None = None) -> 
     if not action:
         return None
     try:
-        action(monster, ctx, random_obj)
+        result = action(monster, ctx, random_obj)
+        success = False
+        payload: Dict[str, Any] = {}
+        if isinstance(result, Mapping):
+            payload = dict(result)
+            success = bool(payload.get("ok", True))
+        else:
+            success = bool(result)
+        if not success:
+            payload.setdefault("monster", _monster_id(monster))
+            payload.setdefault("success", False)
+            turnlog.emit(ctx, f"AI/ACT/{action_name.upper()}", **payload)
     except Exception:  # pragma: no cover - defensive guard
         LOG.exception("Monster action %s failed", action_name)
     return None

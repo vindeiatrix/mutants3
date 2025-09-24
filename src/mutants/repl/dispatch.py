@@ -7,6 +7,7 @@ from typing import Callable, Dict, List, Optional, Any
 from mutants.util.directions import resolve_dir
 from mutants.engine import session as session_state
 from mutants.services import monster_ai
+from mutants.debug import turnlog
 
 
 class Dispatch:
@@ -44,6 +45,9 @@ class Dispatch:
             monster_ai.on_player_command(self._ctx, token=token, resolved=resolved)
         except Exception:  # pragma: no cover - defensive
             self._log.exception("Monster AI turn tick failed")
+        observer = turnlog.get_observer(self._ctx)
+        if observer:
+            observer.finish_turn(self._ctx, token, resolved)
 
     def _inject_session_context(self) -> None:
         if self._ctx is None:
@@ -111,11 +115,14 @@ class Dispatch:
     def call(self, token: str, arg: str) -> Optional[str]:
         resolved: Optional[str] = None
         dir_name = resolve_dir(token)
+        observer = turnlog.get_observer(self._ctx) if self._ctx is not None else None
         try:
             if dir_name and dir_name in self._cmds:
                 fn = self._cmds.get(dir_name)
                 resolved = dir_name
                 if fn:
+                    if observer:
+                        observer.begin_turn(self._ctx, token, resolved)
                     self._inject_session_context()
                     fn(arg)
                 return dir_name
@@ -127,6 +134,8 @@ class Dispatch:
                 self._warn(f'Command handler missing for "{name}".')
                 return None
             resolved = name
+            if observer:
+                observer.begin_turn(self._ctx, token, resolved)
             self._inject_session_context()
             fn(arg)
             return name

@@ -10,6 +10,7 @@ from mutants.bootstrap.runtime import ensure_runtime
 from mutants.data.room_headers import ROOM_HEADERS, STORE_FOR_SALE_IDX
 from mutants.registries.world import load_nearest_year
 from mutants.ui import renderer
+from mutants.debug.turnlog import TurnObserver
 from mutants.debug import items_probe
 from mutants.ui.feedback import FeedbackBus
 from mutants.ui.logsink import LogSink
@@ -82,6 +83,7 @@ def build_context() -> Dict[str, Any]:
     sink = LogSink()
     monsters = monsters_state.load_state()
     bus.subscribe(sink.handle)
+    turn_observer = TurnObserver()
     monster_leveling.attach(bus, monsters)
     ctx: Dict[str, Any] = {
         "player_state": state,
@@ -92,6 +94,7 @@ def build_context() -> Dict[str, Any]:
         "headers": ROOM_HEADERS,
         "feedback_bus": bus,
         "logsink": sink,
+        "turn_observer": turn_observer,
         "theme": theme,
         "renderer": renderer.render,
         "config": cfg,
