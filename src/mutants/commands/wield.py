@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Dict, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from ..registries import items_catalog as catreg
 from ..registries import items_instances as itemsreg
@@ -8,6 +8,7 @@ from ..services import item_transfer as itx
 from ..services import player_state as pstate
 from ..services.equip_debug import _edbg_enabled, _edbg_log
 from ..services.items_weight import get_effective_weight
+from ..util.textnorm import normalize_item_query
 from .convert import _choose_inventory_item, _display_name
 from .wear import _bag_count, _catalog_template, _pos_repr
 
@@ -26,6 +27,23 @@ def _resolve_candidate(
 ) -> Tuple[Optional[str], Optional[str]]:
     iid, item_id = _choose_inventory_item(player, prefix, catalog)
     if not iid or not item_id:
+        inventory: List[str] = [str(i) for i in (player.get("inventory") or []) if i]
+        query = normalize_item_query(prefix).lower()
+        if not query:
+            return None, None
+        for candidate in inventory:
+            inst = itemsreg.get_instance(candidate)
+            if not inst:
+                continue
+            item_id = (
+                inst.get("item_id")
+                or inst.get("catalog_id")
+                or inst.get("id")
+                or candidate
+            )
+            label = _display_name(str(item_id), catalog).lower()
+            if str(item_id).lower().startswith(query) or label.startswith(query):
+                return str(candidate), str(item_id)
         return None, None
 
     inst = itemsreg.get_instance(iid) or {}

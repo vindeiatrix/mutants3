@@ -5,6 +5,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from ..services import item_transfer as itx
 from ..services import player_state as pstate
+from mutants.debug import turnlog
 from ..registries import items_catalog as catreg
 from ..registries import items_instances as itemsreg
 from ..util.textnorm import normalize_item_query
@@ -13,6 +14,7 @@ from ..util.textnorm import normalize_item_query
 LOG_P = logging.getLogger("mutants.playersdbg")
 
 _ORIGIN_WORLD = "world"
+_CONVERTIBLE_ORIGINS = {"world", "debug_add"}
 
 
 def _legacy_ions(payload: Dict[str, Any]) -> int:
@@ -118,7 +120,7 @@ def _choose_inventory_item(
         if not inst:
             continue
         origin = inst.get("origin")
-        if not isinstance(origin, str) or origin.strip().lower() != _ORIGIN_WORLD:
+        if not isinstance(origin, str) or origin.strip().lower() not in _CONVERTIBLE_ORIGINS:
             continue
         item_id = (
             inst.get("item_id")
@@ -244,6 +246,16 @@ def convert_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
     name = _display_name(item_id, catalog)
     bus.push("SYSTEM/OK", f"The {name} vanishes with a flash!")
     bus.push("SYSTEM/OK", f"You convert the {name} into {value} ions.")
+    turnlog.emit(
+        ctx,
+        "ITEM/CONVERT",
+        owner="player",
+        item_id=item_id,
+        item_name=name,
+        iid=iid,
+        ions=value,
+        source="player",
+    )
 
     return {"ok": True, "iid": iid, "item_id": item_id, "ions": value}
 

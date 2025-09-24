@@ -5,6 +5,7 @@ import random
 from typing import Any, Iterable, Mapping, MutableMapping, Sequence
 
 from mutants.services import player_state as pstate
+from mutants.debug import turnlog
 
 from . import monster_actions
 
@@ -128,12 +129,7 @@ def _roll_credits(rng: Any, weights: Sequence[float]) -> int:
 def _log_tick(ctx: Any, monster: Mapping[str, Any], credits: int) -> None:
     mid = _monster_id(monster)
     message = f"mon={mid} credits={credits}"
-    logsink = _pull(ctx, "logsink")
-    if logsink and hasattr(logsink, "handle"):
-        try:
-            logsink.handle({"ts": "", "kind": "AI/TICK", "text": message})
-        except Exception:  # pragma: no cover - defensive
-            LOG.exception("Failed to log monster tick to sink")
+    turnlog.emit(ctx, "AI/TICK", message=message, mon=mid, credits=credits)
     LOG.info("AI/TICK %s", message)
 
 
