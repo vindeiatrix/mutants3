@@ -2,69 +2,74 @@ name: CI
 
 on:
   push:
+    branches: ["**"]
   pull_request:
 
 jobs:
-  tests:
+  test:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+
     steps:
-      - name: Checkout
+      - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
 
-      - name: Cache pip
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt', '**/pyproject.toml', '**/setup.cfg', '**/setup.py') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
-
-      - name: Install dependencies (adaptive)
+      - name: Install dependencies
         shell: bash
         run: |
-          set -euo pipefail
-          python -m pip install -U pip wheel
+          python -m pip install --upgrade pip
 
-          # Use requirements files if present
+          # Project/runtime deps
           if [ -f requirements.txt ]; then
             pip install -r requirements.txt
           fi
+
+          # Dev/test-only deps
           if [ -f requirements-dev.txt ]; then
             pip install -r requirements-dev.txt
           fi
 
-          # Try to install the project (and dev extras) if installable
+          # If installable as a package, install it (prefer dev extras if present)
           if [ -f pyproject.toml ] || [ -f setup.py ] || [ -f setup.cfg ]; then
             pip install ".[dev]" || pip install .
           fi
 
-          # Ensure pytest exists regardless of how we installed deps
+          # Ensure pytest is available even if not listed above
           python - <<'PY'
-import sys
-try:
-    import pytest  # noqa: F401
-except Exception:
-    import subprocess
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "pytest"])
-PY
+          import importlib, subprocess, sys
+          try:
+              importlib.import_module("pytest")
+          except Exception:
+              subprocess.check_call([sys.executable, "-m", "pip", "install", "pytest"])
+          PY
 
-      # Set PYTHONPATH for src/ layout if package wasn't installed as a wheel
-      - name: Set PYTHONPATH (src layout fallback)
-        if: ${{ !hashFiles('**/pyproject.toml', '**/setup.py', '**/setup.cfg') }}
-        run: echo "PYTHONPATH=./src" >> $GITHUB_ENV
+      - name: Run tests
+        shell: bash
+        run: |
+          # If pytest-cov is available, emit coverage.xml; otherwise run plain pytest
+          if python - <<'PY'
+          import importlib, sys
+          sys.exit(0 if importlib.util.find_spec("pytest_cov") else 1)
+          PY
+          then
+            pytest -q --maxfail=1 --disable-warnings --cov --cov-report=xml
+          else
+            pytest -q --maxfail=1 --disable-warnings
+          fi
 
-      - name: Run smoke tests
-        run: pytest -q -k smoke
-
-      - name: Upload pytest output on failure
-        if: failure()
+      - name: Upload coverage (if any)
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: pytest-smoke-output
-          path: .
+          name: coverage-${{ matrix.python-version }}
+          path: coverage.xml
           if-no-files-found: ignore
