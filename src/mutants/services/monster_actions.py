@@ -21,6 +21,7 @@ ORIGIN_WORLD = "world"
 
 
 MIN_INNATE_DAMAGE = strike.MIN_INNATE_DAMAGE
+MIN_BOLT_DAMAGE = strike.MIN_BOLT_DAMAGE
 
 
 ActionFn = Callable[[MutableMapping[str, Any], MutableMapping[str, Any], random.Random], Any]
@@ -159,10 +160,14 @@ def _score_pickup_candidate(
     tpl = catalog.get(item_id) if item_id else None
     base_power = 0
     if isinstance(tpl, Mapping):
-        try:
-            base_power = int(tpl.get("base_power", 0))
-        except (TypeError, ValueError):
-            base_power = 0
+        for key in ("base_power_melee", "base_power"):
+            if tpl.get(key) is None:
+                continue
+            try:
+                base_power = int(tpl.get(key, 0))
+            except (TypeError, ValueError):
+                base_power = 0
+            break
     enchant = 0
     try:
         enchant = int(inst.get("enchant_level", 0))
@@ -220,12 +225,16 @@ def _build_bag_entry(
         except (TypeError, ValueError):
             armour_base = 0
         derived["armour_class"] = max(0, armour_base) + entry["enchant_level"]
-    if isinstance(tpl, Mapping) and tpl.get("base_power") is not None:
-        try:
-            base_power = int(tpl.get("base_power", 0))
-        except (TypeError, ValueError):
-            base_power = 0
-        derived["base_damage"] = max(0, base_power) + (4 * entry["enchant_level"])
+    if isinstance(tpl, Mapping):
+        for key in ("base_power_melee", "base_power"):
+            if tpl.get(key) is None:
+                continue
+            try:
+                base_power = int(tpl.get(key, 0))
+            except (TypeError, ValueError):
+                base_power = 0
+            derived["base_damage"] = max(0, base_power) + (4 * entry["enchant_level"])
+            break
     if derived:
         entry["derived"] = derived
     origin_raw = inst.get("origin")
@@ -460,13 +469,15 @@ def _apply_player_damage(
         damage_item = weapon_iid
     else:
         damage_item = {}
-    raw_damage = damage_engine.compute_base_damage(damage_item, monster, active)
+    attack = damage_engine.resolve_attack(damage_item, monster, active)
     try:
-        final_damage = max(0, int(raw_damage))
+        final_damage = max(0, int(attack.damage))
     except (TypeError, ValueError):
         final_damage = 0
-    if not weapon_iid:
+    if attack.source == "innate":
         final_damage = max(MIN_INNATE_DAMAGE, final_damage)
+    if attack.source == "bolt":
+        final_damage = max(MIN_BOLT_DAMAGE, final_damage)
     final_damage = strike._clamp_melee_damage(active, final_damage)
     if final_damage > 0:
         wear_amount = items_wear.wear_from_event({"kind": "monster-attack", "damage": final_damage})

@@ -275,19 +275,20 @@ def test_strike_weapon_damage_formula(strike_env, monkeypatch):
 
     recorded: Dict[str, Any] = {}
 
-    original_compute = strike.damage_engine.compute_base_damage
+    original_resolve = strike.damage_engine.resolve_attack
 
-    def _recording_compute(item: Any, attacker: Any, defender: Any) -> int:
-        value = original_compute(item, attacker, defender)
-        recorded["raw"] = value
+    def _recording_resolve(item: Any, attacker: Any, defender: Any) -> damage_engine.AttackResult:
+        result = original_resolve(item, attacker, defender)
+        recorded["raw"] = result.damage
+        recorded["source"] = result.source
         recorded["item"] = item
         recorded["attacker"] = attacker
         recorded["defender"] = defender
         recorded["power"] = damage_engine.get_attacker_power(item, attacker)
         recorded["ac"] = damage_engine.get_total_ac(defender)
-        return value
+        return result
 
-    monkeypatch.setattr(strike.damage_engine, "compute_base_damage", _recording_compute)
+    monkeypatch.setattr(strike.damage_engine, "resolve_attack", _recording_resolve)
 
     result = strike.strike_cmd("", ctx)
 
@@ -301,18 +302,37 @@ def test_strike_weapon_damage_formula(strike_env, monkeypatch):
     assert any("You strike" in text and "52" in text for _, text, _ in bus.msgs)
 
 
-def test_strike_innate_has_minimum_damage(strike_env):
-    strike_env["setup"](stats={"str": 10}, ready_target="ogre#1")
-    monster = _make_monster(ac=30)
+def test_strike_innate_damage_can_be_low(strike_env):
+    strike_env["setup"](stats={"str": 35}, ready_target="ogre#1")
+    monster = _make_monster(ac=0)
     monsters = DummyMonsters([monster])
     bus = Bus()
     ctx = {"feedback_bus": bus, "monsters": monsters}
 
     result = strike.strike_cmd("", ctx)
 
-    assert result["damage"] == 6
-    assert monster["hp"]["current"] == monster["hp"]["max"] - 6
-    assert any("6 damage" in text for _, text, _ in bus.msgs)
+    assert result["damage"] == 3
+    assert monster["hp"]["current"] == monster["hp"]["max"] - 3
+    assert any("3 damage" in text for _, text, _ in bus.msgs)
+
+
+def test_strike_bolt_has_minimum_damage(strike_env, monkeypatch):
+    strike_env["setup"](stats={"str": 10}, ready_target="ogre#1")
+    monster = _make_monster(ac=10)
+    monsters = DummyMonsters([monster])
+    bus = Bus()
+    ctx = {"feedback_bus": bus, "monsters": monsters}
+
+    monkeypatch.setattr(
+        strike.damage_engine,
+        "resolve_attack",
+        lambda *args, **kwargs: damage_engine.AttackResult(3, "bolt"),
+    )
+
+    result = strike.strike_cmd("", ctx)
+
+    assert result["damage"] == strike.MIN_BOLT_DAMAGE
+    assert monster["hp"]["current"] == monster["hp"]["max"] - strike.MIN_BOLT_DAMAGE
 
 
 def test_strike_applies_wear_and_cracks_items(strike_env, monkeypatch):
