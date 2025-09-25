@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from typing import Any, Dict, List
 
 import pytest
@@ -150,3 +151,17 @@ def test_is_enchantable_when_catalog_allows(monkeypatch, _memory_instances):
 
     assert blockers == []
     assert items_instances.is_enchantable("hammer#1")
+
+
+def test_load_instances_raises_on_duplicate_iids(tmp_path, monkeypatch):
+    payload = [
+        {"iid": "dup", "instance_id": "dup", "item_id": "axe"},
+        {"iid": "dup", "instance_id": "dup", "item_id": "axe"},
+    ]
+    path = tmp_path / "instances.json"
+    path.write_text(json.dumps(payload), encoding="utf-8")
+
+    monkeypatch.setattr(items_instances, "STRICT_DUP_IIDS", True)
+
+    with pytest.raises(RuntimeError):
+        items_instances.load_instances(str(path))

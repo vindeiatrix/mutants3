@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import uuid
 from typing import Iterable, Mapping, MutableMapping, Sequence
 
 from mutants.registries import items_instances as itemsreg
@@ -73,7 +72,7 @@ def drop_new_entries(
         iid = str(iid_raw).strip() if iid_raw else ""
         inst: MutableMapping[str, object] | None = itemsreg.get_instance(iid) if iid else None
         if inst is None:
-            minted_iid = f"{item_id or 'loot'}#{uuid.uuid4().hex[:8]}"
+            minted_iid = itemsreg.mint_iid()
             inst = {"iid": minted_iid, "instance_id": minted_iid, "origin": origin}
             raw.append(inst)
             iid = minted_iid

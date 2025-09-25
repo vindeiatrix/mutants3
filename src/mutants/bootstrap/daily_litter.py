@@ -18,9 +18,9 @@ import os
 import random
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Any, Dict, List, Optional, Tuple
 
-from ..util.ids import new_instance_id
+from mutants.registries import items_instances
 
 
 LOG = logging.getLogger(__name__)
@@ -276,7 +276,7 @@ def _count_item_per_year(instances: List[Dict]) -> Dict[int, Dict[str, int]]:
 
 def _new_instance_dict(item_id: str, year: int, x: int, y: int, epoch: str, seq: int) -> Dict:
     return {
-        "iid": new_instance_id(year=year, item_id=item_id, tag="dl"),
+        "iid": items_instances.mint_iid(),
         "item_id": item_id,
         "pos": {"year": year, "x": x, "y": y},
         "year": year,
