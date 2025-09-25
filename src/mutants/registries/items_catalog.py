@@ -7,6 +7,20 @@ from typing import Dict, List, Optional, Any
 DEFAULT_CATALOG_PATH = "state/items/catalog.json"
 FALLBACK_CATALOG_PATH = "state/catalog.json"  # auto-fallback if the new path isn't used yet
 
+DISALLOWED_ENCHANTABLE_FIELDS = (
+    ("ranged", "ranged"),
+    ("spawnable", "spawnable"),
+    ("potion", "potion"),
+    ("is_potion", "potion"),
+    ("spell_component", "spell_component"),
+    ("spell_components", "spell_component"),
+    ("is_spell_component", "spell_component"),
+    ("key", "key"),
+    ("is_key", "key"),
+    ("skull", "skull"),
+    ("is_skull", "skull"),
+)
+
 class ItemsCatalog:
     def __init__(self, items: List[Dict[str, Any]]):
         self._items_list = items
@@ -65,27 +79,26 @@ def _normalize_items(items: List[Dict[str, Any]]) -> tuple[List[str], List[str]]
         if "uses_charges" not in it:
             it["uses_charges"] = charges_max > 0
         uses_charges = bool(it.get("uses_charges"))
-        ranged = bool(it.get("ranged"))
+        if uses_charges and charges_max <= 0:
+            errors.append(f"{iid}: uses_charges true requires charges_max > 0.")
+        if not uses_charges and charges_max > 0:
+            warnings.append(
+                f"{iid}: charges_max present but uses_charges false -> flipping to true."
+            )
+            it["uses_charges"] = True
+        if not it.get("uses_charges"):
+            it.pop("charges_max", None)
 
-        if ranged:
-            it["spawnable"] = False
-            if uses_charges and charges_max <= 0:
-                errors.append(f"{iid}: uses_charges true requires charges_max > 0.")
-            if not uses_charges and charges_max > 0:
-                warnings.append(
-                    f"{iid}: ranged true & uses_charges false -> flipping to true."
-                )
-                it["uses_charges"] = True
-        else:
-            if uses_charges and charges_max <= 0:
-                errors.append(f"{iid}: uses_charges true requires charges_max > 0.")
-            if not uses_charges and charges_max > 0:
-                warnings.append(
-                    f"{iid}: charges_max present but uses_charges false -> flipping to true."
-                )
-                it["uses_charges"] = True
-            if not it.get("uses_charges"):
-                it.pop("charges_max", None)
+        enchantable = it.get("enchantable")
+        if not isinstance(enchantable, bool):
+            errors.append(f"{iid}: enchantable must be explicitly true or false.")
+
+        if isinstance(enchantable, bool):
+            for field_name, flag_name in DISALLOWED_ENCHANTABLE_FIELDS:
+                if bool(it.get(field_name)) and enchantable:
+                    errors.append(
+                        f"{iid}: {flag_name} items must declare enchantable: false."
+                    )
 
     return warnings, errors
 

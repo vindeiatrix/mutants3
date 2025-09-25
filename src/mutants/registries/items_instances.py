@@ -19,14 +19,9 @@ BROKEN_WEAPON_ID = "broken_weapon"
 BROKEN_ARMOUR_ID = "broken_armour"
 _BROKEN_ITEM_IDS = {BROKEN_WEAPON_ID, BROKEN_ARMOUR_ID}
 
-_SPELL_COMPONENT_KEYS = ("spell_component", "spell_components")
-
 NOT_ENCHANTABLE_REASONS = (
-    "ranged",
-    "spell_component",
+    "not_enchantable",
     "condition",
-    "potion",
-    "spawnable",
     "broken",
     "max_enchant",
 )
@@ -120,26 +115,17 @@ def _normalize_instances(instances: Iterable[Dict[str, Any]]) -> bool:
     return changed
 
 
-def _has_spell_component(template: Optional[Dict[str, Any]]) -> bool:
-    if not isinstance(template, dict):
-        return False
-    return any(_coerce_bool(template.get(key)) for key in _SPELL_COMPONENT_KEYS)
-
-
 def _collect_enchant_blockers(
     inst: Dict[str, Any], template: Optional[Dict[str, Any]]
 ) -> List[str]:
     reasons: List[str] = []
     tpl = template if isinstance(template, dict) else {}
 
-    if _coerce_bool(tpl.get("ranged")):
-        reasons.append("ranged")
-    if _has_spell_component(tpl):
-        reasons.append("spell_component")
-    if _coerce_bool(tpl.get("potion")):
-        reasons.append("potion")
-    if _coerce_bool(tpl.get("spawnable")):
-        reasons.append("spawnable")
+    if tpl:
+        if not _coerce_bool(tpl.get("enchantable")):
+            reasons.append("not_enchantable")
+    else:
+        reasons.append("not_enchantable")
 
     broken = _is_broken_instance(inst) or _is_broken_item_id(str(tpl.get("item_id", "")))
     if broken:
