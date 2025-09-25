@@ -187,27 +187,26 @@ def _detect_duplicate_iids(instances: Iterable[Dict[str, Any]]) -> List[str]:
     return duplicates
 
 
-def _handle_duplicates(duplicates: List[str], *, strict: Optional[bool] = None, path: Optional[Path] = None) -> None:
+def _handle_duplicates(
+    duplicates: List[str], *, strict: Optional[bool] = None, path: Optional[Path] = None
+) -> None:
     if not duplicates:
         return
 
+    strict_mode = STRICT_DUP_IIDS if strict is None else bool(strict)
     target = path.resolve() if path else None
-    LOG.error(
+    message = (
         "[itemsdbg] DUPLICATE_IIDS_DETECTED count=%s sample=%s path=%s",
         len(duplicates),
         duplicates[:5],
         target,
     )
-
-    strict_mode = STRICT_DUP_IIDS if strict is None else bool(strict)
     if strict_mode:
-        sample = ", ".join(duplicates[:5])
-        location = f" ({target})" if target else ""
-        raise RuntimeError(
-            "Duplicate item instance IDs detected%s (count=%s, sample=%s). "
-            "Run tools/fix_iids.py to repair the state." % (location, len(duplicates), sample)
+        LOG.error(*message)
+        raise ValueError(
+            "duplicate item instance ids detected; run tools.fix_iids to repair"
         )
-
+    LOG.info(*message)
 
 def _collect_enchant_blockers(
     inst: Dict[str, Any], template: Optional[Dict[str, Any]]
@@ -266,7 +265,9 @@ def is_enchantable(iid: str, *, template: Optional[Dict[str, Any]] = None) -> bo
 
 
 
-def load_instances(path: Path | str = DEFAULT_INSTANCES_PATH) -> List[Dict[str, Any]]:
+def load_instances(
+    path: Path | str = DEFAULT_INSTANCES_PATH, *, strict: Optional[bool] = None
+) -> List[Dict[str, Any]]:
     """Load and normalize instances from disk."""
 
     primary = Path(path)
@@ -290,7 +291,7 @@ def load_instances(path: Path | str = DEFAULT_INSTANCES_PATH) -> List[Dict[str, 
         items = []
 
     duplicates = _detect_duplicate_iids(items)
-    _handle_duplicates(duplicates, path=target)
+    _handle_duplicates(duplicates, strict=strict, path=target)
 
     _normalize_instances(items)
     return items
@@ -299,7 +300,7 @@ def load_instances(path: Path | str = DEFAULT_INSTANCES_PATH) -> List[Dict[str, 
 # ---------------------------------------------------------------------------
 # lightweight read helpers --------------------------------------------------
 
-def _load_instances_raw() -> List[Dict[str, Any]]:
+def _load_instances_raw(*, strict: Optional[bool] = None) -> List[Dict[str, Any]]:
     path = _instances_path()
     try:
         with path.open("r", encoding="utf-8") as f:
@@ -317,7 +318,7 @@ def _load_instances_raw() -> List[Dict[str, Any]]:
         return []
 
     duplicates = _detect_duplicate_iids(items)
-    _handle_duplicates(duplicates, path=path)
+    _handle_duplicates(duplicates, strict=strict, path=path)
 
     _normalize_instances(items)
 

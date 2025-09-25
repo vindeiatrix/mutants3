@@ -9,7 +9,7 @@ from typing import Dict, Iterable, List, Optional
 
 from mutants.io.atomic import atomic_write_json
 from mutants.state import STATE_ROOT, state_path
-from . import daily_litter
+from . import daily_litter, validator
 
 LOG = logging.getLogger(__name__)
 WORLD_DEBUG = os.getenv("WORLD_DEBUG") == "1"
@@ -58,6 +58,14 @@ def ensure_runtime() -> Dict:
         daily_litter.run_daily_litter_reset()
     except Exception as e:
         logging.getLogger(__name__).warning("daily_litter skipped: %s", e)
+
+    try:
+        validator.run_on_boot()
+    except Exception:
+        if WORLD_DEBUG:
+            LOG.exception("startup validator failed")
+        else:
+            raise
 
     return {"config": cfg, "years": sorted(years), "themes_created": created_themes}
 
