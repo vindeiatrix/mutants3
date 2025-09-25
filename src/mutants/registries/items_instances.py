@@ -49,7 +49,19 @@ NOT_ENCHANTABLE_REASONS = (
 
 
 def mint_iid(*, seen: Optional[MutableSet[str] | Iterable[str]] = None) -> str:
-    """Return a fresh unique item instance id."""
+    """Return a fresh unique item instance identifier.
+
+    Parameters
+    ----------
+    seen
+        Optional collection used to seed the set of IDs that must not be reused. The
+        collection is updated in-place when it is a mutable set.
+
+    Returns
+    -------
+    str
+        Hex string suitable for storing in ``iid`` / ``instance_id`` fields.
+    """
 
     seen_ids: set[str]
     updater: Optional[MutableSet[str]]
@@ -73,7 +85,20 @@ def mint_iid(*, seen: Optional[MutableSet[str] | Iterable[str]] = None) -> str:
 
 
 def remint_iid(inst: MutableMapping[str, Any], *, seen: Optional[Iterable[str]] = None) -> str:
-    """Assign a new iid/instance_id to ``inst`` and return it."""
+    """Assign a new ``iid`` / ``instance_id`` to ``inst`` and return it.
+
+    Parameters
+    ----------
+    inst
+        Mutable instance payload to update in-place.
+    seen
+        Optional iterable of identifiers that must not be reused.
+
+    Returns
+    -------
+    str
+        The new identifier written to ``inst``.
+    """
 
     existing = set(str(token) for token in seen or [])
     while True:
@@ -213,8 +238,18 @@ def enchant_blockers_for(
 ) -> List[str]:
     """Return legacy enchantment blockers for ``iid``.
 
-    Runtime blockers are no longer enforced and the list is kept for backwards
-    compatibility.  It now only reports a missing instance.
+    Parameters
+    ----------
+    iid
+        Instance identifier to inspect.
+    template
+        Ignored legacy parameter retained for compatibility.
+
+    Returns
+    -------
+    list[str]
+        ``["missing_instance"]`` when the IID cannot be resolved, otherwise an empty
+        list.
     """
 
     inst = get_instance(iid)
@@ -225,10 +260,19 @@ def enchant_blockers_for(
 
 
 def is_enchantable(iid: str, *, template: Optional[Dict[str, Any]] = None) -> bool:
-    """Return True when the instance exists.
+    """Return ``True`` when the instance exists.
 
-    Runtime checks for enchantment eligibility are no longer performed; the
-    validator now enforces catalogue invariants instead.
+    Parameters
+    ----------
+    iid
+        Instance identifier to inspect.
+    template
+        Ignored legacy parameter retained for compatibility.
+
+    Returns
+    -------
+    bool
+        ``True`` if the instance exists. Catalogue invariants govern enchantment policy.
     """
 
     return get_instance(iid) is not None
@@ -238,7 +282,22 @@ def is_enchantable(iid: str, *, template: Optional[Dict[str, Any]] = None) -> bo
 def load_instances(
     path: Path | str = DEFAULT_INSTANCES_PATH, *, strict: Optional[bool] = None
 ) -> List[Dict[str, Any]]:
-    """Load and normalize instances from disk."""
+    """Load and normalise instances from disk.
+
+    Parameters
+    ----------
+    path
+        Primary path to ``instances.json``. A legacy fallback is attempted automatically
+        when the primary file does not exist.
+    strict
+        When ``True`` duplicate IIDs raise :class:`ValueError`. ``None`` defers to the
+        :data:`STRICT_DUP_IIDS` default.
+
+    Returns
+    -------
+    list of dict
+        Normalised instance payloads ready for consumption by services.
+    """
 
     primary = Path(path)
     fallback = Path(FALLBACK_INSTANCES_PATH)
@@ -317,7 +376,7 @@ def _index_of(instances: List[Dict[str, Any]], iid: str) -> int:
 
 
 def charges_max_for(iid: str) -> int:
-    """Return capacity for *iid* considering overrides."""
+    """Return the charge capacity for ``iid`` considering overrides."""
     inst = get_instance(iid) or {}
     tpl_id = inst.get("item_id")
     tpl = items_catalog.load_catalog().get(str(tpl_id)) if tpl_id else {}
@@ -325,7 +384,7 @@ def charges_max_for(iid: str) -> int:
 
 
 def spend_charge(iid: str) -> bool:
-    """Decrement charge by 1 if available. Returns True if spent."""
+    """Decrement charge by one when available and return ``True`` on success."""
     raw = _load_instances_raw()
     try:
         idx = _index_of(raw, iid)
@@ -340,7 +399,7 @@ def spend_charge(iid: str) -> bool:
 
 
 def recharge_full(iid: str) -> int:
-    """Recharge iid to full. Returns amount gained."""
+    """Recharge ``iid`` to full and return the amount of charge restored."""
     raw = _load_instances_raw()
     try:
         idx = _index_of(raw, iid)
@@ -388,10 +447,7 @@ def _display_name(item_id: str, cat: Dict[str, Any]) -> str:
 
 
 def list_at(year: int, x: int, y: int) -> List[str]:
-    """
-    Legacy helper: return display names for items at (year, x, y).
-    Prefer ``list_ids_at`` for new code and apply display rules in the UI.
-    """
+    """Return display labels for items at the requested location."""
     cat = _catalog()
     out: List[str] = []
     for inst in list_instances_at(year, x, y):
@@ -498,7 +554,7 @@ def _ensure_iid(payload: MutableMapping[str, Any], seen: set[str]) -> str:
 
 
 def mint_instance(item_id: str, origin: str = "unknown") -> str:
-    """Create, persist, and return a new instance id for ``item_id``."""
+    """Create, persist, and return a new instance for ``item_id``."""
 
     raw = _cache()
     seen: set[str] = {iid for iid in (_instance_id(inst) for inst in raw) if iid}
@@ -663,6 +719,8 @@ def remove_instances(instance_ids: List[str]) -> int:
     return before - len(raw)
 
 def list_instances_at(year: int, x: int, y: int) -> List[Dict[str, Any]]:
+    """Return cached instance payloads at ``(year, x, y)``."""
+
     raw = _cache()
     out: List[Dict[str, Any]] = []
     tgt = (int(year), int(x), int(y))
@@ -671,7 +729,6 @@ def list_instances_at(year: int, x: int, y: int) -> List[Dict[str, Any]]:
         if pos and pos == tgt:
             out.append(inst)
     return out
-
 def get_instance(iid: str) -> Optional[Dict[str, Any]]:
     """Return the cached instance matching ``iid`` if present."""
 
@@ -691,6 +748,8 @@ def delete_instance(iid: str) -> int:
 
 
 def get_enchant_level(iid: str) -> int:
+    """Return the normalised enchant level for ``iid``."""
+
     inst = get_instance(iid)
     if not inst:
         return 0
@@ -701,6 +760,8 @@ def get_enchant_level(iid: str) -> int:
 
 
 def is_enchanted(iid: str) -> bool:
+    """Return ``True`` when ``iid`` has any enchantment bonus."""
+
     inst = get_instance(iid)
     if not inst:
         return False
@@ -715,6 +776,8 @@ def _is_broken_instance(inst: Dict[str, Any]) -> bool:
 
 
 def get_condition(iid: str) -> int:
+    """Return the clamped condition value for ``iid``."""
+
     inst = get_instance(iid)
     if not inst:
         return 0
@@ -728,6 +791,8 @@ def get_condition(iid: str) -> int:
 
 
 def set_condition(iid: str, value: int) -> int:
+    """Set ``iid`` condition to ``value`` respecting invariants."""
+
     inst = get_instance(iid)
     if not inst:
         raise KeyError(iid)
@@ -742,6 +807,8 @@ def set_condition(iid: str, value: int) -> int:
 
 
 def crack_instance(iid: str) -> Optional[Dict[str, Any]]:
+    """Mark ``iid`` as broken and return the mutated payload."""
+
     inst = get_instance(iid)
     if not inst:
         return None
@@ -811,6 +878,8 @@ def clear_position_at(iid: str, year: int, x: int, y: int) -> bool:
     return False
 
 def set_position(iid: str, year: int, x: int, y: int) -> None:
+    """Set the position of ``iid`` to ``(year, x, y)`` and persist."""
+
     raw = _cache()
     for inst in raw:
         inst_id = inst.get("iid") or inst.get("instance_id")
@@ -823,7 +892,7 @@ def set_position(iid: str, year: int, x: int, y: int) -> None:
 
 
 def create_and_save_instance(item_id: str, year: int, x: int, y: int, origin: str = "debug_add") -> str:
-    """Create a new instance at (year,x,y) and persist it. Returns iid."""
+    """Create a new instance at ``(year, x, y)`` and persist it."""
     raw = _cache()
     mint = mint_iid()
     inst = {

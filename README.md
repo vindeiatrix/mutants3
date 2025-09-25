@@ -1,41 +1,46 @@
-# Mutants — Project Skeleton (No Game Code)
+# Mutants 3
 
-This repo is a Codespaces-ready Python skeleton for the Mutants project.
-It intentionally contains **no game logic**. Start adding code under `src/mutants/`.
+[![Docs CI](https://github.com/vindeiatrix/mutants3/actions/workflows/docs.yml/badge.svg)](https://github.com/vindeiatrix/mutants3/actions/workflows/docs.yml)
+[![Docstring Coverage](https://img.shields.io/badge/docstring%20coverage-95%25%2B-brightgreen.svg)](docs/changelog.md)
+
+Mutants 3 is a turn-based adventure prototype. This repository houses the combat engine,
+item registries, and supporting tooling. The documentation set lives in `docs/` and is
+built with MkDocs Material + mkdocstrings.
 
 ## Documentation
-- [Architecture overview](docs/architecture_overview.md)
-- [Commands](docs/commands.md)
-- [Items](docs/items.md)
-- [Utilities](docs/utilities.md)
 
-## Quick start (Codespaces)
-- Open in GitHub Codespaces.
-- The container installs the package in editable mode.
-- Run: `pip install -e .`
-- Run: `python -m mutants` (placeholder CLI).
+- [System Map](docs/index.md)
+- [Quickstart](docs/quickstart.md)
+- [Architecture Overview](docs/architecture/overview.md)
+- [API Reference](docs/api/index.md)
+- [Contributing Guide](docs/contributing.md)
 
-## Structure
-- `src/mutants/io/` — input/parse I/O (empty).
-- `src/mutants/handlers/` — command handlers (empty).
-- `src/mutants/registries/` — state containers (empty).
-- `src/mutants/services/` — background/time-based services (empty).
-- `src/mutants/data/` — static data/resources (empty).
-
-## Troubleshooting World Loads
-
-World files are loaded from `state/world/*.json` relative to the **current working directory**.
-
-- `WORLD_DEBUG=1` → enable detailed world-load logs.
-- `WORLD_STRICT=1` → fail fast if no worlds are found (instead of creating a minimal world).
-
-Example:
+## Getting started
 
 ```bash
-WORLD_DEBUG=1 python -m mutants
-# [world] discover_world_years dir=/…/state/world years=[2000]
-# [world] load_year request=2000 path=/…/state/world/2000.json
+python -m venv .venv
+source .venv/bin/activate
+pip install --upgrade pip
+pip install -e .[dev]
+pytest
+make docs
 ```
 
-Common pitfall: running from the wrong folder. If the game can't find world JSONs
-it will create a minimal world unless `WORLD_STRICT=1` is set.
+The default state root lives under `state/`. Override it by setting `GAME_STATE_ROOT` before
+running commands.
+
+## Project layout
+
+```text
+src/mutants/      # game logic, registries, services, commands
+state/            # default catalog and instance data
+tests/            # pytest suites covering registries, combat, and commands
+docs/             # MkDocs site (architecture, guides, ADRs)
+tools/            # maintenance scripts (fix_iids, migrations)
+```
+
+## Support
+
+- File bugs or feature requests via GitHub issues.
+- Propose architectural changes through ADRs (see `docs/reference/adr-index.md`).
+- Join Docs CI by running `make docs-check` locally before opening a PR.

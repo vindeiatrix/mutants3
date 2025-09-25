@@ -1,4 +1,9 @@
-"""Utilities for resolving combat damage."""
+"""Utilities for resolving combat damage.
+
+This module wraps item registry lookups, player state helpers, and armour calculations to
+produce deterministic attack results. Public functions follow NumPy docstring style so
+they render cleanly in the MkDocs API reference.
+"""
 
 from __future__ import annotations
 
@@ -137,7 +142,20 @@ def _resolve_enchant_level(item: Any, payload: Mapping[str, Any]) -> int:
 
 
 def get_total_ac(defender_state: Any) -> int:
-    """Return the defender's total armour class."""
+    """Return the defender's total armour class.
+
+    Parameters
+    ----------
+    defender_state
+        Mapping or object describing the defender. May contain precomputed armour values
+        or references to equipped armour.
+
+    Returns
+    -------
+    int
+        Armour class including dexterity and armour bonuses. Values are clamped to be
+        non-negative.
+    """
 
     ac = combat_calc.armour_class_for_active(defender_state)
     return max(0, _coerce_int(ac, 0))
@@ -191,7 +209,23 @@ def _resolve_attack_context(
 
 
 def get_attacker_power(item: Any, attacker_state: Any, *, source: Optional[str] = None) -> int:
-    """Return the attacker's raw power before mitigation."""
+    """Return the attacker's raw power before mitigation.
+
+    Parameters
+    ----------
+    item
+        Instance ID or mapping describing the weapon being used.
+    attacker_state
+        Mapping describing the attacking entity. Strength bonuses are resolved from this
+        payload.
+    source
+        Optional hint forcing ``"melee"``, ``"bolt"``, or ``"innate"`` damage sources.
+
+    Returns
+    -------
+    int
+        Base power plus enchantment and strength contributions.
+    """
 
     context = _resolve_attack_context(item, attacker_state, source=source)
     return context.base_power + (4 * context.enchant_level) + context.strength_bonus
@@ -214,7 +248,25 @@ def resolve_attack(
     *,
     source: Optional[str] = None,
 ) -> AttackResult:
-    """Return the raw attack outcome prior to any minimum damage floors."""
+    """Return the raw attack outcome prior to minimum damage floors.
+
+    Parameters
+    ----------
+    item
+        Instance ID or mapping representing the weapon or innate attack payload.
+    attacker_state
+        Mapping describing the attacker.
+    defender_state
+        Mapping describing the defender.
+    source
+        Optional hint overriding source detection.
+
+    Returns
+    -------
+    AttackResult
+        ``damage`` is the pre-floor value after subtracting defender AC. ``source`` is the
+        resolved attack source.
+    """
 
     context = _resolve_attack_context(item, attacker_state, source=source)
     attack_power = context.base_power + (4 * context.enchant_level) + context.strength_bonus

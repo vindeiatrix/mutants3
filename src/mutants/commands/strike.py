@@ -342,6 +342,8 @@ def _extract_wielded_iid(payload: Any, cls: Optional[str]) -> Optional[str]:
 
 
 def strike_cmd(arg: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
+    """Execute a combat strike using the active player and return a summary payload."""
+
     bus = ctx.get("feedback_bus")
     if bus is None:
         raise ValueError("strike command requires feedback_bus in context")

@@ -1,16 +1,31 @@
+"""Normalized view over the static items catalog.
+
+This module is the authoritative reader for ``state/items/catalog.json``.  It performs
+schema migrations, enforces invariants, and exposes an ``ItemsCatalog`` wrapper with
+lookup helpers used by services and commands.
+
+Examples
+--------
+>>> from mutants.registries import items_catalog
+>>> catalog = items_catalog.load_catalog()
+>>> sword = catalog.require("short_sword")
+>>> sword["spawnable"]
+True
+"""
+
 from __future__ import annotations
 
 import json
 import logging
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from mutants.state import state_path
 
 DEFAULT_CATALOG_PATH = state_path("items", "catalog.json")
 FALLBACK_CATALOG_PATH = state_path("catalog.json")  # auto-fallback if the new path isn't used yet
 
-DISALLOWED_ENCHANTABLE_FIELDS = (
+DISALLOWED_ENCHANTABLE_FIELDS: Tuple[Tuple[str, str], ...] = (
     ("ranged", "ranged"),
     ("spawnable", "spawnable"),
     ("potion", "potion"),
@@ -25,23 +40,57 @@ DISALLOWED_ENCHANTABLE_FIELDS = (
 )
 
 class ItemsCatalog:
+    """In-memory view of the validated items catalog."""
+
     def __init__(self, items: List[Dict[str, Any]]):
+        """Create a catalog wrapper.
+
+        Parameters
+        ----------
+        items
+            Normalised item dictionaries returned by :func:`load_catalog`.
+        """
+
         self._items_list = items
         self._by_id: Dict[str, Dict[str, Any]] = {it["item_id"]: it for it in items}
 
     def get(self, item_id: str) -> Optional[Dict[str, Any]]:
+        """Return the catalog entry for ``item_id`` or ``None`` when missing."""
+
         return self._by_id.get(item_id)
 
     def require(self, item_id: str) -> Dict[str, Any]:
+        """Return the catalog entry for ``item_id`` or raise ``KeyError``."""
+
         it = self.get(item_id)
         if not it:
             raise KeyError(f"Unknown item_id: {item_id}")
         return it
 
     def list_spawnable(self) -> List[Dict[str, Any]]:
+        """Return a list of entries explicitly marked ``spawnable: true``."""
+
         return [it for it in self._items_list if it.get("spawnable") is True]
 
 def _read_items_from_file(p: Path) -> List[Dict[str, Any]]:
+    """Return raw item payloads from ``p``.
+
+    Parameters
+    ----------
+    p
+        Path to ``catalog.json`` or a compatible payload.
+
+    Returns
+    -------
+    list of dict
+        Raw items prior to normalisation.
+
+    Raises
+    ------
+    ValueError
+        If the JSON does not contain a list or ``{"items": [...]}``.
+    """
+
     with p.open("r", encoding="utf-8") as f:
         data = json.load(f)
     if isinstance(data, dict) and "items" in data:
@@ -52,7 +101,7 @@ def _read_items_from_file(p: Path) -> List[Dict[str, Any]]:
 
 
 def _coerce_legacy_bools(items: List[Dict[str, Any]]) -> None:
-    """Convert legacy "yes"/"no" string fields to booleans in-place."""
+    """Convert legacy ``"yes"``/``"no"`` strings to booleans in-place."""
     for it in items:
         for k, v in list(it.items()):
             if isinstance(v, str):
@@ -67,7 +116,18 @@ LOG = logging.getLogger(__name__)
 
 
 def _normalize_items(items: List[Dict[str, Any]]) -> tuple[List[str], List[str]]:
-    """Alias legacy fields, infer defaults, and validate items in-place."""
+    """Alias legacy fields, infer defaults, and validate items in-place.
+
+    Parameters
+    ----------
+    items
+        Mutable item dictionaries that will be normalised.
+
+    Returns
+    -------
+    tuple[list[str], list[str]]
+        A ``(warnings, errors)`` tuple collected during normalisation.
+    """
     warnings: List[str] = []
     errors: List[str] = []
     for it in items:
@@ -221,6 +281,27 @@ def _normalize_items(items: List[Dict[str, Any]]) -> tuple[List[str], List[str]]
     return warnings, errors
 
 def load_catalog(path: Path | str = DEFAULT_CATALOG_PATH) -> ItemsCatalog:
+    """Load the items catalog, applying migrations and validation.
+
+    Parameters
+    ----------
+    path
+        Primary path to ``catalog.json``.  A fallback path in the legacy location is used
+        automatically when the primary is missing.
+
+    Returns
+    -------
+    ItemsCatalog
+        Wrapper providing lookup helpers.
+
+    Raises
+    ------
+    FileNotFoundError
+        If neither the primary nor fallback paths exist.
+    ValueError
+        If any catalog entry violates invariants (missing flags, invalid ranges, etc.).
+    """
+
     primary = Path(path)
     fallback = Path(FALLBACK_CATALOG_PATH)
     if primary.exists():

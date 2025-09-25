@@ -34,3 +34,20 @@ packages = [
   "mutants.ui",
   "mutants.commands",
 ]
+
+[tool.interrogate]
+fail-under = 95
+exclude = ["tests", "docs", "scripts"]
+ignore-init-method = true
+ignore-init-module = true
+verbose = 1
+whitelist-regex = [
+    "src/mutants/state.py",
+    "src/mutants/registries/items_.*\\.py",
+    "src/mutants/services/(damage_engine|combat_loot)\\.py",
+    "src/mutants/commands/strike.py",
+]
+
+[tool.pydocstyle]
+convention = "numpy"
+add-ignore = ["D105", "D107"]

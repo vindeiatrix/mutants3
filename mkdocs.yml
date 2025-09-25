@@ -1,0 +1,73 @@
+site_name: Mutants3
+repo_url: https://github.com/vindeiatrix/mutants3
+theme:
+  name: material
+  features:
+    - navigation.instant
+    - navigation.tabs
+    - content.code.copy
+    - toc.integrate
+    - search.suggest
+  palette:
+    - scheme: default
+markdown_extensions:
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight
+  - pymdownx.snippets
+  - pymdownx.emoji
+  - pymdownx.tabbed
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            docstring_style: numpy
+            show_root_toc_entry: false
+            show_source: true
+            merge_init_into_class: true
+  - mermaid2:
+      javascript: assets/javascripts/mermaid-init.mjs
+      arguments:
+        startOnLoad: true
+nav:
+  - Home: index.md
+  - Quickstart: quickstart.md
+  - Architecture:
+      - Overview: architecture/overview.md
+      - Runtime: architecture/runtime.md
+      - Registries: architecture/registries.md
+      - Items Schema: architecture/items-schema.md
+      - Damage & Strike: architecture/damage-and-strike.md
+      - Drops & Loot: architecture/drops-and-loot.md
+      - State Root: architecture/state-root.md
+      - Validation: architecture/validation.md
+      - Migrations: architecture/migrations.md
+  - API Reference:
+      - Index: api/index.md
+      - Mutants: api/mutants.md
+  - Guides:
+      - Extending Items: guides/extending-items.md
+      - Writing Commands: guides/writing-commands.md
+      - Testing: guides/testing.md
+      - Performance: guides/performance.md
+  - Reference:
+      - CLI & Tools: reference/cli.md
+      - ADR Index: reference/adr-index.md
+      - ADRs:
+          - Template: reference/adrs/0000-template.md
+          - ADR-0001 MkDocs + Material: reference/adrs/0001-mkdocs-material.md
+          - ADR-0002 Authoritative Items API: reference/adrs/0002-authoritative-items-api.md
+          - ADR-0003 Unified State Root: reference/adrs/0003-unified-state-root.md
+          - ADR-0004 Damage Floors & Ranged Split: reference/adrs/0004-damage-floors-ranged-split.md
+          - ADR-0005 Deterministic Drops: reference/adrs/0005-deterministic-drops.md
+      - Glossary: reference/glossary.md
+      - FAQ: reference/faq.md
+  - Contributing: contributing.md
+  - Changelog: changelog.md
