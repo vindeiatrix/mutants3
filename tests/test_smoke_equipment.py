@@ -100,21 +100,26 @@ def equipment_env(monkeypatch):
 
     monkeypatch.setattr(items_catalog, "load_catalog", lambda: catalog)
 
-    def fake_cache() -> List[Dict[str, Any]]:
+    def fake_load() -> List[Dict[str, Any]]:
         return instances
 
-    monkeypatch.setattr(itemsreg, "_cache", fake_cache)
-    monkeypatch.setattr(itemsreg, "_save_instances_raw", lambda _: None)
+    def fake_save(raw: List[Dict[str, Any]]) -> None:
+        instances[:] = list(raw)
+        itemsreg.invalidate_cache()
+
+    monkeypatch.setattr(itemsreg, "_load_instances_raw", fake_load)
+    monkeypatch.setattr(itemsreg, "_save_instances_raw", fake_save)
     monkeypatch.setattr(itemsreg, "save_instances", lambda: None)
+    itemsreg.invalidate_cache()
 
     delete_calls: List[str] = []
-    orig_delete = itemsreg.delete_instance
+    orig_remove = itemsreg.remove_instance
 
-    def record_delete(iid: str) -> int:
+    def record_delete(iid: str) -> bool:
         delete_calls.append(iid)
-        return orig_delete(iid)
+        return orig_remove(iid)
 
-    monkeypatch.setattr(itemsreg, "delete_instance", record_delete)
+    monkeypatch.setattr(itemsreg, "remove_instance", record_delete)
 
     set_pos_calls: List[str] = []
     orig_set_position = itemsreg.set_position

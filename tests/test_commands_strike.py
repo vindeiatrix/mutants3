@@ -139,12 +139,17 @@ def _make_monster(
 def in_memory_instances(monkeypatch):
     data: List[Dict[str, Any]] = []
 
-    def fake_cache() -> List[Dict[str, Any]]:
+    def fake_load() -> List[Dict[str, Any]]:
         return data
 
-    monkeypatch.setattr(itemsreg, "_cache", fake_cache)
-    monkeypatch.setattr(itemsreg, "_save_instances_raw", lambda raw: None)
+    def fake_save(raw: List[Dict[str, Any]]) -> None:
+        data[:] = list(raw)
+        itemsreg.invalidate_cache()
+
+    monkeypatch.setattr(itemsreg, "_load_instances_raw", fake_load)
+    monkeypatch.setattr(itemsreg, "_save_instances_raw", fake_save)
     monkeypatch.setattr(itemsreg, "save_instances", lambda: None)
+    itemsreg.invalidate_cache()
     return data
 
 

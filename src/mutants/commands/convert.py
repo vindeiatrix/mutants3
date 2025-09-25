@@ -212,7 +212,7 @@ def convert_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
     if isinstance(klass, str) and klass:
         player["ions_by_class"] = {str(klass): new_total}
 
-    itemsreg.delete_instance(iid)
+    itemsreg.remove_instance(iid)
     itx._save_player(player)
 
     try:

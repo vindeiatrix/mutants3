@@ -1,4 +1,4 @@
-from src.mutants.commands.argcmd import PosArg, PosArgSpec, run_argcmd_positional
+from mutants.commands.argcmd import PosArg, PosArgSpec, run_argcmd_positional
 
 
 class FakeBus:

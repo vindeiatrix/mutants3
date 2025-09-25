@@ -57,26 +57,15 @@ def _tile_items(itemsreg: Any, year: int, x: int, y: int) -> Tuple[List[str], Li
     """
 
     cache_obj_id = -1
-    raw = None
     try:
-        if hasattr(itemsreg, "_cache"):
-            raw = itemsreg._cache()  # type: ignore[attr-defined]
-            cache_obj_id = id(raw)
+        raw = itemsreg.snapshot_instances()
     except Exception:
-        raw = None
-    if raw is None:
-        try:
-            raw = itemsreg.list_instances_at(year, x, y)
-        except Exception:
-            raw = []
+        raw = []
     item_ids: List[str] = []
     inst_ids: List[str] = []
     tgt = (int(year), int(x), int(y))
-    # Fallback if raw is the global list
-    if raw and isinstance(raw, list) and raw and isinstance(raw[0], dict) and "pos" in raw[0]:
-        seq = raw
-    else:
-        # last resort: call list_instances_at which filters at source
+    seq = raw
+    if not seq:
         try:
             seq = itemsreg.list_instances_at(year, x, y)
         except Exception:
@@ -160,7 +149,7 @@ def find_all(itemsreg: Any, item_id_like: str) -> None:
     if not enabled():
         return
     try:
-        raw = itemsreg._cache()  # type: ignore[attr-defined]
+        raw = itemsreg.snapshot_instances()
     except Exception:
         raw = []
     hits: List[str] = []

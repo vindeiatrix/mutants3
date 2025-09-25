@@ -1,4 +1,4 @@
-from src.mutants.commands.argcmd import ArgSpec, run_argcmd
+from mutants.commands.argcmd import ArgSpec, run_argcmd
 
 
 class FakeBus:

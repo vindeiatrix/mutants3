@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from typing import Any, Dict, List
+from typing import Any, Dict, Iterable, List
 
 import pytest
 
@@ -42,27 +42,38 @@ def test_normalize_instance_defaults_god_tier(tmp_path):
 
 
 @pytest.fixture
-def _memory_instances(monkeypatch) -> List[Dict[str, Any]]:
+def memory_registry(monkeypatch):
     data: List[Dict[str, Any]] = []
 
-    def fake_cache() -> List[Dict[str, Any]]:
+    def fake_load() -> List[Dict[str, Any]]:
         return data
 
-    monkeypatch.setattr(items_instances, "_cache", fake_cache)
-    monkeypatch.setattr(items_instances, "_save_instances_raw", lambda _: None)
+    def fake_save(raw: List[Dict[str, Any]]) -> None:
+        data[:] = list(raw)
+        items_instances.invalidate_cache()
 
-    return data
+    monkeypatch.setattr(items_instances, "_load_instances_raw", fake_load)
+    monkeypatch.setattr(items_instances, "_save_instances_raw", fake_save)
+
+    def seed(instances: Iterable[Dict[str, Any]]) -> None:
+        data[:] = [dict(inst) for inst in instances]
+        items_instances.invalidate_cache()
+
+    items_instances.invalidate_cache()
+    return seed
 
 
-def test_enchant_blockers_detect_condition_and_level(monkeypatch, _memory_instances):
-    _memory_instances.append(
-        {
-            "iid": "knife#1",
-            "instance_id": "knife#1",
-            "item_id": "knife",
-            "condition": 75,
-            "enchant_level": 150,
-        }
+def test_enchant_blockers_detect_condition_and_level(monkeypatch, memory_registry):
+    memory_registry(
+        [
+            {
+                "iid": "knife#1",
+                "instance_id": "knife#1",
+                "item_id": "knife",
+                "condition": 75,
+                "enchant_level": 150,
+            }
+        ]
     )
 
     monkeypatch.setattr(
@@ -78,15 +89,17 @@ def test_enchant_blockers_detect_condition_and_level(monkeypatch, _memory_instan
     assert not items_instances.is_enchantable("knife#1")
 
 
-def test_enchant_blockers_respect_catalog_enchantable_flag(monkeypatch, _memory_instances):
-    _memory_instances.append(
-        {
-            "iid": "wand#1",
-            "instance_id": "wand#1",
-            "item_id": "wand",
-            "condition": 100,
-            "enchant_level": 0,
-        }
+def test_enchant_blockers_respect_catalog_enchantable_flag(monkeypatch, memory_registry):
+    memory_registry(
+        [
+            {
+                "iid": "wand#1",
+                "instance_id": "wand#1",
+                "item_id": "wand",
+                "condition": 100,
+                "enchant_level": 0,
+            }
+        ]
     )
 
     template = {
@@ -109,13 +122,15 @@ def test_enchant_blockers_respect_catalog_enchantable_flag(monkeypatch, _memory_
     assert "spawnable" not in blockers
 
 
-def test_enchant_blockers_detect_broken(monkeypatch, _memory_instances):
-    _memory_instances.append(
-        {
-            "iid": "broke#1",
-            "instance_id": "broke#1",
-            "item_id": items_instances.BROKEN_WEAPON_ID,
-        }
+def test_enchant_blockers_detect_broken(monkeypatch, memory_registry):
+    memory_registry(
+        [
+            {
+                "iid": "broke#1",
+                "instance_id": "broke#1",
+                "item_id": items_instances.BROKEN_WEAPON_ID,
+            }
+        ]
     )
 
     monkeypatch.setattr(
@@ -128,15 +143,17 @@ def test_enchant_blockers_detect_broken(monkeypatch, _memory_instances):
     assert "condition" not in blockers
 
 
-def test_is_enchantable_when_catalog_allows(monkeypatch, _memory_instances):
-    _memory_instances.append(
-        {
-            "iid": "hammer#1",
-            "instance_id": "hammer#1",
-            "item_id": "hammer",
-            "condition": 100,
-            "enchant_level": 0,
-        }
+def test_is_enchantable_when_catalog_allows(monkeypatch, memory_registry):
+    memory_registry(
+        [
+            {
+                "iid": "hammer#1",
+                "instance_id": "hammer#1",
+                "item_id": "hammer",
+                "condition": 100,
+                "enchant_level": 0,
+            }
+        ]
     )
 
     template = {"item_id": "hammer", "enchantable": True}
@@ -165,3 +182,68 @@ def test_load_instances_raises_on_duplicate_iids(tmp_path, monkeypatch):
 
     with pytest.raises(RuntimeError):
         items_instances.load_instances(str(path))
+
+
+def test_public_crud_api_happy_path(memory_registry):
+    memory_registry([])
+    iid = items_instances.mint_instance("sword", "loot_drop")
+
+    created = items_instances.get_instance(iid)
+    assert created is not None
+    assert created["item_id"] == "sword"
+
+    items_instances.update_instance(
+        iid,
+        enchant_level=5,
+        enchanted="yes",
+        condition=42,
+        notes="shiny",
+    )
+
+    updated = items_instances.get_instance(iid)
+    assert updated is not None
+    assert updated["enchant_level"] == 5
+    assert updated["condition"] == 42
+    assert updated["notes"] == "shiny"
+
+    items_instances.update_instance(iid, notes=items_instances.REMOVE_FIELD)
+    assert "notes" not in items_instances.get_instance(iid)
+
+    moved = items_instances.move_instance(iid, dest=(5, 6, 7))
+    assert moved is True
+    assert items_instances.get_instance(iid)["pos"] == {"year": 5, "x": 6, "y": 7}
+
+    removed = items_instances.remove_instance(iid)
+    assert removed is True
+    assert items_instances.get_instance(iid) is None
+
+
+def test_bulk_add_generates_ids(memory_registry):
+    memory_registry([])
+    ids = items_instances.bulk_add([{ "item_id": "axe" }])
+    assert len(ids) == 1
+    inst = items_instances.get_instance(ids[0])
+    assert inst is not None
+    assert inst["item_id"] == "axe"
+
+
+def test_move_instance_respects_source(memory_registry):
+    memory_registry([])
+    iid = items_instances.mint_instance("axe", "spawn")
+    items_instances.update_instance(
+        iid,
+        pos={"year": 1, "x": 2, "y": 3},
+        year=1,
+        x=2,
+        y=3,
+    )
+
+    assert items_instances.move_instance(iid, src=(9, 9, 9), dest=(4, 4, 4)) is False
+    inst = items_instances.get_instance(iid)
+    assert inst is not None
+    assert inst["pos"] == {"year": 1, "x": 2, "y": 3}
+
+    assert items_instances.move_instance(iid, src=(1, 2, 3), dest=(4, 4, 4)) is True
+    moved = items_instances.get_instance(iid)
+    assert moved is not None
+    assert moved["pos"] == {"year": 4, "x": 4, "y": 4}

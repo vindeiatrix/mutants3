@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Iterable, Mapping, MutableMapping, Sequence
+from typing import Iterable, Mapping, Sequence
 
 from mutants.registries import items_instances as itemsreg
 from mutants.services.item_transfer import GROUND_CAP
@@ -46,14 +46,6 @@ def coerce_pos(value, fallback: tuple[int, int, int] | None = None) -> tuple[int
     return year, x, y
 
 
-def _persist_instances() -> None:
-    try:
-        itemsreg.save_instances()
-    except Exception:
-        # Persist best-effort; failures are logged by registry helpers.
-        pass
-
-
 def drop_new_entries(
     entries: Iterable[Mapping[str, object]],
     pos: tuple[int, int, int],
@@ -62,7 +54,6 @@ def drop_new_entries(
 ) -> list[str]:
     year, x, y = pos
     minted: list[str] = []
-    raw = itemsreg._cache()  # type: ignore[attr-defined]
     for entry in entries:
         item_id = _resolve_item_id(entry)
         if not item_id:
@@ -70,47 +61,55 @@ def drop_new_entries(
 
         iid_raw = entry.get("iid") or entry.get("instance_id")
         iid = str(iid_raw).strip() if iid_raw else ""
-        inst: MutableMapping[str, object] | None = itemsreg.get_instance(iid) if iid else None
-        if inst is None:
-            minted_iid = itemsreg.mint_iid()
-            inst = {"iid": minted_iid, "instance_id": minted_iid, "origin": origin}
-            raw.append(inst)
-            iid = minted_iid
+        existing = itemsreg.get_instance(iid) if iid else None
+        if existing is None:
+            entry_origin = entry.get("origin")
+            origin_value = (
+                str(entry_origin)
+                if isinstance(entry_origin, str) and entry_origin
+                else origin
+            )
+            iid = itemsreg.mint_instance(item_id, origin_value)
         else:
-            iid = str(inst.get("iid") or inst.get("instance_id") or iid)
+            iid = str(existing.get("iid") or existing.get("instance_id") or iid)
 
-        inst["item_id"] = item_id
+        updates: dict[str, object] = {
+            "item_id": item_id,
+            "pos": {"year": year, "x": x, "y": y},
+            "year": year,
+            "x": x,
+            "y": y,
+        }
+
         enchant = max(0, _coerce_int(entry.get("enchant_level"), 0))
-        inst["enchant_level"] = enchant
-        inst["enchanted"] = "yes" if enchant > 0 else "no"
+        updates["enchant_level"] = enchant
+        updates["enchanted"] = "yes" if enchant > 0 else "no"
 
         condition = entry.get("condition")
-        if condition is None and enchant > 0:
-            inst.pop("condition", None)
-        elif condition is not None:
-            inst["condition"] = max(0, _coerce_int(condition, 0))
+        if condition is None:
+            if enchant > 0:
+                updates["condition"] = itemsreg.REMOVE_FIELD
+            elif existing is None:
+                updates["condition"] = 100
         else:
-            inst.setdefault("condition", 100)
+            updates["condition"] = max(0, _coerce_int(condition, 0))
 
         tags = entry.get("tags")
         if isinstance(tags, Iterable) and not isinstance(tags, (str, bytes)):
-            inst["tags"] = [str(tag) for tag in tags if isinstance(tag, str) and tag]
+            updates["tags"] = [str(tag) for tag in tags if isinstance(tag, str) and tag]
 
         if entry.get("notes") is not None:
-            inst["notes"] = entry.get("notes")
+            updates["notes"] = entry.get("notes")
 
         entry_origin = entry.get("origin")
         if isinstance(entry_origin, str) and entry_origin:
-            inst["origin"] = str(entry_origin)
-        else:
-            inst.setdefault("origin", origin)
-        inst["pos"] = {"year": year, "x": x, "y": y}
-        inst["year"] = year
-        inst["x"] = x
-        inst["y"] = y
+            updates["origin"] = str(entry_origin)
+        elif existing is None or not existing.get("origin"):
+            updates["origin"] = origin
+
+        itemsreg.update_instance(iid, **updates)
         minted.append(iid)
 
-    _persist_instances()
     return minted
 
 
@@ -123,15 +122,10 @@ def drop_existing_iids(iids: Iterable[str], pos: tuple[int, int, int]) -> list[s
         inst = itemsreg.get_instance(iid)
         if not inst:
             continue
-        itemsreg.set_position(iid, year, x, y)
-        inst["pos"] = {"year": year, "x": x, "y": y}
-        inst["year"] = year
-        inst["x"] = x
-        inst["y"] = y
-        dropped.append(str(inst.get("iid") or iid))
-
-    if dropped:
-        _persist_instances()
+        moved = itemsreg.move_instance(iid, dest=(year, x, y))
+        if moved:
+            inst = itemsreg.get_instance(iid)
+            dropped.append(str(inst.get("iid") if inst else iid))
     return dropped
 
 
@@ -168,14 +162,11 @@ def enforce_capacity(
         inst = itemsreg.get_instance(iid)
         if inst:
             label = _instance_label(inst, catalog)
-            itemsreg.delete_instance(iid)
+            itemsreg.remove_instance(iid)
             removed.append(iid)
             overflow -= 1
             if hasattr(bus, "push"):
                 bus.push("COMBAT/INFO", f"There is no room for {label}; it vaporizes.")
         idx -= 1
-
-    if removed:
-        _persist_instances()
     return removed
 

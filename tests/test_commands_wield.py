@@ -116,12 +116,17 @@ def command_env(monkeypatch):
 
     monkeypatch.setattr(items_catalog, "load_catalog", lambda: catalog_data)
 
-    def fake_cache() -> list[dict[str, object]]:
+    def fake_load() -> list[dict[str, object]]:
         return instances_list
 
-    monkeypatch.setattr(itemsreg, "_cache", fake_cache)
-    monkeypatch.setattr(itemsreg, "_save_instances_raw", lambda _: None)
+    def fake_save(raw: list[dict[str, object]]) -> None:
+        instances_list[:] = list(raw)
+        itemsreg.invalidate_cache()
+
+    monkeypatch.setattr(itemsreg, "_load_instances_raw", fake_load)
+    monkeypatch.setattr(itemsreg, "_save_instances_raw", fake_save)
     monkeypatch.setattr(itemsreg, "save_instances", lambda: None)
+    itemsreg.invalidate_cache()
 
     def setup(
         *,
@@ -151,6 +156,7 @@ def command_env(monkeypatch):
             }
             inst.update(payload)
             instances_list.append(inst)
+        itemsreg.invalidate_cache()
         from mutants.services import item_transfer as itx
 
         itx._STATE_CACHE = None

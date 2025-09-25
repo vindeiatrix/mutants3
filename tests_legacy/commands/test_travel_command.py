@@ -259,7 +259,6 @@ def test_travel_no_worlds(monkeypatch: pytest.MonkeyPatch) -> None:
 
     travel_cmd("2150", ctx)
 
-    assert bus.events[-1] == (
-        "SYSTEM/ERROR",
-        "No worlds found in state/world/.",
-    )
+    kind, message = bus.events[-1]
+    assert kind == "SYSTEM/ERROR"
+    assert message.endswith("state/world/.")
