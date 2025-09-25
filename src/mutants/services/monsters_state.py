@@ -187,9 +187,11 @@ def _normalize_item(
         base_ac = _sanitize_int(template.get("armour_class"), minimum=0, fallback=0)
         derived["armour_class"] = base_ac + enchant_level
 
-    if "base_power" in template:
-        base_power = _sanitize_int(template.get("base_power"), minimum=0, fallback=0)
-        derived["base_damage"] = base_power + (4 * enchant_level)
+    for key in ("base_power_melee", "base_power"):
+        if key in template:
+            base_power = _sanitize_int(template.get(key), minimum=0, fallback=0)
+            derived["base_damage"] = base_power + (4 * enchant_level)
+            break
 
     derived["can_degrade"] = enchant_level == 0 and not bool(template.get("nondegradable"))
 

@@ -73,6 +73,19 @@ def _normalize_items(items: List[Dict[str, Any]]) -> tuple[List[str], List[str]]
     for it in items:
         iid = it.get("item_id", "<unknown>")
 
+        def _coerce_non_negative_int(field: str, raw: Any) -> Optional[int]:
+            if raw is None:
+                return None
+            try:
+                value = int(raw)
+            except (TypeError, ValueError):
+                errors.append(f"{iid}: {field} must be an integer >= 0.")
+                return None
+            if value < 0:
+                errors.append(f"{iid}: {field} must be an integer >= 0.")
+                return None
+            return value
+
         if "charges_max" not in it and "charges_start" in it:
             it["charges_max"] = it["charges_start"]
         if "charges_start" in it:
@@ -109,6 +122,82 @@ def _normalize_items(items: List[Dict[str, Any]]) -> tuple[List[str], List[str]]
 
         if "spawnable" not in it:
             it["spawnable"] = False
+
+        is_ranged = bool(it.get("ranged"))
+
+        legacy_power = it.get("base_power")
+        melee_power = it.get("base_power_melee")
+        bolt_power = it.get("base_power_bolt")
+
+        if melee_power is None and bolt_power is None and legacy_power is not None:
+            legacy_value = _coerce_non_negative_int("base_power", legacy_power)
+            if legacy_value is not None:
+                it["base_power_melee"] = legacy_value
+                it["base_power_bolt"] = legacy_value
+                melee_power = legacy_value
+                bolt_power = legacy_value
+
+        melee_value = _coerce_non_negative_int("base_power_melee", melee_power)
+        if melee_value is not None:
+            it["base_power_melee"] = melee_value
+        elif "base_power_melee" in it:
+            it.pop("base_power_melee", None)
+
+        bolt_value = _coerce_non_negative_int("base_power_bolt", bolt_power)
+        if bolt_value is not None:
+            it["base_power_bolt"] = bolt_value
+        elif "base_power_bolt" in it:
+            it.pop("base_power_bolt", None)
+
+        if is_ranged:
+            if "base_power_melee" not in it or "base_power_bolt" not in it:
+                errors.append(
+                    f"{iid}: ranged items must define base_power_melee and base_power_bolt."
+                )
+
+        legacy_poison_flag = it.get("poisonous")
+        legacy_poison_power = it.get("poison_power")
+        poison_melee = it.get("poison_melee")
+        poison_bolt = it.get("poison_bolt")
+
+        if poison_melee is None and poison_bolt is None and legacy_poison_flag is not None:
+            flag = bool(legacy_poison_flag)
+            it["poison_melee"] = flag
+            it["poison_bolt"] = flag
+            if legacy_poison_power is not None:
+                power_value = _coerce_non_negative_int("poison_power", legacy_poison_power)
+                if power_value is not None:
+                    it["poison_melee_power"] = power_value
+                    it["poison_bolt_power"] = power_value
+            else:
+                it["poison_melee_power"] = 0
+                it["poison_bolt_power"] = 0
+
+        if not isinstance(it.get("poison_melee"), bool):
+            it["poison_melee"] = bool(it.get("poison_melee"))
+        if not isinstance(it.get("poison_bolt"), bool):
+            it["poison_bolt"] = bool(it.get("poison_bolt"))
+
+        melee_poison_power = _coerce_non_negative_int(
+            "poison_melee_power", it.get("poison_melee_power")
+        )
+        if melee_poison_power is not None:
+            it["poison_melee_power"] = melee_poison_power
+        elif "poison_melee_power" in it:
+            it.pop("poison_melee_power", None)
+
+        bolt_poison_power = _coerce_non_negative_int(
+            "poison_bolt_power", it.get("poison_bolt_power")
+        )
+        if bolt_poison_power is not None:
+            it["poison_bolt_power"] = bolt_poison_power
+        elif "poison_bolt_power" in it:
+            it.pop("poison_bolt_power", None)
+
+        if it.get("poison_melee") and "poison_melee_power" not in it:
+            it["poison_melee_power"] = 0
+        if it.get("poison_bolt") and "poison_bolt_power" not in it:
+            it["poison_bolt_power"] = 0
 
     return warnings, errors
 

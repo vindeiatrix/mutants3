@@ -69,10 +69,16 @@ def test_get_attacker_power_resolves_instance_and_template(monkeypatch):
 
 
 def test_compute_base_damage_uses_helpers(monkeypatch):
-    monkeypatch.setattr(damage_engine, "get_attacker_power", lambda *args, **kwargs: 42)
-    monkeypatch.setattr(damage_engine, "get_total_ac", lambda state: 15)
+    calls: list[tuple[Any, Any, Any]] = []
+
+    def fake_resolve(item: Any, attacker: Any, defender: Any) -> damage_engine.AttackResult:
+        calls.append((item, attacker, defender))
+        return damage_engine.AttackResult(27, "melee")
+
+    monkeypatch.setattr(damage_engine, "resolve_attack", fake_resolve)
 
     assert damage_engine.compute_base_damage({}, {}, {}) == 27
+    assert calls == [({}, {}, {})]
 
 
 def test_get_attacker_power_handles_monster_state():
@@ -89,4 +95,30 @@ def test_get_total_ac_handles_monster_state():
 
     # dex bonus = 2, armour = 6 (base 3 + enchant 3)
     assert damage_engine.get_total_ac(monster) == 8
+
+
+def test_resolve_attack_infers_innate_source():
+    attacker = {"stats": {"str": 35}}
+    defender = {"derived": {"armour_class": 0}}
+
+    result = damage_engine.resolve_attack({}, attacker, defender)
+
+    assert result.source == "innate"
+    assert result.damage == damage_engine.get_attacker_power({}, attacker)
+
+
+def test_resolve_attack_uses_bolt_power(monkeypatch):
+    attacker = _base_state(strength=10)
+    defender = {"derived": {"armour_class": 0}}
+
+    monkeypatch.setattr(
+        damage_engine.items_catalog,
+        "load_catalog",
+        lambda: DummyCatalog({"ion_wand": {"base_power_melee": 3, "base_power_bolt": 11}}),
+    )
+
+    result = damage_engine.resolve_attack({"item_id": "ion_wand"}, attacker, defender, source="bolt")
+
+    assert result.source == "bolt"
+    assert result.damage == 11 + 1  # str bonus is floor(10/10) == 1
 

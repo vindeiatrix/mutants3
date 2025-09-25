@@ -10,6 +10,7 @@ from mutants.debug import turnlog
 from mutants.ui.item_display import item_label
 
 MIN_INNATE_DAMAGE = 6
+MIN_BOLT_DAMAGE = 6
 
 
 def _load_monsters(ctx: Mapping[str, Any]) -> Any:
@@ -367,10 +368,10 @@ def strike_cmd(arg: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
     if not weapon_iid:
         weapon_iid = _extract_wielded_iid(pstate.load_state(), cls_name)
     damage_item = weapon_iid if weapon_iid else {}
-    raw_damage = damage_engine.compute_base_damage(damage_item, active, target)
-    final_damage = max(0, int(raw_damage))
-    if not weapon_iid:
-        final_damage = max(MIN_INNATE_DAMAGE, final_damage)
+    attack = damage_engine.resolve_attack(damage_item, active, target)
+    final_damage = max(0, int(attack.damage))
+    if attack.source == "bolt":
+        final_damage = max(MIN_BOLT_DAMAGE, final_damage)
 
     final_damage = _clamp_melee_damage(target, final_damage)
 

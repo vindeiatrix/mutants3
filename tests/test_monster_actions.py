@@ -55,7 +55,11 @@ def test_attack_uses_innate_floor(monkeypatch: pytest.MonkeyPatch) -> None:
         return dict(hp)
 
     monkeypatch.setattr(monster_actions.pstate, "set_hp_for_active", _fake_set_hp)
-    monkeypatch.setattr(monster_actions.damage_engine, "compute_base_damage", lambda *args, **kwargs: -5)
+    monkeypatch.setattr(
+        monster_actions.damage_engine,
+        "resolve_attack",
+        lambda *args, **kwargs: monster_actions.damage_engine.AttackResult(3, "innate"),
+    )
     monkeypatch.setattr(monster_actions.items_wear, "wear_from_event", lambda payload: 0)
     monkeypatch.setattr(monster_actions, "_apply_weapon_wear", lambda *args, **kwargs: None)
 
@@ -65,6 +69,39 @@ def test_attack_uses_innate_floor(monkeypatch: pytest.MonkeyPatch) -> None:
 
     assert recorded["current"] == 24 and recorded["max"] == 30
     assert any("6 damage" in text for _, text in bus.events)
+
+
+def test_attack_bolt_has_minimum_damage(monkeypatch: pytest.MonkeyPatch) -> None:
+    monster = {"id": "ogre#1", "hp": {"current": 10, "max": 10}, "wielded": "ion_wand"}
+    bus = _DummyBus()
+    ctx: Dict[str, Any] = {"feedback_bus": bus}
+
+    state = {"hp_by_class": {"fighter": {"current": 30, "max": 30}}, "active_id": "player"}
+    active = {"hp": {"current": 30, "max": 30}, "stats": {"dex": 10}}
+
+    monkeypatch.setattr(monster_actions.pstate, "get_active_pair", lambda hint=None: (state, active))
+
+    recorded: Dict[str, int] = {}
+
+    def _fake_set_hp(st: Mapping[str, Any], hp: Mapping[str, Any]) -> Mapping[str, Any]:
+        recorded.update(hp)  # type: ignore[arg-type]
+        return dict(hp)
+
+    monkeypatch.setattr(monster_actions.pstate, "set_hp_for_active", _fake_set_hp)
+    monkeypatch.setattr(
+        monster_actions.damage_engine,
+        "resolve_attack",
+        lambda *args, **kwargs: monster_actions.damage_engine.AttackResult(4, "bolt"),
+    )
+    monkeypatch.setattr(monster_actions.items_wear, "wear_from_event", lambda payload: 0)
+    monkeypatch.setattr(monster_actions, "_apply_weapon_wear", lambda *args, **kwargs: None)
+
+    _force_action(monkeypatch, "attack")
+
+    monster_actions.execute_random_action(monster, ctx, rng=_FixedRng([0.0]))
+
+    assert recorded["current"] == 24 and recorded["max"] == 30
+    assert any(str(monster_actions.MIN_BOLT_DAMAGE) in text for _, text in bus.events)
 
 
 def test_pickup_prefers_stronger_item(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -259,7 +296,11 @@ def test_monster_kill_player_transfers_loot(monkeypatch: pytest.MonkeyPatch) -> 
 
     monkeypatch.setattr(monster_actions.pstate, "set_riblets_for_active", _fake_set_riblets)
 
-    monkeypatch.setattr(monster_actions.damage_engine, "compute_base_damage", lambda *args, **kwargs: 999)
+    monkeypatch.setattr(
+        monster_actions.damage_engine,
+        "resolve_attack",
+        lambda *args, **kwargs: monster_actions.damage_engine.AttackResult(999, "melee"),
+    )
     monkeypatch.setattr(monster_actions.items_wear, "wear_from_event", lambda payload: 0)
     monkeypatch.setattr(monster_actions, "_apply_weapon_wear", lambda *args, **kwargs: None)
     monkeypatch.setattr(monster_actions, "_load_catalog", lambda: {"dagger": {"name": "Dagger"}})

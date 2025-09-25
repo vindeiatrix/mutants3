@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import Any, Mapping, MutableMapping, Optional
 
 from mutants.registries import items_catalog, items_instances as itemsreg
@@ -39,30 +40,86 @@ def _resolve_item_id(payload: Mapping[str, Any]) -> Optional[str]:
     return None
 
 
-def _resolve_base_power(payload: Mapping[str, Any]) -> int:
-    if not payload:
-        return 0
-
-    if "base_power" in payload:
-        return max(0, _coerce_int(payload.get("base_power"), 0))
-
-    if "power_base" in payload:
-        return max(0, _coerce_int(payload.get("power_base"), 0))
-
+def _resolve_item_template(payload: Mapping[str, Any]) -> Mapping[str, Any]:
     item_id = _resolve_item_id(payload)
     if not item_id:
-        return 0
+        return {}
 
     try:
         catalog = items_catalog.load_catalog()
     except FileNotFoundError:
-        return 0
+        return {}
 
     template = catalog.get(item_id)
     if not isinstance(template, Mapping):
+        return {}
+
+    return template
+
+
+def _normalize_source(token: Optional[str]) -> str:
+    if isinstance(token, str):
+        lowered = token.strip().lower()
+        if lowered in {"innate", "bolt", "melee"}:
+            return lowered
+    return "melee"
+
+
+def _resolve_attack_source(
+    payload: Mapping[str, Any],
+    template: Mapping[str, Any],
+    *,
+    hint: Optional[str] = None,
+) -> str:
+    if hint:
+        normalized = _normalize_source(hint)
+        if normalized:
+            return normalized
+
+    hinted = payload.get("attack_source")
+    normalized = _normalize_source(hinted if isinstance(hinted, str) else None)
+    if normalized != "melee":
+        return normalized
+
+    if not _resolve_item_id(payload):
+        return "innate"
+
+    return "melee"
+
+
+def _resolve_base_power(
+    payload: Mapping[str, Any],
+    template: Mapping[str, Any],
+    *,
+    source: str,
+) -> int:
+    if not payload and not template:
         return 0
 
-    return max(0, _coerce_int(template.get("base_power"), 0))
+    if source == "bolt":
+        field_order = ("base_power_bolt", "power_bolt", "base_power")
+    else:
+        field_order = ("base_power_melee", "power_base", "base_power")
+
+    for field in field_order:
+        if field in payload:
+            return max(0, _coerce_int(payload.get(field), 0))
+
+    for field in field_order:
+        if field in template:
+            return max(0, _coerce_int(template.get(field), 0))
+
+    return 0
+
+
+@dataclass
+class _AttackContext:
+    payload: MutableMapping[str, Any]
+    template: Mapping[str, Any]
+    source: str
+    base_power: int
+    enchant_level: int
+    strength_bonus: int
 
 
 def _resolve_enchant_level(item: Any, payload: Mapping[str, Any]) -> int:
@@ -111,21 +168,63 @@ def _resolve_attacker_strength(attacker_state: Any) -> int:
     return max(0, strength // 10)
 
 
-def get_attacker_power(item: Any, attacker_state: Any) -> int:
-    """Return the attacker's raw power before mitigation."""
-
+def _resolve_attack_context(
+    item: Any,
+    attacker_state: Any,
+    *,
+    source: Optional[str] = None,
+) -> _AttackContext:
     payload = _resolve_item_payload(item)
-    base_power = _resolve_base_power(payload)
+    template = _resolve_item_template(payload)
+    attack_source = _resolve_attack_source(payload, template, hint=source)
+    base_power = _resolve_base_power(payload, template, source=attack_source)
     enchant_level = _resolve_enchant_level(item, payload)
     strength_bonus = _resolve_attacker_strength(attacker_state)
+    return _AttackContext(
+        payload=payload,
+        template=template,
+        source=attack_source,
+        base_power=base_power,
+        enchant_level=enchant_level,
+        strength_bonus=strength_bonus,
+    )
 
-    return base_power + (4 * enchant_level) + strength_bonus
+
+def get_attacker_power(item: Any, attacker_state: Any, *, source: Optional[str] = None) -> int:
+    """Return the attacker's raw power before mitigation."""
+
+    context = _resolve_attack_context(item, attacker_state, source=source)
+    return context.base_power + (4 * context.enchant_level) + context.strength_bonus
+
+
+class AttackResult:
+    """Result bundle describing an attack prior to floors."""
+
+    __slots__ = ("damage", "source")
+
+    def __init__(self, damage: int, source: str) -> None:
+        self.damage = damage
+        self.source = source
+
+
+def resolve_attack(
+    item: Any,
+    attacker_state: Any,
+    defender_state: Any,
+    *,
+    source: Optional[str] = None,
+) -> AttackResult:
+    """Return the raw attack outcome prior to any minimum damage floors."""
+
+    context = _resolve_attack_context(item, attacker_state, source=source)
+    attack_power = context.base_power + (4 * context.enchant_level) + context.strength_bonus
+    defender_ac = get_total_ac(defender_state)
+    damage = attack_power - defender_ac
+    return AttackResult(damage=damage, source=context.source)
 
 
 def compute_base_damage(item: Any, attacker_state: Any, defender_state: Any) -> int:
     """Return the base damage before applying the AC mitigation curve."""
 
-    attack_power = get_attacker_power(item, attacker_state)
-    defender_ac = get_total_ac(defender_state)
-    return attack_power - defender_ac
+    return resolve_attack(item, attacker_state, defender_state).damage
 
