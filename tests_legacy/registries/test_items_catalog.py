@@ -59,6 +59,7 @@ def test_charges_alias_and_defaults(tmp_path: Path) -> None:
             "ranged": True,
             "base_power": 4,
             "charges_start": 5,
+            "spawnable": False,
         }
     ]
     catalog_path = tmp_path / "catalog.json"
@@ -78,6 +79,7 @@ def test_invalid_charges_error(tmp_path: Path) -> None:
             "weight": 1,
             "uses_charges": True,
             "charges_max": 0,
+            "spawnable": False,
         }
     ]
     catalog_path = tmp_path / "catalog.json"
