@@ -159,6 +159,8 @@ def test_kill_monster_drops_items_and_clears_record(tmp_path):
 
     assert summary["monster"]["id"] == "ogre#1"
     assert summary["drops"] == [weapon, armour]
+    assert summary["bag_drops"] == [weapon]
+    assert summary["armour_drop"] == armour
     assert summary["pos"] == [1999, 2, 3]
     assert summary["monster"]["bag"] == []
     assert summary["monster"]["armour_slot"] is None

@@ -479,7 +479,14 @@ def test_strike_kill_awards_currencies_and_drops_loot(strike_env, monkeypatch):
             summary = super().kill_monster(monster_id)
             monster_payload = summary.get("monster") if isinstance(summary, dict) else None
             pos = monster_payload.get("pos") if isinstance(monster_payload, dict) else None
-            return {"monster": monster_payload or {}, "drops": [dict(drop_entry)], "pos": pos}
+            bag = [dict(drop_entry)]
+            return {
+                "monster": monster_payload or {},
+                "drops": list(bag),
+                "bag_drops": list(bag),
+                "armour_drop": None,
+                "pos": pos,
+            }
 
     monsters = LootMonsters([monster])
     bus = Bus()
@@ -543,7 +550,14 @@ def test_strike_kill_vaporizes_when_ground_full(strike_env, monkeypatch):
             summary = super().kill_monster(monster_id)
             monster_payload = summary.get("monster") if isinstance(summary, dict) else None
             pos = monster_payload.get("pos") if isinstance(monster_payload, dict) else None
-            return {"monster": monster_payload or {}, "drops": [{"item_id": "club"}], "pos": pos}
+            bag = [{"item_id": "club"}]
+            return {
+                "monster": monster_payload or {},
+                "drops": list(bag),
+                "bag_drops": list(bag),
+                "armour_drop": None,
+                "pos": pos,
+            }
 
     monsters = LootMonsters([monster])
     bus = Bus()
@@ -558,4 +572,131 @@ def test_strike_kill_vaporizes_when_ground_full(strike_env, monkeypatch):
     item_ids = {inst.get("item_id") for inst in ground_items}
     assert "club" not in item_ids and "skull" not in item_ids
     vapor_msgs = [text for _, text, _ in bus.msgs if "vaporizes" in text]
-    assert vapor_msgs
+    assert not vapor_msgs
+
+
+@pytest.mark.parametrize(
+    "existing, expected_minted, expected_vaporized",
+    [
+        (3, ["flame_sword", "flame_rod", "skull"], ["flame_plate"]),
+        (4, ["flame_sword", "flame_rod"], ["skull", "flame_plate"]),
+        (6, [], ["flame_sword", "flame_rod", "skull", "flame_plate"]),
+    ],
+)
+def test_strike_monster_drop_order_atomic_vaping(
+    strike_env, monkeypatch, existing, expected_minted, expected_vaporized
+):
+    bag_entries = [
+        {"item_id": "flame_sword", "condition": 90, "enchant_level": 2},
+        {"item_id": "flame_rod", "condition": 80, "enchant_level": 1},
+    ]
+    armour_entry = {"item_id": "flame_plate", "condition": 70, "armour": True}
+
+    class DropOrderMonsters(DummyMonsters):
+        def __init__(self, monsters: List[Dict[str, Any]]) -> None:
+            super().__init__(monsters)
+            self.last_summary: Dict[str, Any] | None = None
+
+        def kill_monster(self, monster_id: str) -> Dict[str, Any]:
+            summary = super().kill_monster(monster_id)
+            monster_payload = summary.get("monster") if isinstance(summary, dict) else {}
+            pos = monster_payload.get("pos") if isinstance(monster_payload, dict) else None
+            bag = [copy.deepcopy(entry) for entry in bag_entries]
+            armour = copy.deepcopy(armour_entry)
+            drops = list(bag)
+            if armour:
+                drops.append(armour)
+            result = {
+                "monster": monster_payload or {},
+                "drops": drops,
+                "bag_drops": bag,
+                "armour_drop": armour,
+                "pos": pos,
+            }
+            self.last_summary = result
+            return result
+
+    minted_runs: list[list[str]] = []
+    vapor_runs: list[list[str]] = []
+
+    for attempt in range(2):
+        strike_env["setup"](
+            stats={"str": 200},
+            weapon={
+                "iid": "warhammer#1",
+                "item_id": "warhammer",
+                "base_power": 60,
+                "enchant_level": 0,
+                "condition": 100,
+                "name": "Warhammer",
+            },
+            ready_target="ogre#1",
+        )
+        strike_env["catalog"].update(
+            {
+                "warhammer": {"name": "Warhammer", "base_power": 60},
+                "flame_sword": {"name": "Flame Sword", "base_power": 45},
+                "flame_rod": {"name": "Flame Rod", "base_power": 35},
+                "flame_plate": {"name": "Flame Plate", "armour": True, "armour_class": 8},
+            }
+        )
+
+        strike_env["instances"].clear()
+        for idx in range(existing):
+            strike_env["instances"].append(
+                {
+                    "iid": f"ground#{idx}",
+                    "instance_id": f"ground#{idx}",
+                    "item_id": f"junk{idx}",
+                    "pos": {"year": 2000, "x": 1, "y": 1},
+                    "year": 2000,
+                    "x": 1,
+                    "y": 1,
+                }
+            )
+            strike_env["catalog"][f"junk{idx}"] = {"name": f"Junk {idx}"}
+
+        monster = _make_monster(hp=6, max_hp=12, ac=0)
+        monster.update({"pos": [2000, 1, 1], "ions": 0, "riblets": 0, "level": 2})
+
+        monsters = DropOrderMonsters([monster])
+        bus = Bus()
+        ctx = {"feedback_bus": bus, "monsters": monsters}
+
+        monkeypatch.setattr(pstate, "get_wielded_weapon_id", lambda payload=None: "warhammer#1")
+
+        before_state = pstate.load_state()
+        before_inventory = list(before_state.get("inventory", []))
+        before_bag = list(before_state.get("bags", {}).get("Thief", []))
+
+        result = strike.strike_cmd("", ctx)
+        assert result.get("killed") is True
+
+        summary = monsters.last_summary
+        assert summary is not None
+        minted = [str(entry.get("item_id")) for entry in summary.get("drops_minted", [])]
+        vaporized = [str(entry.get("item_id")) for entry in summary.get("drops_vaporized", [])]
+        assert minted == expected_minted
+        assert vaporized == expected_vaporized
+
+        minted_runs.append(minted)
+        vapor_runs.append(vaporized)
+
+        ground_items = itemsreg.list_instances_at(2000, 1, 1)
+        ground_ids = [inst.get("item_id") for inst in ground_items]
+        for item_id in expected_minted:
+            assert item_id in ground_ids
+
+        after_state = pstate.load_state()
+        assert after_state.get("inventory", []) == before_inventory
+        assert after_state.get("bags", {}).get("Thief", []) == before_bag
+
+        vapor_msgs = [text for _, text, _ in bus.msgs if "vaporizes" in text]
+        free_slots = max(0, GROUND_CAP - existing)
+        if free_slots == 0:
+            assert not vapor_msgs
+        else:
+            assert len(vapor_msgs) == len(expected_vaporized)
+
+    assert minted_runs[0] == minted_runs[1]
+    assert vapor_runs[0] == vapor_runs[1]

@@ -1,10 +1,15 @@
 from __future__ import annotations
 
+import copy
+import logging
 from typing import Iterable, Mapping, Sequence
 
 from mutants.registries import items_instances as itemsreg
 from mutants.services.item_transfer import GROUND_CAP
 from mutants.ui.item_display import item_label
+
+
+LOG_DEV = logging.getLogger("mutants.playersdbg")
 
 
 def _coerce_int(value, default: int = 0) -> int:
@@ -139,6 +144,88 @@ def _instance_label(inst: Mapping[str, object] | None, catalog: Mapping[str, Map
     item_id = str(inst.get("item_id") or inst.get("catalog_id") or inst.get("id") or "item")
     template = catalog.get(item_id) if isinstance(catalog, Mapping) else {}
     return item_label(inst, template or {}, show_charges=False)
+
+
+def _entry_label(entry: Mapping[str, object] | None, catalog: Mapping[str, Mapping[str, object]] | None) -> str:
+    if not entry:
+        return "the item"
+    item_id = str(entry.get("item_id") or entry.get("catalog_id") or entry.get("id") or "item")
+    template = catalog.get(item_id) if isinstance(catalog, Mapping) else {}
+    return item_label(entry, template or {}, show_charges=False)
+
+
+def _clone_entry(entry: Mapping[str, object] | None, *, source: str) -> dict[str, object]:
+    payload = copy.deepcopy(entry) if isinstance(entry, Mapping) else {}
+    payload.setdefault("item_id", str(payload.get("item_id") or payload.get("catalog_id") or payload.get("id") or ""))
+    payload["drop_source"] = source
+    return payload
+
+
+def drop_monster_loot(
+    *,
+    pos: tuple[int, int, int],
+    bag_entries: Sequence[Mapping[str, object]] | None,
+    armour_entry: Mapping[str, object] | None,
+    bus=None,
+    catalog: Mapping[str, Mapping[str, object]] | None = None,
+) -> tuple[list[dict[str, object]], list[dict[str, object]]]:
+    """Drop monster loot respecting ground capacity and deterministic order.
+
+    Returns a tuple ``(minted, vaporized)`` where each element is a list of
+    cloned entry payloads annotated with ``drop_source`` and, for minted
+    entries, the generated ``iid``.
+    """
+
+    attempts: list[tuple[str, Mapping[str, object]]] = []
+    if bag_entries:
+        for entry in bag_entries:
+            if isinstance(entry, Mapping):
+                attempts.append(("bag", entry))
+    skull_entry: Mapping[str, object] = {"item_id": "skull"}
+    attempts.append(("skull", skull_entry))
+    if isinstance(armour_entry, Mapping):
+        attempts.append(("armour", armour_entry))
+
+    year, x, y = pos
+    ground = itemsreg.list_instances_at(year, x, y)
+    free_slots = max(0, GROUND_CAP - len(ground))
+
+    minted: list[dict[str, object]] = []
+    vaporized: list[dict[str, object]] = []
+
+    if free_slots <= 0 and attempts:
+        LOG_DEV.info(
+            "[playersdbg] MON-DROP-VAP pos=%s reason=ground-full attempts=%s",
+            list(pos),
+            len(attempts),
+        )
+        for source, entry in attempts:
+            vaporized.append(_clone_entry(entry, source=source))
+        return minted, vaporized
+
+    for source, entry in attempts:
+        if free_slots <= 0:
+            vaporized.append(_clone_entry(entry, source=source))
+            if hasattr(bus, "push"):
+                label = _entry_label(entry, catalog)
+                bus.push("COMBAT/INFO", f"There is no room for {label}; it vaporizes.")
+            continue
+
+        minted_iids = drop_new_entries([entry], pos)
+        if not minted_iids:
+            continue
+        iid = minted_iids[-1]
+        record = _clone_entry(entry, source=source)
+        record["iid"] = iid
+        if record.get("item_id"):
+            # Ensure canonical item id when the original entry omitted it.
+            inst = itemsreg.get_instance(iid)
+            if inst and inst.get("item_id"):
+                record["item_id"] = str(inst.get("item_id"))
+        minted.append(record)
+        free_slots -= 1
+
+    return minted, vaporized
 
 
 def enforce_capacity(
