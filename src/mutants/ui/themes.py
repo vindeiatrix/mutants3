@@ -1,9 +1,13 @@
 from __future__ import annotations
 
 import json
+import logging
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, Optional, Any
+
+
+LOG = logging.getLogger(__name__)
 
 
 DEFAULT_WIDTH = 80
@@ -25,9 +29,15 @@ def load_theme(path: str) -> Theme:
     data: Dict[str, Any] = {}
     if p.exists():
         try:
-            data = json.loads(p.read_text(encoding="utf-8"))
-        except Exception:
-            data = {}
+            text = p.read_text(encoding="utf-8")
+        except (OSError, IOError):
+            LOG.error("Failed to read theme file %s", p, exc_info=True)
+            raise
+        try:
+            data = json.loads(text)
+        except json.JSONDecodeError:
+            LOG.error("Theme file %s contains invalid JSON", p, exc_info=True)
+            raise
 
     width_raw = data.get("width", data.get("WIDTH", DEFAULT_WIDTH))
     try:

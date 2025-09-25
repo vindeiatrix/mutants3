@@ -438,10 +438,7 @@ def _handle_player_death(
     )
 
     _clear_player_inventory(state, active, victim_class)
-    try:
-        pstate.clear_ready_target_for_active(reason="player-dead")
-    except Exception:
-        pass
+    pstate.clear_ready_target_for_active(reason="player-dead")
     pstate.save_state(state)
     _mark_monsters_dirty(ctx)
 
@@ -455,7 +452,8 @@ def _apply_player_damage(
     state_hint = ctx.get("player_state") if isinstance(ctx.get("player_state"), Mapping) else None
     try:
         state, active = pstate.get_active_pair(state_hint)
-    except Exception:
+    except (TypeError, ValueError, KeyError, AttributeError):
+        LOG.debug("Falling back to canonical active pair lookup", exc_info=True)
         state, active = pstate.get_active_pair()
     if not isinstance(active, Mapping) or not active:
         return False

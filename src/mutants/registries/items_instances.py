@@ -360,8 +360,11 @@ def _save_instances_raw(instances: List[Dict[str, Any]]) -> None:
     try:
         with path.open("r", encoding="utf-8") as f:
             orig = json.load(f)
-    except Exception:
+    except FileNotFoundError:
         orig = []
+    except (PermissionError, IsADirectoryError, json.JSONDecodeError):
+        LOG.error("Failed to load existing instances from %s", path, exc_info=True)
+        raise
     payload = {"instances": instances} if isinstance(orig, dict) and "instances" in orig else instances
     atomic_write_json(path, payload)
     invalidate_cache()
@@ -418,12 +421,16 @@ def _pos_of(inst: Dict[str, Any]) -> Optional[Tuple[int, int, int]]:
         p = inst["pos"]
         try:
             return int(p["year"]), int(p["x"]), int(p["y"])
-        except Exception:
-            pass
-    try:
-        return int(inst["year"]), int(inst["x"]), int(inst["y"])
-    except Exception:
-        return None
+        except (KeyError, TypeError, ValueError):
+            LOG.error("Invalid nested position in instance: %r", inst, exc_info=True)
+            raise
+    if all(k in inst for k in ("year", "x", "y")):
+        try:
+            return int(inst["year"]), int(inst["x"]), int(inst["y"])
+        except (KeyError, TypeError, ValueError):
+            LOG.error("Invalid position in instance: %r", inst, exc_info=True)
+            raise
+    return None
 
 
 def _catalog() -> Dict[str, Any]:
@@ -431,9 +438,13 @@ def _catalog() -> Dict[str, Any]:
     if not path.exists():
         return {}
     try:
-        data = json.load(path.open("r", encoding="utf-8"))
-    except Exception:
+        with path.open("r", encoding="utf-8") as fh:
+            data = json.load(fh)
+    except FileNotFoundError:
         return {}
+    except (PermissionError, IsADirectoryError, json.JSONDecodeError):
+        LOG.error("Failed to load catalog from %s", path, exc_info=True)
+        raise
     return data.get("items", data) if isinstance(data, dict) else {}
 
 
