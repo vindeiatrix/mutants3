@@ -67,7 +67,7 @@ def test_enchant_blockers_detect_condition_and_level(monkeypatch, _memory_instan
     monkeypatch.setattr(
         items_instances.items_catalog,
         "load_catalog",
-        lambda: DummyCatalog({"knife": {"item_id": "knife"}}),
+        lambda: DummyCatalog({"knife": {"item_id": "knife", "enchantable": True}}),
     )
 
     blockers = items_instances.enchant_blockers_for("knife#1")
@@ -77,7 +77,7 @@ def test_enchant_blockers_detect_condition_and_level(monkeypatch, _memory_instan
     assert not items_instances.is_enchantable("knife#1")
 
 
-def test_enchant_blockers_detect_catalog_flags(monkeypatch, _memory_instances):
+def test_enchant_blockers_respect_catalog_enchantable_flag(monkeypatch, _memory_instances):
     _memory_instances.append(
         {
             "iid": "wand#1",
@@ -93,7 +93,7 @@ def test_enchant_blockers_detect_catalog_flags(monkeypatch, _memory_instances):
         "ranged": True,
         "potion": True,
         "spawnable": True,
-        "spell_component": True,
+        "enchantable": False,
     }
 
     monkeypatch.setattr(
@@ -102,8 +102,10 @@ def test_enchant_blockers_detect_catalog_flags(monkeypatch, _memory_instances):
 
     blockers = items_instances.enchant_blockers_for("wand#1")
 
-    for reason in ("ranged", "potion", "spawnable", "spell_component"):
-        assert reason in blockers
+    assert "not_enchantable" in blockers
+    assert "ranged" not in blockers
+    assert "potion" not in blockers
+    assert "spawnable" not in blockers
 
 
 def test_enchant_blockers_detect_broken(monkeypatch, _memory_instances):
@@ -123,3 +125,28 @@ def test_enchant_blockers_detect_broken(monkeypatch, _memory_instances):
 
     assert "broken" in blockers
     assert "condition" not in blockers
+
+
+def test_is_enchantable_when_catalog_allows(monkeypatch, _memory_instances):
+    _memory_instances.append(
+        {
+            "iid": "hammer#1",
+            "instance_id": "hammer#1",
+            "item_id": "hammer",
+            "condition": 100,
+            "enchant_level": 0,
+        }
+    )
+
+    template = {"item_id": "hammer", "enchantable": True}
+
+    monkeypatch.setattr(
+        items_instances.items_catalog,
+        "load_catalog",
+        lambda: DummyCatalog({"hammer": template}),
+    )
+
+    blockers = items_instances.enchant_blockers_for("hammer#1")
+
+    assert blockers == []
+    assert items_instances.is_enchantable("hammer#1")
