@@ -3,6 +3,8 @@ from __future__ import annotations
 
 from typing import Dict, List, Tuple
 
+from pathlib import Path
+
 Segment = Tuple[str, str]
 
 # Token names
@@ -71,6 +73,18 @@ _COLORS_PATH_OVERRIDE: Optional[str] = None  # programmatic override via theme
 _ANSI_ENABLED: bool = True  # allow theme to disable ANSI for clean transcripts
 
 
+def _normalize_colors_path(raw: str | os.PathLike[str]) -> str:
+    """Resolve *raw* relative to :data:`STATE_ROOT` when needed."""
+
+    candidate = Path(raw).expanduser()
+    if candidate.is_absolute():
+        return str(candidate)
+    parts = candidate.parts
+    if parts and parts[0] == "state":
+        parts = parts[1:]
+    return str(state_path(*parts))
+
+
 def _colors_path() -> str:
     # 1) explicit programmatic override (theme)
     if _COLORS_PATH_OVERRIDE:
@@ -78,7 +92,7 @@ def _colors_path() -> str:
     # 2) environment
     p = os.environ.get(_COLOR_FILE_ENV)
     if p:
-        return p
+        return _normalize_colors_path(p)
     # 3) default location
     return str(state_path("ui", "colors.json"))
 
@@ -107,7 +121,7 @@ def set_colors_map_path(path: Optional[str]) -> None:
     Pass None to clear the override and fall back to env/defaults.
     """
     global _COLORS_PATH_OVERRIDE, _COLORS_CACHE
-    _COLORS_PATH_OVERRIDE = path
+    _COLORS_PATH_OVERRIDE = _normalize_colors_path(path) if path else None
     _COLORS_CACHE = None  # force reload on next resolve
 
 
