@@ -16,26 +16,32 @@ class DummyCatalog:
         return self._data.get(item_id)
 
 
-def test_create_instance_copies_god_tier_flag(tmp_path):
-    registry = items_instances.ItemsInstances(str(tmp_path / "instances.json"), [])
-    inst = registry.create_instance({"item_id": "holy_blade", "god_tier": True})
+def test_create_instance_copies_god_tier_flag(monkeypatch, memory_registry):
+    memory_registry([])
 
+    monkeypatch.setattr(
+        items_instances.items_catalog,
+        "load_catalog",
+        lambda: DummyCatalog({"holy_blade": {"item_id": "holy_blade", "god_tier": True}}),
+    )
+
+    iid = items_instances.mint_instance("holy_blade", origin="debug")
+    inst = items_instances.get_instance(iid)
+
+    assert inst is not None
     assert inst["god_tier"] is True
-    stored = registry.get(inst["instance_id"])
-    assert stored is not None
-    assert stored["god_tier"] is True
 
 
-def test_normalize_instance_defaults_god_tier(tmp_path):
-    inst_data = [
-        {"instance_id": "axe#1", "item_id": "axe", "god_tier": "no"},
-        {"instance_id": "mace#1", "item_id": "mace"},
-    ]
+def test_normalize_instance_defaults_god_tier(memory_registry):
+    memory_registry(
+        [
+            {"iid": "axe#1", "instance_id": "axe#1", "item_id": "axe", "god_tier": "no"},
+            {"iid": "mace#1", "instance_id": "mace#1", "item_id": "mace"},
+        ]
+    )
 
-    registry = items_instances.ItemsInstances(str(tmp_path / "instances.json"), inst_data)
-
-    first = registry.get("axe#1")
-    second = registry.get("mace#1")
+    first = items_instances.get_instance("axe#1")
+    second = items_instances.get_instance("mace#1")
 
     assert first is not None and first["god_tier"] is False
     assert second is not None and second["god_tier"] is False

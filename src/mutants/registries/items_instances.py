@@ -264,99 +264,17 @@ def enchant_blockers_for(
 def is_enchantable(iid: str, *, template: Optional[Dict[str, Any]] = None) -> bool:
     return not enchant_blockers_for(iid, template=template)
 
-class ItemsInstances:
-    """
-    Registry for altered (unique) item instances.
-    - Stores a simple list of instance dicts.
-    - Persists via atomic write when `save()` is called and state is dirty.
-    """
-    def __init__(self, path: str, items: List[Dict[str, Any]]):
-        self._path = Path(path)
-        normalized = _normalize_instances(items)
-        self._items: List[Dict[str, Any]] = items
-        self._by_id: Dict[str, Dict[str, Any]] = {it["instance_id"]: it for it in items if "instance_id" in it}
-        self._dirty = normalized
-
-    # ----- Queries -----
-
-    def get(self, instance_id: str) -> Optional[Dict[str, Any]]:
-        return self._by_id.get(instance_id)
-
-    def list_for_item(self, item_id: str) -> Iterable[Dict[str, Any]]:
-        return (it for it in self._items if it.get("item_id") == item_id)
-
-    # ----- Mutations -----
-
-    def _add(self, inst: Dict[str, Any]) -> Dict[str, Any]:
-        _normalize_instance(inst)
-        self._items.append(inst)
-        self._by_id[inst["instance_id"]] = inst
-        self._dirty = True
-        return inst
-
-    def create_instance(self, base_item: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Create a new instance from a base catalog item.
-        Seeds charges if base has charges_max; sets enchanted=no, wear=0 by default.
-        """
-        instance_id = mint_iid()
-        inst: Dict[str, Any] = {
-            "instance_id": instance_id,
-            "item_id": base_item["item_id"],
-            "enchanted": "no",
-            "wear": 0,
-            "enchant_level": 0,
-            "condition": 100,
-            "god_tier": _coerce_bool(base_item.get("god_tier")),
-        }
-        charges_max = int(base_item.get("charges_max", 0) or 0)
-        if charges_max > 0:
-            inst["charges"] = charges_max
-        # skull provenance fields (if ever needed) can be added by the loot system:
-        # inst["skull_monster_type_id"] = "ghoul"; inst["skull_monster_name"] = "Ghoul"
-        return self._add(inst)
-
-    def apply_enchant(self, instance_id: str, level: int) -> Dict[str, Any]:
-        inst = self._by_id[instance_id]
-        inst["enchanted"] = "yes"
-        inst["enchant_level"] = _sanitize_enchant_level(level)
-        self._dirty = True
-        return inst
-
-    def apply_wear(self, instance_id: str, delta: int) -> Dict[str, Any]:
-        inst = self._by_id[instance_id]
-        inst["wear"] = max(0, int(inst.get("wear", 0)) + int(delta))
-        self._dirty = True
-        return inst
-
-    def decrement_charges(self, instance_id: str, n: int = 1) -> Dict[str, Any]:
-        inst = self._by_id[instance_id]
-        inst["charges"] = max(0, int(inst.get("charges", 0)) - int(n))
-        self._dirty = True
-        return inst
-
-    # ----- Persistence -----
-
-    def save(self) -> None:
-        if self._dirty:
-            atomic_write_json(self._path, self._items)
-            self._dirty = False
 
 
-def load_instances(path: Path | str = DEFAULT_INSTANCES_PATH) -> ItemsInstances:
-    """
-    Load instances from JSON.
-    Supports either:
-      - a list: [ {...}, {...} ]
-      - or a dict with "instances": { "instances": [ ... ] }
-    Falls back to `state/instances.json` if the default path is missing.
-    """
+def load_instances(path: Path | str = DEFAULT_INSTANCES_PATH) -> List[Dict[str, Any]]:
+    """Load and normalize instances from disk."""
+
     primary = Path(path)
     fallback = Path(FALLBACK_INSTANCES_PATH)
     target = primary if primary.exists() else (fallback if fallback.exists() else primary)
 
     if not target.exists():
-        return ItemsInstances(str(target), [])
+        return []
 
     with target.open("r", encoding="utf-8") as f:
         try:
@@ -374,7 +292,8 @@ def load_instances(path: Path | str = DEFAULT_INSTANCES_PATH) -> ItemsInstances:
     duplicates = _detect_duplicate_iids(items)
     _handle_duplicates(duplicates, path=target)
 
-    return ItemsInstances(str(target), items)
+    _normalize_instances(items)
+    return items
 
 
 # ---------------------------------------------------------------------------
