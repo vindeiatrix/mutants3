@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from pathlib import Path
 from typing import Any, Dict, Iterable, List, Mapping
 
 import logging
@@ -74,10 +73,7 @@ def build_context() -> Dict[str, Any]:
     theme = load_theme(str(theme_path))
     # Apply theme settings to styles (palette path + ANSI toggle)
     if theme.colors_path:
-        cp = Path(theme.colors_path)
-        if not cp.is_absolute():
-            cp = Path.cwd() / cp
-        st.set_colors_map_path(str(cp))
+        st.set_colors_map_path(theme.colors_path)
     else:
         st.set_colors_map_path(None)
     st.reload_colors_map()
