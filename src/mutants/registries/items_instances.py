@@ -2,9 +2,11 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 import uuid
+from collections.abc import MutableSet
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional, Tuple
+from typing import Any, Dict, Iterable, List, MutableMapping, Optional, Tuple
 
 from mutants.io.atomic import atomic_write_json
 from . import items_catalog
@@ -14,6 +16,16 @@ FALLBACK_INSTANCES_PATH = "state/instances.json"  # auto-fallback if the new pat
 CATALOG_PATH = "state/items/catalog.json"
 
 LOG = logging.getLogger("mutants.itemsdbg")
+
+
+def _strict_duplicate_default() -> bool:
+    env = os.getenv("MUTANTS_STRICT_IIDS")
+    if env is not None:
+        return env.strip() == "1"
+    return bool(os.getenv("PYTEST_CURRENT_TEST")) or os.getenv("WORLD_DEBUG") == "1"
+
+
+STRICT_DUP_IIDS = _strict_duplicate_default()
 
 BROKEN_WEAPON_ID = "broken_weapon"
 BROKEN_ARMOUR_ID = "broken_armour"
@@ -25,6 +37,43 @@ NOT_ENCHANTABLE_REASONS = (
     "broken",
     "max_enchant",
 )
+
+
+def mint_iid(*, seen: Optional[MutableSet[str] | Iterable[str]] = None) -> str:
+    """Return a fresh unique item instance id."""
+
+    seen_ids: set[str]
+    updater: Optional[MutableSet[str]]
+    if seen is None:
+        seen_ids = set()
+        updater = None
+    elif isinstance(seen, MutableSet):
+        seen_ids = {str(token) for token in seen}
+        updater = seen
+    else:
+        seen_ids = {str(token) for token in seen}
+        updater = None
+
+    while True:
+        candidate = uuid.uuid4().hex
+        if candidate not in seen_ids:
+            seen_ids.add(candidate)
+            if updater is not None:
+                updater.add(candidate)
+            return candidate
+
+
+def remint_iid(inst: MutableMapping[str, Any], *, seen: Optional[Iterable[str]] = None) -> str:
+    """Assign a new iid/instance_id to ``inst`` and return it."""
+
+    existing = set(str(token) for token in seen or [])
+    while True:
+        candidate = mint_iid(seen=existing)
+        if candidate not in existing:
+            existing.add(candidate)
+            inst["iid"] = candidate
+            inst["instance_id"] = candidate
+            return candidate
 
 
 def _instance_id(inst: Dict[str, Any]) -> str:
@@ -113,6 +162,42 @@ def _normalize_instances(instances: Iterable[Dict[str, Any]]) -> bool:
         if _normalize_instance(inst):
             changed = True
     return changed
+
+
+def _detect_duplicate_iids(instances: Iterable[Dict[str, Any]]) -> List[str]:
+    seen: Dict[str, int] = {}
+    duplicates: List[str] = []
+    for inst in instances:
+        iid = _instance_id(inst)
+        if not iid:
+            continue
+        if iid in seen:
+            duplicates.append(iid)
+        else:
+            seen[iid] = 1
+    return duplicates
+
+
+def _handle_duplicates(duplicates: List[str], *, strict: Optional[bool] = None, path: Optional[Path] = None) -> None:
+    if not duplicates:
+        return
+
+    target = path.resolve() if path else None
+    LOG.error(
+        "[itemsdbg] DUPLICATE_IIDS_DETECTED count=%s sample=%s path=%s",
+        len(duplicates),
+        duplicates[:5],
+        target,
+    )
+
+    strict_mode = STRICT_DUP_IIDS if strict is None else bool(strict)
+    if strict_mode:
+        sample = ", ".join(duplicates[:5])
+        location = f" ({target})" if target else ""
+        raise RuntimeError(
+            "Duplicate item instance IDs detected%s (count=%s, sample=%s). "
+            "Run tools/fix_iids.py to repair the state." % (location, len(duplicates), sample)
+        )
 
 
 def _collect_enchant_blockers(
@@ -205,7 +290,7 @@ class ItemsInstances:
         Create a new instance from a base catalog item.
         Seeds charges if base has charges_max; sets enchanted=no, wear=0 by default.
         """
-        instance_id = f"{base_item['item_id']}#{uuid.uuid4().hex[:8]}"
+        instance_id = mint_iid()
         inst: Dict[str, Any] = {
             "instance_id": instance_id,
             "item_id": base_item["item_id"],
@@ -277,6 +362,9 @@ def load_instances(path: str = DEFAULT_INSTANCES_PATH) -> ItemsInstances:
     else:
         items = []
 
+    duplicates = _detect_duplicate_iids(items)
+    _handle_duplicates(duplicates, path=target)
+
     return ItemsInstances(str(target), items)
 
 
@@ -300,23 +388,8 @@ def _load_instances_raw() -> List[Dict[str, Any]]:
     if not isinstance(items, list):
         return []
 
-    seen: Dict[str, int] = {}
-    duplicates: List[str] = []
-    for inst in items:
-        iid = str(inst.get("iid") or inst.get("instance_id") or "")
-        if not iid:
-            continue
-        if iid in seen:
-            duplicates.append(iid)
-        else:
-            seen[iid] = 1
-
-    if duplicates:
-        LOG.error(
-            "[itemsdbg] DUPLICATE_IIDS_DETECTED count=%s sample=%s",
-            len(duplicates),
-            duplicates[:5],
-        )
+    duplicates = _detect_duplicate_iids(items)
+    _handle_duplicates(duplicates, path=path)
 
     _normalize_instances(items)
 
@@ -695,10 +768,9 @@ def set_position(iid: str, year: int, x: int, y: int) -> None:
 def create_and_save_instance(item_id: str, year: int, x: int, y: int, origin: str = "debug_add") -> str:
     """Create a new instance at (year,x,y) and persist it. Returns iid."""
     raw = _cache()
-    seq = len(raw) + 1
-    iid = f"dbg_{year}_{x}_{y}_{seq}"
+    mint = mint_iid()
     inst = {
-        "iid": iid,
+        "iid": mint,
         "item_id": str(item_id),
         "pos": {"year": int(year), "x": int(x), "y": int(y)},
         "year": int(year),
@@ -718,5 +790,5 @@ def create_and_save_instance(item_id: str, year: int, x: int, y: int, origin: st
     _normalize_instance(inst)
     raw.append(inst)
     _save_instances_raw(raw)
-    return iid
+    return mint
 

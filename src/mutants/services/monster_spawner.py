@@ -25,11 +25,11 @@ from __future__ import annotations
 import logging
 import random
 import time
-import uuid
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, Iterable, List, Mapping, MutableMapping
 
 from mutants.registries import monsters_instances as mon_instances
+from mutants.registries import items_instances as itemsreg
 from mutants.services import player_state as pstate
 
 
@@ -99,14 +99,11 @@ def _copy_innate_attack(template: Mapping[str, Any]) -> Dict[str, Any]:
 
 
 def _mint_instance_id(template: Mapping[str, Any]) -> str:
-    base = str(template.get("id") or template.get("monster_id") or "monster")
-    return f"{base}#{uuid.uuid4().hex[:8]}"
+    return itemsreg.mint_iid()
 
 
 def _mint_item_instance_id(template: Mapping[str, Any], item: Mapping[str, Any]) -> str:
-    base_mon = str(template.get("id") or template.get("monster_id") or "monster")
-    raw_item = item.get("iid") or item.get("item_id") or "item"
-    return f"{base_mon}#{raw_item}#{uuid.uuid4().hex[:6]}"
+    return itemsreg.mint_iid()
 
 
 def _clone_inventory(template: Mapping[str, Any]) -> tuple[List[Dict[str, Any]], str | None]:

@@ -91,7 +91,11 @@ def _normalize_items(items: List[Dict[str, Any]]) -> tuple[List[str], List[str]]
 
         enchantable = it.get("enchantable")
         if not isinstance(enchantable, bool):
-            errors.append(f"{iid}: enchantable must be explicitly true or false.")
+            if enchantable is None:
+                it["enchantable"] = False
+                enchantable = False
+            else:
+                errors.append(f"{iid}: enchantable must be explicitly true or false.")
 
         if isinstance(enchantable, bool):
             for field_name, flag_name in DISALLOWED_ENCHANTABLE_FIELDS:
@@ -99,6 +103,9 @@ def _normalize_items(items: List[Dict[str, Any]]) -> tuple[List[str], List[str]]
                     errors.append(
                         f"{iid}: {flag_name} items must declare enchantable: false."
                     )
+
+        if "spawnable" not in it:
+            it["spawnable"] = False
 
     return warnings, errors
 

@@ -8,6 +8,7 @@ from typing import Any, Dict, Iterable, List, Mapping, MutableMapping, Optional
 
 from mutants.io.atomic import atomic_write_json
 from mutants.registries import items_catalog
+from mutants.registries import items_instances
 from mutants.services import items_weight
 from mutants.services import player_state as pstate
 
@@ -92,13 +93,7 @@ def _normalize_notes(value: Any) -> Optional[str]:
 
 
 def _mint_iid(monster_id: str, item_id: str, *, seen: set[str]) -> str:
-    base = monster_id or "monster"
-    suffix = item_id or "item"
-    while True:
-        token = f"{base}#{suffix}#{uuid.uuid4().hex[:8]}"
-        if token not in seen:
-            seen.add(token)
-            return token
+    return items_instances.mint_iid(seen=seen)
 
 
 def _coerce_template(catalog: Mapping[str, Any] | None, item_id: str) -> Mapping[str, Any]:
