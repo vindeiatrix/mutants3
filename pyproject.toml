@@ -6,10 +6,20 @@ build-backend = "setuptools.build_meta"
 name = "mutants"
 version = "0.0.0"
 description = "Skeleton for Mutants (no game code)"
-requires-python = ">=3.11"
+requires-python = ">=3.10"
+readme = "README.md"
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+]
 
 [project.urls]
 homepage = "https://github.com/your-org-or-user/your-repo"
+
+[project.optional-dependencies]
+dev = ["pytest", "pytest-cov"]
 
 [tool.setuptools]
 package-dir = {"" = "src"}
@@ -22,5 +32,5 @@ packages = [
   "mutants.data",
   "mutants.schemas",
   "mutants.ui",
-  "mutants.commands"
+  "mutants.commands",
 ]
