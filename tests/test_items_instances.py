@@ -186,7 +186,7 @@ def test_load_instances_raises_on_duplicate_iids(tmp_path, monkeypatch):
 
     monkeypatch.setattr(items_instances, "STRICT_DUP_IIDS", True)
 
-    with pytest.raises(RuntimeError):
+    with pytest.raises(ValueError):
         items_instances.load_instances(str(path))
 
 
