@@ -120,8 +120,11 @@ def _normalize_items(items: List[Dict[str, Any]]) -> tuple[List[str], List[str]]
                         f"{iid}: {flag_name} items must declare enchantable: false."
                     )
 
-        if "spawnable" not in it:
-            it["spawnable"] = False
+        if "spawnable" in it:
+            if not isinstance(it.get("spawnable"), bool):
+                errors.append(f"{iid}: spawnable must be explicitly true or false.")
+        else:
+            errors.append(f"{iid}: spawnable must be explicitly true or false.")
 
         is_ranged = bool(it.get("ranged"))
 
@@ -148,6 +151,11 @@ def _normalize_items(items: List[Dict[str, Any]]) -> tuple[List[str], List[str]]
             it["base_power_bolt"] = bolt_value
         elif "base_power_bolt" in it:
             it.pop("base_power_bolt", None)
+
+        if is_ranged and it.get("spawnable") is True:
+            warnings.append(
+                f"{iid}: ranged items marked spawnable; ensure this is intentional."
+            )
 
         if is_ranged:
             if "base_power_melee" not in it or "base_power_bolt" not in it:

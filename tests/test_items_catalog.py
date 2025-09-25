@@ -11,6 +11,7 @@ def test_normalize_items_rejects_enchantable_ranged():
             "enchantable": True,
             "base_power_melee": 5,
             "base_power_bolt": 15,
+            "spawnable": False,
         }
     ]
 
@@ -27,6 +28,7 @@ def test_normalize_items_allows_enchantable_for_unflagged_items():
         {
             "item_id": "amulet",
             "enchantable": True,
+            "spawnable": False,
         }
     ]
 
@@ -42,6 +44,7 @@ def test_normalize_items_requires_ranged_base_powers():
             "item_id": "ion_wand",
             "ranged": True,
             "enchantable": False,
+            "spawnable": False,
         }
     ]
 
@@ -62,6 +65,7 @@ def test_normalize_items_copies_legacy_power_fields():
             "base_power": 9,
             "poisonous": True,
             "poison_power": 2,
+            "spawnable": False,
         }
     ]
 
@@ -77,3 +81,36 @@ def test_normalize_items_copies_legacy_power_fields():
     assert entry["poison_bolt"] is True
     assert entry["poison_melee_power"] == 2
     assert entry["poison_bolt_power"] == 2
+
+
+def test_normalize_items_requires_spawnable():
+    items = [
+        {
+            "item_id": "mystery_item",
+        }
+    ]
+
+    _warnings, errors = items_catalog._normalize_items(items)
+
+    assert "mystery_item: spawnable must be explicitly true or false." in errors
+
+
+def test_normalize_items_warns_on_spawnable_ranged():
+    items = [
+        {
+            "item_id": "laser_pistol",
+            "ranged": True,
+            "enchantable": False,
+            "base_power_melee": 1,
+            "base_power_bolt": 5,
+            "spawnable": True,
+        }
+    ]
+
+    warnings, errors = items_catalog._normalize_items(items)
+
+    assert not errors
+    assert (
+        "laser_pistol: ranged items marked spawnable; ensure this is intentional." in warnings
+    )
+    assert items[0]["spawnable"] is True
