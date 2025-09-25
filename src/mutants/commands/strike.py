@@ -214,6 +214,14 @@ def _resolve_monster_payload(summary: Mapping[str, Any] | None, fallback: Mappin
 def _resolve_drop_entries(summary: Mapping[str, Any] | None) -> list[Mapping[str, Any]]:
     if not isinstance(summary, Mapping):
         return []
+    minted = summary.get("drops_minted")
+    if isinstance(minted, Sequence):
+        result_minted: list[Mapping[str, Any]] = []
+        for entry in minted:
+            if isinstance(entry, Mapping):
+                result_minted.append(entry)
+        if result_minted:
+            return result_minted
     drops = summary.get("drops")
     if not isinstance(drops, Sequence):
         return []
@@ -280,11 +288,29 @@ def _award_player_progress(
         return
 
     drop_entries = _resolve_drop_entries(summary)
-    minted: list[str] = []
-    if drop_entries:
-        minted.extend(combat_loot.drop_new_entries(drop_entries, pos))
-    minted.extend(combat_loot.spawn_skull(pos))
-    combat_loot.enforce_capacity(pos, minted, bus=bus, catalog=item_catalog)
+    bag_entries: list[Mapping[str, Any]] = []
+    armour_entry: Mapping[str, Any] | None = None
+    if isinstance(summary, MutableMapping):
+        raw_bag = summary.get("bag_drops")
+        if isinstance(raw_bag, Sequence):
+            for entry in raw_bag:
+                if isinstance(entry, Mapping):
+                    bag_entries.append(entry)
+        candidate_armour = summary.get("armour_drop")
+        if isinstance(candidate_armour, Mapping):
+            armour_entry = candidate_armour
+    if not bag_entries and drop_entries:
+        bag_entries = list(drop_entries)
+    minted, vaporized = combat_loot.drop_monster_loot(
+        pos=pos,
+        bag_entries=bag_entries,
+        armour_entry=armour_entry,
+        bus=bus,
+        catalog=item_catalog,
+    )
+    if isinstance(summary, MutableMapping):
+        summary["drops_minted"] = minted
+        summary["drops_vaporized"] = vaporized
 
 
 def _coerce_iid(value: Any) -> Optional[str]:

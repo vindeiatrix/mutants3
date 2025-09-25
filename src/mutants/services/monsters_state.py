@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import json
 import logging
 import uuid
@@ -454,13 +455,17 @@ class MonstersState:
         if isinstance(bag, list):
             for item in bag:
                 if isinstance(item, Mapping):
-                    drops.append(item)
-                    bag_items.append(item)
+                    entry = copy.deepcopy(item)
+                    drops.append(entry)
+                    bag_items.append(entry)
 
         armour = monster.get("armour_slot")
         armour_dropped = isinstance(armour, Mapping)
         if armour_dropped:
-            drops.append(armour)
+            armour_entry = copy.deepcopy(armour)
+            drops.append(armour_entry)
+        else:
+            armour_entry = None
 
         monster["bag"] = []
         monster["armour_slot"] = None
@@ -496,6 +501,8 @@ class MonstersState:
             "monster": monster,
             "drops": drops,
             "pos": monster.get("pos"),
+            "bag_drops": bag_items,
+            "armour_drop": armour_entry,
         }
 
     def save(self) -> None:
