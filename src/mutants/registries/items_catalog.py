@@ -1,11 +1,14 @@
 from __future__ import annotations
+
 import json
 import logging
 from pathlib import Path
-from typing import Dict, List, Optional, Any
+from typing import Any, Dict, List, Optional
 
-DEFAULT_CATALOG_PATH = "state/items/catalog.json"
-FALLBACK_CATALOG_PATH = "state/catalog.json"  # auto-fallback if the new path isn't used yet
+from mutants.state import state_path
+
+DEFAULT_CATALOG_PATH = state_path("items", "catalog.json")
+FALLBACK_CATALOG_PATH = state_path("catalog.json")  # auto-fallback if the new path isn't used yet
 
 DISALLOWED_ENCHANTABLE_FIELDS = (
     ("ranged", "ranged"),
@@ -109,7 +112,7 @@ def _normalize_items(items: List[Dict[str, Any]]) -> tuple[List[str], List[str]]
 
     return warnings, errors
 
-def load_catalog(path: str = DEFAULT_CATALOG_PATH) -> ItemsCatalog:
+def load_catalog(path: Path | str = DEFAULT_CATALOG_PATH) -> ItemsCatalog:
     primary = Path(path)
     fallback = Path(FALLBACK_CATALOG_PATH)
     if primary.exists():

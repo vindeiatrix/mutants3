@@ -22,17 +22,20 @@ Edge model (per tile):
 
 from __future__ import annotations
 
-import json, os, logging
+import json
+import logging
+import os
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
-from mutants.io.atomic import atomic_write_json
 from mutants.bootstrap.runtime import discover_world_years
+from mutants.io.atomic import atomic_write_json
+from mutants.state import state_path
 
 LOG = logging.getLogger(__name__)
 WORLD_DEBUG = os.getenv("WORLD_DEBUG") == "1"
 
-WORLD_DIR = Path("state/world")
+WORLD_DIR = state_path("world")
 
 # Direction helpers
 from mutants.util.directions import DELTA as _DELTA, OPP as _OPP

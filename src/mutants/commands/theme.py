@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from mutants.state import state_path
 from mutants.ui.themes import load_theme
 from mutants.ui import styles as st
 
@@ -11,7 +12,7 @@ def theme_cmd(arg: str, ctx) -> None:
     if not name:
         ctx["feedback_bus"].push("SYSTEM/ERR", "Usage: theme <name>")
         return
-    path = Path("state/ui/themes") / f"{name}.json"
+    path = state_path("ui", "themes", f"{name}.json")
     try:
         theme = load_theme(str(path))
     except Exception:

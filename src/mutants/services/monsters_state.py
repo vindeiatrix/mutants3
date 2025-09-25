@@ -11,8 +11,9 @@ from mutants.registries import items_catalog
 from mutants.registries import items_instances
 from mutants.services import items_weight
 from mutants.services import player_state as pstate
+from mutants.state import state_path
 
-DEFAULT_MONSTERS_PATH = Path("state/monsters/instances.json")
+DEFAULT_MONSTERS_PATH = state_path("monsters", "instances.json")
 
 
 def _sanitize_int(value: Any, *, minimum: int = 0, maximum: Optional[int] = None, fallback: int = 0) -> int:

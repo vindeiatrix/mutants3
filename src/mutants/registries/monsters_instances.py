@@ -5,9 +5,10 @@ from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 from mutants.io.atomic import atomic_write_json
 from mutants.registries.monsters_catalog import MonstersCatalog, exp_for
+from mutants.state import state_path
 
-DEFAULT_INSTANCES_PATH = "state/monsters/instances.json"
-FALLBACK_INSTANCES_PATH = "state/monsters.json"  # optional fallback; rarely used
+DEFAULT_INSTANCES_PATH = state_path("monsters", "instances.json")
+FALLBACK_INSTANCES_PATH = state_path("monsters.json")  # optional fallback; rarely used
 
 class MonstersInstances:
     """
@@ -133,7 +134,7 @@ class MonstersInstances:
             atomic_write_json(self._path, self._items)
             self._dirty = False
 
-def load_monsters_instances(path: str = DEFAULT_INSTANCES_PATH) -> MonstersInstances:
+def load_monsters_instances(path: Path | str = DEFAULT_INSTANCES_PATH) -> MonstersInstances:
     primary = Path(path)
     fallback = Path(FALLBACK_INSTANCES_PATH)
     target = primary if primary.exists() else (fallback if fallback.exists() else primary)

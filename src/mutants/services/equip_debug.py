@@ -4,6 +4,8 @@ import logging
 import os
 from typing import Any, Optional
 
+from mutants.state import state_path
+
 _LOGGER: Optional[logging.Logger] = None
 
 
@@ -20,14 +22,15 @@ def _edbg_setup_file_logging() -> logging.Logger:
     if _LOGGER is not None:
         return _LOGGER
 
-    os.makedirs(os.path.join("state", "logs"), exist_ok=True)
+    log_dir = state_path("logs")
+    log_dir.mkdir(parents=True, exist_ok=True)
 
     logger = logging.getLogger("mutants.equipdbg")
     logger.setLevel(logging.INFO)
     logger.propagate = False
 
     if not logger.handlers:
-        handler = logging.FileHandler(os.path.join("state", "logs", "equip_debug.log"))
+        handler = logging.FileHandler(log_dir / "equip_debug.log")
         handler.setLevel(logging.INFO)
         handler.setFormatter(logging.Formatter("%(message)s"))
         logger.addHandler(handler)

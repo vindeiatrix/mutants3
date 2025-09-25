@@ -9,11 +9,12 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, List, MutableMapping, Optional, Tuple
 
 from mutants.io.atomic import atomic_write_json
+from mutants.state import state_path
 from . import items_catalog
 
-DEFAULT_INSTANCES_PATH = "state/items/instances.json"
-FALLBACK_INSTANCES_PATH = "state/instances.json"  # auto-fallback if the new path isn't used yet
-CATALOG_PATH = "state/items/catalog.json"
+DEFAULT_INSTANCES_PATH = state_path("items", "instances.json")
+FALLBACK_INSTANCES_PATH = state_path("instances.json")  # auto-fallback if the new path isn't used yet
+CATALOG_PATH = state_path("items", "catalog.json")
 
 LOG = logging.getLogger("mutants.itemsdbg")
 
@@ -334,7 +335,7 @@ class ItemsInstances:
             self._dirty = False
 
 
-def load_instances(path: str = DEFAULT_INSTANCES_PATH) -> ItemsInstances:
+def load_instances(path: Path | str = DEFAULT_INSTANCES_PATH) -> ItemsInstances:
     """
     Load instances from JSON.
     Supports either:

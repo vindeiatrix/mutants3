@@ -61,6 +61,8 @@ from typing import Optional
 import json
 import os
 
+from ..state import state_path
+
 # Back-compat: add group-aware color resolver without removing existing APIs.
 _COLORS_CACHE: Optional[Dict[str, str]] = None
 _DEFAULT_COLOR: str = "white"
@@ -78,7 +80,7 @@ def _colors_path() -> str:
     if p:
         return p
     # 3) default location
-    return os.path.join(os.getcwd(), "state", "ui", "colors.json")
+    return str(state_path("ui", "colors.json"))
 
 
 def _load_colors_map() -> Dict[str, str]:

@@ -3,14 +3,13 @@ from __future__ import annotations
 
 import json
 import re
-from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
 from ..registries import items_catalog, items_instances as itemsreg
+from ..state import state_path
 
-ROOT = Path(__file__).resolve().parents[3]
-CATALOG_PATH = ROOT / "state" / "items" / "catalog.json"
-OVERRIDES_PATH = ROOT / "state" / "items" / "naming_overrides.json"
+CATALOG_PATH = state_path("items", "catalog.json")
+OVERRIDES_PATH = state_path("items", "naming_overrides.json")
 
 _CAT_CACHE: Dict[str, Dict] = {}
 _OVR_CACHE: Dict[str, str] = {}

@@ -1,22 +1,28 @@
 from __future__ import annotations
-import json, re, os
-from pathlib import Path
-from typing import Dict, List, Optional, Iterable
-from mutants.io.atomic import atomic_write_json
-from . import daily_litter
+
+import json
+import os
+import re
 import logging
+from pathlib import Path
+from typing import Dict, Iterable, List, Optional
+
+from mutants.io.atomic import atomic_write_json
+from mutants.state import STATE_ROOT, state_path
+from . import daily_litter
 
 LOG = logging.getLogger(__name__)
 WORLD_DEBUG = os.getenv("WORLD_DEBUG") == "1"
 WORLD_STRICT = os.getenv("WORLD_STRICT") == "1"
 
-STATE = Path("state")
-WORLD_DIR = STATE / "world"
-ITEMS_DIR = STATE / "items"
-MONS_DIR = STATE / "monsters"
-THEMES_DIR = STATE / "ui" / "themes"
-LOGS_DIR = STATE / "logs"
-CONFIG_PATH = STATE / "config.json"
+STATE = STATE_ROOT
+WORLD_DIR = state_path("world")
+ITEMS_DIR = state_path("items")
+MONS_DIR = state_path("monsters")
+THEMES_DIR = state_path("ui", "themes")
+LOGS_DIR = state_path("logs")
+CONFIG_PATH = state_path("config.json")
+COLORS_PATH = str(state_path("ui", "colors.json"))
 
 # ---------- public API ----------
 def ensure_runtime() -> Dict:
@@ -109,7 +115,7 @@ def _bbs_theme() -> Dict[str, str]:
         "name": "bbs",
         "width": 80,
         "ansi_enabled": True,
-        "colors_path": "state/ui/colors.json",
+        "colors_path": COLORS_PATH,
     }
 
 
@@ -118,7 +124,7 @@ def _mono_theme() -> Dict[str, str]:
         "name": "mono",
         "width": 80,
         "ansi_enabled": False,
-        "colors_path": "state/ui/colors.json",
+        "colors_path": COLORS_PATH,
     }
 
 def create_minimal_world(year: int, size: int = 30, *, reason: str = "unspecified") -> None:
