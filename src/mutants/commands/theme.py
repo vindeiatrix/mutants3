@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+
 from mutants.state import state_path
 from mutants.ui.themes import load_theme
 from mutants.ui import styles as st
@@ -13,8 +15,11 @@ def theme_cmd(arg: str, ctx) -> None:
     path = state_path("ui", "themes", f"{name}.json")
     try:
         theme = load_theme(str(path))
-    except Exception:
+    except (FileNotFoundError, PermissionError, IsADirectoryError):
         ctx["feedback_bus"].push("SYSTEM/ERR", f"Theme not found: {name}")
+        return
+    except json.JSONDecodeError:
+        ctx["feedback_bus"].push("SYSTEM/ERR", f"Theme file is invalid JSON: {name}")
         return
     ctx["theme"] = theme
 

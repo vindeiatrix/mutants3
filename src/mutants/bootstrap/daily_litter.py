@@ -74,8 +74,9 @@ def _load_json(path: str, default):
     try:
         with open(path, "r", encoding="utf-8") as f:
             return json.load(f)
-    except FileNotFoundError:
-        return default
+    except (FileNotFoundError, PermissionError, IsADirectoryError, json.JSONDecodeError):
+        LOG.error("Failed to load JSON from %s", path, exc_info=True)
+        raise
 
 
 def _save_json_atomic(path: str, data) -> None:
@@ -88,8 +89,8 @@ def _save_json_atomic(path: str, data) -> None:
         if hasattr(atomic_io, "write_json_atomic"):
             atomic_io.write_json_atomic(path, data)  # type: ignore[attr-defined]
             return
-    except Exception:
-        pass
+    except (ImportError, AttributeError):
+        LOG.debug("Falling back to non-atomic JSON write for %s", path, exc_info=True)
     tmp = f"{path}.tmp"
     with open(tmp, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
@@ -100,7 +101,10 @@ def _save_json_atomic(path: str, data) -> None:
 # catalog / rules loading
 
 def _load_spawn_rules(spawn_rules_path: Path) -> Dict:
-    rules = _load_json(spawn_rules_path, None)
+    try:
+        rules = _load_json(spawn_rules_path, None)
+    except (FileNotFoundError, PermissionError, IsADirectoryError):
+        rules = None
     if rules is None:
         rules = {
             "daily_target_per_year": DAILY_TARGET_DEFAULT,
@@ -113,7 +117,10 @@ def _load_spawn_rules(spawn_rules_path: Path) -> Dict:
 
 def _load_spawnables_from_catalog(catalog_path: Path) -> Dict[str, Dict]:
     """Return mapping item_id -> {weight:int, cap_per_year:int|None}."""
-    cat = _load_json(catalog_path, {})
+    try:
+        cat = _load_json(catalog_path, {})
+    except (FileNotFoundError, PermissionError, IsADirectoryError):
+        cat = {}
     spawnables: Dict[str, Dict] = {}
 
     items_obj = cat.get("items", cat) if isinstance(cat, dict) else cat
@@ -143,7 +150,10 @@ def _load_spawnables_from_catalog(catalog_path: Path) -> Dict[str, Dict]:
 # instances I/O helpers
 
 def _load_instances_list(instances_path: Path) -> List[Dict]:
-    data = _load_json(instances_path, [])
+    try:
+        data = _load_json(instances_path, [])
+    except (FileNotFoundError, PermissionError, IsADirectoryError):
+        data = []
     if isinstance(data, list):
         return data
     if isinstance(data, dict):
@@ -155,7 +165,10 @@ def _load_instances_list(instances_path: Path) -> List[Dict]:
 
 
 def _save_instances_list(instances_path: Path, instances: List[Dict]) -> None:
-    existing = _load_json(instances_path, None)
+    try:
+        existing = _load_json(instances_path, None)
+    except (FileNotFoundError, PermissionError, IsADirectoryError):
+        existing = None
     if isinstance(existing, dict) and isinstance(existing.get("instances"), list):
         existing["instances"] = instances
         _save_json_atomic(instances_path, existing)
@@ -186,31 +199,38 @@ def _collect_open_tiles_for_year(year: int, world_dir: Path) -> List[Tuple[int, 
     """
     try:
         from ..registries.world import WorldRegistry  # type: ignore
-        w = WorldRegistry()
-        coords: List[Tuple[int, int]] = []
-        for meth in ("iter_tiles", "tiles"):
-            if hasattr(w, meth):
-                for t in getattr(w, meth)(year):  # type: ignore[arg-type]
-                    if isinstance(t, dict) and isinstance(t.get("pos"), (list, tuple)):
-                        pos = t["pos"]
-                        if len(pos) >= 3:
-                            coords.append((int(pos[1]), int(pos[2])))
-                    elif (
-                        isinstance(t, tuple)
-                        and len(t) >= 3
-                        and isinstance(t[2], dict)
-                        and isinstance(t[2].get("pos"), (list, tuple))
-                    ):
-                        pos = t[2]["pos"]
-                        if len(pos) >= 3:
-                            coords.append((int(pos[1]), int(pos[2])))
-        if coords:
-            return coords
-    except Exception:
-        pass
+    except ImportError:
+        LOG.debug("World registry unavailable; using JSON tiles for year %s", year, exc_info=True)
+    else:
+        try:
+            w = WorldRegistry()
+            coords: List[Tuple[int, int]] = []
+            for meth in ("iter_tiles", "tiles"):
+                if hasattr(w, meth):
+                    for t in getattr(w, meth)(year):  # type: ignore[arg-type]
+                        if isinstance(t, dict) and isinstance(t.get("pos"), (list, tuple)):
+                            pos = t["pos"]
+                            if len(pos) >= 3:
+                                coords.append((int(pos[1]), int(pos[2])))
+                        elif (
+                            isinstance(t, tuple)
+                            and len(t) >= 3
+                            and isinstance(t[2], dict)
+                            and isinstance(t[2].get("pos"), (list, tuple))
+                        ):
+                            pos = t[2]["pos"]
+                            if len(pos) >= 3:
+                                coords.append((int(pos[1]), int(pos[2])))
+            if coords:
+                return coords
+        except (AttributeError, TypeError, ValueError):
+            LOG.debug("Falling back to JSON tile loading for year %s", year, exc_info=True)
 
     world_path = world_dir / f"{year}.json"
-    data = _load_json(world_path, {})
+    try:
+        data = _load_json(world_path, {})
+    except (FileNotFoundError, PermissionError, IsADirectoryError):
+        data = {}
     coords: List[Tuple[int, int]] = []
     tiles = data.get("tiles") or data.get("grid") or []
     if isinstance(tiles, list):
@@ -237,8 +257,9 @@ def _instance_pos_key(inst: Dict) -> Optional[Tuple[int, int, int]]:
             p = inst["pos"]
             if all(k in p for k in ("year", "x", "y")):
                 return int(p["year"]), int(p["x"]), int(p["y"])
-    except Exception:
-        return None
+    except (KeyError, TypeError, ValueError):
+        LOG.error("Invalid position data in instance: %r", inst, exc_info=True)
+        raise
     return None
 
 
@@ -302,7 +323,10 @@ def run_daily_litter_reset(root: str | Path | None = None) -> None:
     log_path = paths["log"]
 
     _mkdir_p(runtime_dir)
-    epoch = _load_json(epoch_path, {})
+    try:
+        epoch = _load_json(epoch_path, {})
+    except (FileNotFoundError, PermissionError, IsADirectoryError):
+        epoch = {}
     today = _today_str()
     if epoch.get("last_reset") == today:
         return
@@ -423,8 +447,8 @@ def run_daily_litter_reset(root: str | Path | None = None) -> None:
         invalidate = getattr(itemsreg, "invalidate_cache", None)
         if callable(invalidate):
             invalidate()
-    except Exception:
-        pass
+    except (ImportError, AttributeError):
+        LOG.debug("Failed to invalidate item registry cache", exc_info=True)
     _mkdir_p(runtime_dir)
     _save_json_atomic(epoch_path, {"last_reset": today})
 
@@ -438,6 +462,6 @@ def run_daily_litter_reset(root: str | Path | None = None) -> None:
             _mkdir_p(log_path.parent)
             with open(log_path, "a", encoding="utf-8") as lf:
                 lf.write(f"{ts} SYSTEM/INFO - {line}\n")
-        except Exception:
-            pass
+        except (OSError, IOError):
+            LOG.warning("Failed to append litter summary to %s", log_path, exc_info=True)
 
