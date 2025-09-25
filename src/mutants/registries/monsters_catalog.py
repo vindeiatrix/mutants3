@@ -1,9 +1,12 @@
 from __future__ import annotations
+
 import json
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-DEFAULT_CATALOG_PATH = "state/monsters/catalog.json"
+from mutants.state import state_path
+
+DEFAULT_CATALOG_PATH = state_path("monsters", "catalog.json")
 
 # EXP formula (can be adjusted later in one place)
 def exp_for(level: int, exp_bonus: int = 0) -> int:
@@ -58,7 +61,7 @@ def _validate_base_monster(m: Dict[str, Any]) -> None:
             raise ValueError(f"innate_attack missing {f}")
     # ok
 
-def load_monsters_catalog(path: str = DEFAULT_CATALOG_PATH) -> MonstersCatalog:
+def load_monsters_catalog(path: Path | str = DEFAULT_CATALOG_PATH) -> MonstersCatalog:
     p = Path(path)
     if not p.exists():
         raise FileNotFoundError(f"Missing monsters catalog at {p}")

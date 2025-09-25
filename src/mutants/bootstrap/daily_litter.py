@@ -21,15 +21,20 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 from mutants.registries import items_instances
+from mutants.state import STATE_ROOT
 
 
 LOG = logging.getLogger(__name__)
 
 
 def _paths(root: str | Path | None = None) -> Dict[str, Path]:
-    """Return important runtime paths relative to ``root`` (cwd by default)."""
-    r = Path(root) if root is not None else Path.cwd()
-    state = r / "state"
+    """Return important runtime paths relative to ``root`` (state root by default)."""
+
+    if root is None:
+        state = STATE_ROOT
+    else:
+        base = Path(root)
+        state = base if base.name == "state" else base / "state"
     items = state / "items"
     runtime = state / "runtime"
     world = state / "world"

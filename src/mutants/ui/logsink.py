@@ -4,11 +4,13 @@ import os
 from pathlib import Path
 from typing import Dict, List
 
+from mutants.state import state_path
+
 
 class LogSink:
     """Ring buffer sink that also appends to a file."""
 
-    def __init__(self, capacity: int = 200, file_path: str | Path | None = "state/logs/game.log") -> None:
+    def __init__(self, capacity: int = 200, file_path: str | Path | None = state_path("logs", "game.log")) -> None:
         self.capacity = capacity
         self.file_path = Path(file_path) if file_path else None
         self.buffer: List[str] = []

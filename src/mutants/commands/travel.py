@@ -8,6 +8,7 @@ from typing import Any, Dict, Iterable, Optional
 
 from mutants.registries.world import load_nearest_year
 from mutants.services import player_state as pstate
+from mutants.state import state_path
 from ..services import item_transfer as itx
 
 
@@ -74,11 +75,12 @@ def _available_years(ctx: Dict[str, Any]) -> list[int]:
             except Exception:
                 continue
     else:
-        base_dir = ctx.get("world_dir", "state/world")
+        default_world_dir = state_path("world")
+        base_dir = ctx.get("world_dir", default_world_dir)
         try:
             base_path = Path(base_dir)
         except TypeError:
-            base_path = Path("state/world")
+            base_path = default_world_dir
         if base_path.exists():
             for fpath in base_path.glob("*.json"):
                 try:
@@ -93,7 +95,10 @@ def _resolved_year(ctx: Dict[str, Any], target: int) -> Optional[int]:
     try:
         world = loader(int(target))
     except FileNotFoundError:
-        ctx["feedback_bus"].push("SYSTEM/ERROR", "No worlds found in state/world/.")
+        ctx["feedback_bus"].push(
+            "SYSTEM/ERROR",
+            f"No worlds found in {state_path('world')}/.",
+        )
         return None
     return int(getattr(world, "year", int(target)))
 

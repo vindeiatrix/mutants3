@@ -8,6 +8,7 @@ from typing import Any, Callable, Dict, Iterable, List, Mapping, Optional, Tuple
 
 from mutants.io.atomic import atomic_write_json
 from mutants.registries import items_instances as itemsreg
+from mutants.state import state_path
 from .equip_debug import _edbg_enabled, _edbg_log
 
 
@@ -64,7 +65,7 @@ def _pdbg_setup_file_logging() -> None:
     if _PDBG_CONFIGURED or not _pdbg_enabled():
         return
     try:
-        log_dir = Path("state") / "logs"
+        log_dir = state_path("logs")
         log_dir.mkdir(parents=True, exist_ok=True)
         log_path = log_dir / "players_debug.log"
         if not any(
@@ -139,7 +140,7 @@ def _playersdbg_log(action: str, state: Dict[str, Any]) -> None:
         pass
 
 def _player_path() -> Path:
-    return Path(os.getcwd()) / "state" / "playerlivestate.json"
+    return state_path("playerlivestate.json")
 
 
 def _persist_canonical(state: Dict[str, Any]) -> None:

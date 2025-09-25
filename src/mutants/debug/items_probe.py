@@ -5,6 +5,8 @@ import os
 import sys
 from typing import Any, Dict, List, Tuple
 
+from mutants.state import state_path
+
 LOG = logging.getLogger("mutants.itemsdbg")
 
 
@@ -23,8 +25,9 @@ def setup_file_logging() -> None:
         if hasattr(handler, "baseFilename")
     ):
         return
-    os.makedirs("state/logs", exist_ok=True)
-    fh = logging.FileHandler("state/logs/items_debug.log", encoding="utf-8")
+    log_dir = state_path("logs")
+    log_dir.mkdir(parents=True, exist_ok=True)
+    fh = logging.FileHandler(log_dir / "items_debug.log", encoding="utf-8")
     fmt = logging.Formatter("%(asctime)s %(levelname)s %(message)s")
     fh.setFormatter(fmt)
     LOG.setLevel(logging.INFO)

@@ -1,22 +1,26 @@
 from __future__ import annotations
 import json, os
 
-ROOT = os.getcwd()
-PATH = os.path.join(ROOT, "state", "runtime", "trace.json")
+import json
+import os
+
+from mutants.state import state_path
+
+PATH = state_path("runtime", "trace.json")
 
 
 def _load() -> dict:
     try:
-        with open(PATH, "r", encoding="utf-8") as f:
+        with PATH.open("r", encoding="utf-8") as f:
             return json.load(f)
     except FileNotFoundError:
         return {}
 
 
 def _save(d: dict) -> None:
-    os.makedirs(os.path.dirname(PATH), exist_ok=True)
-    tmp = PATH + ".tmp"
-    with open(tmp, "w", encoding="utf-8") as f:
+    PATH.parent.mkdir(parents=True, exist_ok=True)
+    tmp = PATH.with_name(PATH.name + ".tmp")
+    with tmp.open("w", encoding="utf-8") as f:
         json.dump(d, f, indent=2)
     os.replace(tmp, PATH)
 

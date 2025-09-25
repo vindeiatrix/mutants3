@@ -1,25 +1,28 @@
 from __future__ import annotations
-import json, os, time
+
+import json
+import os
+import time
 from typing import Dict, Optional
 
+from mutants.state import state_path
 from mutants.util.directions import DELTA as _DELTA, OPP as _OPP
 
-ROOT = os.getcwd()
-PATH = os.path.join(ROOT, "state", "world", "dynamics.json")
+PATH = state_path("world", "dynamics.json")
 
 
 def _load() -> Dict[str, Dict]:
     try:
-        with open(PATH, "r", encoding="utf-8") as f:
+        with PATH.open("r", encoding="utf-8") as f:
             return json.load(f)
     except FileNotFoundError:
         return {}
 
 
 def _save(data: Dict[str, Dict]) -> None:
-    tmp = PATH + ".tmp"
-    os.makedirs(os.path.dirname(PATH), exist_ok=True)
-    with open(tmp, "w", encoding="utf-8") as f:
+    tmp = PATH.with_name(PATH.name + ".tmp")
+    PATH.parent.mkdir(parents=True, exist_ok=True)
+    with tmp.open("w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
     os.replace(tmp, PATH)
 

@@ -3,12 +3,14 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Mapping
 
-import os, logging
+import logging
+import os
 
 from mutants.bootstrap.lazyinit import ensure_player_state
 from mutants.bootstrap.runtime import ensure_runtime
 from mutants.data.room_headers import ROOM_HEADERS, STORE_FOR_SALE_IDX
 from mutants.registries.world import load_nearest_year
+from mutants.state import state_path
 from mutants.ui import renderer
 from mutants.debug.turnlog import TurnObserver
 from mutants.debug import items_probe
@@ -46,7 +48,7 @@ def _resolve_header_text(tile: dict, year: int) -> str:
 # ---------------------------------------------------------------------------
 
 # Paths
-DEFAULT_THEME_PATH = Path("state/ui/themes/bbs.json")
+DEFAULT_THEME_PATH = state_path("ui", "themes", "bbs.json")
 
 _CURRENT_CTX: Dict[str, Any] | None = None
 
