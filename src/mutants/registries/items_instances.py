@@ -208,60 +208,30 @@ def _handle_duplicates(
         )
     LOG.info(*message)
 
-def _collect_enchant_blockers(
-    inst: Dict[str, Any], template: Optional[Dict[str, Any]]
-) -> List[str]:
-    reasons: List[str] = []
-    tpl = template if isinstance(template, dict) else {}
-
-    if tpl:
-        if not _coerce_bool(tpl.get("enchantable")):
-            reasons.append("not_enchantable")
-    else:
-        reasons.append("not_enchantable")
-
-    broken = _is_broken_instance(inst) or _is_broken_item_id(str(tpl.get("item_id", "")))
-    if broken:
-        reasons.append("broken")
-
-    if not broken:
-        condition = _sanitize_condition(inst.get("condition"))
-        if inst.get("condition") != condition:
-            inst["condition"] = condition
-        if condition < 100:
-            reasons.append("condition")
-
-    level = _sanitize_enchant_level(inst.get("enchant_level"))
-    if inst.get("enchant_level") != level:
-        inst["enchant_level"] = level
-    if level >= 100:
-        reasons.append("max_enchant")
-
-    return reasons
-
-
 def enchant_blockers_for(
     iid: str, *, template: Optional[Dict[str, Any]] = None
 ) -> List[str]:
+    """Return legacy enchantment blockers for ``iid``.
+
+    Runtime blockers are no longer enforced and the list is kept for backwards
+    compatibility.  It now only reports a missing instance.
+    """
+
     inst = get_instance(iid)
     if not inst:
         return ["missing_instance"]
 
-    tpl = template
-    if tpl is None:
-        try:
-            catalog = items_catalog.load_catalog()
-        except FileNotFoundError:
-            catalog = None
-        if catalog:
-            tpl_id = _item_id(inst)
-            tpl = catalog.get(tpl_id) if tpl_id else None
-
-    return _collect_enchant_blockers(inst, tpl)
+    return []
 
 
 def is_enchantable(iid: str, *, template: Optional[Dict[str, Any]] = None) -> bool:
-    return not enchant_blockers_for(iid, template=template)
+    """Return True when the instance exists.
+
+    Runtime checks for enchantment eligibility are no longer performed; the
+    validator now enforces catalogue invariants instead.
+    """
+
+    return get_instance(iid) is not None
 
 
 
