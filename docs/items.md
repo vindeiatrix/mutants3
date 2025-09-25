@@ -12,7 +12,8 @@ See also: [utilities](utilities.md).
 The catalog includes a handful of spawnable-but-unremarkable entries that make
 manual testing easier:
 
-* `short_sword` — basic melee weapon with `base_power` 5 and `riblet_value`
+* `short_sword` — basic melee weapon with `base_power_melee` 5,
+  `base_power_bolt` 5, and `riblet_value`
   200 for exercising equip/look/drop flows.
 * `scrap_armour` — light armour with `armour_class` 1 intended for verifying
   armour interactions after manually placing it into the armour slot inside a

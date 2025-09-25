@@ -139,6 +139,11 @@ def _normalize_items(items: List[Dict[str, Any]]) -> tuple[List[str], List[str]]
                 it["base_power_bolt"] = legacy_value
                 melee_power = legacy_value
                 bolt_power = legacy_value
+        if legacy_power is not None:
+            warnings.append(
+                f"{iid}: base_power will become an error after 2024-09-01; "
+                "run scripts/expand_item_power_fields.py to migrate."
+            )
 
         melee_value = _coerce_non_negative_int("base_power_melee", melee_power)
         if melee_value is not None:
@@ -185,6 +190,12 @@ def _normalize_items(items: List[Dict[str, Any]]) -> tuple[List[str], List[str]]
             it["poison_melee"] = bool(it.get("poison_melee"))
         if not isinstance(it.get("poison_bolt"), bool):
             it["poison_bolt"] = bool(it.get("poison_bolt"))
+
+        if legacy_poison_flag is not None or legacy_poison_power is not None:
+            warnings.append(
+                f"{iid}: poisonous/poison_power will become errors after 2024-09-01; "
+                "run scripts/expand_item_power_fields.py to migrate."
+            )
 
         melee_poison_power = _coerce_non_negative_int(
             "poison_melee_power", it.get("poison_melee_power")

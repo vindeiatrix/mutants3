@@ -69,7 +69,7 @@ def memory_registry(monkeypatch):
     return seed
 
 
-def test_enchant_blockers_detect_condition_and_level(monkeypatch, memory_registry):
+def test_enchant_blockers_no_longer_block_enchantments(memory_registry):
     memory_registry(
         [
             {
@@ -82,71 +82,17 @@ def test_enchant_blockers_detect_condition_and_level(monkeypatch, memory_registr
         ]
     )
 
-    monkeypatch.setattr(
-        items_instances.items_catalog,
-        "load_catalog",
-        lambda: DummyCatalog({"knife": {"item_id": "knife", "enchantable": True}}),
-    )
-
     blockers = items_instances.enchant_blockers_for("knife#1")
 
-    assert "condition" in blockers
-    assert "max_enchant" in blockers
-    assert not items_instances.is_enchantable("knife#1")
+    assert blockers == []
+    assert items_instances.is_enchantable("knife#1")
 
 
-def test_enchant_blockers_respect_catalog_enchantable_flag(monkeypatch, memory_registry):
-    memory_registry(
-        [
-            {
-                "iid": "wand#1",
-                "instance_id": "wand#1",
-                "item_id": "wand",
-                "condition": 100,
-                "enchant_level": 0,
-            }
-        ]
-    )
+def test_enchant_blockers_only_flag_missing_instances(memory_registry):
+    memory_registry([])
 
-    template = {
-        "item_id": "wand",
-        "ranged": True,
-        "potion": True,
-        "spawnable": True,
-        "enchantable": False,
-    }
-
-    monkeypatch.setattr(
-        items_instances.items_catalog, "load_catalog", lambda: DummyCatalog({"wand": template})
-    )
-
-    blockers = items_instances.enchant_blockers_for("wand#1")
-
-    assert "not_enchantable" in blockers
-    assert "ranged" not in blockers
-    assert "potion" not in blockers
-    assert "spawnable" not in blockers
-
-
-def test_enchant_blockers_detect_broken(monkeypatch, memory_registry):
-    memory_registry(
-        [
-            {
-                "iid": "broke#1",
-                "instance_id": "broke#1",
-                "item_id": items_instances.BROKEN_WEAPON_ID,
-            }
-        ]
-    )
-
-    monkeypatch.setattr(
-        items_instances.items_catalog, "load_catalog", lambda: DummyCatalog({})
-    )
-
-    blockers = items_instances.enchant_blockers_for("broke#1")
-
-    assert "broken" in blockers
-    assert "condition" not in blockers
+    assert items_instances.enchant_blockers_for("missing") == ["missing_instance"]
+    assert not items_instances.is_enchantable("missing")
 
 
 def test_is_enchantable_when_catalog_allows(monkeypatch, memory_registry):

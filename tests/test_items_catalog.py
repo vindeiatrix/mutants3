@@ -72,7 +72,8 @@ def test_normalize_items_copies_legacy_power_fields():
     warnings, errors = items_catalog._normalize_items(items)
 
     assert not errors
-    assert warnings == []
+    assert any("base_power will become an error" in msg for msg in warnings)
+    assert any("poisonous/poison_power will become errors" in msg for msg in warnings)
 
     entry = items[0]
     assert entry["base_power_melee"] == 9
