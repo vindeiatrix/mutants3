@@ -9,3 +9,4 @@ state/**
 !state/ui/themes/bbs.json
 !state/ui/themes/mono.json
 .pytest_cache/
+site/

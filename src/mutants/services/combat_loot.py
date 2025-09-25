@@ -30,6 +30,8 @@ def _resolve_item_id(entry: Mapping[str, object]) -> str:
 
 
 def coerce_pos(value, fallback: tuple[int, int, int] | None = None) -> tuple[int, int, int] | None:
+    """Return ``(year, x, y)`` when ``value`` looks like positional data."""
+
     if isinstance(value, Mapping):
         coords: Sequence[object] = (
             value.get("year"),
@@ -57,6 +59,8 @@ def drop_new_entries(
     *,
     origin: str = "monster_drop",
 ) -> list[str]:
+    """Mint entries at ``pos`` and return their instance IDs."""
+
     year, x, y = pos
     minted: list[str] = []
     for entry in entries:
@@ -119,6 +123,8 @@ def drop_new_entries(
 
 
 def drop_existing_iids(iids: Iterable[str], pos: tuple[int, int, int]) -> list[str]:
+    """Move existing ``iids`` to ``pos`` and return the resolved IDs."""
+
     year, x, y = pos
     dropped: list[str] = []
     for iid in iids:
@@ -135,6 +141,8 @@ def drop_existing_iids(iids: Iterable[str], pos: tuple[int, int, int]) -> list[s
 
 
 def spawn_skull(pos: tuple[int, int, int], *, origin: str = "monster_drop") -> list[str]:
+    """Spawn the mandatory skull drop at ``pos``."""
+
     return drop_new_entries([{"item_id": "skull"}], pos, origin=origin)
 
 
@@ -171,9 +179,23 @@ def drop_monster_loot(
 ) -> tuple[list[dict[str, object]], list[dict[str, object]]]:
     """Drop monster loot respecting ground capacity and deterministic order.
 
-    Returns a tuple ``(minted, vaporized)`` where each element is a list of
-    cloned entry payloads annotated with ``drop_source`` and, for minted
-    entries, the generated ``iid``.
+    Parameters
+    ----------
+    pos
+        Coordinates where drops should appear.
+    bag_entries
+        Iterable of item payloads sourced from the monster's inventory.
+    armour_entry
+        Optional armour payload to drop.
+    bus
+        Event emitter for logging loot events.
+    catalog
+        Optional catalog mapping used for labels.
+
+    Returns
+    -------
+    tuple[list[dict[str, object]], list[dict[str, object]]]
+        ``(minted, vaporized)`` payloads annotated with ``drop_source``.
     """
 
     attempts: list[tuple[str, Mapping[str, object]]] = []

@@ -1,0 +1,7 @@
+mkdocstrings
+Mutants
+IID
+IIDs
+monsters
+loot
+MkDocs
