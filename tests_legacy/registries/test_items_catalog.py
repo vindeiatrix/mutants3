@@ -57,7 +57,8 @@ def test_charges_alias_and_defaults(tmp_path: Path) -> None:
             "name": "Rod",
             "weight": 1,
             "ranged": True,
-            "base_power": 4,
+            "base_power_melee": 4,
+            "base_power_bolt": 4,
             "charges_start": 5,
             "spawnable": False,
         }

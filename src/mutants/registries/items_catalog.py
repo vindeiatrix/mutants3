@@ -192,16 +192,9 @@ def _normalize_items(items: List[Dict[str, Any]]) -> tuple[List[str], List[str]]
         melee_power = it.get("base_power_melee")
         bolt_power = it.get("base_power_bolt")
 
-        if melee_power is None and bolt_power is None and legacy_power is not None:
-            legacy_value = _coerce_non_negative_int("base_power", legacy_power)
-            if legacy_value is not None:
-                it["base_power_melee"] = legacy_value
-                it["base_power_bolt"] = legacy_value
-                melee_power = legacy_value
-                bolt_power = legacy_value
         if legacy_power is not None:
-            warnings.append(
-                f"{iid}: base_power will become an error after 2024-09-01; "
+            errors.append(
+                f"{iid}: base_power is no longer allowed; "
                 "run scripts/expand_item_power_fields.py to migrate."
             )
 

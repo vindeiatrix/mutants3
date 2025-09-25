@@ -56,7 +56,7 @@ def test_normalize_items_requires_ranged_base_powers():
     )
 
 
-def test_normalize_items_copies_legacy_power_fields():
+def test_normalize_items_rejects_legacy_base_power():
     items = [
         {
             "item_id": "ion_wand",
@@ -71,17 +71,9 @@ def test_normalize_items_copies_legacy_power_fields():
 
     warnings, errors = items_catalog._normalize_items(items)
 
-    assert not errors
-    assert any("base_power will become an error" in msg for msg in warnings)
+    assert errors
+    assert any("base_power is no longer allowed" in msg for msg in errors)
     assert any("poisonous/poison_power will become errors" in msg for msg in warnings)
-
-    entry = items[0]
-    assert entry["base_power_melee"] == 9
-    assert entry["base_power_bolt"] == 9
-    assert entry["poison_melee"] is True
-    assert entry["poison_bolt"] is True
-    assert entry["poison_melee_power"] == 2
-    assert entry["poison_bolt_power"] == 2
 
 
 def test_normalize_items_requires_spawnable():
