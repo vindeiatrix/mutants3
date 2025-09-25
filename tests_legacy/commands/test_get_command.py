@@ -1,9 +1,11 @@
-import json, shutil
+import json
+import shutil
 from pathlib import Path
 
-from src.mutants.commands.get import get_cmd
-from src.mutants.registries import items_instances as itemsreg
-from src.mutants.ui import item_display as idisp
+from mutants.commands.get import get_cmd
+from mutants.registries import items_instances as itemsreg
+from mutants import state as state_mod
+from mutants.ui import item_display as idisp
 
 
 class DummyWorld:
@@ -40,21 +42,67 @@ def _setup(monkeypatch, tmp_path, ground_items):
     dst_state = tmp_path / "state"
     _copy_state(src_state, dst_state)
     monkeypatch.chdir(tmp_path)
-    itemsreg._CACHE = None
+    monkeypatch.setenv("GAME_STATE_ROOT", str(dst_state))
+    monkeypatch.setattr(state_mod, "STATE_ROOT", dst_state)
+    monkeypatch.setattr(
+        itemsreg,
+        "DEFAULT_INSTANCES_PATH",
+        state_mod.state_path("items", "instances.json"),
+    )
+    monkeypatch.setattr(
+        itemsreg,
+        "FALLBACK_INSTANCES_PATH",
+        state_mod.state_path("instances.json"),
+    )
+    monkeypatch.setattr(
+        itemsreg,
+        "CATALOG_PATH",
+        state_mod.state_path("items", "catalog.json"),
+    )
+    itemsreg.invalidate_cache()
     # ensure starting tile has no items
     for inst in itemsreg.list_instances_at(2000, 0, 0):
         iid = inst.get("iid") or inst.get("instance_id")
         if iid:
             itemsreg.clear_position(iid)
     itemsreg.save_instances()
-    iids = []
     for item_id in ground_items:
-        iid = itemsreg.create_and_save_instance(item_id, 2000, 0, 0)
-        iids.append(iid)
+        itemsreg.create_and_save_instance(item_id, 2000, 0, 0)
+    itemsreg.invalidate_cache()
+    iids = [
+        str(inst.get("iid") or inst.get("instance_id"))
+        for inst in itemsreg.list_instances_at(2000, 0, 0)
+    ]
     pfile = Path("state/playerlivestate.json")
     with pfile.open("r", encoding="utf-8") as f:
         pdata = json.load(f)
     pid = pdata["players"][0]["id"]
+    pdata["inventory"] = []
+    pdata["players"][0]["inventory"] = []
+    active = pdata.get("active")
+    if isinstance(active, dict):
+        active["inventory"] = []
+    player_active = pdata["players"][0].get("active")
+    if isinstance(player_active, dict):
+        player_active["inventory"] = []
+    bags = pdata.get("bags")
+    if isinstance(bags, dict):
+        for key in list(bags.keys()):
+            bags[key] = []
+    bags_by_class = pdata.get("bags_by_class")
+    if isinstance(bags_by_class, dict):
+        for key in list(bags_by_class.keys()):
+            bags_by_class[key] = []
+    player_bags = pdata["players"][0].get("bags")
+    if isinstance(player_bags, dict):
+        for key in list(player_bags.keys()):
+            player_bags[key] = []
+    player_bags_by_class = pdata["players"][0].get("bags_by_class")
+    if isinstance(player_bags_by_class, dict):
+        for key in list(player_bags_by_class.keys()):
+            player_bags_by_class[key] = []
+    with pfile.open("w", encoding="utf-8") as f:
+        json.dump(pdata, f, indent=2)
     ctx = _ctx()
     ctx["player_state"] = {
         "active_id": pid,

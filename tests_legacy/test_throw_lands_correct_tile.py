@@ -1,9 +1,11 @@
-import json, shutil
+import json
+import shutil
 from pathlib import Path
 import pytest
 
 from mutants.services.item_transfer import throw_to_direction as do_throw
 from mutants.registries import items_instances as itemsreg
+from mutants import state as state_mod
 
 
 class DummyWorld:
@@ -40,14 +42,44 @@ def _setup(monkeypatch, tmp_path):
     dst_state = tmp_path / "state"
     _copy_state(src_state, dst_state)
     monkeypatch.chdir(tmp_path)
-    itemsreg._CACHE = None
+    monkeypatch.setenv("GAME_STATE_ROOT", str(dst_state))
+    monkeypatch.setattr(state_mod, "STATE_ROOT", dst_state)
+    monkeypatch.setattr(
+        itemsreg,
+        "DEFAULT_INSTANCES_PATH",
+        state_mod.state_path("items", "instances.json"),
+    )
+    monkeypatch.setattr(
+        itemsreg,
+        "FALLBACK_INSTANCES_PATH",
+        state_mod.state_path("instances.json"),
+    )
+    monkeypatch.setattr(
+        itemsreg,
+        "CATALOG_PATH",
+        state_mod.state_path("items", "catalog.json"),
+    )
+    itemsreg.invalidate_cache()
     pfile = Path("state/playerlivestate.json")
     with pfile.open("r", encoding="utf-8") as f:
         pdata = json.load(f)
     iid = itemsreg.create_and_save_instance("skull", 2000, 0, 0)
     itemsreg.clear_position(iid)
     pdata["inventory"] = [iid]
+    pdata["players"][0]["inventory"] = [iid]
     pdata["players"][0]["pos"] = [2000, 10, 10]
+    active = pdata.get("active")
+    if isinstance(active, dict):
+        active["inventory"] = [iid]
+        active["pos"] = [2000, 10, 10]
+    bags = pdata.get("bags")
+    if isinstance(bags, dict):
+        for key in list(bags.keys()):
+            bags[key] = [iid]
+    bags_by_class = pdata.get("bags_by_class")
+    if isinstance(bags_by_class, dict):
+        for key in list(bags_by_class.keys()):
+            bags_by_class[key] = [iid]
     with pfile.open("w", encoding="utf-8") as f:
         json.dump(pdata, f)
     ctx = _ctx()

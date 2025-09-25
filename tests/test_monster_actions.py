@@ -108,7 +108,7 @@ def test_convert_only_uses_picked_items(monkeypatch: pytest.MonkeyPatch) -> None
     ctx: Dict[str, Any] = {"feedback_bus": bus}
 
     monkeypatch.setattr(monster_actions, "_load_catalog", lambda: {"wand": {"convert_ions": 1200}})
-    monkeypatch.setattr(monster_actions.itemsreg, "delete_instance", lambda iid: iid == "pickup")
+    monkeypatch.setattr(monster_actions.itemsreg, "remove_instance", lambda iid: iid == "pickup")
     monkeypatch.setattr(monster_actions.itemsreg, "get_instance", lambda iid: {"iid": iid, "item_id": "wand"})
 
     _force_action(monkeypatch, "convert")
@@ -149,12 +149,17 @@ def test_remove_broken_armour(monkeypatch: pytest.MonkeyPatch) -> None:
 def test_monster_kill_player_transfers_loot(monkeypatch: pytest.MonkeyPatch) -> None:
     data: list[dict[str, Any]] = []
 
-    def fake_cache() -> list[dict[str, Any]]:
+    def fake_load() -> list[dict[str, Any]]:
         return data
 
-    monkeypatch.setattr(monster_actions.itemsreg, "_cache", fake_cache)
-    monkeypatch.setattr(monster_actions.itemsreg, "_save_instances_raw", lambda raw: None)
+    def fake_save(raw: list[dict[str, Any]]) -> None:
+        data[:] = list(raw)
+        monster_actions.itemsreg.invalidate_cache()
+
+    monkeypatch.setattr(monster_actions.itemsreg, "_load_instances_raw", fake_load)
+    monkeypatch.setattr(monster_actions.itemsreg, "_save_instances_raw", fake_save)
     monkeypatch.setattr(monster_actions.itemsreg, "save_instances", lambda: None)
+    monster_actions.itemsreg.invalidate_cache()
 
     monster = {
         "id": "ogre#1",

@@ -1,12 +1,13 @@
 from __future__ import annotations
 
+import inspect
 import json
 import logging
 import os
 import uuid
 from collections.abc import MutableSet
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, MutableMapping, Optional, Tuple
+from typing import Any, Dict, Iterable, List, Mapping, MutableMapping, Optional, Tuple
 
 from mutants.io.atomic import atomic_write_json
 from mutants.state import state_path
@@ -17,6 +18,13 @@ FALLBACK_INSTANCES_PATH = state_path("instances.json")  # auto-fallback if the n
 CATALOG_PATH = state_path("items", "catalog.json")
 
 LOG = logging.getLogger("mutants.itemsdbg")
+
+
+class _RemoveSentinel:
+    pass
+
+
+REMOVE_FIELD = _RemoveSentinel()
 
 
 def _strict_duplicate_default() -> bool:
@@ -528,6 +536,14 @@ _CACHE_PATH: Optional[str] = None
 _CACHE_MTIME: Optional[float] = None
 
 
+def _ensure_internal_access() -> None:
+    frame = inspect.currentframe()
+    if frame is None or frame.f_back is None:
+        return
+    module_name = frame.f_back.f_globals.get("__name__")
+    assert module_name == __name__, "_cache() is private to items_instances"
+
+
 def _instances_path() -> Path:
     primary = Path(DEFAULT_INSTANCES_PATH)
     if primary.exists():
@@ -552,6 +568,7 @@ def invalidate_cache() -> None:
 
 
 def _cache() -> List[Dict[str, Any]]:
+    _ensure_internal_access()
     global _CACHE, _CACHE_PATH, _CACHE_MTIME
     path = _instances_path()
     mtime = _stat_mtime(path)
@@ -575,6 +592,161 @@ def _cache() -> List[Dict[str, Any]]:
 
     assert _CACHE is not None
     return _CACHE
+
+
+def _ensure_iid(payload: MutableMapping[str, Any], seen: set[str]) -> str:
+    iid = _instance_id(payload)
+    if iid and iid not in seen:
+        payload["iid"] = iid
+        payload["instance_id"] = iid
+        return iid
+
+    iid = mint_iid(seen=seen)
+    payload["iid"] = iid
+    payload["instance_id"] = iid
+    return iid
+
+
+def mint_instance(item_id: str, origin: str = "unknown") -> str:
+    """Create, persist, and return a new instance id for ``item_id``."""
+
+    raw = _cache()
+    seen: set[str] = {iid for iid in (_instance_id(inst) for inst in raw) if iid}
+    iid = mint_iid(seen=seen)
+
+    template: Mapping[str, Any] | None = None
+    try:
+        catalog = items_catalog.load_catalog()
+    except FileNotFoundError:
+        catalog = None
+    if catalog is not None and hasattr(catalog, "get"):
+        maybe = catalog.get(str(item_id))  # type: ignore[call-arg]
+        if isinstance(maybe, Mapping):
+            template = maybe
+
+    inst: Dict[str, Any] = {
+        "iid": iid,
+        "instance_id": iid,
+        "item_id": str(item_id),
+        "origin": str(origin),
+        "enchant_level": 0,
+        "enchanted": "no",
+        "condition": 100,
+        "god_tier": False,
+    }
+
+    if isinstance(template, Mapping):
+        if int(template.get("charges_max", 0) or 0) > 0:
+            inst["charges"] = int(template.get("charges_max", 0) or 0)
+        if "god_tier" in template:
+            inst["god_tier"] = _coerce_bool(template.get("god_tier"))
+
+    _normalize_instance(inst)
+    raw.append(inst)
+    _save_instances_raw(raw)
+    return iid
+
+
+def bulk_add(instances: Iterable[Mapping[str, Any]]) -> List[str]:
+    """Add ``instances`` to the registry ensuring normalization."""
+
+    raw = _cache()
+    seen: set[str] = {iid for iid in (_instance_id(inst) for inst in raw) if iid}
+    added: List[str] = []
+
+    for inst in instances:
+        if isinstance(inst, MutableMapping):
+            payload: Dict[str, Any] = dict(inst)
+        else:
+            payload = dict(inst)
+        iid = _ensure_iid(payload, seen)
+        seen.add(iid)
+        _normalize_instance(payload)
+        raw.append(payload)
+        added.append(iid)
+
+    if added:
+        _save_instances_raw(raw)
+    return added
+
+
+def update_instance(iid: str, **fields: Any) -> Dict[str, Any]:
+    """Update ``iid`` with ``fields`` ensuring normalization and persistence."""
+
+    raw = _cache()
+    target: Optional[Dict[str, Any]] = None
+    siid = str(iid)
+    for inst in raw:
+        inst_id = str(inst.get("iid") or inst.get("instance_id") or "")
+        if inst_id == siid:
+            target = inst
+            break
+
+    if target is None:
+        raise KeyError(iid)
+
+    for key, value in fields.items():
+        if value is REMOVE_FIELD:
+            target.pop(key, None)
+        else:
+            target[key] = value
+    _normalize_instance(target)
+    _save_instances_raw(raw)
+    return target
+
+
+def remove_instance(iid: str) -> bool:
+    """Remove ``iid`` from the registry returning True if it existed."""
+
+    raw = _cache()
+    siid = str(iid)
+    before = len(raw)
+    raw[:] = [inst for inst in raw if str(inst.get("iid") or inst.get("instance_id") or "") != siid]
+    removed = before != len(raw)
+    if removed:
+        _save_instances_raw(raw)
+    return removed
+
+
+def move_instance(
+    iid: str,
+    *,
+    src: Optional[Tuple[int, int, int]] = None,
+    dest: Optional[Tuple[int, int, int]] = None,
+) -> bool:
+    """Move ``iid`` from ``src`` to ``dest`` verifying invariants."""
+
+    raw = _cache()
+    target: Optional[Dict[str, Any]] = None
+    siid = str(iid)
+    for inst in raw:
+        inst_id = str(inst.get("iid") or inst.get("instance_id") or "")
+        if inst_id == siid:
+            target = inst
+            break
+
+    if target is None:
+        return False
+
+    current = _pos_of(target)
+    if src is not None and current != tuple(map(int, src)):
+        return False
+
+    if dest is None:
+        target.pop("pos", None)
+        target["year"] = -1
+        target["x"] = -1
+        target["y"] = -1
+    else:
+        year, x, y = (int(dest[0]), int(dest[1]), int(dest[2]))
+        target["pos"] = {"year": year, "x": x, "y": y}
+        target["year"] = year
+        target["x"] = x
+        target["y"] = y
+
+    _normalize_instance(target)
+    _save_instances_raw(raw)
+    return True
 
 def save_instances() -> None:
     """Persist the cached instances list back to disk."""
@@ -625,13 +797,7 @@ def get_instance(iid: str) -> Optional[Dict[str, Any]]:
 def delete_instance(iid: str) -> int:
     """Remove the instance identified by ``iid`` from the cache and persist."""
 
-    raw = _cache()
-    siid = str(iid)
-    before = len(raw)
-    raw[:] = [inst for inst in raw if str(inst.get("iid") or inst.get("instance_id") or "") != siid]
-    removed = before - len(raw)
-    _save_instances_raw(raw)
-    return removed
+    return int(remove_instance(iid))
 
 
 def get_enchant_level(iid: str) -> int:

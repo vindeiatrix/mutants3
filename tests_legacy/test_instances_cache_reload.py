@@ -5,7 +5,8 @@ import os
 import shutil
 from pathlib import Path
 
-from src.mutants.registries import items_instances as itemsreg
+from mutants.registries import items_instances as itemsreg
+from mutants import state as state_mod
 
 
 def _copy_state(src: Path, dst: Path) -> None:
@@ -18,6 +19,23 @@ def test_cache_refreshes_when_timestamp_moves_backwards(monkeypatch, tmp_path):
     _copy_state(src_state, dst_state)
 
     monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("GAME_STATE_ROOT", str(dst_state))
+    monkeypatch.setattr(state_mod, "STATE_ROOT", dst_state)
+    monkeypatch.setattr(
+        itemsreg,
+        "DEFAULT_INSTANCES_PATH",
+        state_mod.state_path("items", "instances.json"),
+    )
+    monkeypatch.setattr(
+        itemsreg,
+        "FALLBACK_INSTANCES_PATH",
+        state_mod.state_path("instances.json"),
+    )
+    monkeypatch.setattr(
+        itemsreg,
+        "CATALOG_PATH",
+        state_mod.state_path("items", "catalog.json"),
+    )
     itemsreg.invalidate_cache()
 
     iid = itemsreg.create_and_save_instance("skull", 2000, 0, 0)

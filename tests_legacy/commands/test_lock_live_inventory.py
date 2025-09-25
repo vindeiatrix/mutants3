@@ -6,6 +6,7 @@ from mutants.repl.dispatch import Dispatch
 from mutants.commands import lock as lock_cmd, debug as debug_cmd
 from mutants.registries.world import BASE_GATE
 from mutants.registries import items_instances as itemsreg
+from mutants import state as state_mod
 
 
 class DummyWorld:
@@ -20,8 +21,25 @@ def test_lock_uses_live_inventory(tmp_path, monkeypatch):
     shutil.copytree(src, dst)
     monkeypatch.chdir(tmp_path)
 
-    itemsreg._CACHE = None
-    monkeypatch.setattr(lock_cmd.dyn, "PATH", str(Path("state/world/dynamics.json")))
+    monkeypatch.setenv("GAME_STATE_ROOT", str(dst))
+    monkeypatch.setattr(state_mod, "STATE_ROOT", dst)
+    monkeypatch.setattr(
+        itemsreg,
+        "DEFAULT_INSTANCES_PATH",
+        state_mod.state_path("items", "instances.json"),
+    )
+    monkeypatch.setattr(
+        itemsreg,
+        "FALLBACK_INSTANCES_PATH",
+        state_mod.state_path("instances.json"),
+    )
+    monkeypatch.setattr(
+        itemsreg,
+        "CATALOG_PATH",
+        state_mod.state_path("items", "catalog.json"),
+    )
+    itemsreg.invalidate_cache()
+    monkeypatch.setattr(lock_cmd.dyn, "PATH", Path("state/world/dynamics.json"))
     ctx = context.build_context()
     ctx["world_loader"] = lambda year: DummyWorld()
 

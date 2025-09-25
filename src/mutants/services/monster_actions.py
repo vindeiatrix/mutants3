@@ -609,7 +609,7 @@ def _convert_item(
     _remove_picked_up(monster, iid)
     if monster.get("wielded") == iid:
         monster["wielded"] = None
-    itemsreg.delete_instance(iid)
+    itemsreg.remove_instance(iid)
     monster["ions"] = max(0, int(monster.get("ions", 0))) + best_value
     _refresh_monster(monster)
     _mark_monsters_dirty(ctx)

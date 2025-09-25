@@ -10,10 +10,16 @@ from mutants.services import items_wear
 def in_memory_instances(monkeypatch):
     data = []
 
-    def fake_cache():
+    def fake_load():
         return data
 
-    monkeypatch.setattr(items_instances, "_cache", fake_cache)
+    def fake_save(raw):
+        data[:] = list(raw)
+        items_instances.invalidate_cache()
+
+    monkeypatch.setattr(items_instances, "_load_instances_raw", fake_load)
+    monkeypatch.setattr(items_instances, "_save_instances_raw", fake_save)
+    items_instances.invalidate_cache()
     return data
 
 

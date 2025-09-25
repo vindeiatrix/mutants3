@@ -1,5 +1,5 @@
-from src.mutants.app.context import build_context, flush_feedback
-from src.mutants.repl.dispatch import Dispatch
+from mutants.app.context import build_context, flush_feedback
+from mutants.repl.dispatch import Dispatch
 
 
 def test_flush_feedback_prints_events(capsys):

@@ -1,4 +1,4 @@
-from src.mutants.repl.dispatch import Dispatch
+from mutants.repl.dispatch import Dispatch
 
 
 class FakeBus:
