@@ -369,19 +369,19 @@ def format_report_table(records: List[RecordResult]) -> str:
 
 def print_report(report: ImportReport, *, dry_run: bool, out: TextIO = sys.stdout) -> None:
     table = format_report_table(report.records)
-    print(table, file=out)
-    print(file=out)
+    out.write(f"{table}\n")
+    out.write("\n")
 
     if report.imported_count:
-        print(f"Imported {report.imported_count} monster(s).", file=out)
+        out.write(f"Imported {report.imported_count} monster(s).\n")
         if report.per_year:
-            print("Per year:", file=out)
+            out.write("Per year:\n")
             for year, count in report.per_year.items():
-                print(f"  {year}: {count}", file=out)
-        print(f"Minted {report.minted_iids} item IID(s).", file=out)
+                out.write(f"  {year}: {count}\n")
+        out.write(f"Minted {report.minted_iids} item IID(s).\n")
 
     if report.rejected_count:
-        print(f"Rejected {report.rejected_count} monster(s).", file=out)
+        out.write(f"Rejected {report.rejected_count} monster(s).\n")
 
     if dry_run:
-        print("Dry-run: no changes were written.", file=out)
+        out.write("Dry-run: no changes were written.\n")

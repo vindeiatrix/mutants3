@@ -21,6 +21,7 @@ Notes:
 from __future__ import annotations
 
 import json
+import logging
 import os
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -33,6 +34,9 @@ try:
 except Exception:  # pragma: no cover
     import importlib_resources  # type: ignore
     files = importlib_resources.files  # type: ignore
+
+
+LOG = logging.getLogger(__name__)
 
 
 # ---------- Domain helpers ----------
@@ -166,8 +170,11 @@ def ensure_player_state(state_dir: str = "state",
             if isinstance(data, dict) and "players" in data and "active_id" in data:
                 return data
             raise ValueError("missing required keys: players/active_id")
-        except Exception as e:
-            print(f"[warn] {out_path} invalid or unreadable ({e}); rebuilding from templates...", flush=True)
+        except Exception:
+            LOG.warning(
+                "%s invalid or unreadable; rebuilding from templates", out_path,
+                exc_info=True,
+            )
             # Move the bad file aside so we don't overwrite it.
             try:
                 bad_path = out_path.with_suffix(out_path.suffix + ".bad")
@@ -206,6 +213,11 @@ def ensure_player_state(state_dir: str = "state",
 
 if __name__ == "__main__":
     # Ensure basic item state alongside player state when run directly.
+    logging.basicConfig(level=logging.INFO)
     ensure_item_state()
     st = ensure_player_state()
-    print(f"playerlivestate.json ready with {len(st.get('players', []))} classes; active_id={st.get('active_id')}")
+    LOG.info(
+        "playerlivestate.json ready with %s classes; active_id=%s",
+        len(st.get("players", [])),
+        st.get("active_id"),
+    )
