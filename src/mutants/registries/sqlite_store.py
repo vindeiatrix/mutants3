@@ -7,7 +7,7 @@ from pathlib import Path
 from time import time
 from typing import Any, Dict, Iterable, Optional, Sequence
 
-from mutants.state import default_repo_state
+from mutants.env import get_state_database_path
 
 __all__ = [
     "SQLiteConnectionManager",
@@ -15,24 +15,10 @@ __all__ = [
     "SQLiteMonstersInstanceStore",
 ]
 
-
-
-def _default_state_root() -> Path:
-    """Resolve the default state root considering ``GAME_STATE_ROOT``."""
-
-    override = os.getenv("GAME_STATE_ROOT")
-    if override:
-        path = Path(override).expanduser()
-        if not path.is_absolute():
-            path = Path.cwd() / path
-        return path
-    return default_repo_state()
-
-
 def _resolve_db_path(db_path: Optional[os.PathLike[str] | str]) -> Path:
     if db_path is not None:
         return Path(db_path)
-    return _default_state_root() / "mutants.db"
+    return get_state_database_path()
 
 
 class SQLiteConnectionManager:
