@@ -3,11 +3,13 @@ from __future__ import annotations
 import os
 import sqlite3
 from pathlib import Path
-from typing import Optional
+from time import time
+from typing import Any, Dict, Iterable, Optional, Sequence
 
 from mutants.state import default_repo_state
 
-__all__ = ["SQLiteConnectionManager"]
+__all__ = ["SQLiteConnectionManager", "SQLiteItemsInstanceStore"]
+
 
 
 def _default_state_root() -> Path:
@@ -56,6 +58,7 @@ class SQLiteConnectionManager:
             self._connection = None
 
     def _configure_connection(self, conn: sqlite3.Connection) -> None:
+        conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA journal_mode=WAL")
         conn.execute("PRAGMA synchronous=NORMAL")
         conn.execute("PRAGMA busy_timeout=5000")
@@ -125,3 +128,128 @@ class SQLiteConnectionManager:
                 ON monsters_instances(year, x, y)
                 """
             )
+
+
+class SQLiteItemsInstanceStore:
+    """SQLite-backed implementation of :class:`ItemsInstanceStore`."""
+
+    __slots__ = ("_manager",)
+
+    _COLUMNS: Sequence[str] = (
+        "iid",
+        "item_id",
+        "year",
+        "x",
+        "y",
+        "owner",
+        "enchant",
+        "condition",
+        "origin",
+        "drop_source",
+        "created_at",
+    )
+
+    def __init__(self, manager: SQLiteConnectionManager) -> None:
+        self._manager = manager
+
+    def _connection(self) -> sqlite3.Connection:
+        return self._manager.connect()
+
+    def _row_to_dict(self, row: sqlite3.Row) -> Dict[str, Any]:
+        return {key: row[key] for key in self._COLUMNS}
+
+    def get_by_iid(self, iid: str) -> Optional[Dict[str, Any]]:
+        conn = self._connection()
+        cur = conn.execute(
+            "SELECT iid, item_id, year, x, y, owner, enchant, condition, origin, drop_source, created_at "
+            "FROM items_instances WHERE iid = ?",
+            (str(iid),),
+        )
+        row = cur.fetchone()
+        if row is None:
+            return None
+        return self._row_to_dict(row)
+
+    def list_at(self, year: int, x: int, y: int) -> Iterable[Dict[str, Any]]:
+        conn = self._connection()
+        cur = conn.execute(
+            "SELECT iid, item_id, year, x, y, owner, enchant, condition, origin, drop_source, created_at "
+            "FROM items_instances WHERE year = ? AND x = ? AND y = ? "
+            "ORDER BY created_at ASC, iid ASC",
+            (year, x, y),
+        )
+        return [self._row_to_dict(row) for row in cur.fetchall()]
+
+    def list_by_owner(self, owner: str) -> Iterable[Dict[str, Any]]:
+        conn = self._connection()
+        cur = conn.execute(
+            "SELECT iid, item_id, year, x, y, owner, enchant, condition, origin, drop_source, created_at "
+            "FROM items_instances WHERE owner = ? ORDER BY created_at ASC, iid ASC",
+            (str(owner),),
+        )
+        return [self._row_to_dict(row) for row in cur.fetchall()]
+
+    def mint(self, rec: Dict[str, Any]) -> None:
+        payload = {key: rec.get(key) for key in self._COLUMNS}
+        iid = payload["iid"]
+        item_id = payload["item_id"]
+        if iid is None:
+            raise KeyError("iid")
+        if item_id is None:
+            raise KeyError("item_id")
+        payload["iid"] = str(iid)
+        payload["item_id"] = str(item_id)
+
+        if payload["created_at"] is None:
+            created = int(time())
+            payload["created_at"] = created
+            if isinstance(rec, dict):
+                rec.setdefault("created_at", created)
+
+        columns = ", ".join(self._COLUMNS)
+        placeholders = ", ".join("?" for _ in self._COLUMNS)
+        values = tuple(payload[key] for key in self._COLUMNS)
+
+        conn = self._connection()
+        try:
+            with conn:
+                conn.execute(
+                    f"INSERT INTO items_instances ({columns}) VALUES ({placeholders})",
+                    values,
+                )
+        except sqlite3.IntegrityError as exc:  # duplicate iid or other constraint failure
+            raise KeyError(str(iid)) from exc
+
+    def move(self, iid: str, *, year: int, x: int, y: int) -> None:
+        self.update_fields(str(iid), year=year, x=x, y=y)
+
+    def update_fields(self, iid: str, **fields: Any) -> None:
+        if not fields:
+            return
+        updates = []
+        values: list[Any] = []
+        for key, value in fields.items():
+            if key not in self._COLUMNS or key == "iid":
+                raise KeyError(key)
+            updates.append(f"{key} = ?")
+            values.append(value)
+        values.append(str(iid))
+
+        conn = self._connection()
+        with conn:
+            cur = conn.execute(
+                f"UPDATE items_instances SET {', '.join(updates)} WHERE iid = ?",
+                values,
+            )
+            if cur.rowcount == 0:
+                raise KeyError(str(iid))
+
+    def delete(self, iid: str) -> None:
+        conn = self._connection()
+        with conn:
+            cur = conn.execute(
+                "DELETE FROM items_instances WHERE iid = ?",
+                (str(iid),),
+            )
+            if cur.rowcount == 0:
+                raise KeyError(str(iid))
