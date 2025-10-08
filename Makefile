@@ -1,4 +1,5 @@
-.PHONY: docs docs-serve docs-check run-once logs-probe guard-wrap ci-wrap-check
+.PHONY: docs docs-serve docs-check run-once logs-probe guard-wrap ci-wrap-check \
+	sqlite-init sqlite-stats sqlite-vacuum sqlite-purge
 
 DOCS_DEPS = mkdocs-material mkdocstrings[python] mkdocs-mermaid2-plugin
 
@@ -38,3 +39,17 @@ guard-wrap:
 
 # CI convenience: run probe then guard
 ci-wrap-check: logs-probe guard-wrap
+
+# SQLite administration helpers --------------------------------------------
+
+sqlite-init:
+	PYTHONPATH=src python tools/sqlite_admin.py init
+
+sqlite-stats:
+	PYTHONPATH=src python tools/sqlite_admin.py stats
+
+sqlite-vacuum:
+	PYTHONPATH=src python tools/sqlite_admin.py vacuum
+
+sqlite-purge:
+	PYTHONPATH=src python tools/sqlite_admin.py purge
