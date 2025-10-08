@@ -206,10 +206,69 @@ class JSONMonstersInstanceStore:
     __slots__ = ()
 
     @staticmethod
+    def _resolve_path() -> Path:
+        from . import monsters_instances as registry
+
+        primary = Path(registry.DEFAULT_INSTANCES_PATH)
+        fallback = Path(registry.FALLBACK_INSTANCES_PATH)
+        if primary.exists():
+            return primary
+        if fallback.exists():
+            return fallback
+        return primary
+
+    @classmethod
+    def _load_raw(cls) -> List[Dict[str, Any]]:
+        path = cls._resolve_path()
+        if not path.exists():
+            return []
+
+        try:
+            with path.open("r", encoding="utf-8") as fh:
+                data = json.load(fh)
+        except (PermissionError, IsADirectoryError):
+            raise
+        except json.JSONDecodeError:
+            return []
+
+        if isinstance(data, dict) and "instances" in data:
+            items = data["instances"]
+        elif isinstance(data, list):
+            items = data
+        else:
+            return []
+
+        return [dict(inst) for inst in items if isinstance(inst, dict)]
+
+    @staticmethod
     def _load():
         from . import monsters_instances
 
         return monsters_instances.load_monsters_instances()
+
+    def snapshot(self) -> Iterable[Dict[str, Any]]:
+        return list(self._load_raw())
+
+    def replace_all(self, records: Iterable[Dict[str, Any]]) -> None:
+        path = self._resolve_path()
+        data = [dict(record) for record in records if isinstance(record, dict)]
+
+        try:
+            with path.open("r", encoding="utf-8") as fh:
+                original = json.load(fh)
+        except FileNotFoundError:
+            original = []
+        except (PermissionError, IsADirectoryError):
+            raise
+        except json.JSONDecodeError:
+            original = []
+
+        if isinstance(original, dict) and "instances" in original:
+            payload: Any = {"instances": data}
+        else:
+            payload = data
+
+        atomic_write_json(path, payload)
 
     def get(self, mid: str) -> Optional[Dict[str, Any]]:
         registry = self._load()

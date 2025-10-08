@@ -8,6 +8,7 @@ from typing import Any, Dict, Iterable, List, Optional, Tuple
 from mutants.io.atomic import atomic_write_json
 from mutants.registries.monsters_catalog import MonstersCatalog, exp_for
 from mutants.state import state_path
+from .storage import MonstersInstanceStore, get_stores
 
 DEFAULT_INSTANCES_PATH = state_path("monsters", "instances.json")
 FALLBACK_INSTANCES_PATH = state_path("monsters.json")  # optional fallback; rarely used
@@ -26,15 +27,24 @@ class MonstersInstances:
       taunt: str
     }
     """
-    def __init__(self, path: str, items: List[Dict[str, Any]]):
+    def __init__(
+        self,
+        path: Path | str,
+        items: List[Dict[str, Any]],
+        *,
+        store: MonstersInstanceStore | None = None,
+    ):
         self._path = Path(path)
-        self._items: List[Dict[str, Any]] = items
-        self._by_id: Dict[str, Dict[str, Any]] = {m["instance_id"]: m for m in items if "instance_id" in m}
+        self._store = store
+        self._items: List[Dict[str, Any]] = [dict(entry) for entry in items if isinstance(entry, dict)]
+        self._by_id: Dict[str, Dict[str, Any]] = {
+            str(m["instance_id"]): m for m in self._items if "instance_id" in m
+        }
         self._dirty = False
 
     # ---------- Queries ----------
     def get(self, instance_id: str) -> Optional[Dict[str, Any]]:
-        return self._by_id.get(instance_id)
+        return self._by_id.get(str(instance_id))
 
     def list_all(self) -> Iterable[Dict[str, Any]]:
         return list(self._items)
@@ -45,7 +55,8 @@ class MonstersInstances:
     # ---------- Mutations ----------
     def _add(self, inst: Dict[str, Any]) -> Dict[str, Any]:
         self._items.append(inst)
-        self._by_id[inst["instance_id"]] = inst
+        if "instance_id" in inst:
+            self._by_id[str(inst["instance_id"])] = inst
         self._dirty = True
         return inst
 
@@ -115,10 +126,12 @@ class MonstersInstances:
         return self._add(inst)
 
     def set_target_player(self, instance_id: str, player_id: Optional[str]) -> None:
-        m = self._by_id[instance_id]; m["target_player_id"] = player_id; self._dirty = True
+        target = self._by_id[str(instance_id)]
+        target["target_player_id"] = player_id
+        self._dirty = True
 
     def set_ready_target(self, instance_id: str, target_id: Optional[str]) -> None:
-        monster = self._by_id[instance_id]
+        monster = self._by_id[str(instance_id)]
         if target_id is None:
             sanitized = None
         else:
@@ -133,24 +146,63 @@ class MonstersInstances:
     # ---------- Persistence ----------
     def save(self) -> None:
         if self._dirty:
-            atomic_write_json(self._path, self._items)
+            if self._store is not None:
+                self._store.replace_all(self._items)
+            else:
+                atomic_write_json(self._path, self._items)
             self._dirty = False
 
-def load_monsters_instances(path: Path | str = DEFAULT_INSTANCES_PATH) -> MonstersInstances:
+def _resolve_instances_path(path: Path | str) -> Path:
     primary = Path(path)
     fallback = Path(FALLBACK_INSTANCES_PATH)
-    target = primary if primary.exists() else (fallback if fallback.exists() else primary)
-    if not target.exists():
-        return MonstersInstances(str(target), [])
-    with target.open("r", encoding="utf-8") as f:
+    if primary.exists():
+        return primary
+    if fallback.exists():
+        return fallback
+    return primary
+
+
+def _load_instances_from_path(path: Path) -> List[Dict[str, Any]]:
+    if not path.exists():
+        return []
+
+    with path.open("r", encoding="utf-8") as fh:
         try:
-            data = json.load(f)
+            data = json.load(fh)
         except json.JSONDecodeError:
-            data = []
+            return []
+
     if isinstance(data, dict) and "instances" in data:
         items = data["instances"]
     elif isinstance(data, list):
         items = data
     else:
-        items = []
-    return MonstersInstances(str(target), items)
+        return []
+
+    return [dict(entry) for entry in items if isinstance(entry, dict)]
+
+
+def _load_instances_from_store(store: MonstersInstanceStore) -> List[Dict[str, Any]]:
+    snapshot = store.snapshot()
+    return [dict(entry) for entry in snapshot if isinstance(entry, dict)]
+
+
+def load_monsters_instances(
+    path: Path | str = DEFAULT_INSTANCES_PATH,
+    *,
+    store: MonstersInstanceStore | None = None,
+) -> MonstersInstances:
+    requested = Path(path)
+    default_path = Path(DEFAULT_INSTANCES_PATH)
+    fallback_path = Path(FALLBACK_INSTANCES_PATH)
+
+    use_store = store is not None or requested in {default_path, fallback_path}
+
+    if use_store:
+        target = _resolve_instances_path(requested)
+        active_store = store or get_stores().monsters
+        items = _load_instances_from_store(active_store)
+        return MonstersInstances(target, items, store=active_store)
+
+    items = _load_instances_from_path(requested)
+    return MonstersInstances(requested, items)
