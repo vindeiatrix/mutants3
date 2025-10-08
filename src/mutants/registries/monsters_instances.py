@@ -3,6 +3,8 @@ import json, random, uuid
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
+# NOTE: Imported by ``mutants.registries.json_store`` via :func:`get_stores`.
+
 from mutants.io.atomic import atomic_write_json
 from mutants.registries.monsters_catalog import MonstersCatalog, exp_for
 from mutants.state import state_path
