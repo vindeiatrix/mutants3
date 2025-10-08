@@ -471,6 +471,20 @@ def list_ids_at(year: int, x: int, y: int) -> List[str]:
 # Extra helpers for ground/inventory transfers and caching
 
 _CACHE: Optional[List[Dict[str, Any]]] = None
+_CACHE_STAMP: Optional[float] = None
+
+
+def _instances_state_stamp() -> Optional[float]:
+    paths = {Path(DEFAULT_INSTANCES_PATH), Path(FALLBACK_INSTANCES_PATH)}
+    stamp: Optional[float] = None
+    for path in paths:
+        try:
+            current = path.stat().st_mtime
+        except FileNotFoundError:
+            continue
+        if stamp is None or current > stamp:
+            stamp = current
+    return stamp
 
 
 def _ensure_internal_access() -> None:
@@ -484,15 +498,27 @@ def _ensure_internal_access() -> None:
 def invalidate_cache() -> None:
     """Clear the cached snapshot forcing the next read to hit disk."""
     global _CACHE
+    global _CACHE_STAMP
     _CACHE = None
+    _CACHE_STAMP = None
 
 
 def _cache() -> List[Dict[str, Any]]:
     _ensure_internal_access()
     global _CACHE
+    global _CACHE_STAMP
+
+    current_stamp = _instances_state_stamp()
 
     if _CACHE is None:
         _CACHE = _load_instances_raw()
+        _CACHE_STAMP = current_stamp
+    elif current_stamp is not None and current_stamp != _CACHE_STAMP:
+        _CACHE = _load_instances_raw()
+        _CACHE_STAMP = current_stamp
+    elif current_stamp is None and _CACHE_STAMP is not None:
+        _CACHE = _load_instances_raw()
+        _CACHE_STAMP = current_stamp
 
     _normalize_instances(_CACHE)
     return _CACHE
