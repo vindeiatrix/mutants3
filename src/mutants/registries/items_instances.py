@@ -9,6 +9,8 @@ from collections.abc import MutableSet
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Mapping, MutableMapping, Optional, Tuple
 
+# NOTE: Imported by ``mutants.registries.json_store`` via :func:`get_stores`.
+
 from mutants.io.atomic import atomic_write_json
 from mutants.state import state_path
 from . import items_catalog
