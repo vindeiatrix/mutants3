@@ -1,6 +1,12 @@
 from __future__ import annotations
 
-from typing import Any, Dict, Iterable, Optional
+import json
+import logging
+from pathlib import Path
+from typing import Any, Dict, Iterable, List, Optional
+
+from mutants.io.atomic import atomic_write_json
+from mutants.state import state_path
 
 __all__ = [
     "JSONItemsInstanceStore",
@@ -13,52 +19,185 @@ class JSONItemsInstanceStore:
 
     __slots__ = ()
 
-    @staticmethod
-    def _registry():
-        from . import items_instances
+    _LOG = logging.getLogger("mutants.itemsdbg")
 
-        return items_instances
+    @staticmethod
+    def _helpers():
+        from . import items_instances as registry
+
+        return (
+            registry._detect_duplicate_iids,
+            registry._handle_duplicates,
+            registry._normalize_instance,
+            registry._normalize_instances,
+            registry._pos_of,
+            registry._instance_id,
+        )
+
+    @staticmethod
+    def _default_path() -> Path:
+        from . import items_instances as registry
+
+        value = getattr(registry, "DEFAULT_INSTANCES_PATH", None)
+        return Path(value) if value else Path(state_path("items", "instances.json"))
+
+    @staticmethod
+    def _fallback_path() -> Path:
+        from . import items_instances as registry
+
+        value = getattr(registry, "FALLBACK_INSTANCES_PATH", None)
+        return Path(value) if value else Path(state_path("instances.json"))
+
+    def _resolve_path(self) -> Path:
+        primary = self._default_path()
+        if primary.exists():
+            return primary
+        fallback = self._fallback_path()
+        if fallback.exists():
+            return fallback
+        return primary
+
+    def _load_raw(self, *, strict: Optional[bool] = None) -> List[Dict[str, Any]]:
+        detect_duplicates, handle_duplicates, _, normalize_all, _, _ = self._helpers()
+
+        target = self._resolve_path()
+        try:
+            with target.open("r", encoding="utf-8") as fh:
+                payload = json.load(fh)
+        except FileNotFoundError:
+            return []
+        except (PermissionError, IsADirectoryError, json.JSONDecodeError):
+            self._LOG.error("Failed to load instances from %s", target, exc_info=True)
+            raise
+
+        if isinstance(payload, dict) and "instances" in payload:
+            items = payload["instances"]
+        elif isinstance(payload, list):
+            items = payload
+        else:
+            items = []
+
+        if not isinstance(items, list):
+            return []
+
+        duplicates = detect_duplicates(items)
+        handle_duplicates(duplicates, strict=strict, path=target)
+
+        normalize_all(items)
+        return list(items)
+
+    def snapshot(self) -> Iterable[Dict[str, Any]]:
+        return self._load_raw()
+
+    def replace_all(self, records: Iterable[Dict[str, Any]]) -> None:
+        path = self._default_path()
+        data = list(records)
+
+        try:
+            with path.open("r", encoding="utf-8") as fh:
+                original = json.load(fh)
+        except FileNotFoundError:
+            original = []
+        except (PermissionError, IsADirectoryError, json.JSONDecodeError):
+            self._LOG.error("Failed to load existing instances from %s", path, exc_info=True)
+            raise
+
+        payload: Any
+        if isinstance(original, dict) and "instances" in original:
+            payload = {"instances": data}
+        else:
+            payload = data
+
+        atomic_write_json(path, payload)
+
+    def _find_index(self, iid: str, items: List[Dict[str, Any]]) -> Optional[int]:
+        _, _, _, _, _, instance_id = self._helpers()
+        target = str(iid)
+        for idx, inst in enumerate(items):
+            if instance_id(inst) == target:
+                return idx
+        return None
+
+    @staticmethod
+    def _owner_matches(inst: Dict[str, Any], owner: str) -> bool:
+        if str(inst.get("owner", "")) == owner:
+            return True
+        meta = inst.get("meta")
+        if isinstance(meta, dict):
+            meta_owner = meta.get("owner")
+            if isinstance(meta_owner, str) and meta_owner == owner:
+                return True
+        return False
 
     def get_by_iid(self, iid: str) -> Optional[Dict[str, Any]]:
-        registry = self._registry()
-        return registry.get_instance(iid)
+        data = self._load_raw()
+        target = str(iid)
+        _, _, _, _, _, instance_id = self._helpers()
+        for inst in data:
+            if instance_id(inst) == target:
+                return inst
+        return None
 
     def list_at(self, year: int, x: int, y: int) -> Iterable[Dict[str, Any]]:
-        registry = self._registry()
-        return list(registry.list_instances_at(year, x, y))
-
-    def list_by_owner(self, owner: str) -> Iterable[Dict[str, Any]]:
-        registry = self._registry()
-        snapshot = registry.snapshot_instances()
-        target = str(owner)
-        matches: list[Dict[str, Any]] = []
-        for inst in snapshot:
-            owner_val = inst.get("owner")
-            if isinstance(owner_val, str) and owner_val == target:
+        data = self._load_raw()
+        _, _, _, _, pos_of, _ = self._helpers()
+        target = (int(year), int(x), int(y))
+        matches: List[Dict[str, Any]] = []
+        for inst in data:
+            pos = pos_of(inst)
+            if pos and pos == target:
                 matches.append(inst)
-                continue
-            meta = inst.get("meta")
-            if isinstance(meta, dict):
-                meta_owner = meta.get("owner")
-                if isinstance(meta_owner, str) and meta_owner == target:
-                    matches.append(inst)
         return matches
 
+    def list_by_owner(self, owner: str) -> Iterable[Dict[str, Any]]:
+        target = str(owner)
+        data = self._load_raw()
+        return [inst for inst in data if self._owner_matches(inst, target)]
+
     def mint(self, rec: Dict[str, Any]) -> None:
-        registry = self._registry()
-        registry.bulk_add([dict(rec)])
+        items = self._load_raw()
+        payload = dict(rec)
+        _, _, normalize_one, _, _, _ = self._helpers()
+        normalize_one(payload)
+        items.append(payload)
+        self.replace_all(items)
 
     def move(self, iid: str, *, year: int, x: int, y: int) -> None:
-        registry = self._registry()
-        registry.move_instance(iid, dest=(year, x, y))
+        items = self._load_raw()
+        idx = self._find_index(iid, items)
+        if idx is None:
+            raise KeyError(iid)
+        inst = items[idx]
+        inst["pos"] = {"year": int(year), "x": int(x), "y": int(y)}
+        inst["year"] = int(year)
+        inst["x"] = int(x)
+        inst["y"] = int(y)
+        _, _, normalize_one, _, _, _ = self._helpers()
+        normalize_one(inst)
+        self.replace_all(items)
 
     def update_fields(self, iid: str, **fields: Any) -> None:
-        registry = self._registry()
-        registry.update_instance(iid, **fields)
+        items = self._load_raw()
+        idx = self._find_index(iid, items)
+        if idx is None:
+            raise KeyError(iid)
+        inst = items[idx]
+        for key, value in fields.items():
+            if value is None:
+                inst.pop(key, None)
+            else:
+                inst[key] = value
+        _, _, normalize_one, _, _, _ = self._helpers()
+        normalize_one(inst)
+        self.replace_all(items)
 
     def delete(self, iid: str) -> None:
-        registry = self._registry()
-        registry.remove_instance(iid)
+        items = self._load_raw()
+        idx = self._find_index(iid, items)
+        if idx is None:
+            return
+        del items[idx]
+        self.replace_all(items)
 
 
 class JSONMonstersInstanceStore:
