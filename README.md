@@ -27,7 +27,10 @@ make docs
 ```
 
 The default state root lives under `state/`. Override it by setting `GAME_STATE_ROOT` before
-running commands.
+running commands. Storage defaults to JSON files, but you can opt into the experimental SQLite
+backend by setting `MUTANTS_STATE_BACKEND=sqlite`. The SQLite database lives at
+`${GAME_STATE_ROOT}/mutants.db` (using the default state root when the environment variable is not
+set).
 
 ## Project layout
 
