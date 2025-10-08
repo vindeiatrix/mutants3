@@ -8,7 +8,11 @@ from typing import Any, Dict, Iterable, Optional, Sequence
 
 from mutants.state import default_repo_state
 
-__all__ = ["SQLiteConnectionManager", "SQLiteItemsInstanceStore"]
+__all__ = [
+    "SQLiteConnectionManager",
+    "SQLiteItemsInstanceStore",
+    "SQLiteMonstersInstanceStore",
+]
 
 
 
@@ -253,3 +257,114 @@ class SQLiteItemsInstanceStore:
             )
             if cur.rowcount == 0:
                 raise KeyError(str(iid))
+
+
+class SQLiteMonstersInstanceStore:
+    """SQLite-backed implementation of :class:`MonstersInstanceStore`."""
+
+    __slots__ = ("_manager",)
+
+    _COLUMNS: Sequence[str] = (
+        "instance_id",
+        "monster_id",
+        "year",
+        "x",
+        "y",
+        "hp_cur",
+        "hp_max",
+        "stats_json",
+        "created_at",
+    )
+
+    def __init__(self, manager: SQLiteConnectionManager) -> None:
+        self._manager = manager
+
+    def _connection(self) -> sqlite3.Connection:
+        return self._manager.connect()
+
+    def _row_to_dict(self, row: sqlite3.Row) -> Dict[str, Any]:
+        return {key: row[key] for key in self._COLUMNS}
+
+    def get(self, mid: str) -> Optional[Dict[str, Any]]:
+        conn = self._connection()
+        cur = conn.execute(
+            "SELECT instance_id, monster_id, year, x, y, hp_cur, hp_max, stats_json, created_at "
+            "FROM monsters_instances WHERE instance_id = ?",
+            (str(mid),),
+        )
+        row = cur.fetchone()
+        if row is None:
+            return None
+        return self._row_to_dict(row)
+
+    def list_at(self, year: int, x: int, y: int) -> Iterable[Dict[str, Any]]:
+        conn = self._connection()
+        cur = conn.execute(
+            "SELECT instance_id, monster_id, year, x, y, hp_cur, hp_max, stats_json, created_at "
+            "FROM monsters_instances WHERE year = ? AND x = ? AND y = ? "
+            "ORDER BY created_at ASC, instance_id ASC",
+            (year, x, y),
+        )
+        return [self._row_to_dict(row) for row in cur.fetchall()]
+
+    def spawn(self, rec: Dict[str, Any]) -> None:
+        payload = {key: rec.get(key) for key in self._COLUMNS}
+        instance_id = payload["instance_id"]
+        monster_id = payload["monster_id"]
+        if instance_id is None:
+            raise KeyError("instance_id")
+        if monster_id is None:
+            raise KeyError("monster_id")
+        payload["instance_id"] = str(instance_id)
+        payload["monster_id"] = str(monster_id)
+
+        if payload["created_at"] is None:
+            created = int(time())
+            payload["created_at"] = created
+            if isinstance(rec, dict):
+                rec.setdefault("created_at", created)
+
+        columns = ", ".join(self._COLUMNS)
+        placeholders = ", ".join("?" for _ in self._COLUMNS)
+        values = tuple(payload[key] for key in self._COLUMNS)
+
+        conn = self._connection()
+        try:
+            with conn:
+                conn.execute(
+                    f"INSERT INTO monsters_instances ({columns}) VALUES ({placeholders})",
+                    values,
+                )
+        except sqlite3.IntegrityError as exc:
+            raise KeyError(str(instance_id)) from exc
+
+    def update_fields(self, mid: str, **fields: Any) -> None:
+        if not fields:
+            return
+        updates = []
+        values: list[Any] = []
+        for key, value in fields.items():
+            if key not in self._COLUMNS or key == "instance_id":
+                raise KeyError(key)
+            updates.append(f"{key} = ?")
+            values.append(value)
+        values.append(str(mid))
+
+        conn = self._connection()
+        with conn:
+            cur = conn.execute(
+                f"UPDATE monsters_instances SET {', '.join(updates)} WHERE instance_id = ?",
+                values,
+            )
+            if cur.rowcount == 0:
+                raise KeyError(str(mid))
+
+    def delete(self, mid: str) -> None:
+        conn = self._connection()
+        with conn:
+            cur = conn.execute(
+                "DELETE FROM monsters_instances WHERE instance_id = ?",
+                (str(mid),),
+            )
+            if cur.rowcount == 0:
+                raise KeyError(str(mid))
