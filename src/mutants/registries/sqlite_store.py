@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import sqlite3
+import json
 from pathlib import Path
 from time import time
 from typing import Any, Dict, Iterable, Optional, Sequence
@@ -285,6 +286,135 @@ class SQLiteMonstersInstanceStore:
     def _row_to_dict(self, row: sqlite3.Row) -> Dict[str, Any]:
         return {key: row[key] for key in self._COLUMNS}
 
+    def _row_to_payload(self, row: sqlite3.Row) -> Dict[str, Any]:
+        record = self._row_to_dict(row)
+        stats_raw = record.get("stats_json")
+        payload: Dict[str, Any]
+        if isinstance(stats_raw, str) and stats_raw.strip():
+            try:
+                decoded = json.loads(stats_raw)
+            except json.JSONDecodeError:
+                decoded = None
+            if isinstance(decoded, dict):
+                payload = dict(decoded)
+            else:
+                payload = {}
+        else:
+            payload = {}
+
+        payload.setdefault("instance_id", record.get("instance_id"))
+        payload.setdefault("monster_id", record.get("monster_id"))
+
+        pos = payload.get("pos")
+        year = record.get("year")
+        x = record.get("x")
+        y = record.get("y")
+        if isinstance(pos, (list, tuple)) and len(pos) == 3:
+            coords = []
+            for idx, value in enumerate(pos):
+                try:
+                    coords.append(int(value))
+                except (TypeError, ValueError):
+                    coords.append(int([year, x, y][idx] or 0))
+            payload["pos"] = coords
+        else:
+            coords = [year, x, y]
+            payload["pos"] = [int(v) if v is not None else 0 for v in coords]
+
+        hp = payload.get("hp")
+        hp_cur = int(record.get("hp_cur") or 0)
+        hp_max = int(record.get("hp_max") or 0)
+        if isinstance(hp, dict):
+            try:
+                hp_cur = int(hp.get("current", hp_cur))
+            except (TypeError, ValueError):
+                hp_cur = int(record.get("hp_cur") or 0)
+            try:
+                hp_max = int(hp.get("max", hp_max))
+            except (TypeError, ValueError):
+                hp_max = int(record.get("hp_max") or 0)
+        payload["hp"] = {"current": hp_cur, "max": hp_max}
+
+        return payload
+
+    def _normalize_payload(self, record: Dict[str, Any], order: int) -> Dict[str, Any]:
+        payload = {key: None for key in self._COLUMNS}
+
+        instance_id = record.get("instance_id")
+        monster_id = record.get("monster_id")
+        if instance_id is None:
+            raise KeyError("instance_id")
+        if monster_id is None:
+            raise KeyError("monster_id")
+
+        payload["instance_id"] = str(instance_id)
+        payload["monster_id"] = str(monster_id)
+
+        pos = record.get("pos")
+        year = x = y = None
+        if isinstance(pos, (list, tuple)) and len(pos) == 3:
+            try:
+                year = int(pos[0])
+            except (TypeError, ValueError):
+                year = None
+            try:
+                x = int(pos[1])
+            except (TypeError, ValueError):
+                x = None
+            try:
+                y = int(pos[2])
+            except (TypeError, ValueError):
+                y = None
+        else:
+            try:
+                year = int(record.get("year"))
+            except (TypeError, ValueError):
+                year = None
+            try:
+                x = int(record.get("x"))
+            except (TypeError, ValueError):
+                x = None
+            try:
+                y = int(record.get("y"))
+            except (TypeError, ValueError):
+                y = None
+        payload["year"] = year
+        payload["x"] = x
+        payload["y"] = y
+
+        hp_cur = hp_max = 0
+        hp = record.get("hp")
+        if isinstance(hp, dict):
+            try:
+                hp_cur = int(hp.get("current", 0))
+            except (TypeError, ValueError):
+                hp_cur = 0
+            try:
+                hp_max = int(hp.get("max", hp_cur))
+            except (TypeError, ValueError):
+                hp_max = hp_cur
+        else:
+            try:
+                hp_cur = int(record.get("hp_cur", 0))
+            except (TypeError, ValueError):
+                hp_cur = 0
+            try:
+                hp_max = int(record.get("hp_max", hp_cur))
+            except (TypeError, ValueError):
+                hp_max = hp_cur
+        payload["hp_cur"] = hp_cur
+        payload["hp_max"] = hp_max
+
+        payload["stats_json"] = json.dumps(record, sort_keys=True, separators=(",", ":"))
+
+        created_at = record.get("created_at")
+        try:
+            payload["created_at"] = int(created_at)
+        except (TypeError, ValueError):
+            payload["created_at"] = order
+
+        return payload
+
     def get(self, mid: str) -> Optional[Dict[str, Any]]:
         conn = self._connection()
         cur = conn.execute(
@@ -295,7 +425,36 @@ class SQLiteMonstersInstanceStore:
         row = cur.fetchone()
         if row is None:
             return None
-        return self._row_to_dict(row)
+        return self._row_to_payload(row)
+
+    def snapshot(self) -> Iterable[Dict[str, Any]]:
+        conn = self._connection()
+        cur = conn.execute(
+            "SELECT instance_id, monster_id, year, x, y, hp_cur, hp_max, stats_json, created_at "
+            "FROM monsters_instances ORDER BY created_at ASC, instance_id ASC"
+        )
+        return [self._row_to_payload(row) for row in cur.fetchall()]
+
+    def replace_all(self, records: Iterable[Dict[str, Any]]) -> None:
+        payloads = []
+        order = 0
+        for record in records:
+            if not isinstance(record, dict):
+                continue
+            payloads.append(self._normalize_payload(record, order))
+            order += 1
+
+        conn = self._connection()
+        with conn:
+            conn.execute("DELETE FROM monsters_instances")
+            if payloads:
+                columns = ", ".join(self._COLUMNS)
+                placeholders = ", ".join("?" for _ in self._COLUMNS)
+                values = [tuple(payload[col] for col in self._COLUMNS) for payload in payloads]
+                conn.executemany(
+                    f"INSERT INTO monsters_instances ({columns}) VALUES ({placeholders})",
+                    values,
+                )
 
     def list_at(self, year: int, x: int, y: int) -> Iterable[Dict[str, Any]]:
         conn = self._connection()
@@ -308,25 +467,16 @@ class SQLiteMonstersInstanceStore:
         return [self._row_to_dict(row) for row in cur.fetchall()]
 
     def spawn(self, rec: Dict[str, Any]) -> None:
-        payload = {key: rec.get(key) for key in self._COLUMNS}
-        instance_id = payload["instance_id"]
-        monster_id = payload["monster_id"]
-        if instance_id is None:
-            raise KeyError("instance_id")
-        if monster_id is None:
-            raise KeyError("monster_id")
-        payload["instance_id"] = str(instance_id)
-        payload["monster_id"] = str(monster_id)
+        normalized = self._normalize_payload(dict(rec), int(time()))
+        instance_id = normalized["instance_id"]
+        monster_id = normalized["monster_id"]
 
-        if payload["created_at"] is None:
-            created = int(time())
-            payload["created_at"] = created
-            if isinstance(rec, dict):
-                rec.setdefault("created_at", created)
+        if isinstance(rec, dict):
+            rec.setdefault("created_at", normalized.get("created_at"))
 
         columns = ", ".join(self._COLUMNS)
         placeholders = ", ".join("?" for _ in self._COLUMNS)
-        values = tuple(payload[key] for key in self._COLUMNS)
+        values = tuple(normalized[key] for key in self._COLUMNS)
 
         conn = self._connection()
         try:
