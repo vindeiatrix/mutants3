@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import inspect
-import json
 import logging
 import os
 import uuid
@@ -11,8 +10,8 @@ from typing import Any, Dict, Iterable, List, Mapping, MutableMapping, Optional,
 
 # NOTE: Imported by ``mutants.registries.json_store`` via :func:`get_stores`.
 
-from mutants.io.atomic import atomic_write_json
 from mutants.state import state_path
+from .storage import get_stores
 from . import items_catalog
 
 DEFAULT_INSTANCES_PATH = state_path("items", "instances.json")
@@ -284,60 +283,36 @@ def is_enchantable(iid: str, *, template: Optional[Dict[str, Any]] = None) -> bo
 def load_instances(
     path: Path | str = DEFAULT_INSTANCES_PATH, *, strict: Optional[bool] = None
 ) -> List[Dict[str, Any]]:
-    """Load and normalise instances from disk.
+    """Load and normalise instances from the configured backend."""
 
-    Parameters
-    ----------
-    path
-        Primary path to ``instances.json``. A legacy fallback is attempted automatically
-        when the primary file does not exist.
-    strict
-        When ``True`` duplicate IIDs raise :class:`ValueError`. ``None`` defers to the
-        :data:`STRICT_DUP_IIDS` default.
+    resolved = Path(path)
+    default_path = Path(DEFAULT_INSTANCES_PATH)
+    fallback_path = Path(FALLBACK_INSTANCES_PATH)
 
-    Returns
-    -------
-    list of dict
-        Normalised instance payloads ready for consumption by services.
-    """
+    if resolved not in {default_path, fallback_path}:
+        return _load_instances_from_path(resolved, strict=strict)
 
-    primary = Path(path)
-    fallback = Path(FALLBACK_INSTANCES_PATH)
-    target = primary if primary.exists() else (fallback if fallback.exists() else primary)
-
-    if not target.exists():
-        return []
-
-    with target.open("r", encoding="utf-8") as f:
-        try:
-            data = json.load(f)
-        except json.JSONDecodeError:
-            data = []
-
-    if isinstance(data, dict) and "instances" in data:
-        items = data["instances"]
-    elif isinstance(data, list):
-        items = data
-    else:
-        items = []
-
-    duplicates = _detect_duplicate_iids(items)
-    _handle_duplicates(duplicates, strict=strict, path=target)
-
-    _normalize_instances(items)
-    return items
+    return _load_instances_raw(strict=strict)
 
 
 # ---------------------------------------------------------------------------
 # lightweight read helpers --------------------------------------------------
 
-def _load_instances_raw(*, strict: Optional[bool] = None) -> List[Dict[str, Any]]:
-    path = _instances_path()
+
+def _load_instances_from_path(
+    path: Path, *, strict: Optional[bool] = None
+) -> List[Dict[str, Any]]:
+    import json
+
     try:
-        with path.open("r", encoding="utf-8") as f:
-            data = json.load(f)
+        with path.open("r", encoding="utf-8") as fh:
+            data = json.load(fh)
     except FileNotFoundError:
         return []
+    except (PermissionError, IsADirectoryError, json.JSONDecodeError):
+        LOG.error("Failed to load instances from %s", path, exc_info=True)
+        raise
+
     if isinstance(data, dict) and "instances" in data:
         items = data["instances"]
     elif isinstance(data, list):
@@ -352,23 +327,26 @@ def _load_instances_raw(*, strict: Optional[bool] = None) -> List[Dict[str, Any]
     _handle_duplicates(duplicates, strict=strict, path=path)
 
     _normalize_instances(items)
+    return list(items)
+
+
+def _load_instances_raw(*, strict: Optional[bool] = None) -> List[Dict[str, Any]]:
+    store = get_stores().items
+    items = [dict(inst) for inst in store.snapshot()]
+
+    duplicates = _detect_duplicate_iids(items)
+    _handle_duplicates(duplicates, strict=strict)
+
+    _normalize_instances(items)
 
     return items
 
 
 def _save_instances_raw(instances: List[Dict[str, Any]]) -> None:
-    """Persist *instances* to disk preserving original JSON shape."""
-    path = Path(DEFAULT_INSTANCES_PATH)
-    try:
-        with path.open("r", encoding="utf-8") as f:
-            orig = json.load(f)
-    except FileNotFoundError:
-        orig = []
-    except (PermissionError, IsADirectoryError, json.JSONDecodeError):
-        LOG.error("Failed to load existing instances from %s", path, exc_info=True)
-        raise
-    payload = {"instances": instances} if isinstance(orig, dict) and "instances" in orig else instances
-    atomic_write_json(path, payload)
+    """Persist *instances* via the configured backend."""
+
+    store = get_stores().items
+    store.replace_all(instances)
     invalidate_cache()
 
 
@@ -436,6 +414,8 @@ def _pos_of(inst: Dict[str, Any]) -> Optional[Tuple[int, int, int]]:
 
 
 def _catalog() -> Dict[str, Any]:
+    import json
+
     path = Path(CATALOG_PATH)
     if not path.exists():
         return {}
@@ -491,8 +471,6 @@ def list_ids_at(year: int, x: int, y: int) -> List[str]:
 # Extra helpers for ground/inventory transfers and caching
 
 _CACHE: Optional[List[Dict[str, Any]]] = None
-_CACHE_PATH: Optional[str] = None
-_CACHE_MTIME: Optional[float] = None
 
 
 def _ensure_internal_access() -> None:
@@ -503,53 +481,20 @@ def _ensure_internal_access() -> None:
     assert module_name == __name__, "_cache() is private to items_instances"
 
 
-def _instances_path() -> Path:
-    primary = Path(DEFAULT_INSTANCES_PATH)
-    if primary.exists():
-        return primary
-    fallback = Path(FALLBACK_INSTANCES_PATH)
-    return fallback if fallback.exists() else primary
-
-
-def _stat_mtime(path: Path) -> float:
-    try:
-        return path.stat().st_mtime
-    except FileNotFoundError:
-        return 0.0
-
-
 def invalidate_cache() -> None:
     """Clear the cached snapshot forcing the next read to hit disk."""
-    global _CACHE, _CACHE_PATH, _CACHE_MTIME
+    global _CACHE
     _CACHE = None
-    _CACHE_PATH = None
-    _CACHE_MTIME = None
 
 
 def _cache() -> List[Dict[str, Any]]:
     _ensure_internal_access()
-    global _CACHE, _CACHE_PATH, _CACHE_MTIME
-    path = _instances_path()
-    mtime = _stat_mtime(path)
-    try:
-        path_key = str(path.resolve())
-    except Exception:
-        path_key = str(path)
+    global _CACHE
 
-    if (
-        _CACHE is None
-        or _CACHE_PATH != path_key
-        or _CACHE_MTIME is None
-        or _CACHE_MTIME != mtime
-    ):
+    if _CACHE is None:
         _CACHE = _load_instances_raw()
-        _CACHE_PATH = path_key
-        _CACHE_MTIME = mtime
 
-    if _CACHE is not None:
-        _normalize_instances(_CACHE)
-
-    assert _CACHE is not None
+    _normalize_instances(_CACHE)
     return _CACHE
 
 
