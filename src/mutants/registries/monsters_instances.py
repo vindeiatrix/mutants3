@@ -224,12 +224,14 @@ class MonstersInstances:
         return list(store.snapshot())
 
     def list_at(self, year: int, x: int, y: int) -> Iterable[Dict[str, Any]]:
-        target = [self._coerce_int(year), self._coerce_int(x), self._coerce_int(y)]
-        return [
-            record
-            for record in self.list_all()
-            if isinstance(record, dict) and record.get("pos") == target
-        ]
+        store = self._ensure_store()
+        return list(
+            store.list_at(
+                self._coerce_int(year),
+                self._coerce_int(x),
+                self._coerce_int(y),
+            )
+        )
 
     # ---------- Direct store helpers ----------
     def update_fields(self, instance_id: str, **fields: Any) -> None:
