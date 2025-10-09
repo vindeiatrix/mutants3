@@ -340,10 +340,7 @@ def _load_instances_raw(*, strict: Optional[bool] = None) -> List[Dict[str, Any]
 
 
 def _save_instances_raw(instances: List[Dict[str, Any]]) -> None:
-    """Persist *instances* via the configured backend."""
-
-    store = _items_store()
-    store.replace_all(instances)
+    raise RuntimeError("items_instances: snapshot/replace_all is forbidden on SQLite")
 
 
 def _index_of(instances: List[Dict[str, Any]], iid: str) -> int:
@@ -649,28 +646,109 @@ def bulk_add(instances: Iterable[Mapping[str, Any]]) -> List[str]:
 
 
 def update_instance(iid: str, **fields: Any) -> Dict[str, Any]:
-    """Update ``iid`` with ``fields`` ensuring normalization and persistence."""
+    """Update ``iid`` with ``fields`` using direct DB updates (no snapshots)."""
 
-    raw = _cache()
-    target: Optional[Dict[str, Any]] = None
+    store = _items_store()
     siid = str(iid)
-    for inst in raw:
-        inst_id = str(inst.get("iid") or inst.get("instance_id") or "")
-        if inst_id == siid:
-            target = inst
-            break
 
-    if target is None:
-        raise KeyError(iid)
-
-    for key, value in fields.items():
-        if value is REMOVE_FIELD:
-            target.pop(key, None)
+    # Normalise positional input
+    pos = fields.pop("pos", None)
+    to_set: Dict[str, Any] = {}
+    if isinstance(pos, Mapping):
+        pos = (pos.get("year"), pos.get("x"), pos.get("y"))
+    if isinstance(pos, (list, tuple)) and len(pos) == 3:
+        try:
+            year_val = int(pos[0])
+            x_val = int(pos[1])
+            y_val = int(pos[2])
+        except (TypeError, ValueError):
+            pass
         else:
-            target[key] = value
-    _normalize_instance(target)
-    _save_instances_raw(raw)
-    return target
+            to_set.update(year=year_val, x=x_val, y=y_val)
+
+    # Explicit coordinates override position tuple
+    if "year" in fields:
+        try:
+            to_set["year"] = int(fields["year"])
+        except (TypeError, ValueError):
+            pass
+    if "x" in fields:
+        try:
+            to_set["x"] = int(fields["x"])
+        except (TypeError, ValueError):
+            pass
+    if "y" in fields:
+        try:
+            to_set["y"] = int(fields["y"])
+        except (TypeError, ValueError):
+            pass
+
+    # Enchantment / condition sanitisation
+    if "enchant_level" in fields:
+        value = fields.get("enchant_level")
+        if value is REMOVE_FIELD:
+            to_set["enchant"] = None
+        else:
+            level = _sanitize_enchant_level(value)
+            to_set["enchant"] = level
+    if "condition" in fields:
+        if fields["condition"] is REMOVE_FIELD:
+            to_set["condition"] = None
+        else:
+            to_set["condition"] = _sanitize_condition(fields.get("condition"))
+
+    # Simple optional string fields
+    for attr in ("owner", "origin", "drop_source"):
+        if attr in fields:
+            value = fields.get(attr)
+            if value is REMOVE_FIELD:
+                to_set[attr] = None
+            elif isinstance(value, str) and value.strip():
+                to_set[attr] = value
+            else:
+                to_set[attr] = None
+
+    if "created_at" in fields:
+        value = fields.get("created_at")
+        if value is REMOVE_FIELD:
+            to_set["created_at"] = None
+        else:
+            try:
+                to_set["created_at"] = int(value)
+            except (TypeError, ValueError):
+                pass
+
+    # Preserve behaviour for arbitrary columns (e.g. charges)
+    skip_keys = {
+        "pos",
+        "year",
+        "x",
+        "y",
+        "enchant_level",
+        "condition",
+        "owner",
+        "origin",
+        "drop_source",
+        "created_at",
+    }
+    for key, value in fields.items():
+        if key in skip_keys:
+            continue
+        if value is REMOVE_FIELD:
+            to_set[key] = None
+        else:
+            to_set[key] = value
+
+    if to_set:
+        try:
+            store.update_fields(siid, **to_set)
+        except KeyError:
+            raise KeyError(iid) from None
+
+    record = store.get_by_iid(siid)
+    if record is None:
+        raise KeyError(iid)
+    return _inflate_store_record(record)
 
 
 def remove_instance(iid: str) -> bool:
@@ -717,9 +795,8 @@ def move_instance(
     return True
 
 def save_instances() -> None:
-    """Persist the cached instances list back to disk."""
-    data = _cache()
-    _save_instances_raw(data)
+    """No-op: persistence is immediate via the SQLite store."""
+    return None
 
 
 def remove_instances(instance_ids: List[str]) -> int:
