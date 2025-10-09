@@ -10,7 +10,7 @@ from mutants.state import state_path
 _LOG = logging.getLogger(__name__)
 
 _STATE_BACKEND_ENV: Final[str] = "MUTANTS_STATE_BACKEND"
-_VALID_STATE_BACKENDS: Final[frozenset[str]] = frozenset({"json", "sqlite"})
+_VALID_STATE_BACKENDS: Final[frozenset[str]] = frozenset({"sqlite"})
 _DB_FILENAME: Final[str] = "mutants.db"
 _CONFIG_LOGGED = False
 
@@ -19,16 +19,16 @@ def get_state_backend() -> str:
     """Return the configured state backend.
 
     The backend is controlled via the ``MUTANTS_STATE_BACKEND`` environment
-    variable. Only the ``"json"`` and ``"sqlite"`` values are recognised at the
-    moment; any other value falls back to ``"json"``.
+    variable. Currently only the ``"sqlite"`` value is honoured; any other
+    value falls back to ``"sqlite"``.
     """
 
-    raw = os.getenv(_STATE_BACKEND_ENV, "json")
+    raw = os.getenv(_STATE_BACKEND_ENV)
     if raw is None:
-        backend = "json"
+        backend = "sqlite"
     else:
         candidate = raw.strip().lower()
-        backend = candidate if candidate in _VALID_STATE_BACKENDS else "json"
+        backend = candidate if candidate in _VALID_STATE_BACKENDS else "sqlite"
 
     _log_configuration_once(backend)
     return backend
