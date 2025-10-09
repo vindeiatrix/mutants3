@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-"""Daily litter spawn/reset system.
+"""Daily litter spawn/reset system backed by the SQLite state database.
 
 Runs once per calendar day during bootstrap:
 * removes items previously spawned by this system (``origin == "daily_litter"``)
@@ -16,11 +16,14 @@ import json
 import logging
 import os
 import random
+import sqlite3
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from time import time
+from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 from mutants.registries import items_instances
+from mutants.registries.sqlite_store import SQLiteConnectionManager, SQLiteItemsInstanceStore
 from mutants.state import STATE_ROOT
 
 
@@ -46,21 +49,36 @@ def _paths(root: str | Path | None = None) -> Dict[str, Path]:
         "world": world,
         "log": logs,
         "catalog": items / "catalog.json",
-        "instances": items / "instances.json",
         "rules": items / "spawn_rules.json",
-        "epoch": runtime / "spawn_epoch.json",
+        "db": state / "mutants.db",
     }
+
 
 ORIGIN_FIELD = "origin"
 ORIGIN_DAILY = "daily_litter"
-EPOCH_FIELD = "spawn_epoch"
+KV_LAST_RUN_KEY = "daily_litter_date"
 
 MAX_PER_TILE_DEFAULT = 6
 DAILY_TARGET_DEFAULT = 120
 
+_ITEM_COLUMNS: Tuple[str, ...] = (
+    "iid",
+    "item_id",
+    "year",
+    "x",
+    "y",
+    "owner",
+    "enchant",
+    "condition",
+    "origin",
+    "drop_source",
+    "created_at",
+)
+
 
 # ---------------------------------------------------------------------------
 # small helpers
+
 
 def _today_str() -> str:
     return datetime.now().strftime("%Y-%m-%d")
@@ -100,6 +118,7 @@ def _save_json_atomic(path: str, data) -> None:
 # ---------------------------------------------------------------------------
 # catalog / rules loading
 
+
 def _load_spawn_rules(spawn_rules_path: Path) -> Dict:
     try:
         rules = _load_json(spawn_rules_path, None)
@@ -115,69 +134,29 @@ def _load_spawn_rules(spawn_rules_path: Path) -> Dict:
     return rules
 
 
-def _load_spawnables_from_catalog(catalog_path: Path) -> Dict[str, Dict]:
+def _load_spawnables_from_db(manager: SQLiteConnectionManager) -> Dict[str, Dict[str, Optional[int]]]:
     """Return mapping item_id -> {weight:int, cap_per_year:int|None}."""
-    try:
-        cat = _load_json(catalog_path, {})
-    except (FileNotFoundError, PermissionError, IsADirectoryError):
-        cat = {}
-    spawnables: Dict[str, Dict] = {}
 
-    items_obj = cat.get("items", cat) if isinstance(cat, dict) else cat
-    if isinstance(items_obj, dict):
-        iterable = items_obj.items()
-    elif isinstance(items_obj, list):
-        iterable = [(x.get("id") or x.get("item_id"), x) for x in items_obj]
-    else:
-        iterable = []
-
-    for item_id, meta in iterable:
-        if not item_id or not isinstance(meta, dict):
+    spawnables: Dict[str, Dict[str, Optional[int]]] = {}
+    for entry in manager.list_spawnable_items():
+        if not isinstance(entry, dict) or entry.get("spawnable") is not True:
             continue
-        # "spawnable" must be a JSON boolean True; other truthy values are ignored
-        if meta.get("spawnable") is not True:
+        item_id = entry.get("item_id") or entry.get("id")
+        if not item_id:
             continue
-        spawn_cfg = meta.get("spawn", {})
+        spawn_cfg_raw = entry.get("spawn")
+        spawn_cfg = spawn_cfg_raw if isinstance(spawn_cfg_raw, dict) else {}
         weight = int(spawn_cfg.get("weight", 1))
         cap = spawn_cfg.get("cap_per_year")
-        cap = int(cap) if cap is not None else None
+        cap_value = int(cap) if cap is not None else None
         if weight > 0:
-            spawnables[str(item_id)] = {"weight": weight, "cap_per_year": cap}
+            spawnables[str(item_id)] = {"weight": weight, "cap_per_year": cap_value}
     return spawnables
 
 
 # ---------------------------------------------------------------------------
-# instances I/O helpers
-
-def _load_instances_list(instances_path: Path) -> List[Dict]:
-    try:
-        data = _load_json(instances_path, [])
-    except (FileNotFoundError, PermissionError, IsADirectoryError):
-        data = []
-    if isinstance(data, list):
-        return data
-    if isinstance(data, dict):
-        if isinstance(data.get("instances"), list):
-            return data["instances"]
-        if all(isinstance(v, dict) for v in data.values()):
-            return list(data.values())
-    return []
-
-
-def _save_instances_list(instances_path: Path, instances: List[Dict]) -> None:
-    try:
-        existing = _load_json(instances_path, None)
-    except (FileNotFoundError, PermissionError, IsADirectoryError):
-        existing = None
-    if isinstance(existing, dict) and isinstance(existing.get("instances"), list):
-        existing["instances"] = instances
-        _save_json_atomic(instances_path, existing)
-    else:
-        _save_json_atomic(instances_path, instances)
-
-
-# ---------------------------------------------------------------------------
 # world helpers
+
 
 def _list_years(world_dir: Path) -> List[int]:
     years: List[int] = []
@@ -245,202 +224,233 @@ def _collect_open_tiles_for_year(year: int, world_dir: Path) -> List[Tuple[int, 
 # ---------------------------------------------------------------------------
 # misc helpers
 
+
 def _tile_key(year: int, x: int, y: int) -> str:
     return f"{year}:{x}:{y}"
 
 
-def _instance_pos_key(inst: Dict) -> Optional[Tuple[int, int, int]]:
-    try:
-        if all(k in inst for k in ("year", "x", "y")):
-            return int(inst["year"]), int(inst["x"]), int(inst["y"])
-        if isinstance(inst.get("pos"), dict):
-            p = inst["pos"]
-            if all(k in p for k in ("year", "x", "y")):
-                return int(p["year"]), int(p["x"]), int(p["y"])
-    except (KeyError, TypeError, ValueError):
-        LOG.error("Invalid position data in instance: %r", inst, exc_info=True)
-        raise
-    return None
-
-
-def _instance_item_id(inst: Dict) -> Optional[str]:
-    for k in ("item_id", "catalog_id", "id"):
-        v = inst.get(k)
-        if isinstance(v, str):
-            return v
-    return None
-
-
-def _remove_yesterdays_daily_litter(instances: List[Dict]) -> List[Dict]:
-    return [i for i in instances if i.get(ORIGIN_FIELD) != ORIGIN_DAILY]
-
-
-def _count_per_tile(instances: List[Dict]) -> Dict[str, int]:
-    counts: Dict[str, int] = {}
-    for inst in instances:
-        pos = _instance_pos_key(inst)
-        if not pos:
+def _fetch_per_tile_counts(conn: sqlite3.Connection) -> Dict[str, int]:
+    sql = (
+        "SELECT year, x, y, COUNT(*) AS c FROM items_instances "
+        "WHERE year IS NOT NULL AND x IS NOT NULL AND y IS NOT NULL "
+        "GROUP BY year, x, y"
+    )
+    per_tile: Dict[str, int] = {}
+    for row in conn.execute(sql):
+        year = row["year"]
+        x = row["x"]
+        y = row["y"]
+        count = row["c"]
+        if year is None or x is None or y is None or count is None:
             continue
-        year, x, y = pos
-        key = _tile_key(year, x, y)
-        counts[key] = counts.get(key, 0) + 1
-    return counts
+        key = _tile_key(int(year), int(x), int(y))
+        per_tile[key] = int(count)
+    return per_tile
 
 
-def _count_item_per_year(instances: List[Dict]) -> Dict[int, Dict[str, int]]:
+def _fetch_per_year_item_counts(conn: sqlite3.Connection) -> Dict[int, Dict[str, int]]:
+    sql = (
+        "SELECT year, item_id, COUNT(*) AS c FROM items_instances "
+        "WHERE year IS NOT NULL AND item_id IS NOT NULL "
+        "GROUP BY year, item_id"
+    )
     per_year: Dict[int, Dict[str, int]] = {}
-    for inst in instances:
-        pos = _instance_pos_key(inst)
-        item_id = _instance_item_id(inst)
-        if not pos or not item_id:
+    for row in conn.execute(sql):
+        year = row["year"]
+        item_id = row["item_id"]
+        count = row["c"]
+        if year is None or item_id is None or count is None:
             continue
-        year = pos[0]
-        per_year.setdefault(year, {})
-        per_year[year][item_id] = per_year[year].get(item_id, 0) + 1
+        year_int = int(year)
+        per_year.setdefault(year_int, {})
+        per_year[year_int][str(item_id)] = int(count)
     return per_year
 
 
-def _new_instance_dict(item_id: str, year: int, x: int, y: int, epoch: str, seq: int) -> Dict:
+def _build_weighted_pool(
+    year: int,
+    spawnables: Dict[str, Dict[str, Optional[int]]],
+    per_year_item: Dict[int, Dict[str, int]],
+) -> List[Tuple[str, int]]:
+    pool: List[Tuple[str, int]] = []
+    counts = per_year_item.get(year, {})
+    for item_id, cfg in spawnables.items():
+        cap = cfg.get("cap_per_year")
+        if cap is not None and counts.get(item_id, 0) >= cap:
+            continue
+        weight = int(cfg.get("weight", 1))
+        if weight > 0:
+            pool.append((item_id, weight))
+    return pool
+
+
+def _prepare_weight_tables(pool: Iterable[Tuple[str, int]]) -> Tuple[Tuple[str, ...], List[int], int]:
+    items: List[str] = []
+    cumulative: List[int] = []
+    total = 0
+    for item_id, weight in pool:
+        items.append(item_id)
+        total += int(weight)
+        cumulative.append(total)
+    return tuple(items), cumulative, total
+
+
+def _create_spawn_record(item_id: str, year: int, x: int, y: int, created_at: int) -> Dict[str, Any]:
     return {
         "iid": items_instances.mint_iid(),
         "item_id": item_id,
-        "pos": {"year": year, "x": x, "y": y},
         "year": year,
         "x": x,
         "y": y,
         ORIGIN_FIELD: ORIGIN_DAILY,
-        EPOCH_FIELD: epoch,
+        "enchant": 0,
+        "condition": 100,
+        "created_at": created_at,
     }
+
+
+def _insert_normalized_records(
+    conn: sqlite3.Connection, payloads: Iterable[Dict[str, Any]]
+) -> None:
+    payload_list = list(payloads)
+    if not payload_list:
+        return
+    columns = ", ".join(_ITEM_COLUMNS)
+    placeholders = ", ".join("?" for _ in _ITEM_COLUMNS)
+    values = [tuple(payload.get(col) for col in _ITEM_COLUMNS) for payload in payload_list]
+    conn.executemany(
+        f"INSERT INTO items_instances ({columns}) VALUES ({placeholders})",
+        values,
+    )
 
 
 # ---------------------------------------------------------------------------
 # main entry
 
+
 def run_daily_litter_reset(root: str | Path | None = None) -> None:
     paths = _paths(root)
     runtime_dir = paths["runtime"]
-    epoch_path = paths["epoch"]
     log_path = paths["log"]
+    rules_path = paths["rules"]
+    db_path = paths["db"]
 
     _mkdir_p(runtime_dir)
-    try:
-        epoch = _load_json(epoch_path, {})
-    except (FileNotFoundError, PermissionError, IsADirectoryError):
-        epoch = {}
-    today = _today_str()
-    if epoch.get("last_reset") == today:
-        return
 
-    rules = _load_spawn_rules(paths["rules"])
+    rules = _load_spawn_rules(rules_path)
     daily_target = int(rules.get("daily_target_per_year", DAILY_TARGET_DEFAULT))
     max_per_tile = int(rules.get("max_ground_per_tile", MAX_PER_TILE_DEFAULT))
 
+    today = _today_str()
     random.seed(today)
 
-    instances = _load_instances_list(paths["instances"])
-    instances = _remove_yesterdays_daily_litter(instances)
-
-    per_tile = _count_per_tile(instances)
-    per_year_item = _count_item_per_year(instances)
-
-    spawnables = _load_spawnables_from_catalog(paths["catalog"])
-    if not spawnables:
-        LOG.info("daily_litter: no spawnable items; skipping")
-        _save_instances_list(paths["instances"], instances)
-        _save_json_atomic(epoch_path, {"last_reset": today})
-        return
-
+    manager = SQLiteConnectionManager(db_path)
+    store = SQLiteItemsInstanceStore(manager)
+    spawnables = _load_spawnables_from_db(manager)
     years = _list_years(paths["world"])
-    if not years:
-        LOG.info("daily_litter: no world years found; skipping")
-        _save_instances_list(paths["instances"], instances)
-        _save_json_atomic(epoch_path, {"last_reset": today})
-        return
-
-    def build_weighted_pool(year: int) -> List[Tuple[str, int]]:
-        pool: List[Tuple[str, int]] = []
-        for item_id, cfg in spawnables.items():
-            cap = cfg.get("cap_per_year")
-            already = per_year_item.get(year, {}).get(item_id, 0)
-            if cap is not None and already >= cap:
-                continue
-            w = int(cfg.get("weight", 1))
-            if w > 0:
-                pool.append((item_id, w))
-        return pool
 
     summary: Dict[int, Dict[str, int]] = {}
+    normalized_records: List[Dict[str, Any]] = []
+    created_base = int(time() * 1000)
+    seq_counter = 0
 
-    for year in years:
-        tiles = _collect_open_tiles_for_year(year, paths["world"])
-        if not tiles:
-            LOG.warning("daily_litter: no open tiles for year %s", year)
-            continue
+    conn = manager.connect()
+    with conn:
+        conn.execute("BEGIN IMMEDIATE")
+        row = conn.execute(
+            "SELECT value FROM runtime_kv WHERE key = ?",
+            (KV_LAST_RUN_KEY,),
+        ).fetchone()
+        if row is not None:
+            value = row["value"]
+            if isinstance(value, str) and value == today:
+                return
 
-        pool = build_weighted_pool(year)
-        if not pool:
-            LOG.info("daily_litter: no eligible spawnables for year %s", year)
-            summary[year] = {}
-            continue
+        conn.execute(
+            "DELETE FROM items_instances WHERE origin = ?",
+            (ORIGIN_DAILY,),
+        )
 
-        items, weights = zip(*pool)
-        cumulative: List[int] = []
-        s = 0
-        for w in weights:
-            s += w
-            cumulative.append(s)
-        total_weight = s
+        per_tile = _fetch_per_tile_counts(conn)
+        per_year_item = _fetch_per_year_item_counts(conn)
 
-        spawned: Dict[str, int] = {}
-        attempts = 0
-        max_attempts = daily_target * 20
-        seq = 0
+        if not spawnables:
+            LOG.info("daily_litter: no spawnable items; skipping")
+        elif not years:
+            LOG.info("daily_litter: no world years found; skipping")
+        else:
+            for year in years:
+                tiles = _collect_open_tiles_for_year(year, paths["world"])
+                if not tiles:
+                    LOG.warning("daily_litter: no open tiles for year %s", year)
+                    continue
 
-        while sum(spawned.values()) < daily_target and attempts < max_attempts:
-            attempts += 1
-            if not items:
-                break
-            r = random.randint(1, total_weight)
-            lo, hi, pick = 0, len(cumulative) - 1, 0
-            while lo <= hi:
-                mid = (lo + hi) // 2
-                if r <= cumulative[mid]:
-                    pick = mid
-                    hi = mid - 1
-                else:
-                    lo = mid + 1
-            item_id = items[pick]
+                pool = _build_weighted_pool(year, spawnables, per_year_item)
+                items, cumulative, total_weight = _prepare_weight_tables(pool)
+                if not items or total_weight <= 0:
+                    LOG.info("daily_litter: no eligible spawnables for year %s", year)
+                    summary[year] = {}
+                    continue
 
-            cap = spawnables[item_id].get("cap_per_year")
-            already = per_year_item.get(year, {}).get(item_id, 0) + spawned.get(item_id, 0)
-            if cap is not None and already >= cap:
-                pool = build_weighted_pool(year)
-                if not pool:
-                    break
-                items, weights = zip(*pool)
-                cumulative = []
-                s = 0
-                for w in weights:
-                    s += w
-                    cumulative.append(s)
-                total_weight = s
-                continue
+                spawned: Dict[str, int] = {}
+                attempts = 0
+                max_attempts = daily_target * 20 if daily_target > 0 else 0
 
-            x, y = tiles[random.randrange(0, len(tiles))]
-            key = _tile_key(year, x, y)
-            if per_tile.get(key, 0) >= max_per_tile:
-                continue
+                while (
+                    daily_target > 0
+                    and sum(spawned.values()) < daily_target
+                    and attempts < max_attempts
+                ):
+                    attempts += 1
+                    if not items:
+                        break
+                    r = random.randint(1, total_weight)
+                    lo, hi, pick = 0, len(cumulative) - 1, 0
+                    while lo <= hi:
+                        mid = (lo + hi) // 2
+                        if r <= cumulative[mid]:
+                            pick = mid
+                            hi = mid - 1
+                        else:
+                            lo = mid + 1
+                    item_id = items[pick]
 
-            seq += 1
-            inst = _new_instance_dict(item_id, year, x, y, today, seq)
-            instances.append(inst)
-            per_tile[key] = per_tile.get(key, 0) + 1
-            spawned[item_id] = spawned.get(item_id, 0) + 1
+                    cap = spawnables[item_id].get("cap_per_year")
+                    already = per_year_item.get(year, {}).get(item_id, 0)
+                    if cap is not None and already >= cap:
+                        pool = _build_weighted_pool(year, spawnables, per_year_item)
+                        items, cumulative, total_weight = _prepare_weight_tables(pool)
+                        if not items or total_weight <= 0:
+                            break
+                        continue
 
-        summary[year] = spawned
+                    x, y = tiles[random.randrange(0, len(tiles))]
+                    key = _tile_key(year, x, y)
+                    if per_tile.get(key, 0) >= max_per_tile:
+                        continue
 
-    _mkdir_p(paths["instances"].parent)
-    _save_instances_list(paths["instances"], instances)
+                    created_at = created_base + seq_counter
+                    seq_counter += 1
+                    record = _create_spawn_record(item_id, year, x, y, created_at)
+                    normalized = store._normalize_record(record, created_at)
+                    if normalized is None:
+                        continue
+                    normalized_records.append(normalized)
+
+                    per_tile[key] = per_tile.get(key, 0) + 1
+                    per_year_item.setdefault(year, {})
+                    per_year_item[year][item_id] = per_year_item[year].get(item_id, 0) + 1
+                    spawned[item_id] = spawned.get(item_id, 0) + 1
+
+                summary[year] = spawned
+
+        _insert_normalized_records(conn, normalized_records)
+        conn.execute(
+            "INSERT INTO runtime_kv(key, value) VALUES (?, ?) "
+            "ON CONFLICT(key) DO UPDATE SET value = excluded.value",
+            (KV_LAST_RUN_KEY, today),
+        )
+
     try:
         from mutants.registries import items_instances as itemsreg
 
@@ -449,8 +459,6 @@ def run_daily_litter_reset(root: str | Path | None = None) -> None:
             invalidate()
     except (ImportError, AttributeError):
         LOG.debug("Failed to invalidate item registry cache", exc_info=True)
-    _mkdir_p(runtime_dir)
-    _save_json_atomic(epoch_path, {"last_reset": today})
 
     for year, counts in summary.items():
         parts = [f"{k}\u00d7{v}" for k, v in sorted(counts.items()) if v]
@@ -464,4 +472,3 @@ def run_daily_litter_reset(root: str | Path | None = None) -> None:
                 lf.write(f"{ts} SYSTEM/INFO - {line}\n")
         except (OSError, IOError):
             LOG.warning("Failed to append litter summary to %s", log_path, exc_info=True)
-
