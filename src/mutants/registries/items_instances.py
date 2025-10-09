@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import inspect
 import logging
 import os
 import uuid
@@ -331,13 +330,11 @@ def _load_instances_from_path(
 
 
 def _load_instances_raw(*, strict: Optional[bool] = None) -> List[Dict[str, Any]]:
-    store = get_stores().items
-    items = [dict(inst) for inst in store.snapshot()]
+    store = _items_store()
+    items = [_inflate_store_record(inst) for inst in store.snapshot()]
 
     duplicates = _detect_duplicate_iids(items)
     _handle_duplicates(duplicates, strict=strict)
-
-    _normalize_instances(items)
 
     return items
 
@@ -345,9 +342,8 @@ def _load_instances_raw(*, strict: Optional[bool] = None) -> List[Dict[str, Any]
 def _save_instances_raw(instances: List[Dict[str, Any]]) -> None:
     """Persist *instances* via the configured backend."""
 
-    store = get_stores().items
+    store = _items_store()
     store.replace_all(instances)
-    invalidate_cache()
 
 
 def _index_of(instances: List[Dict[str, Any]], iid: str) -> int:
@@ -470,79 +466,106 @@ def list_ids_at(year: int, x: int, y: int) -> List[str]:
 # ---------------------------------------------------------------------------
 # Extra helpers for ground/inventory transfers and caching
 
-_CACHE: Optional[List[Dict[str, Any]]] = None
-_CACHE_STAMP: Optional[float] = None
-
-
-def _instances_state_stamp() -> Optional[float]:
-    paths = {Path(DEFAULT_INSTANCES_PATH), Path(FALLBACK_INSTANCES_PATH)}
-    stamp: Optional[float] = None
-    for path in paths:
-        try:
-            current = path.stat().st_mtime
-        except FileNotFoundError:
-            continue
-        if stamp is None or current > stamp:
-            stamp = current
-    return stamp
-
-
-def _ensure_internal_access() -> None:
-    frame = inspect.currentframe()
-    if frame is None or frame.f_back is None:
-        return
-    module_name = frame.f_back.f_globals.get("__name__")
-    assert module_name == __name__, "_cache() is private to items_instances"
-
 
 def invalidate_cache() -> None:
-    """Clear the cached snapshot forcing the next read to hit disk."""
-    global _CACHE
-    global _CACHE_STAMP
-    _CACHE = None
-    _CACHE_STAMP = None
+    """Legacy no-op retained for API compatibility."""
+    return None
+
+
+def _items_store():
+    return get_stores().items
+
+
+def _inflate_store_record(record: Mapping[str, Any]) -> Dict[str, Any]:
+    inst: Dict[str, Any] = dict(record)
+
+    iid = inst.get("iid")
+    inst["iid"] = str(iid) if iid is not None else ""
+    inst["instance_id"] = inst["iid"]
+
+    item_id = inst.get("item_id")
+    inst["item_id"] = str(item_id) if item_id is not None else ""
+
+    try:
+        year = int(inst.get("year", -1))
+    except (TypeError, ValueError):
+        year = -1
+    try:
+        x = int(inst.get("x", -1))
+    except (TypeError, ValueError):
+        x = -1
+    try:
+        y = int(inst.get("y", -1))
+    except (TypeError, ValueError):
+        y = -1
+
+    inst["year"] = year
+    inst["x"] = x
+    inst["y"] = y
+    inst["pos"] = {"year": year, "x": x, "y": y}
+
+    enchant_source = inst.get("enchant_level", inst.get("enchant"))
+    inst["enchant_level"] = _sanitize_enchant_level(enchant_source)
+    inst["enchant"] = inst["enchant_level"]
+
+    condition_source = inst.get("condition")
+    inst["condition"] = _sanitize_condition(condition_source)
+
+    owner = inst.get("owner")
+    if owner is not None:
+        inst["owner"] = str(owner)
+
+    origin = inst.get("origin")
+    if origin is not None:
+        inst["origin"] = str(origin)
+
+    drop_source = inst.get("drop_source")
+    if drop_source is not None:
+        inst["drop_source"] = str(drop_source)
+
+    _normalize_instance(inst)
+    inst["enchant"] = inst["enchant_level"]
+    return inst
+
+
+def _store_payload_from_instance(inst: Mapping[str, Any]) -> Dict[str, Any]:
+    try:
+        year = int(inst.get("year", -1))
+    except (TypeError, ValueError):
+        year = -1
+    try:
+        x = int(inst.get("x", -1))
+    except (TypeError, ValueError):
+        x = -1
+    try:
+        y = int(inst.get("y", -1))
+    except (TypeError, ValueError):
+        y = -1
+
+    payload: Dict[str, Any] = {
+        "iid": str(inst.get("iid")),
+        "item_id": str(inst.get("item_id")),
+        "year": year,
+        "x": x,
+        "y": y,
+        "owner": inst.get("owner"),
+        "enchant": _sanitize_enchant_level(inst.get("enchant_level")),
+        "condition": _sanitize_condition(inst.get("condition")),
+        "origin": inst.get("origin"),
+        "drop_source": inst.get("drop_source"),
+        "created_at": inst.get("created_at"),
+    }
+    return payload
 
 
 def _cache() -> List[Dict[str, Any]]:
-    _ensure_internal_access()
-    global _CACHE
-    global _CACHE_STAMP
+    """Return a fresh snapshot of instances."""
 
-    current_stamp = _instances_state_stamp()
-
-    if _CACHE is None:
-        _CACHE = _load_instances_raw()
-        _CACHE_STAMP = current_stamp
-    elif current_stamp is not None and current_stamp != _CACHE_STAMP:
-        _CACHE = _load_instances_raw()
-        _CACHE_STAMP = current_stamp
-    elif current_stamp is None and _CACHE_STAMP is not None:
-        _CACHE = _load_instances_raw()
-        _CACHE_STAMP = current_stamp
-
-    _normalize_instances(_CACHE)
-    return _CACHE
-
-
-def _ensure_iid(payload: MutableMapping[str, Any], seen: set[str]) -> str:
-    iid = _instance_id(payload)
-    if iid and iid not in seen:
-        payload["iid"] = iid
-        payload["instance_id"] = iid
-        return iid
-
-    iid = mint_iid(seen=seen)
-    payload["iid"] = iid
-    payload["instance_id"] = iid
-    return iid
+    return list(_load_instances_raw())
 
 
 def mint_instance(item_id: str, origin: str = "unknown") -> str:
     """Create, persist, and return a new instance for ``item_id``."""
-
-    raw = _cache()
-    seen: set[str] = {iid for iid in (_instance_id(inst) for inst in raw) if iid}
-    iid = mint_iid(seen=seen)
 
     template: Mapping[str, Any] | None = None
     try:
@@ -554,15 +577,20 @@ def mint_instance(item_id: str, origin: str = "unknown") -> str:
         if isinstance(maybe, Mapping):
             template = maybe
 
+    store = _items_store()
+
     inst: Dict[str, Any] = {
-        "iid": iid,
-        "instance_id": iid,
+        "iid": "",
+        "instance_id": "",
         "item_id": str(item_id),
         "origin": str(origin),
         "enchant_level": 0,
         "enchanted": "no",
         "condition": 100,
         "god_tier": False,
+        "year": -1,
+        "x": -1,
+        "y": -1,
     }
 
     if isinstance(template, Mapping):
@@ -571,17 +599,22 @@ def mint_instance(item_id: str, origin: str = "unknown") -> str:
         if "god_tier" in template:
             inst["god_tier"] = _coerce_bool(template.get("god_tier"))
 
-    _normalize_instance(inst)
-    raw.append(inst)
-    _save_instances_raw(raw)
-    return iid
+    while True:
+        iid = mint_iid()
+        inst["iid"] = iid
+        inst["instance_id"] = iid
+        _normalize_instance(inst)
+        try:
+            store.mint(_store_payload_from_instance(inst))
+            return iid
+        except KeyError:
+            continue
 
 
 def bulk_add(instances: Iterable[Mapping[str, Any]]) -> List[str]:
     """Add ``instances`` to the registry ensuring normalization."""
 
-    raw = _cache()
-    seen: set[str] = {iid for iid in (_instance_id(inst) for inst in raw) if iid}
+    store = _items_store()
     added: List[str] = []
 
     for inst in instances:
@@ -589,14 +622,29 @@ def bulk_add(instances: Iterable[Mapping[str, Any]]) -> List[str]:
             payload: Dict[str, Any] = dict(inst)
         else:
             payload = dict(inst)
-        iid = _ensure_iid(payload, seen)
-        seen.add(iid)
-        _normalize_instance(payload)
-        raw.append(payload)
-        added.append(iid)
 
-    if added:
-        _save_instances_raw(raw)
+        if "year" not in payload:
+            payload["year"] = -1
+        if "x" not in payload:
+            payload["x"] = -1
+        if "y" not in payload:
+            payload["y"] = -1
+
+        _normalize_instance(payload)
+
+        while True:
+            iid = str(payload.get("iid") or mint_iid())
+            payload["iid"] = iid
+            payload["instance_id"] = iid
+            try:
+                store.mint(_store_payload_from_instance(payload))
+                added.append(iid)
+                break
+            except KeyError:
+                payload.pop("iid", None)
+                payload.pop("instance_id", None)
+                continue
+
     return added
 
 
@@ -628,14 +676,12 @@ def update_instance(iid: str, **fields: Any) -> Dict[str, Any]:
 def remove_instance(iid: str) -> bool:
     """Remove ``iid`` from the registry returning True if it existed."""
 
-    raw = _cache()
-    siid = str(iid)
-    before = len(raw)
-    raw[:] = [inst for inst in raw if str(inst.get("iid") or inst.get("instance_id") or "") != siid]
-    removed = before != len(raw)
-    if removed:
-        _save_instances_raw(raw)
-    return removed
+    store = _items_store()
+    try:
+        store.delete(str(iid))
+        return True
+    except KeyError:
+        return False
 
 
 def move_instance(
@@ -646,36 +692,28 @@ def move_instance(
 ) -> bool:
     """Move ``iid`` from ``src`` to ``dest`` verifying invariants."""
 
-    raw = _cache()
-    target: Optional[Dict[str, Any]] = None
-    siid = str(iid)
-    for inst in raw:
-        inst_id = str(inst.get("iid") or inst.get("instance_id") or "")
-        if inst_id == siid:
-            target = inst
-            break
-
-    if target is None:
+    store = _items_store()
+    record = store.get_by_iid(str(iid))
+    if record is None:
         return False
 
-    current = _pos_of(target)
+    inflated = _inflate_store_record(record)
+    current = _pos_of(inflated)
     if src is not None and current != tuple(map(int, src)):
         return False
 
     if dest is None:
-        target.pop("pos", None)
-        target["year"] = -1
-        target["x"] = -1
-        target["y"] = -1
+        try:
+            store.update_fields(str(iid), year=-1, x=-1, y=-1)
+        except KeyError:
+            return False
     else:
         year, x, y = (int(dest[0]), int(dest[1]), int(dest[2]))
-        target["pos"] = {"year": year, "x": x, "y": y}
-        target["year"] = year
-        target["x"] = x
-        target["y"] = y
+        try:
+            store.move(str(iid), year=year, x=x, y=y)
+        except KeyError:
+            return False
 
-    _normalize_instance(target)
-    _save_instances_raw(raw)
     return True
 
 def save_instances() -> None:
@@ -691,38 +729,30 @@ def remove_instances(instance_ids: List[str]) -> int:
     if not targets:
         return 0
 
-    raw = _cache()
-    before = len(raw)
-
-    def _iid(inst: Dict[str, Any]) -> Optional[str]:
-        value = inst.get("iid") or inst.get("instance_id")
-        return str(value) if value else None
-
-    raw[:] = [inst for inst in raw if _iid(inst) not in targets]
-    _save_instances_raw(raw)
-    return before - len(raw)
+    store = _items_store()
+    removed = 0
+    for iid in targets:
+        try:
+            store.delete(iid)
+            removed += 1
+        except KeyError:
+            continue
+    return removed
 
 def list_instances_at(year: int, x: int, y: int) -> List[Dict[str, Any]]:
     """Return cached instance payloads at ``(year, x, y)``."""
 
-    raw = _cache()
-    out: List[Dict[str, Any]] = []
-    tgt = (int(year), int(x), int(y))
-    for inst in raw:
-        pos = _pos_of(inst)
-        if pos and pos == tgt:
-            out.append(inst)
-    return out
+    store = _items_store()
+    records = store.list_at(int(year), int(x), int(y))
+    return [_inflate_store_record(rec) for rec in records]
 def get_instance(iid: str) -> Optional[Dict[str, Any]]:
     """Return the cached instance matching ``iid`` if present."""
 
-    raw = _cache()
-    siid = str(iid)
-    for inst in raw:
-        inst_id = str(inst.get("iid") or inst.get("instance_id") or "")
-        if inst_id == siid:
-            return inst
-    return None
+    store = _items_store()
+    record = store.get_by_iid(str(iid))
+    if record is None:
+        return None
+    return _inflate_store_record(record)
 
 
 def delete_instance(iid: str) -> int:
@@ -766,11 +796,17 @@ def get_condition(iid: str) -> int:
     if not inst:
         return 0
     if _is_broken_instance(inst):
-        inst.pop("condition", None)
+        try:
+            _items_store().update_fields(str(iid), condition=None)
+        except KeyError:
+            pass
         return 0
     condition = _sanitize_condition(inst.get("condition"))
     if inst.get("condition") != condition:
-        inst["condition"] = condition
+        try:
+            _items_store().update_fields(str(iid), condition=condition)
+        except KeyError:
+            pass
     return condition
 
 
@@ -783,10 +819,13 @@ def set_condition(iid: str, value: int) -> int:
     if is_enchanted(iid):
         return get_condition(iid)
     if _is_broken_instance(inst):
-        inst.pop("condition", None)
+        try:
+            _items_store().update_fields(str(iid), condition=None)
+        except KeyError:
+            pass
         return 0
     amount = _sanitize_condition(value)
-    inst["condition"] = amount
+    _items_store().update_fields(str(iid), condition=amount)
     return amount
 
 
@@ -801,104 +840,93 @@ def crack_instance(iid: str) -> Optional[Dict[str, Any]]:
     catalog = items_catalog.load_catalog()
     tpl = catalog.get(current_item_id) if catalog else None
     is_armour = bool(tpl.get("armour")) if isinstance(tpl, dict) else False
-    inst["item_id"] = BROKEN_ARMOUR_ID if is_armour else BROKEN_WEAPON_ID
-    inst.pop("condition", None)
-    _normalize_instance(inst)
-    return inst
+    new_item_id = BROKEN_ARMOUR_ID if is_armour else BROKEN_WEAPON_ID
+    store = _items_store()
+    try:
+        store.update_fields(str(iid), item_id=new_item_id, condition=None)
+    except KeyError:
+        return None
+    return get_instance(iid)
 
 
 def snapshot_instances() -> List[Dict[str, Any]]:
     """Return a shallow copy of the cached instances list."""
 
-    return [inst.copy() for inst in _cache()]
+    store = _items_store()
+    return [_inflate_store_record(rec) for rec in store.snapshot()]
 
 
 def clear_position(iid: str) -> None:
     """Back-compat: clear by iid (may hit wrong object if duplicate iids exist)."""
 
-    raw = _cache()
-    for inst in raw:
-        inst_id = inst.get("iid") or inst.get("instance_id")
-        if inst_id and str(inst_id) == str(iid):
-            inst.pop("pos", None)
-            inst["year"] = -1
-            inst["x"] = -1
-            inst["y"] = -1
-            break
-    _save_instances_raw(raw)
+    try:
+        _items_store().update_fields(str(iid), year=-1, x=-1, y=-1)
+    except KeyError:
+        return
 
 
 def clear_position_at(iid: str, year: int, x: int, y: int) -> bool:
     """Preferred: clear only if the iid currently resides at (year, x, y)."""
 
-    raw = _cache()
+    record = _items_store().get_by_iid(str(iid))
+    if record is None:
+        return False
+
+    inst = _inflate_store_record(record)
     target = (int(year), int(x), int(y))
-    for inst in raw:
-        inst_id = inst.get("iid") or inst.get("instance_id")
-        if not (inst_id and str(inst_id) == str(iid)):
-            continue
-
-        pos = inst.get("pos") or {}
-        current = (
-            int(pos.get("year", inst.get("year", -2))),
-            int(pos.get("x", inst.get("x", 99999))),
-            int(pos.get("y", inst.get("y", 99999))),
+    current = _pos_of(inst)
+    if current != target:
+        LOG.error(
+            "[itemsdbg] CLEAR_AT_MISS iid=%s not at (%s,%s,%s); no change",
+            iid,
+            year,
+            x,
+            y,
         )
-        if current == target:
-            inst.pop("pos", None)
-            inst["year"] = -1
-            inst["x"] = -1
-            inst["y"] = -1
-            _save_instances_raw(raw)
-            return True
+        return False
 
-    LOG.error(
-        "[itemsdbg] CLEAR_AT_MISS iid=%s not at (%s,%s,%s); no change",
-        iid,
-        year,
-        x,
-        y,
-    )
-    return False
+    try:
+        _items_store().update_fields(str(iid), year=-1, x=-1, y=-1)
+    except KeyError:
+        return False
+    return True
 
 def set_position(iid: str, year: int, x: int, y: int) -> None:
     """Set the position of ``iid`` to ``(year, x, y)`` and persist."""
 
-    raw = _cache()
-    for inst in raw:
-        inst_id = inst.get("iid") or inst.get("instance_id")
-        if inst_id and str(inst_id) == str(iid):
-            inst["pos"] = {"year": int(year), "x": int(x), "y": int(y)}
-            inst["year"] = int(year)
-            inst["x"] = int(x)
-            inst["y"] = int(y)
-            break
+    _items_store().move(str(iid), year=int(year), x=int(x), y=int(y))
 
 
 def create_and_save_instance(item_id: str, year: int, x: int, y: int, origin: str = "debug_add") -> str:
     """Create a new instance at ``(year, x, y)`` and persist it."""
-    raw = _cache()
-    mint = mint_iid()
-    inst = {
-        "iid": mint,
+    store = _items_store()
+    cat = items_catalog.load_catalog()
+    tpl = cat.get(str(item_id)) if cat else None
+
+    inst: Dict[str, Any] = {
+        "iid": "",
         "item_id": str(item_id),
-        "pos": {"year": int(year), "x": int(x), "y": int(y)},
-        "year": int(year),
-        "x": int(x),
-        "y": int(y),
         "origin": origin,
         "enchant_level": 0,
         "condition": 100,
         "god_tier": False,
+        "year": int(year),
+        "x": int(x),
+        "y": int(y),
     }
-    cat = items_catalog.load_catalog()
-    tpl = cat.get(str(item_id)) if cat else None
     if tpl and int(tpl.get("charges_max", 0) or 0) > 0:
         inst["charges"] = int(tpl.get("charges_max"))
     if tpl:
         inst["god_tier"] = _coerce_bool(tpl.get("god_tier"))
-    _normalize_instance(inst)
-    raw.append(inst)
-    _save_instances_raw(raw)
-    return mint
+
+    while True:
+        mint = mint_iid()
+        inst["iid"] = mint
+        inst["pos"] = {"year": int(year), "x": int(x), "y": int(y)}
+        _normalize_instance(inst)
+        try:
+            store.mint(_store_payload_from_instance(inst))
+            return mint
+        except KeyError:
+            continue
 
