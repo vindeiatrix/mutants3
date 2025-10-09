@@ -410,6 +410,10 @@ class SQLiteItemsInstanceStore:
         return [self._row_to_dict(row) for row in cur.fetchall()]
 
     def replace_all(self, records: Iterable[Dict[str, Any]]) -> None:
+        if not os.getenv("MUTANTS_ALLOW_REPLACE_ALL"):
+            raise RuntimeError(
+                "sqlite_store.replace_all is disabled; use targeted ops or bulk_insert_*"
+            )
         payloads: list[Dict[str, Any]] = []
         base_created = _epoch_ms()
         order = 0
@@ -792,6 +796,10 @@ class SQLiteMonstersInstanceStore:
         return [self._row_to_payload(row) for row in cur.fetchall()]
 
     def replace_all(self, records: Iterable[Dict[str, Any]]) -> None:
+        if not os.getenv("MUTANTS_ALLOW_REPLACE_ALL"):
+            raise RuntimeError(
+                "sqlite_store.replace_all is disabled; use targeted ops or bulk_insert_*"
+            )
         payloads = []
         base_created = _epoch_ms()
         order = 0
