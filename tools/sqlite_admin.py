@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import sqlite3
 import sys
 from pathlib import Path
@@ -91,6 +92,50 @@ def _command_purge(args: argparse.Namespace) -> None:
     _with_connection(args, purge)
 
 
+def _command_catalog_import_items(args: argparse.Namespace) -> None:
+    """Import the items catalog JSON into the SQLite database."""
+
+    catalog_path = PROJECT_ROOT / "state" / "items" / "catalog.json"
+
+    def import_catalog(conn: sqlite3.Connection, manager: SQLiteConnectionManager) -> None:
+        if not catalog_path.exists():
+            raise FileNotFoundError(f"Catalog JSON not found: {catalog_path}")
+
+        with catalog_path.open("r", encoding="utf-8") as fh:
+            payload = json.load(fh)
+
+        if not isinstance(payload, list):
+            raise ValueError("Catalog JSON must be a list of objects")
+
+        records: list[tuple[str, str]] = []
+        for entry in payload:
+            if not isinstance(entry, dict):
+                raise ValueError("Catalog JSON entries must be objects")
+            item_id = entry.get("item_id")
+            if not item_id:
+                raise ValueError("Catalog JSON entries must include 'item_id'")
+            data_json = json.dumps(entry, ensure_ascii=False, sort_keys=True)
+            records.append((str(item_id), data_json))
+
+        if not records:
+            print("No items to import from catalog JSON")
+            return
+
+        sql = (
+            "INSERT INTO items_catalog (item_id, data_json) "
+            "VALUES (?, ?) "
+            "ON CONFLICT(item_id) DO UPDATE SET data_json = excluded.data_json"
+        )
+
+        with conn:
+            conn.execute("BEGIN IMMEDIATE")
+            conn.executemany(sql, records)
+
+        print(f"Imported {len(records)} items into {manager.path}")
+
+    _with_connection(args, import_catalog)
+
+
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -113,6 +158,12 @@ def _build_parser() -> argparse.ArgumentParser:
 
     purge_parser = subparsers.add_parser("purge", help="Delete all instances while keeping catalog data.")
     purge_parser.set_defaults(func=_command_purge)
+
+    catalog_import_items_parser = subparsers.add_parser(
+        "catalog-import-items",
+        help="Load the items catalog JSON into the database.",
+    )
+    catalog_import_items_parser.set_defaults(func=_command_catalog_import_items)
 
     return parser
 
