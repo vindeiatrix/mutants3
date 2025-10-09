@@ -123,6 +123,7 @@ class SQLiteConnectionManager:
             migrations: Sequence[tuple[int, Callable[[sqlite3.Connection], None]]] = (
                 (1, self._migrate_to_v1),
                 (2, self._migrate_to_v2),
+                (3, self._migrate_to_v3),
             )
 
             for target_version, migration in migrations:
@@ -277,13 +278,19 @@ class SQLiteConnectionManager:
         conn.execute(
             """
             CREATE INDEX IF NOT EXISTS items_at_idx
-            ON items_instances(year, x, y)
+            ON items_instances(year, x, y, created_at, iid)
             """
         )
         conn.execute(
             """
             CREATE INDEX IF NOT EXISTS items_owner_idx
-            ON items_instances(owner)
+            ON items_instances(owner, created_at, iid)
+            """
+        )
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS items_origin_idx
+            ON items_instances(origin)
             """
         )
 
@@ -305,7 +312,7 @@ class SQLiteConnectionManager:
         conn.execute(
             """
             CREATE INDEX IF NOT EXISTS monsters_at_idx
-            ON monsters_instances(year, x, y)
+            ON monsters_instances(year, x, y, created_at, instance_id)
             """
         )
 
@@ -332,6 +339,36 @@ class SQLiteConnectionManager:
                 key TEXT PRIMARY KEY,
                 value TEXT NOT NULL
             )
+            """
+        )
+
+    def _migrate_to_v3(self, conn: sqlite3.Connection) -> None:
+        conn.execute("DROP INDEX IF EXISTS items_at_idx")
+        conn.execute("DROP INDEX IF EXISTS items_owner_idx")
+        conn.execute("DROP INDEX IF EXISTS monsters_at_idx")
+
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS items_at_idx
+            ON items_instances(year, x, y, created_at, iid)
+            """
+        )
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS items_owner_idx
+            ON items_instances(owner, created_at, iid)
+            """
+        )
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS items_origin_idx
+            ON items_instances(origin)
+            """
+        )
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS monsters_at_idx
+            ON monsters_instances(year, x, y, created_at, instance_id)
             """
         )
 
@@ -397,6 +434,36 @@ class SQLiteItemsInstanceStore:
                     f"INSERT INTO items_instances ({columns}) VALUES ({placeholders})",
                     values,
                 )
+
+    def bulk_insert_items(self, records: Iterable[Dict[str, Any]]) -> None:
+        payloads: list[Dict[str, Any]] = []
+        base_created = _epoch_ms()
+        order = 0
+        for record in records:
+            if not isinstance(record, dict):
+                continue
+            normalized = self._normalize_record(record, base_created + order)
+            if normalized is None:
+                continue
+            payloads.append(normalized)
+            if isinstance(record, dict):
+                record.setdefault("created_at", normalized["created_at"])
+            order += 1
+
+        if not payloads:
+            return
+
+        columns = ", ".join(self._COLUMNS)
+        placeholders = ", ".join("?" for _ in self._COLUMNS)
+        values = [tuple(payload[col] for col in self._COLUMNS) for payload in payloads]
+
+        conn = self._connection()
+        with conn:
+            _begin_immediate(conn)
+            conn.executemany(
+                f"INSERT INTO items_instances ({columns}) VALUES ({placeholders})",
+                values,
+            )
 
     def _normalize_record(
         self, record: Dict[str, Any], default_created: int
@@ -538,6 +605,15 @@ class SQLiteItemsInstanceStore:
             )
             if cur.rowcount == 0:
                 raise KeyError(str(iid))
+
+    def delete_items_by_origin(self, origin: str) -> None:
+        conn = self._connection()
+        with conn:
+            _begin_immediate(conn)
+            conn.execute(
+                "DELETE FROM items_instances WHERE origin = ?",
+                (str(origin),),
+            )
 
 
 class SQLiteMonstersInstanceStore:
