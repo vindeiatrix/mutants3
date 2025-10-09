@@ -2,7 +2,7 @@ import random
 
 import pytest
 
-from mutants.registries import monsters_instances
+from mutants.registries import monsters_instances, sqlite_store
 from mutants.services import monster_spawner
 
 
@@ -69,8 +69,10 @@ def _template(monster_id: str, *, years: list[int]) -> dict:
 
 @pytest.fixture
 def instances(tmp_path):
+    db_path = tmp_path / "monsters.db"
+    stores = sqlite_store.get_stores(db_path)
     path = tmp_path / "instances.json"
-    return monsters_instances.MonstersInstances(str(path), [])
+    return monsters_instances.MonstersInstances(str(path), [], store=stores.monsters)
 
 
 def test_spawner_respects_rate_limit_and_floor(instances):
@@ -138,9 +140,10 @@ def test_spawner_refills_after_deaths(instances):
     assert len(list(instances.list_all())) == 2
 
     # Simulate two deaths by clearing instances but keep one survivor
-    survivors = [instances.list_all()[0]]
-    instances._items = survivors
-    instances._by_id = {survivors[0]["instance_id"]: survivors[0]}
+    survivors = instances.list_all()
+    assert survivors, "expected at least one monster"
+    for inst in survivors[1:]:
+        instances.delete(inst["instance_id"])
 
     refill_time = controller._years[2000].next_spawn_at
     clock.jump_to(refill_time + 1)

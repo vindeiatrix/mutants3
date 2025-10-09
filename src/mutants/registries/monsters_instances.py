@@ -1,11 +1,13 @@
 from __future__ import annotations
-import json, random, uuid
+
+import json
+import random
+import uuid
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 # NOTE: Imported by ``mutants.registries.json_store`` via :func:`get_stores`.
 
-from mutants.io.atomic import atomic_write_json
 from mutants.registries.monsters_catalog import MonstersCatalog, exp_for
 from mutants.state import state_path
 from .storage import MonstersInstanceStore, get_stores
@@ -15,18 +17,22 @@ FALLBACK_INSTANCES_PATH = state_path("monsters.json")  # optional fallback; rare
 
 class MonstersInstances:
     """
-    Mutable live monsters. Each entry is a dict:
-    {
-      instance_id, monster_id, pos:[year,x,y],
-      hp:{current,max}, armour_class, level, ions, riblets,
-      inventory:[{item_id|instance_id, qty?}] (<=4),
-      armour_wearing: item_id|instance_id|null,
-      readied_spell: spell_id|null,
-      target_player_id: str|null, target_monster_id: str|null,
-      ready_target: str|null,
-      taunt: str
-    }
+    Mutable live monsters backed by the configured state store.
+
+    Each entry is a dict with the following shape::
+
+        {
+          instance_id, monster_id, pos:[year,x,y],
+          hp:{current,max}, armour_class, level, ions, riblets,
+          inventory:[{item_id|instance_id, qty?}] (<=4),
+          armour_wearing: item_id|instance_id|null,
+          readied_spell: spell_id|null,
+          target_player_id: str|null, target_monster_id: str|null,
+          ready_target: str|null,
+          taunt: str
+        }
     """
+
     def __init__(
         self,
         path: Path | str,
@@ -34,31 +40,86 @@ class MonstersInstances:
         *,
         store: MonstersInstanceStore | None = None,
     ):
+        # ``path`` and ``items`` are retained for backwards compatibility with
+        # historical call sites. Persistence is now exclusively handled by the
+        # injected store so we no longer maintain an in-memory snapshot.
         self._path = Path(path)
-        self._store = store
-        self._items: List[Dict[str, Any]] = [dict(entry) for entry in items if isinstance(entry, dict)]
-        self._by_id: Dict[str, Dict[str, Any]] = {
-            str(m["instance_id"]): m for m in self._items if "instance_id" in m
-        }
-        self._dirty = False
+        self._store = store or get_stores().monsters
 
-    # ---------- Queries ----------
-    def get(self, instance_id: str) -> Optional[Dict[str, Any]]:
-        return self._by_id.get(str(instance_id))
+    # ---------- Internal helpers ----------
+    @staticmethod
+    def _coerce_int(value: Any, *, default: int = 0) -> int:
+        try:
+            return int(value)
+        except (TypeError, ValueError):
+            return default
 
-    def list_all(self) -> Iterable[Dict[str, Any]]:
-        return list(self._items)
+    def _ensure_store(self) -> MonstersInstanceStore:
+        if self._store is None:  # pragma: no cover - defensive
+            raise RuntimeError("MonstersInstances requires an active store")
+        return self._store
 
-    def list_at(self, year: int, x: int, y: int) -> Iterable[Dict[str, Any]]:
-        return (m for m in self._items if m.get("pos") == [int(year), int(x), int(y)])
+    def _persist_payload(self, payload: Dict[str, Any]) -> None:
+        store = self._ensure_store()
+        instance_id = payload.get("instance_id")
+        if instance_id is None:
+            raise KeyError("instance_id")
 
-    # ---------- Mutations ----------
+        pos = payload.get("pos")
+        if isinstance(pos, (list, tuple)) and len(pos) == 3:
+            year, x, y = (self._coerce_int(part) for part in pos)
+        else:
+            year = self._coerce_int(payload.get("year"))
+            x = self._coerce_int(payload.get("x"))
+            y = self._coerce_int(payload.get("y"))
+            payload["pos"] = [year, x, y]
+
+        hp = payload.get("hp")
+        if isinstance(hp, dict):
+            hp_cur = self._coerce_int(hp.get("current"))
+            hp_max = self._coerce_int(hp.get("max"), default=hp_cur)
+        else:
+            hp_cur = self._coerce_int(payload.get("hp_cur"))
+            hp_max = self._coerce_int(payload.get("hp_max"), default=hp_cur)
+            payload["hp"] = {"current": hp_cur, "max": hp_max}
+
+        store.update_fields(
+            str(instance_id),
+            stats_json=json.dumps(payload, sort_keys=True, separators=(",", ":")),
+            year=year,
+            x=x,
+            y=y,
+            hp_cur=hp_cur,
+            hp_max=hp_max,
+        )
+
+    def _mutate_payload(self, instance_id: str, mutator) -> None:
+        record = self.get(instance_id)
+        if record is None:
+            raise KeyError(str(instance_id))
+        mutator(record)
+        self._persist_payload(record)
+
     def _add(self, inst: Dict[str, Any]) -> Dict[str, Any]:
-        self._items.append(inst)
-        if "instance_id" in inst:
-            self._by_id[str(inst["instance_id"])] = inst
-        self._dirty = True
-        return inst
+        store = self._ensure_store()
+        payload = dict(inst)
+        instance_id = payload.get("instance_id")
+        if instance_id is None:
+            raise KeyError("instance_id")
+        store.spawn(payload)
+        stored = store.get(str(instance_id))
+        return stored or payload
+
+    def spawn(self, inst: Dict[str, Any]) -> Dict[str, Any]:
+        return self._add(inst)
+
+    def move(self, instance_id: str, *, year: int, x: int, y: int) -> None:
+        target_pos = [self._coerce_int(year), self._coerce_int(x), self._coerce_int(y)]
+
+        def _mutator(record: Dict[str, Any]) -> None:
+            record["pos"] = target_pos
+
+        self._mutate_payload(instance_id, _mutator)
 
     def create_instance(
         self,
@@ -126,83 +187,64 @@ class MonstersInstances:
         return self._add(inst)
 
     def set_target_player(self, instance_id: str, player_id: Optional[str]) -> None:
-        target = self._by_id[str(instance_id)]
-        target["target_player_id"] = player_id
-        self._dirty = True
+        def _mutator(record: Dict[str, Any]) -> None:
+            record["target_player_id"] = player_id
+
+        self._mutate_payload(instance_id, _mutator)
 
     def set_ready_target(self, instance_id: str, target_id: Optional[str]) -> None:
-        monster = self._by_id[str(instance_id)]
         if target_id is None:
-            sanitized = None
+            sanitized: Optional[str] = None
         else:
             sanitized = str(target_id).strip() or None
-        monster["ready_target"] = sanitized
-        monster["target_monster_id"] = sanitized
-        self._dirty = True
+
+        def _mutator(record: Dict[str, Any]) -> None:
+            record["ready_target"] = sanitized
+            record["target_monster_id"] = sanitized
+
+        self._mutate_payload(instance_id, _mutator)
 
     def set_target_monster(self, instance_id: str, other_id: Optional[str]) -> None:
         self.set_ready_target(instance_id, other_id)
 
     # ---------- Persistence ----------
     def save(self) -> None:
-        if self._dirty:
-            if self._store is not None:
-                self._store.replace_all(self._items)
-            else:
-                atomic_write_json(self._path, self._items)
-            self._dirty = False
+        # Persistence is immediate via the backing store; the method is kept
+        # for compatibility with existing call sites.
+        return None
 
-def _resolve_instances_path(path: Path | str) -> Path:
-    primary = Path(path)
-    fallback = Path(FALLBACK_INSTANCES_PATH)
-    if primary.exists():
-        return primary
-    if fallback.exists():
-        return fallback
-    return primary
+    # ---------- Queries ----------
+    def get(self, instance_id: str) -> Optional[Dict[str, Any]]:
+        store = self._ensure_store()
+        record = store.get(str(instance_id))
+        return dict(record) if isinstance(record, dict) else record
 
+    def list_all(self) -> Iterable[Dict[str, Any]]:
+        store = self._ensure_store()
+        return list(store.snapshot())
 
-def _load_instances_from_path(path: Path) -> List[Dict[str, Any]]:
-    if not path.exists():
-        return []
+    def list_at(self, year: int, x: int, y: int) -> Iterable[Dict[str, Any]]:
+        target = [self._coerce_int(year), self._coerce_int(x), self._coerce_int(y)]
+        return [
+            record
+            for record in self.list_all()
+            if isinstance(record, dict) and record.get("pos") == target
+        ]
 
-    with path.open("r", encoding="utf-8") as fh:
-        try:
-            data = json.load(fh)
-        except json.JSONDecodeError:
-            return []
+    # ---------- Direct store helpers ----------
+    def update_fields(self, instance_id: str, **fields: Any) -> None:
+        self._ensure_store().update_fields(str(instance_id), **fields)
 
-    if isinstance(data, dict) and "instances" in data:
-        items = data["instances"]
-    elif isinstance(data, list):
-        items = data
-    else:
-        return []
-
-    return [dict(entry) for entry in items if isinstance(entry, dict)]
-
-
-def _load_instances_from_store(store: MonstersInstanceStore) -> List[Dict[str, Any]]:
-    snapshot = store.snapshot()
-    return [dict(entry) for entry in snapshot if isinstance(entry, dict)]
-
+    def delete(self, instance_id: str) -> None:
+        self._ensure_store().delete(str(instance_id))
 
 def load_monsters_instances(
     path: Path | str = DEFAULT_INSTANCES_PATH,
     *,
     store: MonstersInstanceStore | None = None,
 ) -> MonstersInstances:
-    requested = Path(path)
-    default_path = Path(DEFAULT_INSTANCES_PATH)
-    fallback_path = Path(FALLBACK_INSTANCES_PATH)
-
-    use_store = store is not None or requested in {default_path, fallback_path}
-
-    if use_store:
-        target = _resolve_instances_path(requested)
-        active_store = store or get_stores().monsters
-        items = _load_instances_from_store(active_store)
-        return MonstersInstances(target, items, store=active_store)
-
-    items = _load_instances_from_path(requested)
-    return MonstersInstances(requested, items)
+    # ``path`` is retained for backwards compatibility with legacy callers.
+    # Persistence now flows through the configured store regardless of the
+    # provided path so no JSON files are read or written.
+    active_store = store or get_stores().monsters
+    return MonstersInstances(Path(path), [], store=active_store)

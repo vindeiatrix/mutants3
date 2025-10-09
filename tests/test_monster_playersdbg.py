@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from mutants.registries import monsters_instances
+from mutants.registries import monsters_instances, sqlite_store
 from mutants.services import monster_spawner, monsters_state
 
 
@@ -89,7 +89,11 @@ def test_spawn_logs_playersdbg(monkeypatch, tmp_path, caplog):
         "bag": [{"item_id": "club"}],
         "innate_attack": {"name": "Smash", "power_base": 1, "power_per_level": 1},
     }
-    instances = monsters_instances.MonstersInstances(str(tmp_path / "instances.json"), [])
+    db_path = tmp_path / "monsters.db"
+    stores = sqlite_store.get_stores(db_path)
+    instances = monsters_instances.MonstersInstances(
+        str(tmp_path / "instances.json"), [], store=stores.monsters
+    )
 
     controller = monster_spawner.MonsterSpawnerController(
         templates=[template],
