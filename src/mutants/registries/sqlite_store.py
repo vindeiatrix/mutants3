@@ -6,7 +6,7 @@ import sqlite3
 import json
 from pathlib import Path
 from time import time
-from typing import Any, Dict, Iterable, Optional, Sequence, Tuple
+from typing import Any, Callable, Dict, Iterable, Optional, Sequence, Tuple
 
 from mutants.env import get_state_database_path
 
@@ -109,62 +109,105 @@ class SQLiteConnectionManager:
                 )
                 """
             )
-            cur = conn.execute("SELECT COUNT(*) FROM schema_meta")
-            count = cur.fetchone()[0]
-            if not count:
-                conn.execute("INSERT INTO schema_meta(version) VALUES (1)")
+            row = conn.execute("SELECT version FROM schema_meta LIMIT 1").fetchone()
+            if row is None:
+                conn.execute("INSERT INTO schema_meta(version) VALUES (0)")
+                version = 0
+            else:
+                version = _coerce_int(row[0], default=0)
 
-            conn.execute(
-                """
-                CREATE TABLE IF NOT EXISTS items_instances (
-                    iid TEXT PRIMARY KEY,
-                    item_id TEXT NOT NULL,
-                    year INTEGER NOT NULL,
-                    x INTEGER NOT NULL,
-                    y INTEGER NOT NULL,
-                    owner TEXT,
-                    enchant INT,
-                    condition INT,
-                    origin TEXT,
-                    drop_source TEXT,
-                    created_at INTEGER NOT NULL CHECK(created_at >= 0)
-                )
-                """
-            )
-            conn.execute(
-                """
-                CREATE INDEX IF NOT EXISTS items_at_idx
-                ON items_instances(year, x, y)
-                """
-            )
-            conn.execute(
-                """
-                CREATE INDEX IF NOT EXISTS items_owner_idx
-                ON items_instances(owner)
-                """
+            migrations: Sequence[tuple[int, Callable[[sqlite3.Connection], None]]] = (
+                (1, self._migrate_to_v1),
+                (2, self._migrate_to_v2),
             )
 
-            conn.execute(
-                """
-                CREATE TABLE IF NOT EXISTS monsters_instances (
-                    instance_id TEXT PRIMARY KEY,
-                    monster_id TEXT NOT NULL,
-                    year INTEGER NOT NULL,
-                    x INTEGER NOT NULL,
-                    y INTEGER NOT NULL,
-                    hp_cur INT,
-                    hp_max INT,
-                    stats_json TEXT,
-                    created_at INTEGER NOT NULL CHECK(created_at >= 0)
-                )
-                """
+            for target_version, migration in migrations:
+                if version < target_version:
+                    migration(conn)
+                    conn.execute(
+                        "UPDATE schema_meta SET version = ?",
+                        (target_version,),
+                    )
+                    version = target_version
+
+    def _migrate_to_v1(self, conn: sqlite3.Connection) -> None:
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS items_instances (
+                iid TEXT PRIMARY KEY,
+                item_id TEXT NOT NULL,
+                year INTEGER NOT NULL,
+                x INTEGER NOT NULL,
+                y INTEGER NOT NULL,
+                owner TEXT,
+                enchant INT,
+                condition INT,
+                origin TEXT,
+                drop_source TEXT,
+                created_at INTEGER NOT NULL CHECK(created_at >= 0)
             )
-            conn.execute(
-                """
-                CREATE INDEX IF NOT EXISTS monsters_at_idx
-                ON monsters_instances(year, x, y)
-                """
+            """
+        )
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS items_at_idx
+            ON items_instances(year, x, y)
+            """
+        )
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS items_owner_idx
+            ON items_instances(owner)
+            """
+        )
+
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS monsters_instances (
+                instance_id TEXT PRIMARY KEY,
+                monster_id TEXT NOT NULL,
+                year INTEGER NOT NULL,
+                x INTEGER NOT NULL,
+                y INTEGER NOT NULL,
+                hp_cur INT,
+                hp_max INT,
+                stats_json TEXT,
+                created_at INTEGER NOT NULL CHECK(created_at >= 0)
             )
+            """
+        )
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS monsters_at_idx
+            ON monsters_instances(year, x, y)
+            """
+        )
+
+    def _migrate_to_v2(self, conn: sqlite3.Connection) -> None:
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS items_catalog (
+                item_id TEXT PRIMARY KEY,
+                data_json TEXT NOT NULL
+            )
+            """
+        )
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS monsters_catalog (
+                monster_id TEXT PRIMARY KEY,
+                data_json TEXT NOT NULL
+            )
+            """
+        )
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS runtime_kv (
+                key TEXT PRIMARY KEY,
+                value TEXT NOT NULL
+            )
+            """
+        )
 
 
 class SQLiteItemsInstanceStore:
