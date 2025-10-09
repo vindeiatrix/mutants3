@@ -26,11 +26,39 @@ pytest
 make docs
 ```
 
-The default state root lives under `state/`. Override it by setting `GAME_STATE_ROOT` before
-running commands. Storage defaults to JSON files, but you can opt into the experimental SQLite
-backend by setting `MUTANTS_STATE_BACKEND=sqlite`. The SQLite database lives at
-`${GAME_STATE_ROOT}/mutants.db` (using the default state root when the environment variable is not
-set).
+Mutants 3 uses SQLite as its only state backend. The default state root lives under `state/`,
+and the SQLite database is stored at `${GAME_STATE_ROOT}/mutants.db` (or `state/mutants.db` when the
+environment variable is not set). JSON storage is no longer supported.
+
+Every new terminal session needs the runtime environment variables before launching the game or
+running admin commands. In PowerShell, run:
+
+```powershell
+cd C:\mutants3-main
+.\.venv\Scripts\Activate.ps1
+$env:MUTANTS_STATE_BACKEND = "sqlite"
+$env:GAME_STATE_ROOT = "C:\mutants3-main\state"
+python -m mutants
+```
+
+The `python -m mutants` entry point loads the daily litter items into SQLite, so a fresh clone
+will contain items without creating JSON files.
+
+## Admin tooling
+
+The `tools/sqlite_admin.py` helper wraps common maintenance commands for the SQLite database:
+
+```bash
+PYTHONPATH=src python tools/sqlite_admin.py catalog-import-items
+PYTHONPATH=src python tools/sqlite_admin.py stats
+PYTHONPATH=src python tools/sqlite_admin.py vacuum
+```
+
+To run SQLite's `PRAGMA optimize` (recommended after heavy catalog churn), execute:
+
+```bash
+sqlite3 state/mutants.db "PRAGMA optimize;"
+```
 
 ## Project layout
 
