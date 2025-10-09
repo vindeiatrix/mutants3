@@ -16,7 +16,7 @@ def _write_state(path, payload):
     path.write_text(json.dumps(payload), encoding="utf-8")
 
 
-def test_load_state_normalizes_monster_records(tmp_path, monkeypatch):
+def test_load_state_normalizes_monster_records(tmp_path, monkeypatch, monsters_store):
     catalog = {
         "rust_sword": {"item_id": "rust_sword", "base_power": 5, "weight": 40},
         "leather": {"item_id": "leather", "armour": True, "armour_class": 3, "weight": 15},
@@ -85,8 +85,11 @@ def test_load_state_normalizes_monster_records(tmp_path, monkeypatch):
     listed = state.list_at(2000, 1, -2)
     assert [m["id"] for m in listed] == ["ghoul#1"]
 
+    stored = list(monsters_store.snapshot())
+    assert any(entry.get("id") == "ghoul#1" for entry in stored)
 
-def test_wielded_invalid_defaults_to_first_item(tmp_path, monkeypatch):
+
+def test_wielded_invalid_defaults_to_first_item(tmp_path, monkeypatch, monsters_store):
     catalog = {
         "club": {"item_id": "club", "base_power": 3, "weight": 25},
         "cloak": {"item_id": "cloak", "armour": True, "armour_class": 1, "weight": 10},
@@ -123,8 +126,11 @@ def test_wielded_invalid_defaults_to_first_item(tmp_path, monkeypatch):
     assert monster["pinned_years"] == [1999, 2005]
     assert monster["derived"]["weapon_damage"] == bag[0]["derived"]["base_damage"] + 1  # str bonus 1
 
+    stored = list(monsters_store.snapshot())
+    assert any(entry.get("id") == "bandit#1" for entry in stored)
 
-def test_kill_monster_drops_items_and_clears_record(tmp_path):
+
+def test_kill_monster_drops_items_and_clears_record(tmp_path, monsters_store):
     catalog = {
         "club": {"item_id": "club", "base_power": 5, "weight": 20},
         "leather": {"item_id": "leather", "armour": True, "armour_class": 3, "weight": 15},
@@ -172,8 +178,11 @@ def test_kill_monster_drops_items_and_clears_record(tmp_path):
     assert state.get("ogre#1") is None
     assert not state.list_all()
 
+    state.save()
+    assert not list(monsters_store.snapshot())
 
-def test_kill_monster_missing_returns_empty(tmp_path):
+
+def test_kill_monster_missing_returns_empty(tmp_path, monsters_store):
     state = monsters_state.MonstersState(tmp_path / "instances.json", [])
     assert state.kill_monster("missing") == {"monster": None, "drops": [], "pos": None}
 

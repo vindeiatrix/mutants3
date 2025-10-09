@@ -19,7 +19,7 @@ def _build_state(tmp_path: Path) -> monsters_state.MonstersState:
     return monsters_state.MonstersState(tmp_path / "instances.json", normalized)
 
 
-def test_monster_levels_on_kill(tmp_path: Path) -> None:
+def test_monster_levels_on_kill(tmp_path: Path, monsters_store) -> None:
     state = _build_state(tmp_path)
     monster = state.get("ogre#1")
     assert monster is not None
@@ -43,7 +43,7 @@ def test_monster_levels_on_kill(tmp_path: Path) -> None:
     assert derived["armour_class"] == 2
 
 
-def test_ignores_non_monster_kills(tmp_path: Path) -> None:
+def test_ignores_non_monster_kills(tmp_path: Path, monsters_store) -> None:
     state = _build_state(tmp_path)
     monster = state.get("ogre#1")
     assert monster is not None

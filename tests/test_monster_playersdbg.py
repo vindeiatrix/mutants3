@@ -31,7 +31,7 @@ def _build_state(tmp_path: Path):
     return monsters_state.MonstersState(tmp_path / "instances.json", normalized)
 
 
-def test_level_up_logs_playersdbg(monkeypatch, tmp_path, caplog):
+def test_level_up_logs_playersdbg(monkeypatch, tmp_path, caplog, monsters_store):
     state = _build_state(tmp_path)
     monkeypatch.setattr(monsters_state.pstate, "_pdbg_enabled", lambda: True)
     monkeypatch.setattr(monsters_state.pstate, "_pdbg_setup_file_logging", lambda: None)
@@ -49,7 +49,7 @@ def test_level_up_logs_playersdbg(monkeypatch, tmp_path, caplog):
     assert "hp=+10" in message
 
 
-def test_kill_logs_playersdbg(monkeypatch, tmp_path, caplog):
+def test_kill_logs_playersdbg(monkeypatch, tmp_path, caplog, monsters_store):
     state = _build_state(tmp_path)
     monkeypatch.setattr(monsters_state.pstate, "_pdbg_enabled", lambda: True)
     monkeypatch.setattr(monsters_state.pstate, "_pdbg_setup_file_logging", lambda: None)

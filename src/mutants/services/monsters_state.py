@@ -2,14 +2,15 @@ from __future__ import annotations
 
 import copy
 import json
+import json
 import logging
 import uuid
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Mapping, MutableMapping, Optional
 
-from mutants.io.atomic import atomic_write_json
 from mutants.registries import items_catalog
 from mutants.registries import items_instances
+from mutants.registries import monsters_instances
 from mutants.services import items_weight
 from mutants.services import player_state as pstate
 from mutants.state import state_path
@@ -378,14 +379,132 @@ def _apply_level_gain(monster: MutableMapping[str, Any]) -> None:
 
 
 class MonstersState:
-    def __init__(self, path: Path, monsters: List[Dict[str, Any]]):
+    def __init__(
+        self,
+        path: Path,
+        monsters: List[Dict[str, Any]],
+        *,
+        instances: Optional[monsters_instances.MonstersInstances] = None,
+    ):
         self._path = path
         self._monsters = monsters
         self._by_id = {m["id"]: m for m in monsters if m.get("id")}
         self._dirty = False
+        self._dirty_all = False
+        self._dirty_ids: set[str] = set()
+        self._deleted_ids: set[str] = set()
+        self._last_accessed_id: Optional[str] = None
+        self._instances = instances or monsters_instances.load_monsters_instances(path)
+
+    def _prepare_store_payload(self, monster: Mapping[str, Any]) -> Dict[str, Any]:
+        payload = copy.deepcopy(dict(monster))
+
+        monster_id_raw = (
+            payload.get("id")
+            or payload.get("monster_id")
+            or payload.get("instance_id")
+        )
+        monster_id = str(monster_id_raw) if monster_id_raw else f"monster#{uuid.uuid4().hex[:6]}"
+        payload["id"] = monster_id
+        payload["instance_id"] = monster_id
+
+        monster_kind = payload.get("monster_id")
+        if monster_kind:
+            payload["monster_id"] = str(monster_kind)
+        else:
+            payload["monster_id"] = str(payload.get("name") or monster_id)
+
+        pos = _sanitize_pos(payload.get("pos")) or [0, 0, 0]
+        payload["pos"] = pos
+
+        payload["hp"] = _sanitize_hp(payload.get("hp"))
+
+        return payload
+
+    def _persist_monster(self, monster: Mapping[str, Any]) -> None:
+        payload = self._prepare_store_payload(monster)
+        instance_id = payload["instance_id"]
+        hp_block = payload.get("hp") if isinstance(payload.get("hp"), Mapping) else {}
+        hp_cur = _sanitize_int(
+            hp_block.get("current") if isinstance(hp_block, Mapping) else None,
+            minimum=0,
+            fallback=0,
+        )
+        hp_max = _sanitize_int(
+            hp_block.get("max") if isinstance(hp_block, Mapping) else None,
+            minimum=hp_cur,
+            fallback=hp_cur,
+        )
+        pos = payload.get("pos") if isinstance(payload.get("pos"), list) else [0, 0, 0]
+        year = _sanitize_int(pos[0] if len(pos) > 0 else None, fallback=0)
+        x = _sanitize_int(pos[1] if len(pos) > 1 else None, fallback=0)
+        y = _sanitize_int(pos[2] if len(pos) > 2 else None, fallback=0)
+
+        fields = {
+            "monster_id": payload.get("monster_id"),
+            "year": year,
+            "x": x,
+            "y": y,
+            "hp_cur": hp_cur,
+            "hp_max": max(hp_cur, hp_max),
+            "stats_json": json.dumps(payload, sort_keys=True, separators=(",", ":")),
+        }
+
+        try:
+            self._instances.update_fields(instance_id, **fields)
+        except KeyError:
+            spawn_payload = copy.deepcopy(payload)
+            spawn_payload.setdefault("hp", {"current": hp_cur, "max": max(hp_cur, hp_max)})
+            self._instances.spawn(spawn_payload)
+
+    def _sync_local_with_store(self) -> List[Dict[str, Any]]:
+        records: List[Dict[str, Any]] = []
+        seen: set[str] = set()
+        for record in self._instances.list_all():
+            if not isinstance(record, Mapping):
+                continue
+            entry = dict(record)
+            ident_raw = entry.get("id") or entry.get("instance_id") or entry.get("monster_id")
+            ident = str(ident_raw) if ident_raw else ""
+            if not ident:
+                continue
+            entry["id"] = ident
+            seen.add(ident)
+            local = self._by_id.get(ident)
+            if local is None:
+                self._monsters.append(entry)
+                self._by_id[ident] = entry
+                local = entry
+            else:
+                local.clear()
+                local.update(entry)
+            records.append(local)
+
+        if not self._dirty and seen:
+            for ident in list(self._by_id.keys()):
+                if ident not in seen:
+                    monster = self._by_id.pop(ident)
+                    try:
+                        self._monsters.remove(monster)
+                    except ValueError:
+                        pass
+
+        return records
+
+    def _track_dirty(self, monster_id: Optional[str], *, force_all: bool = False) -> None:
+        self._dirty = True
+        if force_all:
+            self._dirty_all = True
+            return
+        if monster_id:
+            self._dirty_ids.add(monster_id)
+        else:
+            self._dirty_all = True
 
     def list_all(self) -> List[Dict[str, Any]]:
-        return list(self._monsters)
+        if self._dirty:
+            return list(self._monsters)
+        return list(self._sync_local_with_store())
 
     def list_at(self, year: int, x: int, y: int) -> List[Dict[str, Any]]:
         def _match(mon: Dict[str, Any]) -> bool:
@@ -394,13 +513,19 @@ class MonstersState:
                 return False
             return int(pos[0]) == int(year) and int(pos[1]) == int(x) and int(pos[2]) == int(y)
 
-        return [mon for mon in self._monsters if _match(mon)]
+        if self._dirty:
+            return [mon for mon in self._monsters if _match(mon)]
+        return [mon for mon in self._sync_local_with_store() if _match(mon)]
 
     def get(self, monster_id: str) -> Optional[Dict[str, Any]]:
-        return self._by_id.get(monster_id)
+        if not self._dirty:
+            self._sync_local_with_store()
+        monster = self._by_id.get(monster_id)
+        self._last_accessed_id = monster_id if monster else None
+        return monster
 
     def mark_dirty(self) -> None:
-        self._dirty = True
+        self._track_dirty(self._last_accessed_id)
 
     def level_up_monster(self, monster_id: str) -> bool:
         monster = self._by_id.get(monster_id)
@@ -410,7 +535,7 @@ class MonstersState:
         before_stats = _sanitize_stats(monster.get("stats"))
         before_hp = _sanitize_hp(monster.get("hp"))
         _apply_level_gain(monster)
-        self.mark_dirty()
+        self._track_dirty(monster_id)
         if pstate._pdbg_enabled():  # pragma: no cover - diagnostic logging
             try:
                 pstate._pdbg_setup_file_logging()
@@ -496,7 +621,10 @@ class MonstersState:
         except Exception:
             pass
 
-        self.mark_dirty()
+        self._track_dirty(monster_id)
+        self._deleted_ids.add(monster_id)
+        self._dirty_ids.discard(monster_id)
+        self._last_accessed_id = None
         return {
             "monster": monster,
             "drops": drops,
@@ -506,26 +634,59 @@ class MonstersState:
         }
 
     def save(self) -> None:
-        if not self._dirty:
+        if not (self._dirty or self._deleted_ids):
             return
-        payload = {"monsters": self._monsters}
-        atomic_write_json(self._path, payload)
+
+        if self._dirty_all:
+            targets = [monster for monster in self._monsters if isinstance(monster, Mapping)]
+        else:
+            targets = [
+                self._by_id[monster_id]
+                for monster_id in self._dirty_ids
+                if monster_id in self._by_id
+            ]
+
+        for monster in targets:
+            try:
+                self._persist_monster(monster)
+            except Exception:
+                LOG.exception("Failed to persist monster state")
+
+        for monster_id in list(self._deleted_ids):
+            try:
+                self._instances.delete(monster_id)
+            except KeyError:
+                continue
+            except Exception:
+                LOG.exception("Failed to delete monster %s from store", monster_id)
+
         self._dirty = False
+        self._dirty_all = False
+        self._dirty_ids.clear()
+        self._deleted_ids.clear()
 
 
 _CACHE: Optional[MonstersState] = None
 _CACHE_PATH: Optional[Path] = None
-_CACHE_MTIME: Optional[float] = None
+_CACHE_SIGNATURE: Optional[str] = None
 
 
-def _load_raw(path: Path) -> List[Dict[str, Any]]:
+def _load_raw(
+    path: Path,
+    instances: monsters_instances.MonstersInstances,
+) -> tuple[List[Dict[str, Any]], bool]:
+    snapshot = instances.list_all()
+    if snapshot:
+        records = [dict(mon) for mon in snapshot if isinstance(mon, Mapping)]
+        return records, True
+
     if not path.exists():
-        return []
+        return [], False
     try:
         with path.open("r", encoding="utf-8") as handle:
             data = json.load(handle)
     except (json.JSONDecodeError, OSError):
-        return []
+        return [], False
 
     if isinstance(data, Mapping) and "monsters" in data:
         monsters = data.get("monsters", [])
@@ -534,7 +695,15 @@ def _load_raw(path: Path) -> List[Dict[str, Any]]:
     else:
         monsters = []
 
-    return [dict(mon) for mon in monsters if isinstance(mon, Mapping)]
+    return [dict(mon) for mon in monsters if isinstance(mon, Mapping)], False
+
+
+def _compute_signature(records: Iterable[Mapping[str, Any]]) -> str:
+    try:
+        payload = json.dumps(list(records), sort_keys=True, separators=(",", ":"))
+    except TypeError:
+        payload = str(len(list(records)))
+    return payload
 
 
 def _normalize_monsters(monsters: List[Dict[str, Any]], *, catalog: Mapping[str, Any] | None) -> List[Dict[str, Any]]:
@@ -605,47 +774,41 @@ def _normalize_monsters(monsters: List[Dict[str, Any]], *, catalog: Mapping[str,
     return normalized
 
 
-def _stat_mtime(path: Path) -> float:
-    try:
-        return path.stat().st_mtime
-    except FileNotFoundError:
-        return 0.0
-
-
 def load_state(path: Path | str = DEFAULT_MONSTERS_PATH) -> MonstersState:
-    global _CACHE, _CACHE_PATH, _CACHE_MTIME
+    global _CACHE, _CACHE_PATH, _CACHE_SIGNATURE
 
     path_obj = Path(path)
-    mtime = _stat_mtime(path_obj)
-
-    if _CACHE and _CACHE_PATH == path_obj and _CACHE_MTIME == mtime:
-        return _CACHE
-
-    raw = _load_raw(path_obj)
+    instances = monsters_instances.load_monsters_instances(path_obj)
+    raw, from_store = _load_raw(path_obj, instances)
     try:
         catalog = items_catalog.load_catalog()
     except FileNotFoundError:
         catalog = {}
 
     normalized = _normalize_monsters(raw, catalog=catalog)
-    state = MonstersState(path_obj, normalized)
+    signature = _compute_signature(normalized)
 
-    if normalized != raw:
-        state.mark_dirty()
+    if _CACHE and _CACHE_PATH == path_obj and _CACHE_SIGNATURE == signature:
+        return _CACHE
+
+    state = MonstersState(path_obj, normalized, instances=instances)
+
+    if normalized != raw or not from_store:
+        state._track_dirty(None, force_all=True)
         state.save()
-        mtime = _stat_mtime(path_obj)
+        signature = _compute_signature(state._monsters)
 
     _CACHE = state
     _CACHE_PATH = path_obj
-    _CACHE_MTIME = mtime
+    _CACHE_SIGNATURE = signature
     return state
 
 
 def invalidate_cache() -> None:
-    global _CACHE, _CACHE_PATH, _CACHE_MTIME
+    global _CACHE, _CACHE_PATH, _CACHE_SIGNATURE
     _CACHE = None
     _CACHE_PATH = None
-    _CACHE_MTIME = None
+    _CACHE_SIGNATURE = None
 
 
 def normalize_records(
