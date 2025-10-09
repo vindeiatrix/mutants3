@@ -5,7 +5,7 @@ from typing import Any, Dict, Iterable, Optional, Protocol
 
 from mutants.env import get_state_backend as _get_state_backend
 
-from .json_store import JSONItemsInstanceStore, JSONMonstersInstanceStore
+from .sqlite_store import get_stores as sqlite_get_stores
 
 __all__ = [
     "ItemsInstanceStore",
@@ -64,13 +64,6 @@ def get_state_backend() -> str:
 
 def get_stores() -> StateStores:
     backend = get_state_backend()
-    if backend == "json":
-        return StateStores(
-            items=JSONItemsInstanceStore(),
-            monsters=JSONMonstersInstanceStore(),
-        )
-    if backend == "sqlite":  # pragma: no cover - placeholder until sqlite backend lands
-        from .storage_sqlite import get_stores as sqlite_get_stores  # type: ignore[import]
-
+    if backend == "sqlite":
         return sqlite_get_stores()
     raise ValueError(f"Unsupported state backend: {backend}")
