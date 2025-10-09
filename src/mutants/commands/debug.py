@@ -5,7 +5,6 @@ import shlex
 
 from ..registries import items_instances as itemsreg
 from ..registries import items_catalog
-from ..services import item_transfer as it
 from ..services import player_state as pstate
 from ..util.textnorm import normalize_item_query
 
@@ -53,21 +52,34 @@ def _resolve_item_id(raw: str, catalog):
 
 
 
-def _add_to_inventory(ctx, item_id: str, count: int) -> None:
-    """Create *count* instances of item_id and add them to the active player's inventory."""
+def _spawn_items_at_player(
+    ctx, item_id: str, count: int
+) -> tuple[list[str], tuple[int, int, int]]:
+    """Mint ``count`` items at the active player's tile returning the created iids."""
+
     year, x, y = _pos_from_ctx(ctx)
-    p = it._load_player()
-    pstate.ensure_active_profile(p, ctx)
-    pstate.bind_inventory_to_active_class(p)
-    it._ensure_inventory(p)
-    inv = p["inventory"]
+    spawned: list[str] = []
     for _ in range(count):
-        iid = itemsreg.create_and_save_instance(item_id, year, x, y, origin="debug_add")
-        itemsreg.clear_position(iid)
-        inv.append(iid)
-    p["inventory"] = inv
-    it._save_player(p)
-    itemsreg.save_instances()
+        iid = itemsreg.mint_instance(item_id, origin="debug_add")
+        itemsreg.set_position(iid, year, x, y)
+        spawned.append(iid)
+    return spawned, (year, x, y)
+
+
+def _debug_where(ctx) -> None:
+    year, x, y = _pos_from_ctx(ctx)
+    ctx["feedback_bus"].push("DEBUG", f"pos=({year}, {x}, {y})")
+
+
+def _debug_count(ctx) -> None:
+    year, x, y = _pos_from_ctx(ctx)
+    store = itemsreg._items_store()
+    snapshot = list(store.snapshot())
+    total = len(snapshot)
+    here = len(list(store.list_at(year, x, y)))
+    ctx["feedback_bus"].push(
+        "DEBUG", f"items total={total} here={here} at ({year}, {x}, {y})"
+    )
 
 
 def _set_currency_for_active(ctx, currency: str, amount: int) -> None:
@@ -141,8 +153,14 @@ def debug_add_cmd(arg: str, ctx):
     except Exception:
         count = 1
     count = max(1, min(99, count))
-    _add_to_inventory(ctx, item_id, count)
-    bus.push("DEBUG", f"added {count} x {item_id} to inventory.")
+    spawned, pos = _spawn_items_at_player(ctx, item_id, count)
+    preview = ", ".join(spawned[:5])
+    if len(spawned) > 5:
+        preview = f"{preview}, …"
+    bus.push(
+        "DEBUG",
+        f"spawned {count} x {item_id} at ({pos[0]}, {pos[1]}, {pos[2]}) [{preview}]",
+    )
 
 
 def debug_cmd(arg: str, ctx):
@@ -150,12 +168,21 @@ def debug_cmd(arg: str, ctx):
     if not parts:
         ctx["feedback_bus"].push(
             "SYSTEM/INFO",
-            "Usage: debug add <item_id> [qty] | debug ions <amount> | debug riblets <amount>",
+            "Usage: debug add <item_id> [qty] | debug where | debug count | "
+            "debug ions <amount> | debug riblets <amount>",
         )
         return
 
     if parts[0] == "add":
         debug_add_cmd(" ".join(parts[1:]), ctx)
+        return
+
+    if parts[0] == "where":
+        _debug_where(ctx)
+        return
+
+    if parts[0] == "count":
+        _debug_count(ctx)
         return
 
     if parts[0] in {"ions", "ion"}:
@@ -192,7 +219,8 @@ def debug_cmd(arg: str, ctx):
 
     ctx["feedback_bus"].push(
         "SYSTEM/INFO",
-        "Usage: debug add <item_id> [qty] | debug ions <amount> | debug riblets <amount>",
+        "Usage: debug add <item_id> [qty] | debug where | debug count | "
+        "debug ions <amount> | debug riblets <amount>",
     )
 
 
