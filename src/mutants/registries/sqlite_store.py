@@ -6,7 +6,7 @@ import sqlite3
 import json
 from pathlib import Path
 from time import time
-from typing import Any, Callable, Dict, Iterable, Optional, Sequence, Tuple
+from typing import TYPE_CHECKING, Any, Callable, Dict, Iterable, Optional, Sequence, Tuple
 
 from mutants.env import get_state_database_path
 
@@ -58,7 +58,11 @@ __all__ = [
     "SQLiteConnectionManager",
     "SQLiteItemsInstanceStore",
     "SQLiteMonstersInstanceStore",
+    "get_stores",
 ]
+
+if TYPE_CHECKING:
+    from .storage import StateStores
 
 def _resolve_db_path(db_path: Optional[os.PathLike[str] | str]) -> Path:
     if db_path is not None:
@@ -129,6 +133,128 @@ class SQLiteConnectionManager:
                         (target_version,),
                     )
                     version = target_version
+
+    def upsert_item_catalog(self, item_id: str, data_json: str) -> None:
+        conn = self.connect()
+        with conn:
+            _begin_immediate(conn)
+            conn.execute(
+                """
+                INSERT INTO items_catalog (item_id, data_json)
+                VALUES (?, ?)
+                ON CONFLICT(item_id) DO UPDATE SET data_json = excluded.data_json
+                """,
+                (str(item_id), str(data_json)),
+            )
+
+    def get_item_catalog(self, item_id: str) -> Optional[Dict[str, Any]]:
+        conn = self.connect()
+        cur = conn.execute(
+            "SELECT data_json FROM items_catalog WHERE item_id = ?",
+            (str(item_id),),
+        )
+        row = cur.fetchone()
+        if row is None:
+            return None
+        raw = row["data_json"]
+        if not isinstance(raw, str):
+            return None
+        try:
+            data = json.loads(raw)
+        except json.JSONDecodeError:
+            logger.error("Invalid JSON for item %s in catalog", item_id)
+            return None
+        if isinstance(data, dict):
+            data.setdefault("item_id", str(item_id))
+            return data
+        logger.error("Catalog row for item %s did not decode to an object", item_id)
+        return None
+
+    def list_spawnable_items(self) -> Iterable[Dict[str, Any]]:
+        conn = self.connect()
+        sql = (
+            "SELECT item_id, data_json FROM items_catalog "
+            "WHERE json_extract(data_json, '$.spawnable') = 1"
+        )
+        _debug_query_plan(conn, sql, tuple())
+        cur = conn.execute(sql)
+        results: list[Dict[str, Any]] = []
+        for row in cur.fetchall():
+            raw = row["data_json"]
+            if not isinstance(raw, str):
+                continue
+            try:
+                data = json.loads(raw)
+            except json.JSONDecodeError:
+                logger.error("Invalid JSON for item %s in spawnable list", row["item_id"])
+                continue
+            if isinstance(data, dict):
+                data.setdefault("item_id", row["item_id"])
+                results.append(data)
+        return results
+
+    def upsert_monster_catalog(self, monster_id: str, data_json: str) -> None:
+        conn = self.connect()
+        with conn:
+            _begin_immediate(conn)
+            conn.execute(
+                """
+                INSERT INTO monsters_catalog (monster_id, data_json)
+                VALUES (?, ?)
+                ON CONFLICT(monster_id) DO UPDATE SET data_json = excluded.data_json
+                """,
+                (str(monster_id), str(data_json)),
+            )
+
+    def get_monster_catalog(self, monster_id: str) -> Optional[Dict[str, Any]]:
+        conn = self.connect()
+        cur = conn.execute(
+            "SELECT data_json FROM monsters_catalog WHERE monster_id = ?",
+            (str(monster_id),),
+        )
+        row = cur.fetchone()
+        if row is None:
+            return None
+        raw = row["data_json"]
+        if not isinstance(raw, str):
+            return None
+        try:
+            data = json.loads(raw)
+        except json.JSONDecodeError:
+            logger.error("Invalid JSON for monster %s in catalog", monster_id)
+            return None
+        if isinstance(data, dict):
+            data.setdefault("monster_id", str(monster_id))
+            return data
+        logger.error(
+            "Catalog row for monster %s did not decode to an object", monster_id
+        )
+        return None
+
+    def list_spawnable_monsters(self) -> Iterable[Dict[str, Any]]:
+        conn = self.connect()
+        sql = (
+            "SELECT monster_id, data_json FROM monsters_catalog "
+            "WHERE json_extract(data_json, '$.spawnable') = 1"
+        )
+        _debug_query_plan(conn, sql, tuple())
+        cur = conn.execute(sql)
+        results: list[Dict[str, Any]] = []
+        for row in cur.fetchall():
+            raw = row["data_json"]
+            if not isinstance(raw, str):
+                continue
+            try:
+                data = json.loads(raw)
+            except json.JSONDecodeError:
+                logger.error(
+                    "Invalid JSON for monster %s in spawnable list", row["monster_id"]
+                )
+                continue
+            if isinstance(data, dict):
+                data.setdefault("monster_id", row["monster_id"])
+                results.append(data)
+        return results
 
     def _migrate_to_v1(self, conn: sqlite3.Connection) -> None:
         conn.execute(
@@ -237,6 +363,67 @@ class SQLiteItemsInstanceStore:
 
     def _row_to_dict(self, row: sqlite3.Row) -> Dict[str, Any]:
         return {key: row[key] for key in self._COLUMNS}
+
+    def snapshot(self) -> Iterable[Dict[str, Any]]:
+        conn = self._connection()
+        cur = conn.execute(
+            "SELECT iid, item_id, year, x, y, owner, enchant, condition, origin, drop_source, created_at "
+            "FROM items_instances ORDER BY created_at ASC, iid ASC"
+        )
+        return [self._row_to_dict(row) for row in cur.fetchall()]
+
+    def replace_all(self, records: Iterable[Dict[str, Any]]) -> None:
+        payloads: list[Dict[str, Any]] = []
+        base_created = _epoch_ms()
+        order = 0
+        for record in records:
+            if not isinstance(record, dict):
+                continue
+            normalized = self._normalize_record(record, base_created + order)
+            if normalized is None:
+                continue
+            payloads.append(normalized)
+            order += 1
+
+        conn = self._connection()
+        with conn:
+            _begin_immediate(conn)
+            conn.execute("DELETE FROM items_instances")
+            if payloads:
+                columns = ", ".join(self._COLUMNS)
+                placeholders = ", ".join("?" for _ in self._COLUMNS)
+                values = [tuple(payload[col] for col in self._COLUMNS) for payload in payloads]
+                conn.executemany(
+                    f"INSERT INTO items_instances ({columns}) VALUES ({placeholders})",
+                    values,
+                )
+
+    def _normalize_record(
+        self, record: Dict[str, Any], default_created: int
+    ) -> Optional[Dict[str, Any]]:
+        iid = record.get("iid") or record.get("instance_id")
+        item_id = record.get("item_id") or record.get("catalog_id")
+        if iid is None or item_id is None:
+            return None
+
+        payload: Dict[str, Any] = {key: None for key in self._COLUMNS}
+        payload["iid"] = str(iid)
+        payload["item_id"] = str(item_id)
+        payload["year"] = _coerce_int(record.get("year"))
+        payload["x"] = _coerce_int(record.get("x"))
+        payload["y"] = _coerce_int(record.get("y"))
+        owner = record.get("owner")
+        payload["owner"] = str(owner) if owner is not None else None
+        payload["enchant"] = _coerce_int(record.get("enchant"))
+        payload["condition"] = _coerce_int(record.get("condition"), default=100)
+        origin = record.get("origin")
+        payload["origin"] = str(origin) if origin is not None else None
+        drop_source = record.get("drop_source")
+        payload["drop_source"] = str(drop_source) if drop_source is not None else None
+        payload["created_at"] = _normalize_created_at(
+            record.get("created_at"), default=default_created
+        )
+        return payload
 
     def get_by_iid(self, iid: str) -> Optional[Dict[str, Any]]:
         conn = self._connection()
@@ -622,3 +809,17 @@ class SQLiteMonstersInstanceStore:
             )
             if cur.rowcount == 0:
                 raise KeyError(str(mid))
+
+
+def get_stores(db_path: Optional[os.PathLike[str] | str] = None) -> "StateStores":
+    manager = SQLiteConnectionManager(db_path)
+    return _build_state_stores(manager)
+
+
+def _build_state_stores(manager: SQLiteConnectionManager) -> "StateStores":
+    from .storage import StateStores
+
+    return StateStores(
+        items=SQLiteItemsInstanceStore(manager),
+        monsters=SQLiteMonstersInstanceStore(manager),
+    )

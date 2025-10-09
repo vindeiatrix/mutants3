@@ -22,8 +22,10 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from mutants.state import state_path
 
+from .sqlite_store import SQLiteConnectionManager
+
 DEFAULT_CATALOG_PATH = state_path("items", "catalog.json")
-FALLBACK_CATALOG_PATH = state_path("catalog.json")  # auto-fallback if the new path isn't used yet
+FALLBACK_CATALOG_PATH = DEFAULT_CATALOG_PATH
 
 DISALLOWED_ENCHANTABLE_FIELDS: Tuple[Tuple[str, str], ...] = (
     ("ranged", "ranged"),
@@ -71,34 +73,6 @@ class ItemsCatalog:
         """Return a list of entries explicitly marked ``spawnable: true``."""
 
         return [it for it in self._items_list if it.get("spawnable") is True]
-
-def _read_items_from_file(p: Path) -> List[Dict[str, Any]]:
-    """Return raw item payloads from ``p``.
-
-    Parameters
-    ----------
-    p
-        Path to ``catalog.json`` or a compatible payload.
-
-    Returns
-    -------
-    list of dict
-        Raw items prior to normalisation.
-
-    Raises
-    ------
-    ValueError
-        If the JSON does not contain a list or ``{"items": [...]}``.
-    """
-
-    with p.open("r", encoding="utf-8") as f:
-        data = json.load(f)
-    if isinstance(data, dict) and "items" in data:
-        return data["items"]
-    if isinstance(data, list):
-        return data
-    raise ValueError('catalog.json must be a list of items or {"items": [...]}')
-
 
 def _coerce_legacy_bools(items: List[Dict[str, Any]]) -> None:
     """Convert legacy ``"yes"``/``"no"`` strings to booleans in-place."""
@@ -273,14 +247,40 @@ def _normalize_items(items: List[Dict[str, Any]]) -> tuple[List[str], List[str]]
 
     return warnings, errors
 
-def load_catalog(path: Path | str = DEFAULT_CATALOG_PATH) -> ItemsCatalog:
-    """Load the items catalog, applying migrations and validation.
+def _load_items_from_store(manager: SQLiteConnectionManager) -> List[Dict[str, Any]]:
+    conn = manager.connect()
+    cur = conn.execute(
+        "SELECT item_id, data_json FROM items_catalog ORDER BY item_id ASC"
+    )
+    rows = cur.fetchall()
+    if not rows:
+        raise FileNotFoundError(
+            f"Missing catalog entries in SQLite store at {manager.path}"
+        )
+
+    items: List[Dict[str, Any]] = []
+    for row in rows:
+        raw = row["data_json"]
+        if not isinstance(raw, str):
+            raise ValueError(f"items_catalog row {row['item_id']} missing JSON payload")
+        data = json.loads(raw)
+        if not isinstance(data, dict):
+            raise ValueError(
+                "items_catalog rows must decode to JSON objects (dicts)"
+            )
+        data.setdefault("item_id", row["item_id"])
+        items.append(data)
+    return items
+
+
+def load_catalog(path: Path | str | None = None) -> ItemsCatalog:
+    """Load the items catalog from the SQLite store.
 
     Parameters
     ----------
     path
-        Primary path to ``catalog.json``.  A fallback path in the legacy location is used
-        automatically when the primary is missing.
+        Optional path to the SQLite database file.  When omitted the default
+        state database configured for the runtime is used.
 
     Returns
     -------
@@ -290,19 +290,13 @@ def load_catalog(path: Path | str = DEFAULT_CATALOG_PATH) -> ItemsCatalog:
     Raises
     ------
     FileNotFoundError
-        If neither the primary nor fallback paths exist.
+        If the catalog table is empty.
     ValueError
         If any catalog entry violates invariants (missing flags, invalid ranges, etc.).
     """
 
-    primary = Path(path)
-    fallback = Path(FALLBACK_CATALOG_PATH)
-    if primary.exists():
-        items = _read_items_from_file(primary)
-    elif fallback.exists():
-        items = _read_items_from_file(fallback)
-    else:
-        raise FileNotFoundError(f"Missing catalog: tried {primary} then {fallback}")
+    manager = SQLiteConnectionManager(path) if path is not None else SQLiteConnectionManager()
+    items = _load_items_from_store(manager)
     _coerce_legacy_bools(items)
     warnings, errors = _normalize_items(items)
     for msg in warnings:

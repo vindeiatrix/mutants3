@@ -6,6 +6,8 @@ from typing import Any, Dict, List, Optional
 
 from mutants.state import state_path
 
+from .sqlite_store import SQLiteConnectionManager
+
 DEFAULT_CATALOG_PATH = state_path("monsters", "catalog.json")
 
 # EXP formula (can be adjusted later in one place)
@@ -61,18 +63,37 @@ def _validate_base_monster(m: Dict[str, Any]) -> None:
             raise ValueError(f"innate_attack missing {f}")
     # ok
 
-def load_monsters_catalog(path: Path | str = DEFAULT_CATALOG_PATH) -> MonstersCatalog:
-    p = Path(path)
-    if not p.exists():
-        raise FileNotFoundError(f"Missing monsters catalog at {p}")
-    with p.open("r", encoding="utf-8") as f:
-        data = json.load(f)
-    if isinstance(data, dict) and "monsters" in data:
-        monsters = data["monsters"]
-    elif isinstance(data, list):
-        monsters = data
-    else:
-        raise ValueError('catalog must be a list of monsters or {"monsters": [...]}')
+def _load_monsters_from_store(manager: SQLiteConnectionManager) -> List[Dict[str, Any]]:
+    conn = manager.connect()
+    cur = conn.execute(
+        "SELECT monster_id, data_json FROM monsters_catalog ORDER BY monster_id ASC"
+    )
+    rows = cur.fetchall()
+    if not rows:
+        raise FileNotFoundError(
+            f"Missing monsters catalog entries in SQLite store at {manager.path}"
+        )
+
+    monsters: List[Dict[str, Any]] = []
+    for row in rows:
+        raw = row["data_json"]
+        if not isinstance(raw, str):
+            raise ValueError(
+                f"monsters_catalog row {row['monster_id']} missing JSON payload"
+            )
+        data = json.loads(raw)
+        if not isinstance(data, dict):
+            raise ValueError(
+                "monsters_catalog rows must decode to JSON objects (dicts)"
+            )
+        data.setdefault("monster_id", row["monster_id"])
+        monsters.append(data)
+    return monsters
+
+
+def load_monsters_catalog(path: Path | str | None = None) -> MonstersCatalog:
+    manager = SQLiteConnectionManager(path) if path is not None else SQLiteConnectionManager()
+    monsters = _load_monsters_from_store(manager)
 
     # Lightweight validation (DEV-friendly; raise on structural errors)
     for m in monsters:
