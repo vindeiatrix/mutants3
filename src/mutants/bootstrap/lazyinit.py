@@ -8,8 +8,8 @@ Behavior:
   * If missing/invalid, read class templates, build entries with derived fields,
     atomically write state/playerlivestate.json, then return it.
 - Item state:
-  * ensure_item_state() creates state/items/ and an empty instances.json if missing
-    (catalog.json is author-edited and NOT created here).
+  * ensure_item_state() now only guarantees ``state/items/`` exists. Persistence
+    is handled by the configured state backend (SQLite by default).
 
 Notes:
 - Templates are expected at package data: mutants/data/startingclasstemplates.json
@@ -56,15 +56,15 @@ def compute_ac_from_dex(dex: int) -> int:
 
 def ensure_item_state(state_dir: str = "state") -> None:
     """
-    Ensure state/items/ exists and instances.json exists (empty list if missing).
-    Does NOT create catalog.json; you will author that by hand.
+    Ensure ``state/items/`` exists.
+
+    Item instances are now persisted by the configured state backend (SQLite by
+    default) so there is no longer a bootstrap-created ``instances.json``.
+    Hand-authored assets such as ``catalog.json`` continue to live in this
+    directory, so we keep creating the folder itself.
     """
     items_dir = Path(state_dir) / "items"
     items_dir.mkdir(parents=True, exist_ok=True)
-
-    instances_path = items_dir / "instances.json"
-    if not instances_path.exists():
-        atomic_write_json(instances_path, [])
 
 
 # ---------- Template loading ----------
