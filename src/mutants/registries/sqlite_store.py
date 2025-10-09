@@ -52,7 +52,7 @@ def _debug_query_plan(
             detail = row[3]
         except (IndexError, TypeError):
             detail = row
-        logger.debug("QUERY PLAN %s :: %s", sql, detail)
+        logger.info("QUERY PLAN %s :: %s", sql, detail)
 
 __all__ = [
     "SQLiteConnectionManager",
