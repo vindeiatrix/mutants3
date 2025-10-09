@@ -29,14 +29,12 @@ def ensure_runtime() -> Dict:
     """
     Idempotent startup bootstrap:
       - ensure dirs exist
-      - ensure instances.json exist (items/monsters)
       - ensure themes exist (bbs.json, mono.json)
       - discover world years; if none, create a minimal world using config defaults
       - return a dict of discovered info (years, config, theme files)
     """
     ensure_dirs([WORLD_DIR, ITEMS_DIR, MONS_DIR, THEMES_DIR, LOGS_DIR])
     cfg = read_config()
-    ensure_instances_files()
     created_themes = ensure_theme_files(cfg.get("default_theme", "bbs"))
     years = discover_world_years()
     if not years:
@@ -95,15 +93,6 @@ def read_config() -> Dict:
         except Exception:
             return {}
     return {}
-
-def ensure_instances_files() -> None:
-    items_path = ITEMS_DIR / "instances.json"
-    if not items_path.exists():
-        atomic_write_json(items_path, [])
-
-    monsters_path = MONS_DIR / "instances.json"
-    if not monsters_path.exists():
-        atomic_write_json(monsters_path, {"monsters": []})
 
 def ensure_theme_files(default_theme: str = "bbs") -> Dict[str, bool]:
     created = {"bbs": False, "mono": False}
