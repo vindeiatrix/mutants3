@@ -501,7 +501,6 @@ def pick_from_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
             )
         except Exception:  # pragma: no cover - defensive logging only
             pass
-    itemsreg.save_instances()
     # Command-side probe (after mutation & save)
     try:
         items_probe.probe("command-post", itemsreg, year, x, y)
@@ -515,7 +514,6 @@ def pick_from_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
             chosen_iid,
         )
         itemsreg.clear_position(chosen_iid)
-        itemsreg.save_instances()
         _post_retry = itemsreg.list_instances_at(year, x, y)
         if any(
             str(p.get("iid") or p.get("instance_id")) == chosen_iid for p in _post_retry
@@ -615,7 +613,6 @@ def drop_to_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
         else:
             overflow_info = {"ground_overflow_pick": pick}
     _save_player(player)
-    itemsreg.save_instances()
     return {
         "ok": True,
         "iid": iid,
@@ -722,7 +719,6 @@ def throw_to_direction(ctx, direction: str, prefix: str, *, seed: Optional[int] 
         else:
             overflow_info = {"ground_overflow_pick": pick}
     _save_player(player)
-    itemsreg.save_instances()
     return {
         "ok": True,
         "iid": iid,
