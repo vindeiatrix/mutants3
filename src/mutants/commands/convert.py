@@ -13,10 +13,6 @@ from ..util.textnorm import normalize_item_query
 
 LOG_P = logging.getLogger("mutants.playersdbg")
 
-_ORIGIN_WORLD = "world"
-_CONVERTIBLE_ORIGINS = {"world", "debug_add"}
-
-
 def _legacy_ions(payload: Dict[str, Any]) -> int:
     if not isinstance(payload, dict):
         return 0
@@ -119,15 +115,15 @@ def _choose_inventory_item(
         inst = itemsreg.get_instance(iid)
         if not inst:
             continue
-        origin = inst.get("origin")
-        if not isinstance(origin, str) or origin.strip().lower() not in _CONVERTIBLE_ORIGINS:
-            continue
+        # allow any origin; skip items with no convertible value
         item_id = (
             inst.get("item_id")
             or inst.get("catalog_id")
             or inst.get("id")
             or iid
         )
+        if _convert_value(str(item_id), catalog) <= 0:
+            continue
         candidates.append((str(iid), str(item_id)))
 
     matches: List[Tuple[str, str]] = []

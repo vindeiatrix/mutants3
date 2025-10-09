@@ -44,13 +44,13 @@ def test_convert_payout_handles_mixed_enchant_levels(monkeypatch):
     assert convert._convert_payout("knife_plus3", "knife", catalog) == 44300
 
 
-def test_choose_inventory_item_skips_non_world(monkeypatch):
-    player = {"inventory": ["native#1", "world#2"]}
-    catalog = _catalog({"sword": {"name": "Sword"}})
+def test_choose_inventory_item_allows_any_origin(monkeypatch):
+    player = {"inventory": ["litter#1", "world#2"]}
+    catalog = _catalog({"sword": {"name": "Sword", "convert_ions": 12345}})
 
     def fake_get_instance(iid: str) -> dict | None:
-        if iid == "native#1":
-            return {"iid": iid, "item_id": "sword", "origin": "native"}
+        if iid == "litter#1":
+            return {"iid": iid, "item_id": "sword", "origin": "daily_litter"}
         if iid == "world#2":
             return {"iid": iid, "item_id": "sword", "origin": "world"}
         return None
@@ -59,18 +59,18 @@ def test_choose_inventory_item_skips_non_world(monkeypatch):
 
     iid, item_id = convert._choose_inventory_item(player, "swo", catalog)
 
-    assert iid == "world#2"
+    assert iid == "litter#1"
     assert item_id == "sword"
 
 
-def test_choose_inventory_item_returns_none_when_no_world(monkeypatch):
-    player = {"inventory": ["native#1"]}
+def test_choose_inventory_item_skips_items_with_no_convert_value(monkeypatch):
+    player = {"inventory": ["litter#1"]}
     catalog = _catalog({"sword": {"name": "Sword"}})
 
     monkeypatch.setattr(
         convert.itemsreg,
         "get_instance",
-        lambda iid: {"iid": iid, "item_id": "sword", "origin": "native"},
+        lambda iid: {"iid": iid, "item_id": "sword", "origin": "daily_litter"},
     )
 
     iid, item_id = convert._choose_inventory_item(player, "swo", catalog)
