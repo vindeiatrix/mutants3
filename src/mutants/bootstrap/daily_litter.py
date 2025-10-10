@@ -22,7 +22,7 @@ from pathlib import Path
 from time import time
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
-from mutants.registries import items_instances
+from mutants.registries import items_instances, items_catalog
 from mutants.registries.sqlite_store import SQLiteConnectionManager, SQLiteItemsInstanceStore
 from mutants.state import STATE_ROOT
 
@@ -70,6 +70,7 @@ _ITEM_COLUMNS: Tuple[str, ...] = (
     "owner",
     "enchant",
     "condition",
+    "charges",
     "origin",
     "drop_source",
     "created_at",
@@ -296,7 +297,7 @@ def _prepare_weight_tables(pool: Iterable[Tuple[str, int]]) -> Tuple[Tuple[str, 
 
 
 def _create_spawn_record(item_id: str, year: int, x: int, y: int, created_at: int) -> Dict[str, Any]:
-    return {
+    record: Dict[str, Any] = {
         "iid": items_instances.mint_iid(),
         "item_id": item_id,
         "year": year,
@@ -307,6 +308,17 @@ def _create_spawn_record(item_id: str, year: int, x: int, y: int, created_at: in
         "condition": 100,
         "created_at": created_at,
     }
+    try:
+        defaults = items_catalog.catalog_defaults(item_id)
+    except FileNotFoundError:
+        defaults = {}
+    charges = defaults.get("charges") if isinstance(defaults, dict) else None
+    if charges is not None:
+        try:
+            record["charges"] = int(charges)
+        except (TypeError, ValueError):
+            pass
+    return record
 
 
 def _insert_normalized_records(
