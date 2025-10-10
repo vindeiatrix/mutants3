@@ -10,6 +10,7 @@ from .sqlite_store import get_stores as sqlite_get_stores
 __all__ = [
     "ItemsInstanceStore",
     "MonstersInstanceStore",
+    "RuntimeKVStore",
     "StateStores",
     "get_state_backend",
     "get_stores",
@@ -35,6 +36,18 @@ class ItemsInstanceStore(Protocol):
 
     def delete(self, iid: str) -> None: ...
 
+    def delete_by_origin(self, origin: str) -> None: ...
+
+    def bulk_insert(self, records: Iterable[Dict[str, Any]]) -> None: ...
+
+
+class RuntimeKVStore(Protocol):
+    def get(self, key: str) -> Optional[str]: ...
+
+    def set(self, key: str, value: str) -> None: ...
+
+    def delete(self, key: str) -> None: ...
+
 
 class MonstersInstanceStore(Protocol):
     def snapshot(self) -> Iterable[Dict[str, Any]]: ...
@@ -56,6 +69,7 @@ class MonstersInstanceStore(Protocol):
 class StateStores:
     items: ItemsInstanceStore
     monsters: MonstersInstanceStore
+    runtime_kv: RuntimeKVStore
 
 
 def get_state_backend() -> str:
