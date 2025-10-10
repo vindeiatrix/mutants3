@@ -306,3 +306,46 @@ def load_catalog(path: Path | str | None = None) -> ItemsCatalog:
             LOG.error(msg)
         raise ValueError("invalid catalog items")
     return ItemsCatalog(items)
+
+
+def catalog_defaults(item_id: str) -> Dict[str, Any]:
+    """Return runtime defaults inferred from the catalog for ``item_id``."""
+
+    defaults: Dict[str, Any] = {}
+    if not item_id:
+        return defaults
+
+    try:
+        catalog = load_catalog()
+    except FileNotFoundError:
+        return defaults
+
+    template = catalog.get(str(item_id)) if catalog else None
+    if not isinstance(template, dict):
+        return defaults
+
+    def _coerce_bool(value: Any) -> bool:
+        if isinstance(value, str):
+            lv = value.strip().lower()
+            if lv in {"yes", "true", "1"}:
+                return True
+            if lv in {"no", "false", "0"}:
+                return False
+        return bool(value)
+
+    defaults["condition"] = 100
+    defaults["enchant_level"] = 0
+    defaults["enchant"] = 0
+
+    if "god_tier" in template:
+        defaults["god_tier"] = _coerce_bool(template.get("god_tier"))
+
+    try:
+        charges_max = int(template.get("charges_max", 0) or 0)
+    except (TypeError, ValueError):
+        charges_max = 0
+    uses_charges = template.get("uses_charges")
+    if charges_max > 0 and (uses_charges is None or bool(uses_charges)):
+        defaults["charges"] = charges_max
+
+    return defaults
