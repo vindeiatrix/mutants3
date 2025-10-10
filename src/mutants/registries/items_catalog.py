@@ -17,8 +17,10 @@ from __future__ import annotations
 
 import json
 import logging
+import random
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from time import time
+from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
 
 from mutants.state import state_path
 
@@ -380,6 +382,188 @@ def catalog_defaults(item_id: str) -> Dict[str, Any]:
         defaults["charges"] = charges_max
 
     return defaults
+
+
+def list_spawnable_items() -> List[Dict[str, Any]]:
+    """Return spawnable catalog entries with weights and caps."""
+
+    manager = SQLiteConnectionManager()
+    from mutants.bootstrap import daily_litter as dl  # local import to avoid cycle
+
+    try:
+        spawnables = dl._load_spawnables_from_db(manager)
+        results: List[Dict[str, Any]] = []
+        for item_id, cfg in spawnables.items():
+            entry = dict(cfg)
+            entry["item_id"] = item_id
+            results.append(entry)
+        return results
+    finally:
+        manager.close()
+
+
+def _spawn_rules() -> Dict[str, Any]:
+    from mutants.bootstrap import daily_litter as dl  # local import
+
+    rules_path = state_path("items", "spawn_rules.json")
+    return dl._load_spawn_rules(rules_path)
+
+
+def daily_target_per_year() -> int:
+    rules = _spawn_rules()
+    try:
+        return int(rules.get("daily_target_per_year"))
+    except (TypeError, ValueError):
+        from mutants.bootstrap import daily_litter as dl  # local import
+
+        return dl.DAILY_TARGET_DEFAULT
+
+
+def _max_ground_per_tile() -> int:
+    rules = _spawn_rules()
+    try:
+        return int(rules.get("max_ground_per_tile"))
+    except (TypeError, ValueError):
+        from mutants.bootstrap import daily_litter as dl  # local import
+
+        return dl.MAX_PER_TILE_DEFAULT
+
+
+def playable_years() -> List[int]:
+    from mutants.bootstrap import daily_litter as dl  # local import
+
+    world_dir = state_path("world")
+    return dl._list_years(world_dir)
+
+
+def _spawnable_map(spawnables: Iterable[Dict[str, Any]]) -> Dict[str, Dict[str, Optional[int]]]:
+    mapping: Dict[str, Dict[str, Optional[int]]] = {}
+    for entry in spawnables:
+        if not isinstance(entry, dict):
+            continue
+        item_id = entry.get("item_id")
+        if not item_id:
+            continue
+        weight_raw = entry.get("weight")
+        try:
+            weight = int(weight_raw)
+        except (TypeError, ValueError):
+            weight = 0
+        if weight <= 0:
+            continue
+        cfg: Dict[str, Optional[int]] = {"weight": weight}
+        cap_raw = entry.get("cap_per_year")
+        if cap_raw is not None:
+            try:
+                cfg["cap_per_year"] = int(cap_raw)
+            except (TypeError, ValueError):
+                cfg["cap_per_year"] = None
+        mapping[str(item_id)] = cfg
+    return mapping
+
+
+def generate_daily_litter_for_year(
+    year: int,
+    daily_target: int,
+    spawnables: Sequence[Dict[str, Any]],
+    *,
+    origin: Optional[str] = None,
+) -> Iterable[Dict[str, Any]]:
+    from mutants.bootstrap import daily_litter as dl  # local import
+
+    if daily_target <= 0:
+        return []
+
+    tiles = dl._collect_open_tiles_for_year(year, state_path("world"))
+    if not tiles:
+        return []
+
+    spawn_map = _spawnable_map(spawnables)
+    if not spawn_map:
+        return []
+
+    manager = SQLiteConnectionManager()
+    conn = manager.connect()
+    try:
+        per_tile_all = dl._fetch_per_tile_counts(conn)
+        per_year_all = dl._fetch_per_year_item_counts(conn)
+
+        per_tile = dict(per_tile_all)
+        per_year = {yr: dict(counts) for yr, counts in per_year_all.items()}
+
+        pool = dl._build_weighted_pool(year, spawn_map, per_year)
+        items, cumulative, total_weight = dl._prepare_weight_tables(pool)
+        if not items or total_weight <= 0:
+            return []
+
+        max_per_tile = _max_ground_per_tile()
+        if max_per_tile <= 0:
+            max_per_tile = dl.MAX_PER_TILE_DEFAULT
+
+        created_base = int(time() * 1000)
+        seq = 0
+        results: List[Dict[str, Any]] = []
+        attempts = 0
+        max_attempts = daily_target * 20
+
+        while len(results) < daily_target and attempts < max_attempts:
+            attempts += 1
+            if not items or total_weight <= 0:
+                break
+            r = random.randint(1, total_weight)
+            lo, hi = 0, len(cumulative) - 1
+            pick = 0
+            while lo <= hi:
+                mid = (lo + hi) // 2
+                if r <= cumulative[mid]:
+                    pick = mid
+                    hi = mid - 1
+                else:
+                    lo = mid + 1
+
+            item_id = items[pick]
+            cap = spawn_map[item_id].get("cap_per_year")
+            already = per_year.get(year, {}).get(item_id, 0)
+            if cap is not None and already >= cap:
+                pool = dl._build_weighted_pool(year, spawn_map, per_year)
+                items, cumulative, total_weight = dl._prepare_weight_tables(pool)
+                if not items or total_weight <= 0:
+                    break
+                continue
+
+            x, y = tiles[random.randrange(0, len(tiles))]
+            key = dl._tile_key(year, x, y)
+            if per_tile.get(key, 0) >= max_per_tile:
+                continue
+
+            created_at = created_base + seq
+            seq += 1
+            record = dl._create_spawn_record(item_id, year, x, y, created_at)
+            if origin is not None:
+                record[dl.ORIGIN_FIELD] = str(origin)
+            results.append(record)
+
+            per_tile[key] = per_tile.get(key, 0) + 1
+            per_year.setdefault(year, {})
+            per_year[year][item_id] = already + 1
+
+        return results
+    finally:
+        manager.close()
+
+
+def breakdown_summary(records: Iterable[Dict[str, Any]]) -> str:
+    counts: Dict[str, int] = {}
+    for record in records:
+        item_id = record.get("item_id")
+        if not item_id:
+            continue
+        key = str(item_id)
+        counts[key] = counts.get(key, 0) + 1
+    if not counts:
+        return ""
+    parts = [f"{item_id}\u00d7{counts[item_id]}" for item_id in sorted(counts)]
+    return ", ".join(parts)
 
 
 def max_charges(item_id: str | None) -> int:

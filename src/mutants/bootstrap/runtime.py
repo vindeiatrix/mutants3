@@ -9,7 +9,8 @@ from typing import Dict, Iterable, List, Optional
 
 from mutants.io.atomic import atomic_write_json
 from mutants.state import STATE_ROOT, state_path
-from . import daily_litter, validator
+from . import validator
+from .daily_litter import run_daily_litter
 
 LOG = logging.getLogger(__name__)
 WORLD_DEBUG = os.getenv("WORLD_DEBUG") == "1"
@@ -53,7 +54,7 @@ def ensure_runtime() -> Dict:
         years = [year]
 
     try:
-        daily_litter.run_daily_litter_reset()
+        run_daily_litter()
     except Exception as e:
         logging.getLogger(__name__).warning("daily_litter skipped: %s", e)
 

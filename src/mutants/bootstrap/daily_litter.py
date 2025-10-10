@@ -17,17 +17,22 @@ import logging
 import os
 import random
 import sqlite3
-from datetime import datetime
+from datetime import date, datetime
 from pathlib import Path
 from time import time
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
+from mutants.env import get_state_backend
 from mutants.registries import items_instances, items_catalog
+from mutants.registries.storage import get_stores
 from mutants.registries.sqlite_store import SQLiteConnectionManager, SQLiteItemsInstanceStore
 from mutants.state import STATE_ROOT
 
 
-LOG = logging.getLogger(__name__)
+ORIGIN_DAILY = "daily_litter"
+
+log = logging.getLogger(__name__)
+LOG = log
 
 
 def _paths(root: str | Path | None = None) -> Dict[str, Path]:
@@ -55,7 +60,6 @@ def _paths(root: str | Path | None = None) -> Dict[str, Path]:
 
 
 ORIGIN_FIELD = "origin"
-ORIGIN_DAILY = "daily_litter"
 KV_LAST_RUN_KEY = "daily_litter_date"
 
 MAX_PER_TILE_DEFAULT = 6
@@ -79,6 +83,20 @@ _ITEM_COLUMNS: Tuple[str, ...] = (
 
 # ---------------------------------------------------------------------------
 # small helpers
+
+
+def _kv_get(stores, key: str):
+    try:
+        return stores.runtime_kv.get(key)
+    except Exception:
+        return None
+
+
+def _kv_set(stores, key: str, value: str):
+    try:
+        stores.runtime_kv.set(key, value)
+    except Exception:
+        pass
 
 
 def _today_str() -> str:
@@ -340,6 +358,60 @@ def _insert_normalized_records(
 # main entry
 
 
+def run_daily_litter_sqlite() -> None:
+    stores = get_stores()
+    today = date.today().isoformat()
+
+    if _kv_get(stores, KV_LAST_RUN_KEY) == today:
+        log.info("daily_litter %s: already ran; skipping", today)
+        return
+
+    random.seed(today)
+
+    spawnables: Iterable[Dict[str, Any]] = icat.list_spawnable_items()
+    spawnables = list(spawnables)
+    if not spawnables:
+        log.error(
+            "daily_litter %s: NO SPAWNABLE ITEMS in catalog; nothing to do", today
+        )
+        _kv_set(stores, KV_LAST_RUN_KEY, today)
+        return
+
+    items_store = stores.items
+    items_store.delete_by_origin(ORIGIN_DAILY)
+
+    per_year = icat.daily_target_per_year()
+    years = icat.playable_years()
+
+    total_spawned = 0
+    for year in years:
+        records = list(
+            icat.generate_daily_litter_for_year(
+                year,
+                per_year,
+                spawnables,
+                origin=ORIGIN_DAILY,
+            )
+        )
+        if records:
+            items_store.bulk_insert(records)
+            total_spawned += len(records)
+        try:
+            summary = icat.breakdown_summary(records)
+        except Exception:
+            summary = "?"
+        log.info(
+            "daily_litter %s year %d: spawned %d items (%s)",
+            today,
+            year,
+            len(records),
+            summary,
+        )
+
+    _kv_set(stores, KV_LAST_RUN_KEY, today)
+    log.info("daily_litter %s: total spawned %d", today, total_spawned)
+
+
 def run_daily_litter_reset(root: str | Path | None = None) -> None:
     paths = _paths(root)
     runtime_dir = paths["runtime"]
@@ -484,3 +556,12 @@ def run_daily_litter_reset(root: str | Path | None = None) -> None:
                 lf.write(f"{ts} SYSTEM/INFO - {line}\n")
         except (OSError, IOError):
             LOG.warning("Failed to append litter summary to %s", log_path, exc_info=True)
+
+
+def run_daily_litter() -> None:
+    backend = str(get_state_backend()).lower()
+    if backend == "sqlite":
+        return run_daily_litter_sqlite()
+    from .daily_litter import run_daily_litter_reset as _json_reset
+
+    return _json_reset()

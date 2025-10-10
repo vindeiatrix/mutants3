@@ -58,6 +58,7 @@ __all__ = [
     "SQLiteConnectionManager",
     "SQLiteItemsInstanceStore",
     "SQLiteMonstersInstanceStore",
+    "SQLiteRuntimeKVStore",
     "get_stores",
 ]
 
@@ -451,7 +452,7 @@ class SQLiteItemsInstanceStore:
                     values,
                 )
 
-    def bulk_insert_items(self, records: Iterable[Dict[str, Any]]) -> None:
+    def bulk_insert(self, records: Iterable[Dict[str, Any]]) -> None:
         payloads: list[Dict[str, Any]] = []
         base_created = _epoch_ms()
         order = 0
@@ -480,6 +481,9 @@ class SQLiteItemsInstanceStore:
                 f"INSERT INTO items_instances ({columns}) VALUES ({placeholders})",
                 values,
             )
+
+    def bulk_insert_items(self, records: Iterable[Dict[str, Any]]) -> None:
+        self.bulk_insert(records)
 
     def _normalize_record(
         self, record: Dict[str, Any], default_created: int
@@ -624,13 +628,60 @@ class SQLiteItemsInstanceStore:
             if cur.rowcount == 0:
                 raise KeyError(str(iid))
 
-    def delete_items_by_origin(self, origin: str) -> None:
+    def delete_by_origin(self, origin: str) -> None:
         conn = self._connection()
         with conn:
             _begin_immediate(conn)
             conn.execute(
                 "DELETE FROM items_instances WHERE origin = ?",
                 (str(origin),),
+            )
+
+    def delete_items_by_origin(self, origin: str) -> None:
+        self.delete_by_origin(origin)
+
+
+class SQLiteRuntimeKVStore:
+    __slots__ = ("_manager",)
+
+    def __init__(self, manager: SQLiteConnectionManager) -> None:
+        self._manager = manager
+
+    def _connection(self) -> sqlite3.Connection:
+        return self._manager.connect()
+
+    def get(self, key: str) -> Optional[str]:
+        conn = self._connection()
+        cur = conn.execute(
+            "SELECT value FROM runtime_kv WHERE key = ?",
+            (str(key),),
+        )
+        row = cur.fetchone()
+        if row is None:
+            return None
+        value = row["value"]
+        return str(value) if value is not None else None
+
+    def set(self, key: str, value: str) -> None:
+        conn = self._connection()
+        with conn:
+            _begin_immediate(conn)
+            conn.execute(
+                """
+                INSERT INTO runtime_kv(key, value)
+                VALUES(?, ?)
+                ON CONFLICT(key) DO UPDATE SET value = excluded.value
+                """,
+                (str(key), str(value)),
+            )
+
+    def delete(self, key: str) -> None:
+        conn = self._connection()
+        with conn:
+            _begin_immediate(conn)
+            conn.execute(
+                "DELETE FROM runtime_kv WHERE key = ?",
+                (str(key),),
             )
 
 
@@ -920,4 +971,5 @@ def _build_state_stores(manager: SQLiteConnectionManager) -> "StateStores":
     return StateStores(
         items=SQLiteItemsInstanceStore(manager),
         monsters=SQLiteMonstersInstanceStore(manager),
+        runtime_kv=SQLiteRuntimeKVStore(manager),
     )

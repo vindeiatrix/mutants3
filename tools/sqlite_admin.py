@@ -136,6 +136,33 @@ def _command_catalog_import_items(args: argparse.Namespace) -> None:
     _with_connection(args, import_catalog)
 
 
+def _command_litter_run_now(args: argparse.Namespace) -> None:
+    """Run the daily litter job immediately."""
+
+    from mutants.bootstrap.daily_litter import run_daily_litter
+
+    run_daily_litter()
+    print("daily_litter: triggered")
+
+
+def _command_litter_force_today(args: argparse.Namespace) -> None:
+    """Force a rerun of daily litter for today."""
+
+    from mutants.registries.storage import get_stores
+
+    stores = get_stores()
+    stores.items.delete_by_origin("daily_litter")
+    try:
+        stores.runtime_kv.delete("daily_litter_date")
+    except Exception:
+        pass
+
+    from mutants.bootstrap.daily_litter import run_daily_litter
+
+    run_daily_litter()
+    print("daily_litter: forced run complete")
+
+
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -164,6 +191,17 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Load the items catalog JSON into the database.",
     )
     catalog_import_items_parser.set_defaults(func=_command_catalog_import_items)
+
+    litter_run_parser = subparsers.add_parser(
+        "litter-run-now", help="Run daily litter immediately (idempotent)."
+    )
+    litter_run_parser.set_defaults(func=_command_litter_run_now)
+
+    litter_force_parser = subparsers.add_parser(
+        "litter-force-today",
+        help="Force rerun of daily litter today (clears gate).",
+    )
+    litter_force_parser.set_defaults(func=_command_litter_force_today)
 
     return parser
 
