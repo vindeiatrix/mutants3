@@ -349,3 +349,27 @@ def catalog_defaults(item_id: str) -> Dict[str, Any]:
         defaults["charges"] = charges_max
 
     return defaults
+
+
+def max_charges(item_id: str | None) -> int:
+    """Return the maximum number of charges available for ``item_id``."""
+
+    if not item_id:
+        return 0
+
+    try:
+        catalog = load_catalog()
+    except FileNotFoundError:
+        return 0
+
+    template = catalog.get(str(item_id)) if catalog else None
+    if not isinstance(template, dict):
+        return 0
+
+    if template.get("uses_charges") is False:
+        return 0
+
+    try:
+        return int(template.get("charges_max", 0) or 0)
+    except (TypeError, ValueError):
+        return 0
