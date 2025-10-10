@@ -38,8 +38,14 @@
       },
       "spells": {"type":"array", "items":{"type":"string"}},
       "starter_items": {"type":"array","maxItems":4,"items":{"type":"string"}},
-      "starter_armour": {"type":["string","null"]},
-      "spawn_years": {"type":"array","minItems":2,"maxItems":2,"items":{"type":"integer"}},
+      "starter_armour": {
+        "anyOf": [
+          {"type": "null"},
+          {"type": "string"},
+          {"type": "array", "minItems": 1, "items": {"type": "string"}}
+        ]
+      },
+      "spawn_years": {"type":"array","minItems":1,"items":{"type":"integer"}},
       "spawnable": {"type":"boolean"},
       "taunt": {"type":"string"}
     },

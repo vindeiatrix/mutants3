@@ -17,6 +17,10 @@ $PipExe   = Join-Path $VenvDir "Scripts\pip.exe"
 $DBPath   = Join-Path $StateDir "mutants.db"
 
 if (!(Test-Path $StateDir)) { New-Item -ItemType Directory -Path $StateDir | Out-Null }
+if (!(Test-Path $DBPath)) {
+  Write-Host "Creating SQLite database file..."
+  New-Item -ItemType File -Path $DBPath | Out-Null
+}
 
 $env:MUTANTS_STATE_BACKEND = "sqlite"
 $env:GAME_STATE_ROOT = $StateDir
@@ -59,6 +63,10 @@ if ($catalogCount -eq "0" -and (Test-Path "$StateDir\items\catalog.json")) {
 } else {
   Write-Host "Items catalog present (rows: $catalogCount)."
 }
+
+# --- Ensure monsters catalog + initial spawn (idempotent) ---
+Write-Host "Ensuring monsters catalog and initial spawn..."
+& $PyExe tools\bootstrap_monsters.py --database $DBPath
 
 # --- Ensure daily litter exists today (force once if empty) ---
 & $PyExe tools\sqlite_admin.py litter-run-now
