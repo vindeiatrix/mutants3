@@ -115,15 +115,13 @@ def _choose_inventory_item(
         inst = itemsreg.get_instance(iid)
         if not inst:
             continue
-        # allow any origin; skip items with no convertible value
+        # Origin-agnostic; decide by value instead
         item_id = (
             inst.get("item_id")
             or inst.get("catalog_id")
             or inst.get("id")
             or iid
         )
-        if _convert_value(str(item_id), catalog) <= 0:
-            continue
         candidates.append((str(iid), str(item_id)))
 
     matches: List[Tuple[str, str]] = []
@@ -158,6 +156,9 @@ def convert_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
         return {"ok": False, "reason": "not_found"}
 
     value = _convert_payout(iid, item_id, catalog)
+    if value <= 0:
+        bus.push("SYSTEM/WARN", "You can't convert that.")
+        return {"ok": False, "reason": "not_convertible"}
 
     before = _legacy_ions(player)
     klass = pstate.get_active_class(player)
