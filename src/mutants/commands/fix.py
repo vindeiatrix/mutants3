@@ -17,11 +17,24 @@ def fix_cmd(arg: str, ctx):
     cat = items_catalog.load_catalog()
     tpl = cat.get(inst.get("item_id")) or {}
     name = tpl.get("name") or inst.get("item_id") or tok
-    if not tpl.get("charges_max"):
+    try:
+        max_ch = int(tpl.get("charges_max", 0) or 0)
+    except (TypeError, ValueError):
+        max_ch = 0
+    if max_ch <= 0:
         bus.push("SYSTEM/WARN", "That doesn't need fixing.")
         return
-    gain = itemsreg.recharge_full(iid)
-    if gain <= 0:
+    try:
+        current = int(inst.get("charges", 0) or 0)
+    except (TypeError, ValueError):
+        current = 0
+    already_full = current >= max_ch
+    try:
+        itemsreg.recharge_full(iid)
+    except KeyError:
+        bus.push("SYSTEM/WARN", "That doesn't need fixing.")
+        return
+    if already_full:
         bus.push("SYSTEM/OK", "It's already at full charge.")
     else:
         bus.push("SYSTEM/OK", f"You restore the {name} to full charge.")

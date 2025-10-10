@@ -374,20 +374,16 @@ def spend_charge(iid: str) -> bool:
     return True
 
 
-def recharge_full(iid: str) -> int:
-    """Recharge ``iid`` to full and return the amount of charge restored."""
-    raw = _load_instances_raw()
-    try:
-        idx = _index_of(raw, iid)
-    except KeyError:
-        return 0
-    inst = raw[idx]
-    cap = charges_max_for(iid)
-    before = int(inst.get("charges", 0))
-    after = min(cap, before + (cap - before))
-    inst["charges"] = after
-    _save_instances_raw(raw)
-    return after - before
+def recharge_full(iid: str) -> None:
+    """Recharge ``iid`` to full using targeted updates."""
+
+    inst = _items_store().get_by_iid(str(iid))
+    if not inst:
+        raise KeyError(iid)
+
+    max_ch = items_catalog.max_charges(inst.get("item_id"))
+    if max_ch > 0:
+        _items_store().update_fields(str(iid), charges=max_ch)
 
 def _pos_of(inst: Dict[str, Any]) -> Optional[Tuple[int, int, int]]:
     if isinstance(inst.get("pos"), dict):
