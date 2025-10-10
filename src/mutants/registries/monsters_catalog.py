@@ -31,6 +31,22 @@ class MonstersCatalog:
             raise KeyError(f"Unknown monster_id: {monster_id}")
         return m
 
+    def _years_for_monster(self, monster: Dict[str, Any]) -> List[int]:
+        years_raw = monster.get("spawn_years", [])
+        years: List[int] = []
+        if isinstance(years_raw, (list, tuple)):
+            cleaned: List[int] = []
+            for value in years_raw:
+                try:
+                    cleaned.append(int(value))
+                except (TypeError, ValueError):
+                    continue
+            if len(cleaned) == 2 and cleaned[0] <= cleaned[1]:
+                years = list(range(cleaned[0], cleaned[1] + 1))
+            else:
+                years = sorted(set(cleaned))
+        return years
+
     def list_spawnable(self, year: Optional[int] = None) -> List[Dict[str, Any]]:
         out = []
         for m in self._list:
@@ -39,8 +55,8 @@ class MonstersCatalog:
             if year is None:
                 out.append(m)
             else:
-                years = m.get("spawn_years", [2000, 3000])
-                if len(years) == 2 and int(years[0]) <= int(year) <= int(years[1]):
+                years = self._years_for_monster(m)
+                if year in years:
                     out.append(m)
         return out
 
@@ -55,8 +71,19 @@ def _validate_base_monster(m: Dict[str, Any]) -> None:
     for a in ("str","int","wis","dex","con","cha"):
         if a not in stats:
             raise ValueError(f"stats missing {a}")
-    if not isinstance(m["spawn_years"], (list, tuple)) or len(m["spawn_years"]) != 2:
-        raise ValueError("spawn_years must be [min_year, max_year]")
+    years = m.get("spawn_years")
+    if not isinstance(years, (list, tuple)) or not years:
+        raise ValueError("spawn_years must be a non-empty list")
+    coerced = []
+    for value in years:
+        try:
+            coerced.append(int(value))
+        except (TypeError, ValueError):
+            raise ValueError("spawn_years entries must be integers") from None
+    if len(coerced) == 2 and coerced[0] <= coerced[1]:
+        pass
+    elif len(set(coerced)) != len(coerced):
+        raise ValueError("spawn_years list must not contain duplicates")
     ia = m["innate_attack"]
     for f in ("name","power_base","power_per_level"):
         if f not in ia:

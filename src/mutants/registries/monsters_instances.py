@@ -153,7 +153,14 @@ class MonstersInstances:
             for iid in base.get("starter_items", [])[:4]:
                 inv.append({"item_id": iid})
 
-        armour_wearing = starter_armour if starter_armour is not None else base.get("starter_armour", None)
+        armour_source = starter_armour if starter_armour is not None else base.get("starter_armour")
+        if isinstance(armour_source, (list, tuple)):
+            armour_choices = [str(a) for a in armour_source if isinstance(a, (str, int))]
+            armour_wearing = armour_choices[0] if armour_choices else None
+        elif armour_source is None or isinstance(armour_source, (str, int)):
+            armour_wearing = str(armour_source) if armour_source not in (None, "") else None
+        else:
+            armour_wearing = None
 
         inst: Dict[str, Any] = {
             "instance_id": instance_id,
