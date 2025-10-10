@@ -3,6 +3,10 @@
       powershell -ExecutionPolicy Bypass -File C:\mutants3-main\Run-Mutants.ps1
 #>
 
+param(
+    [string]$Years
+)
+
 $ErrorActionPreference = "Stop"
 
 # --- Locate repo root (the folder containing this script) ---
@@ -123,50 +127,21 @@ print(n)
 $tmpMonInstances = [System.IO.Path]::GetTempFileName() + ".py"
 $pyCheckMonstersInstances | Set-Content -Path $tmpMonInstances -Encoding UTF8
 $monsterInstanceCount = (& $PyExe $tmpMonInstances $DBPath).Trim()
+if (-not $monsterInstanceCount) { $monsterInstanceCount = "0" }
+Write-Host "Monsters currently present (rows: $monsterInstanceCount)."
 
-if ($monsterInstanceCount -eq "0") {
-  $pyWorldYear = @"
-import json, sys
-from pathlib import Path
-state_path = Path(sys.argv[1])
-default_year = 2000
-try:
-    data = json.loads(state_path.read_text(encoding='utf-8'))
-except Exception:
-    print(default_year)
-    sys.exit(0)
-players = data.get('players') or []
-year = None
-for player in players:
-    if player.get('is_active'):
-        pos = player.get('pos') or []
-        if isinstance(pos, list) and pos:
-            try:
-                year = int(pos[0])
-            except (TypeError, ValueError):
-                year = None
-        if year is not None:
-            break
-if year is None:
-    year = default_year
-print(year)
-"@
-  $tmpYear = [System.IO.Path]::GetTempFileName() + ".py"
-  $pyWorldYear | Set-Content -Path $tmpYear -Encoding UTF8
-  $playerStatePath = Join-Path $StateDir "playerlivestate.json"
-  $worldYearRaw = (& $PyExe $tmpYear $playerStatePath).Trim()
-  Remove-Item $tmpYear -Force
-  if (-not $worldYearRaw) { $worldYearRaw = "2000" }
-  $worldYear = [int]$worldYearRaw
-  Write-Host "Spawning initial monsters for year $worldYear..."
-  & $PyExe scripts\monsters_initial_spawn.py --db $DBPath --year $worldYear --per-monster 4
-  if ($LASTEXITCODE -ne 0) {
-    if (Test-Path $tmpMonInstances) { Remove-Item $tmpMonInstances -Force }
-    Write-Error "Initial monster spawn failed."
-    exit 1
-  }
-} else {
-  Write-Host "Monsters already present (rows: $monsterInstanceCount)."
+$spawnArgs = @("--db", $DBPath, "--per-monster", "4")
+if ($Years) {
+  Write-Host "Overriding spawn years: $Years"
+  $spawnArgs += @("--years", $Years)
+}
+
+Write-Host "Ensuring passive monsters are topped up across all world years..."
+& $PyExe "scripts\monsters_initial_spawn.py" @spawnArgs
+if ($LASTEXITCODE -ne 0) {
+  if (Test-Path $tmpMonInstances) { Remove-Item $tmpMonInstances -Force }
+  Write-Error "Monster spawn top-up failed."
+  exit 1
 }
 
 if (Test-Path $tmpMonInstances) { Remove-Item $tmpMonInstances -Force }
