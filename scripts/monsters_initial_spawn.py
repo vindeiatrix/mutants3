@@ -13,7 +13,7 @@ import uuid
 from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Sequence, Tuple
+from typing import Any, Dict, Iterable as TypingIterable, List, Sequence, Tuple
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SRC_DIR = PROJECT_ROOT / "src"
@@ -21,6 +21,7 @@ if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
 from mutants.registries.items_instances import mint_iid
+from mutants.world import get_world_years, set_cli_years_override
 
 
 @dataclass(frozen=True)
@@ -175,11 +176,6 @@ def _fetch_templates(conn: sqlite3.Connection) -> list[MonsterTemplate]:
     return templates
 
 
-def _count_instances(conn: sqlite3.Connection) -> int:
-    cur = conn.execute("SELECT COUNT(*) FROM monsters_instances")
-    return int(cur.fetchone()[0])
-
-
 def _item_exists(conn: sqlite3.Connection, item_id: str) -> bool:
     cur = conn.execute(
         "SELECT 1 FROM items_catalog WHERE item_id = ? LIMIT 1",
@@ -201,9 +197,16 @@ def _generate_positions(center_x: int, center_y: int, radius: int) -> Iterable[T
         yield x, y
 
 
-def _plan_positions(count: int, center_x: int, center_y: int, radius: int) -> list[Tuple[int, int]]:
+def _plan_positions(
+    count: int,
+    center_x: int,
+    center_y: int,
+    radius: int,
+    *,
+    blocked: TypingIterable[Tuple[int, int]] | None = None,
+) -> list[Tuple[int, int]]:
     coords: list[Tuple[int, int]] = []
-    seen: set[Tuple[int, int]] = set()
+    seen: set[Tuple[int, int]] = set(blocked or [])
     for x, y in _generate_positions(center_x, center_y, radius):
         if (x, y) in seen:
             continue
@@ -322,25 +325,45 @@ def _spawn_monsters(
     center_y: int,
     radius: int,
     dry_run: bool,
-) -> list[str]:
-    eligible: list[MonsterTemplate] = [
-        tmpl
-        for tmpl in templates
-        if tmpl.spawnable and (not tmpl.spawn_years or year in tmpl.spawn_years)
-    ]
+) -> tuple[list[str], int]:
+    cur = conn.execute(
+        "SELECT monster_id, COUNT(*) FROM monsters_instances WHERE year = ? GROUP BY monster_id",
+        (year,),
+    )
+    existing_counts = {row[0]: int(row[1]) for row in cur.fetchall()}
 
-    if not eligible:
-        return []
+    cur = conn.execute(
+        "SELECT x, y FROM monsters_instances WHERE year = ?",
+        (year,),
+    )
+    occupied = {(int(row[0]), int(row[1])) for row in cur.fetchall()}
 
-    total_spawns = len(eligible) * per_monster
-    positions = _plan_positions(total_spawns, center_x, center_y, radius)
+    eligible: list[tuple[MonsterTemplate, int]] = []
+    for template in templates:
+        if not template.spawnable:
+            continue
+        if template.spawn_years and year not in template.spawn_years:
+            continue
+        current = existing_counts.get(template.monster_id, 0)
+        missing = max(0, per_monster - current)
+        if missing <= 0:
+            continue
+        eligible.append((template, missing))
+
+    if not eligible or per_monster <= 0:
+        return [], 0
+
+    total_spawns = sum(missing for _, missing in eligible)
+    positions = _plan_positions(
+        total_spawns, center_x, center_y, radius, blocked=occupied
+    )
     created_at = int(time.time() * 1000)
 
     spawned_ids: list[str] = []
     pos_index = 0
-    rng = random.Random(f"{year}:{len(eligible)}")
+    rng = random.Random(f"{year}:{len(eligible)}:{per_monster}")
 
-    for template in eligible:
+    for template, missing in eligible:
         ions_min = int(template.ions_min or 0)
         ions_max = int(template.ions_max or template.ions_min or 0)
         if ions_max < ions_min:
@@ -350,7 +373,7 @@ def _spawn_monsters(
         if rib_max < rib_min:
             rib_max = rib_min
 
-        for _ in range(per_monster):
+        for _ in range(missing):
             if pos_index >= len(positions):
                 raise RuntimeError("ran out of coordinates while spawning monsters")
             x, y = positions[pos_index]
@@ -416,13 +439,19 @@ def _spawn_monsters(
                     ),
                 )
             spawned_ids.append(instance_id)
-    return spawned_ids
+    return spawned_ids, len(eligible)
 
 
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Seed passive monster spawns")
     parser.add_argument("--db", required=True, help="Path to the SQLite database")
-    parser.add_argument("--year", required=True, type=int, help="World year to seed")
+    parser.add_argument(
+        "--years",
+        help=(
+            "Comma-separated list of years or ranges (e.g. 2000,2100-2300:50). "
+            "If omitted the list is discovered automatically."
+        ),
+    )
     parser.add_argument(
         "--per-monster",
         type=int,
@@ -452,46 +481,78 @@ def main(argv: list[str] | None = None) -> int:
     db_path = Path(args.db)
     db_path.parent.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(db_path)
-    conn.row_factory = sqlite3.Row
-    conn.execute("PRAGMA foreign_keys=ON")
-    _ensure_tables(conn)
-
-    if _count_instances(conn) > 0:
-        print("Monsters already present; skipping initial spawn")
-        return 0
-
     try:
-        templates = _fetch_templates(conn)
-    except sqlite3.Error as exc:
-        print(f"error: unable to load catalog: {exc}", file=sys.stderr)
-        return 1
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA foreign_keys=ON")
+        _ensure_tables(conn)
 
-    if not templates:
-        print("No monsters found in catalog; skipping spawn")
+        try:
+            templates = _fetch_templates(conn)
+        except sqlite3.Error as exc:
+            print(f"error: unable to load catalog: {exc}", file=sys.stderr)
+            return 1
+
+        if not templates:
+            print("No monsters found in catalog; skipping spawn")
+            return 0
+
+        target_per_monster = max(0, args.per_monster)
+        set_cli_years_override(args.years)
+        years = get_world_years(db_path)
+        if not years:
+            print("No world years resolved; nothing to spawn.")
+            return 0
+
+        total_spawned = 0
+        any_errors = False
+        for year in years:
+            try:
+                spawned, monster_count = _spawn_monsters(
+                    conn,
+                    templates,
+                    year=year,
+                    per_monster=target_per_monster,
+                    center_x=args.center_x,
+                    center_y=args.center_y,
+                    radius=max(1, args.radius),
+                    dry_run=args.dry_run,
+                )
+            except Exception as exc:  # pragma: no cover - defensive path
+                print(f"error: failed to spawn monsters for year {year}: {exc}", file=sys.stderr)
+                any_errors = True
+                break
+
+            spawned_count = len(spawned)
+            total_spawned += spawned_count
+            if spawned_count > 0:
+                print(
+                    f"year={year}: spawned {spawned_count} (topped to {target_per_monster} each) "
+                    f"for {monster_count} monsters."
+                )
+            else:
+                print(
+                    f"year={year}: nothing to spawn; already at {target_per_monster} each."
+                )
+
+        if any_errors:
+            return 1
+
+        if args.dry_run:
+            print(
+                f"Dry run complete. Would spawn {total_spawned} monsters across {len(years)} year(s)."
+            )
+            return 0
+
+        if total_spawned > 0:
+            conn.commit()
+            print(
+                f"Spawned {total_spawned} monster instance(s) across {len(years)} year(s) at {db_path}"
+            )
+        else:
+            print("No monsters spawned; database already at target counts.")
         return 0
-
-    try:
-        spawned = _spawn_monsters(
-            conn,
-            templates,
-            year=args.year,
-            per_monster=max(1, args.per_monster),
-            center_x=args.center_x,
-            center_y=args.center_y,
-            radius=max(1, args.radius),
-            dry_run=args.dry_run,
-        )
-    except Exception as exc:  # pragma: no cover - defensive path
-        print(f"error: failed to spawn monsters: {exc}", file=sys.stderr)
-        return 1
-
-    if args.dry_run:
-        print(f"Dry run complete. Would spawn {len(spawned)} monsters.")
-        return 0
-
-    conn.commit()
-    print(f"Spawned {len(spawned)} monster(s) for year {args.year} at {db_path}")
-    return 0
+    finally:
+        conn.close()
 
 
 if __name__ == "__main__":
