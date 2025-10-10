@@ -124,6 +124,7 @@ class SQLiteConnectionManager:
                 (1, self._migrate_to_v1),
                 (2, self._migrate_to_v2),
                 (3, self._migrate_to_v3),
+                (4, self._migrate_to_v4),
             )
 
             for target_version, migration in migrations:
@@ -269,6 +270,7 @@ class SQLiteConnectionManager:
                 owner TEXT,
                 enchant INT,
                 condition INT,
+                charges INTEGER DEFAULT 0,
                 origin TEXT,
                 drop_source TEXT,
                 created_at INTEGER NOT NULL CHECK(created_at >= 0)
@@ -372,6 +374,15 @@ class SQLiteConnectionManager:
             """
         )
 
+    def _migrate_to_v4(self, conn: sqlite3.Connection) -> None:
+        cur = conn.execute("PRAGMA table_info(items_instances)")
+        existing = {row[1] for row in cur.fetchall() if len(row) > 1}
+        if "charges" in existing:
+            return
+        conn.execute(
+            "ALTER TABLE items_instances ADD COLUMN charges INTEGER DEFAULT 0"
+        )
+
 
 class SQLiteItemsInstanceStore:
     """SQLite-backed implementation of :class:`ItemsInstanceStore`."""
@@ -387,6 +398,7 @@ class SQLiteItemsInstanceStore:
         "owner",
         "enchant",
         "condition",
+        "charges",
         "origin",
         "drop_source",
         "created_at",
@@ -404,7 +416,7 @@ class SQLiteItemsInstanceStore:
     def snapshot(self) -> Iterable[Dict[str, Any]]:
         conn = self._connection()
         cur = conn.execute(
-            "SELECT iid, item_id, year, x, y, owner, enchant, condition, origin, drop_source, created_at "
+            "SELECT iid, item_id, year, x, y, owner, enchant, condition, charges, origin, drop_source, created_at "
             "FROM items_instances ORDER BY created_at ASC, iid ASC"
         )
         return [self._row_to_dict(row) for row in cur.fetchall()]
@@ -487,6 +499,7 @@ class SQLiteItemsInstanceStore:
         payload["owner"] = str(owner) if owner is not None else None
         payload["enchant"] = _coerce_int(record.get("enchant"))
         payload["condition"] = _coerce_int(record.get("condition"), default=100)
+        payload["charges"] = _coerce_int(record.get("charges"))
         origin = record.get("origin")
         payload["origin"] = str(origin) if origin is not None else None
         drop_source = record.get("drop_source")
@@ -499,7 +512,7 @@ class SQLiteItemsInstanceStore:
     def get_by_iid(self, iid: str) -> Optional[Dict[str, Any]]:
         conn = self._connection()
         cur = conn.execute(
-            "SELECT iid, item_id, year, x, y, owner, enchant, condition, origin, drop_source, created_at "
+            "SELECT iid, item_id, year, x, y, owner, enchant, condition, charges, origin, drop_source, created_at "
             "FROM items_instances WHERE iid = ?",
             (str(iid),),
         )
@@ -511,7 +524,7 @@ class SQLiteItemsInstanceStore:
     def list_at(self, year: int, x: int, y: int) -> Iterable[Dict[str, Any]]:
         conn = self._connection()
         sql = (
-            "SELECT iid, item_id, year, x, y, owner, enchant, condition, origin, drop_source, created_at "
+            "SELECT iid, item_id, year, x, y, owner, enchant, condition, charges, origin, drop_source, created_at "
             "FROM items_instances WHERE year = ? AND x = ? AND y = ? "
             "ORDER BY created_at ASC, iid ASC"
         )
@@ -523,7 +536,7 @@ class SQLiteItemsInstanceStore:
     def list_by_owner(self, owner: str) -> Iterable[Dict[str, Any]]:
         conn = self._connection()
         sql = (
-            "SELECT iid, item_id, year, x, y, owner, enchant, condition, origin, drop_source, created_at "
+            "SELECT iid, item_id, year, x, y, owner, enchant, condition, charges, origin, drop_source, created_at "
             "FROM items_instances WHERE owner = ? ORDER BY created_at ASC, iid ASC"
         )
         params = (str(owner),)
@@ -552,6 +565,7 @@ class SQLiteItemsInstanceStore:
         payload["y"] = _coerce_int(payload.get("y"))
         if payload.get("owner") is not None:
             payload["owner"] = str(payload["owner"])
+        payload["charges"] = _coerce_int(payload.get("charges"))
 
         columns = ", ".join(self._COLUMNS)
         placeholders = ", ".join("?" for _ in self._COLUMNS)
@@ -581,7 +595,7 @@ class SQLiteItemsInstanceStore:
                 raise KeyError(key)
             if key == "created_at":
                 value = _normalize_created_at(value)
-            elif key in {"year", "x", "y", "enchant", "condition"}:
+            elif key in {"year", "x", "y", "enchant", "condition", "charges"}:
                 value = _coerce_int(value)
             if key == "owner" and value is not None:
                 value = str(value)
