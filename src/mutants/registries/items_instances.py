@@ -473,6 +473,22 @@ def _items_store():
     return get_stores().items
 
 
+def _apply_catalog_defaults(target: MutableMapping[str, Any]) -> None:
+    """Merge catalog-derived defaults into ``target`` when available."""
+
+    item_id = target.get("item_id")
+    if not item_id:
+        return
+
+    try:
+        defaults = items_catalog.catalog_defaults(str(item_id))
+    except FileNotFoundError:
+        return
+
+    for key, value in defaults.items():
+        target.setdefault(key, value)
+
+
 def _inflate_store_record(record: Mapping[str, Any]) -> Dict[str, Any]:
     inst: Dict[str, Any] = dict(record)
 
@@ -520,6 +536,7 @@ def _inflate_store_record(record: Mapping[str, Any]) -> Dict[str, Any]:
     if drop_source is not None:
         inst["drop_source"] = str(drop_source)
 
+    _apply_catalog_defaults(inst)
     _normalize_instance(inst)
     inst["enchant"] = inst["enchant_level"]
     return inst
@@ -552,6 +569,7 @@ def _store_payload_from_instance(inst: Mapping[str, Any]) -> Dict[str, Any]:
         "drop_source": inst.get("drop_source"),
         "created_at": inst.get("created_at"),
     }
+    _apply_catalog_defaults(payload)
     return payload
 
 
@@ -564,16 +582,6 @@ def _cache() -> List[Dict[str, Any]]:
 def mint_instance(item_id: str, origin: str = "unknown") -> str:
     """Create, persist, and return a new instance for ``item_id``."""
 
-    template: Mapping[str, Any] | None = None
-    try:
-        catalog = items_catalog.load_catalog()
-    except FileNotFoundError:
-        catalog = None
-    if catalog is not None and hasattr(catalog, "get"):
-        maybe = catalog.get(str(item_id))  # type: ignore[call-arg]
-        if isinstance(maybe, Mapping):
-            template = maybe
-
     store = _items_store()
 
     inst: Dict[str, Any] = {
@@ -581,20 +589,16 @@ def mint_instance(item_id: str, origin: str = "unknown") -> str:
         "instance_id": "",
         "item_id": str(item_id),
         "origin": str(origin),
-        "enchant_level": 0,
         "enchanted": "no",
-        "condition": 100,
-        "god_tier": False,
         "year": -1,
         "x": -1,
         "y": -1,
     }
 
-    if isinstance(template, Mapping):
-        if int(template.get("charges_max", 0) or 0) > 0:
-            inst["charges"] = int(template.get("charges_max", 0) or 0)
-        if "god_tier" in template:
-            inst["god_tier"] = _coerce_bool(template.get("god_tier"))
+    _apply_catalog_defaults(inst)
+    inst.setdefault("enchant_level", 0)
+    inst.setdefault("condition", 100)
+    inst.setdefault("god_tier", False)
 
     while True:
         iid = mint_iid()
@@ -977,24 +981,20 @@ def set_position(iid: str, year: int, x: int, y: int) -> None:
 def create_and_save_instance(item_id: str, year: int, x: int, y: int, origin: str = "debug_add") -> str:
     """Create a new instance at ``(year, x, y)`` and persist it."""
     store = _items_store()
-    cat = items_catalog.load_catalog()
-    tpl = cat.get(str(item_id)) if cat else None
 
     inst: Dict[str, Any] = {
         "iid": "",
         "item_id": str(item_id),
         "origin": origin,
-        "enchant_level": 0,
-        "condition": 100,
-        "god_tier": False,
         "year": int(year),
         "x": int(x),
         "y": int(y),
     }
-    if tpl and int(tpl.get("charges_max", 0) or 0) > 0:
-        inst["charges"] = int(tpl.get("charges_max"))
-    if tpl:
-        inst["god_tier"] = _coerce_bool(tpl.get("god_tier"))
+
+    _apply_catalog_defaults(inst)
+    inst.setdefault("enchant_level", 0)
+    inst.setdefault("condition", 100)
+    inst.setdefault("god_tier", False)
 
     while True:
         mint = mint_iid()
