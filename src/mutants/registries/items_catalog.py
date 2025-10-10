@@ -74,6 +74,37 @@ class ItemsCatalog:
 
         return [it for it in self._items_list if it.get("spawnable") is True]
 
+
+def instance_defaults(item_id: str) -> Dict[str, Any]:
+    """Dynamic defaults for a freshly minted instance."""
+
+    try:
+        catalog = load_catalog()
+    except FileNotFoundError:
+        c: Dict[str, Any] = {}
+    else:
+        entry = catalog.get(str(item_id)) if catalog else None
+        c = entry if isinstance(entry, dict) else {}
+
+    defaults: Dict[str, Any] = {"condition": 100, "enchant": 0}
+
+    ranged_meta = c.get("ranged") or {}
+    charges_source: Any
+    if isinstance(ranged_meta, dict) and "charges_max" in ranged_meta:
+        charges_source = ranged_meta.get("charges_max")
+    else:
+        charges_source = c.get("charges_max")
+
+    try:
+        cm = int(charges_source) if charges_source is not None else None
+    except (TypeError, ValueError):
+        cm = None
+
+    if cm is not None and cm >= 0:
+        defaults["charges"] = cm
+
+    return defaults
+
 def _coerce_legacy_bools(items: List[Dict[str, Any]]) -> None:
     """Convert legacy ``"yes"``/``"no"`` strings to booleans in-place."""
     for it in items:

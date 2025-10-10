@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 import os
+import time
 import uuid
 from collections.abc import MutableSet
 from pathlib import Path
@@ -12,6 +13,7 @@ from typing import Any, Dict, Iterable, List, Mapping, MutableMapping, Optional,
 from mutants.state import state_path
 from .storage import get_stores
 from . import items_catalog
+from .items_catalog import instance_defaults
 
 DEFAULT_INSTANCES_PATH = state_path("items", "instances.json")
 FALLBACK_INSTANCES_PATH = state_path("instances.json")  # auto-fallback if the new path isn't used yet
@@ -467,6 +469,36 @@ def invalidate_cache() -> None:
 
 def _items_store():
     return get_stores().items
+
+
+def mint_on_ground_with_defaults(
+    item_id: str,
+    *,
+    year: int,
+    x: int,
+    y: int,
+    origin: str = "debug_add",
+    overrides: dict | None = None,
+) -> str:
+    """Mint an item directly onto the ground with catalog defaults applied."""
+
+    store = _items_store()
+    iid = mint_iid()
+    record: Dict[str, Any] = {
+        "iid": iid,
+        "item_id": str(item_id),
+        "year": int(year),
+        "x": int(x),
+        "y": int(y),
+        "owner": None,
+        "origin": origin,
+        "created_at": int(time.time() * 1000),
+    }
+    record.update(instance_defaults(item_id))
+    if overrides:
+        record.update(overrides)
+    store.mint(record)
+    return iid
 
 
 def _apply_catalog_defaults(target: MutableMapping[str, Any]) -> None:
