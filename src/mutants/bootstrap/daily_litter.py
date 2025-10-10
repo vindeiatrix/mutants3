@@ -362,13 +362,19 @@ def run_daily_litter_sqlite() -> None:
     stores = get_stores()
     today = date.today().isoformat()
 
+    icat = items_catalog
+
     if _kv_get(stores, KV_LAST_RUN_KEY) == today:
         log.info("daily_litter %s: already ran; skipping", today)
         return
 
     random.seed(today)
 
-    spawnables: Iterable[Dict[str, Any]] = icat.list_spawnable_items()
+    try:
+        spawnables: Iterable[Dict[str, Any]] = icat.list_spawnable_items()
+    except Exception:
+        log.exception("daily_litter_sqlite: failed to load spawnables")
+        raise
     spawnables = list(spawnables)
     if not spawnables:
         log.error(
