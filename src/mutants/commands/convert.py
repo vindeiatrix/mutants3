@@ -54,19 +54,26 @@ def _display_name(item_id: str, catalog: Any) -> str:
     return str(meta.get("display") or meta.get("name") or item_id)
 
 
-def _convert_value(item_id: str, catalog: Any, iid: Optional[str] = None) -> int:
+def _base_convert_value(item_id: str, catalog: Any) -> Tuple[int, bool]:
+    """Return the catalog conversion value ignoring instance state."""
+
     meta = _resolve_meta(catalog, item_id)
     if not meta:
-        return 0
+        return 0, False
+
     for key in ("convert_ions", "ion_value", "value"):
         if key in meta:
             try:
-                base_value = int(meta[key])
+                return int(meta[key]), True
             except Exception:
-                return 0
-            else:
-                break
-    else:
+                return 0, False
+
+    return 0, False
+
+
+def _convert_value(item_id: str, catalog: Any, iid: Optional[str] = None) -> int:
+    base_value, defined = _base_convert_value(item_id, catalog)
+    if not defined:
         return 0
 
     if not iid:
@@ -155,7 +162,17 @@ def convert_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
         bus.push("SYSTEM/WARN", f"You're not carrying a {prefix}.")
         return {"ok": False, "reason": "not_found"}
 
+    base_value, defined = _base_convert_value(item_id, catalog)
     value = _convert_payout(iid, item_id, catalog)
+    if not defined:
+        bus.push("SYSTEM/WARN", "You can't convert that.")
+        return {"ok": False, "reason": "not_convertible"}
+
+    if base_value <= 0:
+        name = _display_name(item_id, catalog)
+        bus.push("SYSTEM/WARN", f"No conversion value set for the {name}.")
+        return {"ok": False, "reason": "no_conversion_value"}
+
     if value <= 0:
         bus.push("SYSTEM/WARN", "You can't convert that.")
         return {"ok": False, "reason": "not_convertible"}
