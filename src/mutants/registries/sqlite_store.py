@@ -6,13 +6,60 @@ import sqlite3
 import json
 from pathlib import Path
 from time import time
-from typing import TYPE_CHECKING, Any, Callable, Dict, Iterable, Optional, Sequence, Tuple
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    Mapping,
+    Optional,
+    Sequence,
+    Tuple,
+)
 
 from mutants.env import get_state_database_path
 
 logger = logging.getLogger(__name__)
 
 DEBUG_QUERY_PLAN = bool(os.getenv("MUTANTS_SQLITE_DEBUG_PLAN"))
+
+_CATALOG_REQUIRED_FIELDS = {
+    "monster_id",
+    "name",
+    "stats",
+    "hp_max",
+    "armour_class",
+    "level",
+    "spawn_years",
+    "spawnable",
+    "taunt",
+    "innate_attack",
+}
+
+_CATALOG_STAT_FIELDS = {"str", "int", "wis", "dex", "con", "cha"}
+_CATALOG_INNATE_FIELDS = {"name", "power_base", "power_per_level"}
+
+_MONSTER_CATALOG_COLUMNS: Tuple[str, ...] = (
+    "monster_id",
+    "name",
+    "level",
+    "hp_max",
+    "armour_class",
+    "spawn_years",
+    "spawnable",
+    "taunt",
+    "stats_json",
+    "innate_attack_json",
+    "exp_bonus",
+    "ions_min",
+    "ions_max",
+    "riblets_min",
+    "riblets_max",
+    "spells_json",
+    "starter_armour_json",
+    "starter_items_json",
+)
 
 
 def _epoch_ms() -> int:
@@ -53,6 +100,178 @@ def _debug_query_plan(
         except (IndexError, TypeError):
             detail = row
         logger.info("QUERY PLAN %s :: %s", sql, detail)
+
+
+def _coerce_optional_int(value: Any) -> Optional[int]:
+    if value is None:
+        return None
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _normalize_spawn_years(raw: Any, *, monster_id: str) -> list[int]:
+    if isinstance(raw, (list, tuple)) and raw:
+        values: list[int] = []
+        for item in raw:
+            try:
+                values.append(int(item))
+            except (TypeError, ValueError) as exc:
+                raise ValueError(
+                    f"monster {monster_id!r} spawn_years entries must be integers"
+                ) from exc
+        if len(values) == 2 and values[0] <= values[1]:
+            return list(range(values[0], values[1] + 1))
+        return sorted(dict.fromkeys(values))
+    raise ValueError(f"monster {monster_id!r} spawn_years must be a non-empty list")
+
+
+def _coerce_string_list(value: Any) -> list[str]:
+    if isinstance(value, (list, tuple)):
+        return [str(item) for item in value if item not in (None, "")]
+    if value in (None, "", []):
+        return []
+    return [str(value)]
+
+
+def _normalize_monster_catalog_entry(payload: Mapping[str, Any]) -> Dict[str, Any]:
+    present = set(payload)
+    missing = sorted(_CATALOG_REQUIRED_FIELDS - present)
+    monster_id = str(payload.get("monster_id") or payload.get("id") or "")
+    if missing:
+        raise ValueError(
+            f"monster {monster_id or '<unknown>'!r} missing fields: {', '.join(missing)}"
+        )
+    if not monster_id:
+        raise ValueError("monster entry missing monster_id")
+
+    stats = payload.get("stats")
+    if not isinstance(stats, Mapping):
+        raise ValueError(f"monster {monster_id!r} stats must be an object")
+    missing_stats = sorted(_CATALOG_STAT_FIELDS - set(stats))
+    if missing_stats:
+        raise ValueError(
+            f"monster {monster_id!r} stats missing: {', '.join(missing_stats)}"
+        )
+
+    innate = payload.get("innate_attack")
+    if not isinstance(innate, Mapping):
+        raise ValueError(f"monster {monster_id!r} innate_attack must be an object")
+    missing_innate = sorted(_CATALOG_INNATE_FIELDS - set(innate))
+    if missing_innate:
+        raise ValueError(
+            f"monster {monster_id!r} innate_attack missing: {', '.join(missing_innate)}"
+        )
+
+    spawn_years = _normalize_spawn_years(payload.get("spawn_years"), monster_id=monster_id)
+
+    spawnable = payload.get("spawnable")
+    if isinstance(spawnable, bool):
+        spawnable_flag = 1 if spawnable else 0
+    elif isinstance(spawnable, (int, float)):
+        spawnable_flag = 1 if int(spawnable) else 0
+    else:
+        raise ValueError(f"monster {monster_id!r} spawnable must be boolean")
+
+    spells = _coerce_string_list(payload.get("spells"))
+    starter_armour = _coerce_string_list(payload.get("starter_armour"))
+    starter_items = _coerce_string_list(payload.get("starter_items"))
+
+    normalized = {
+        "monster_id": monster_id,
+        "name": str(payload.get("name") or ""),
+        "level": _coerce_int(payload.get("level")),
+        "hp_max": _coerce_int(payload.get("hp_max")),
+        "armour_class": _coerce_int(payload.get("armour_class")),
+        "spawn_years": json.dumps(spawn_years, separators=(",", ":")),
+        "spawnable": spawnable_flag,
+        "taunt": str(payload.get("taunt") or ""),
+        "stats_json": json.dumps(dict(stats), separators=(",", ":"), sort_keys=True),
+        "innate_attack_json": json.dumps(
+            dict(innate), separators=(",", ":"), sort_keys=True
+        ),
+        "exp_bonus": _coerce_optional_int(payload.get("exp_bonus")),
+        "ions_min": _coerce_optional_int(payload.get("ions_min")),
+        "ions_max": _coerce_optional_int(payload.get("ions_max")),
+        "riblets_min": _coerce_optional_int(payload.get("riblets_min")),
+        "riblets_max": _coerce_optional_int(payload.get("riblets_max")),
+        "spells_json": json.dumps(
+            spells,
+            separators=(",", ":"),
+            sort_keys=True,
+        ),
+        "starter_armour_json": json.dumps(
+            starter_armour,
+            separators=(",", ":"),
+            sort_keys=True,
+        ),
+        "starter_items_json": json.dumps(
+            starter_items,
+            separators=(",", ":"),
+            sort_keys=True,
+        ),
+    }
+    return normalized
+
+
+def _decode_monster_row(row: sqlite3.Row) -> Optional[Dict[str, Any]]:
+    if row is None:
+        return None
+
+    def _json_or(default: Any, raw: Any) -> Any:
+        if isinstance(raw, str) and raw.strip():
+            try:
+                value = json.loads(raw)
+            except json.JSONDecodeError:
+                return default
+            if isinstance(value, type(default)):
+                return value
+        return default
+
+    spawn_years_raw = _json_or([], row.get("spawn_years"))
+    spawn_years = []
+    for value in spawn_years_raw:
+        try:
+            spawn_years.append(int(value))
+        except (TypeError, ValueError):
+            continue
+
+    spells_raw = _json_or([], row.get("spells_json"))
+    spells_list = [str(item) for item in spells_raw if item not in (None, "")]
+
+    armour_raw = _json_or([], row.get("starter_armour_json"))
+    armour_list = [str(item) for item in armour_raw if item not in (None, "")]
+
+    items_raw = _json_or([], row.get("starter_items_json"))
+    items_list = [str(item) for item in items_raw if item not in (None, "")]
+
+    monster: Dict[str, Any] = {
+        "monster_id": row.get("monster_id"),
+        "name": row.get("name") or "",
+        "level": _coerce_int(row.get("level"), default=0),
+        "hp_max": _coerce_int(row.get("hp_max"), default=0),
+        "armour_class": _coerce_int(row.get("armour_class"), default=0),
+        "spawn_years": spawn_years,
+        "spawnable": bool(_coerce_int(row.get("spawnable"), default=0)),
+        "taunt": row.get("taunt") or "",
+        "stats": _json_or({}, row.get("stats_json")),
+        "innate_attack": _json_or({}, row.get("innate_attack_json")),
+        "exp_bonus": _coerce_optional_int(row.get("exp_bonus")),
+        "ions_min": _coerce_optional_int(row.get("ions_min")),
+        "ions_max": _coerce_optional_int(row.get("ions_max")),
+        "riblets_min": _coerce_optional_int(row.get("riblets_min")),
+        "riblets_max": _coerce_optional_int(row.get("riblets_max")),
+        "spells": spells_list,
+        "starter_armour": armour_list,
+        "starter_items": items_list,
+    }
+
+    innate = monster.get("innate_attack")
+    if isinstance(innate, dict) and "message" not in innate:
+        innate["message"] = "{monster} strikes {target} for {damage} damage!"
+
+    return monster
 
 __all__ = [
     "SQLiteConnectionManager",
@@ -126,6 +345,7 @@ class SQLiteConnectionManager:
                 (2, self._migrate_to_v2),
                 (3, self._migrate_to_v3),
                 (4, self._migrate_to_v4),
+                (5, self._migrate_to_v5),
             )
 
             for target_version, migration in migrations:
@@ -197,66 +417,72 @@ class SQLiteConnectionManager:
         return results
 
     def upsert_monster_catalog(self, monster_id: str, data_json: str) -> None:
+        try:
+            payload = json.loads(data_json)
+        except json.JSONDecodeError as exc:
+            raise ValueError(f"invalid JSON payload for monster {monster_id}") from exc
+        if not isinstance(payload, Mapping):
+            raise ValueError(f"monster catalog payload must be an object: {monster_id}")
+        record = dict(payload)
+        record.setdefault("monster_id", monster_id)
+        normalized = _normalize_monster_catalog_entry(record)
+
         conn = self.connect()
+        columns = (
+            "monster_id, name, level, hp_max, armour_class, spawn_years, spawnable, "
+            "taunt, stats_json, innate_attack_json, exp_bonus, ions_min, ions_max, "
+            "riblets_min, riblets_max, spells_json, starter_armour_json, starter_items_json"
+        )
+        placeholders = (
+            ":monster_id, :name, :level, :hp_max, :armour_class, :spawn_years, :spawnable, "
+            ":taunt, :stats_json, :innate_attack_json, :exp_bonus, :ions_min, :ions_max, "
+            ":riblets_min, :riblets_max, :spells_json, :starter_armour_json, :starter_items_json"
+        )
+        sql = (
+            f"INSERT INTO monsters_catalog ({columns}) VALUES ({placeholders}) "
+            "ON CONFLICT(monster_id) DO UPDATE SET "
+            "name=excluded.name, level=excluded.level, hp_max=excluded.hp_max, "
+            "armour_class=excluded.armour_class, spawn_years=excluded.spawn_years, "
+            "spawnable=excluded.spawnable, taunt=excluded.taunt, "
+            "stats_json=excluded.stats_json, innate_attack_json=excluded.innate_attack_json, "
+            "exp_bonus=excluded.exp_bonus, ions_min=excluded.ions_min, ions_max=excluded.ions_max, "
+            "riblets_min=excluded.riblets_min, riblets_max=excluded.riblets_max, "
+            "spells_json=excluded.spells_json, starter_armour_json=excluded.starter_armour_json, "
+            "starter_items_json=excluded.starter_items_json, updated_at=CURRENT_TIMESTAMP"
+        )
+
         with conn:
             _begin_immediate(conn)
-            conn.execute(
-                """
-                INSERT INTO monsters_catalog (monster_id, data_json)
-                VALUES (?, ?)
-                ON CONFLICT(monster_id) DO UPDATE SET data_json = excluded.data_json
-                """,
-                (str(monster_id), str(data_json)),
-            )
+            conn.execute(sql, normalized)
 
     def get_monster_catalog(self, monster_id: str) -> Optional[Dict[str, Any]]:
         conn = self.connect()
+        columns = ", ".join(_MONSTER_CATALOG_COLUMNS)
         cur = conn.execute(
-            "SELECT data_json FROM monsters_catalog WHERE monster_id = ?",
+            f"SELECT {columns} FROM monsters_catalog WHERE monster_id = ?",
             (str(monster_id),),
         )
         row = cur.fetchone()
         if row is None:
             return None
-        raw = row["data_json"]
-        if not isinstance(raw, str):
+        monster = _decode_monster_row(row)
+        if monster is None:
+            logger.error("Invalid monster catalog row for %s", monster_id)
             return None
-        try:
-            data = json.loads(raw)
-        except json.JSONDecodeError:
-            logger.error("Invalid JSON for monster %s in catalog", monster_id)
-            return None
-        if isinstance(data, dict):
-            data.setdefault("monster_id", str(monster_id))
-            return data
-        logger.error(
-            "Catalog row for monster %s did not decode to an object", monster_id
-        )
-        return None
+        return monster
 
     def list_spawnable_monsters(self) -> Iterable[Dict[str, Any]]:
         conn = self.connect()
-        sql = (
-            "SELECT monster_id, data_json FROM monsters_catalog "
-            "WHERE json_extract(data_json, '$.spawnable') = 1"
-        )
+        columns = ", ".join(_MONSTER_CATALOG_COLUMNS)
+        sql = f"SELECT {columns} FROM monsters_catalog WHERE spawnable = 1"
         _debug_query_plan(conn, sql, tuple())
         cur = conn.execute(sql)
         results: list[Dict[str, Any]] = []
         for row in cur.fetchall():
-            raw = row["data_json"]
-            if not isinstance(raw, str):
+            monster = _decode_monster_row(row)
+            if monster is None:
                 continue
-            try:
-                data = json.loads(raw)
-            except json.JSONDecodeError:
-                logger.error(
-                    "Invalid JSON for monster %s in spawnable list", row["monster_id"]
-                )
-                continue
-            if isinstance(data, dict):
-                data.setdefault("monster_id", row["monster_id"])
-                results.append(data)
+            results.append(monster)
         return results
 
     def _migrate_to_v1(self, conn: sqlite3.Connection) -> None:
@@ -332,7 +558,25 @@ class SQLiteConnectionManager:
             """
             CREATE TABLE IF NOT EXISTS monsters_catalog (
                 monster_id TEXT PRIMARY KEY,
-                data_json TEXT NOT NULL
+                name TEXT,
+                level INT,
+                hp_max INT,
+                armour_class INT,
+                spawn_years TEXT,
+                spawnable INT,
+                taunt TEXT,
+                stats_json TEXT,
+                innate_attack_json TEXT,
+                exp_bonus INT,
+                ions_min INT,
+                ions_max INT,
+                riblets_min INT,
+                riblets_max INT,
+                spells_json TEXT,
+                starter_armour_json TEXT,
+                starter_items_json TEXT,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                updated_at TEXT DEFAULT CURRENT_TIMESTAMP
             )
             """
         )
@@ -383,6 +627,110 @@ class SQLiteConnectionManager:
         conn.execute(
             "ALTER TABLE items_instances ADD COLUMN charges INTEGER DEFAULT 0"
         )
+
+    def _migrate_to_v5(self, conn: sqlite3.Connection) -> None:
+        cur = conn.execute("PRAGMA table_info(monsters_catalog)")
+        existing = {row[1] for row in cur.fetchall() if len(row) > 1}
+        required = {
+            "monster_id",
+            "name",
+            "level",
+            "hp_max",
+            "armour_class",
+            "spawn_years",
+            "spawnable",
+            "taunt",
+            "stats_json",
+            "innate_attack_json",
+            "exp_bonus",
+            "ions_min",
+            "ions_max",
+            "riblets_min",
+            "riblets_max",
+            "spells_json",
+            "starter_armour_json",
+            "starter_items_json",
+            "created_at",
+            "updated_at",
+        }
+
+        needs_rebuild = False
+        if not existing:
+            needs_rebuild = True
+        elif "data_json" in existing:
+            needs_rebuild = True
+        elif not required.issubset(existing):
+            needs_rebuild = True
+
+        if not needs_rebuild:
+            return
+
+        conn.execute("ALTER TABLE IF EXISTS monsters_catalog RENAME TO monsters_catalog_legacy")
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS monsters_catalog (
+                monster_id TEXT PRIMARY KEY,
+                name TEXT,
+                level INT,
+                hp_max INT,
+                armour_class INT,
+                spawn_years TEXT,
+                spawnable INT,
+                taunt TEXT,
+                stats_json TEXT,
+                innate_attack_json TEXT,
+                exp_bonus INT,
+                ions_min INT,
+                ions_max INT,
+                riblets_min INT,
+                riblets_max INT,
+                spells_json TEXT,
+                starter_armour_json TEXT,
+                starter_items_json TEXT,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+            )
+            """
+        )
+
+        legacy_exists = conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='monsters_catalog_legacy'"
+        ).fetchone()
+        if legacy_exists is None:
+            return
+
+        rows = conn.execute(
+            "SELECT monster_id, data_json FROM monsters_catalog_legacy"
+        ).fetchall()
+        insert_sql = (
+            "INSERT INTO monsters_catalog (monster_id, name, level, hp_max, armour_class, "
+            "spawn_years, spawnable, taunt, stats_json, innate_attack_json, exp_bonus, "
+            "ions_min, ions_max, riblets_min, riblets_max, spells_json, starter_armour_json, "
+            "starter_items_json, created_at, updated_at) "
+            "VALUES (:monster_id, :name, :level, :hp_max, :armour_class, :spawn_years, :spawnable, "
+            ":taunt, :stats_json, :innate_attack_json, :exp_bonus, :ions_min, :ions_max, :riblets_min, "
+            ":riblets_max, :spells_json, :starter_armour_json, :starter_items_json, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)"
+        )
+
+        for row in rows:
+            raw = row["data_json"]
+            if not isinstance(raw, str):
+                continue
+            try:
+                payload = json.loads(raw)
+            except json.JSONDecodeError:
+                continue
+            if not isinstance(payload, Mapping):
+                continue
+            payload = dict(payload)
+            payload.setdefault("monster_id", row["monster_id"])
+            try:
+                normalized = _normalize_monster_catalog_entry(payload)
+            except ValueError:
+                continue
+            conn.execute(insert_sql, normalized)
+
+        conn.execute("DROP TABLE IF EXISTS monsters_catalog_legacy")
 
 
 class SQLiteItemsInstanceStore:

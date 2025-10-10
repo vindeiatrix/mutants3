@@ -64,10 +64,6 @@ if ($catalogCount -eq "0" -and (Test-Path "$StateDir\items\catalog.json")) {
   Write-Host "Items catalog present (rows: $catalogCount)."
 }
 
-# --- Ensure monsters catalog + initial spawn (idempotent) ---
-Write-Host "Ensuring monsters catalog and initial spawn..."
-& $PyExe tools\bootstrap_monsters.py --database $DBPath
-
 # --- Ensure daily litter exists today (force once if empty) ---
 & $PyExe tools\sqlite_admin.py litter-run-now
 
@@ -75,6 +71,105 @@ $itemsTotal = sqlite3 "$env:GAME_STATE_ROOT\mutants.db" "SELECT COUNT(*) FROM it
 if (-not $itemsTotal -or $itemsTotal -eq "0") {
   & $PyExe tools\sqlite_admin.py litter-force-today
 }
+
+# --- Ensure monsters catalog import and initial spawn (idempotent) ---
+$pyCheckMonstersCatalog = @"
+import sqlite3, sys
+db = sys.argv[1]
+conn = sqlite3.connect(db)
+cur = conn.cursor()
+try:
+    cur.execute('SELECT COUNT(*) FROM monsters_catalog')
+    n = cur.fetchone()[0]
+except sqlite3.OperationalError:
+    n = -1
+print(n)
+"@
+$tmpMonCatalog = [System.IO.Path]::GetTempFileName() + ".py"
+$pyCheckMonstersCatalog | Set-Content -Path $tmpMonCatalog -Encoding UTF8
+$getMonsterCatalogCount = {
+  param($db)
+  (& $PyExe $tmpMonCatalog $db).Trim()
+}
+$monsterCatalogCount = & $getMonsterCatalogCount $DBPath
+
+if ((Test-Path "$StateDir\monsters\catalog.json") -and ($monsterCatalogCount -eq "0" -or $monsterCatalogCount -eq "-1")) {
+  Write-Host "Importing monsters catalog into SQLite..."
+  & $PyExe scripts\monsters_import.py --catalog "$StateDir\monsters\catalog.json" --db $DBPath
+  if ($LASTEXITCODE -ne 0) {
+    if (Test-Path $tmpMonCatalog) { Remove-Item $tmpMonCatalog -Force }
+    Write-Error "Monster catalog import failed."
+    exit 1
+  }
+  $monsterCatalogCount = & $getMonsterCatalogCount $DBPath
+} else {
+  Write-Host "Monsters catalog present (rows: $monsterCatalogCount)."
+}
+
+if (Test-Path $tmpMonCatalog) { Remove-Item $tmpMonCatalog -Force }
+
+$pyCheckMonstersInstances = @"
+import sqlite3, sys
+db = sys.argv[1]
+conn = sqlite3.connect(db)
+cur = conn.cursor()
+try:
+    cur.execute('SELECT COUNT(*) FROM monsters_instances')
+    n = cur.fetchone()[0]
+except sqlite3.OperationalError:
+    n = 0
+print(n)
+"@
+$tmpMonInstances = [System.IO.Path]::GetTempFileName() + ".py"
+$pyCheckMonstersInstances | Set-Content -Path $tmpMonInstances -Encoding UTF8
+$monsterInstanceCount = (& $PyExe $tmpMonInstances $DBPath).Trim()
+
+if ($monsterInstanceCount -eq "0") {
+  $pyWorldYear = @"
+import json, sys
+from pathlib import Path
+state_path = Path(sys.argv[1])
+default_year = 2000
+try:
+    data = json.loads(state_path.read_text(encoding='utf-8'))
+except Exception:
+    print(default_year)
+    sys.exit(0)
+players = data.get('players') or []
+year = None
+for player in players:
+    if player.get('is_active'):
+        pos = player.get('pos') or []
+        if isinstance(pos, list) and pos:
+            try:
+                year = int(pos[0])
+            except (TypeError, ValueError):
+                year = None
+        if year is not None:
+            break
+if year is None:
+    year = default_year
+print(year)
+"@
+  $tmpYear = [System.IO.Path]::GetTempFileName() + ".py"
+  $pyWorldYear | Set-Content -Path $tmpYear -Encoding UTF8
+  $playerStatePath = Join-Path $StateDir "playerlivestate.json"
+  $worldYearRaw = (& $PyExe $tmpYear $playerStatePath).Trim()
+  Remove-Item $tmpYear -Force
+  if (-not $worldYearRaw) { $worldYearRaw = "2000" }
+  $worldYear = [int]$worldYearRaw
+  Write-Host "Spawning initial monsters for year $worldYear..."
+  & $PyExe scripts\monsters_initial_spawn.py --db $DBPath --year $worldYear --per-monster 4
+  if ($LASTEXITCODE -ne 0) {
+    if (Test-Path $tmpMonInstances) { Remove-Item $tmpMonInstances -Force }
+    Write-Error "Initial monster spawn failed."
+    exit 1
+  }
+} else {
+  Write-Host "Monsters already present (rows: $monsterInstanceCount)."
+}
+
+if (Test-Path $tmpMonInstances) { Remove-Item $tmpMonInstances -Force }
 
 # --- Launch the game ---
 Write-Host ""

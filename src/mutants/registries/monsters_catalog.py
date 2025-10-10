@@ -8,6 +8,15 @@ from mutants.state import state_path
 
 from .sqlite_store import SQLiteConnectionManager
 
+
+def _optional_int(value: Any) -> Optional[int]:
+    if value is None:
+        return None
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return None
+
 DEFAULT_CATALOG_PATH = state_path("monsters", "catalog.json")
 
 # EXP formula (can be adjusted later in one place)
@@ -92,8 +101,13 @@ def _validate_base_monster(m: Dict[str, Any]) -> None:
 
 def _load_monsters_from_store(manager: SQLiteConnectionManager) -> List[Dict[str, Any]]:
     conn = manager.connect()
+    columns = (
+        "monster_id, name, level, hp_max, armour_class, spawn_years, spawnable, "
+        "taunt, stats_json, innate_attack_json, exp_bonus, ions_min, ions_max, "
+        "riblets_min, riblets_max, spells_json, starter_armour_json, starter_items_json"
+    )
     cur = conn.execute(
-        "SELECT monster_id, data_json FROM monsters_catalog ORDER BY monster_id ASC"
+        f"SELECT {columns} FROM monsters_catalog ORDER BY monster_id ASC"
     )
     rows = cur.fetchall()
     if not rows:
@@ -101,20 +115,61 @@ def _load_monsters_from_store(manager: SQLiteConnectionManager) -> List[Dict[str
             f"Missing monsters catalog entries in SQLite store at {manager.path}"
         )
 
+    def _json_or(default: Any, raw: Any) -> Any:
+        if isinstance(raw, str) and raw.strip():
+            try:
+                value = json.loads(raw)
+            except json.JSONDecodeError:
+                return default
+            if isinstance(value, type(default)):
+                return value
+        return default
+
     monsters: List[Dict[str, Any]] = []
     for row in rows:
-        raw = row["data_json"]
-        if not isinstance(raw, str):
-            raise ValueError(
-                f"monsters_catalog row {row['monster_id']} missing JSON payload"
-            )
-        data = json.loads(raw)
-        if not isinstance(data, dict):
-            raise ValueError(
-                "monsters_catalog rows must decode to JSON objects (dicts)"
-            )
-        data.setdefault("monster_id", row["monster_id"])
-        monsters.append(data)
+        spawn_years_raw = _json_or([], row.get("spawn_years"))
+        spawn_years = []
+        for value in spawn_years_raw:
+            try:
+                spawn_years.append(int(value))
+            except (TypeError, ValueError):
+                continue
+
+        stats = _json_or({}, row.get("stats_json"))
+        innate = _json_or({}, row.get("innate_attack_json"))
+        spells = _json_or([], row.get("spells_json"))
+        spells = [str(item) for item in spells if item not in (None, "")]
+        starter_armour = _json_or([], row.get("starter_armour_json"))
+        starter_armour = [str(item) for item in starter_armour if item not in (None, "")]
+        starter_items = _json_or([], row.get("starter_items_json"))
+        starter_items = [str(item) for item in starter_items if item not in (None, "")]
+
+        monster = {
+            "monster_id": row.get("monster_id"),
+            "name": row.get("name") or "",
+            "level": int(row.get("level") or 0),
+            "hp_max": int(row.get("hp_max") or 0),
+            "armour_class": int(row.get("armour_class") or 0),
+            "spawn_years": spawn_years,
+            "spawnable": bool(int(row.get("spawnable") or 0)),
+            "taunt": row.get("taunt") or "",
+            "stats": stats if isinstance(stats, dict) else {},
+            "innate_attack": innate if isinstance(innate, dict) else {},
+            "exp_bonus": _optional_int(row.get("exp_bonus")),
+            "ions_min": _optional_int(row.get("ions_min")),
+            "ions_max": _optional_int(row.get("ions_max")),
+            "riblets_min": _optional_int(row.get("riblets_min")),
+            "riblets_max": _optional_int(row.get("riblets_max")),
+            "spells": spells,
+            "starter_armour": starter_armour,
+            "starter_items": starter_items,
+        }
+
+        innate_payload = monster.get("innate_attack")
+        if isinstance(innate_payload, dict) and "message" not in innate_payload:
+            innate_payload["message"] = "{monster} strikes {target} for {damage} damage!"
+
+        monsters.append(monster)
     return monsters
 
 
