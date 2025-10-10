@@ -7,8 +7,8 @@ standards outlined here.
 
 1. Fork and clone the repository.
 2. Create a feature branch (do not commit to `main`).
-3. Activate a virtual environment and install dev dependencies: `pip install -e .[dev]`.
-4. Run `pytest` and `make docs-check` before pushing.
+3. Activate a virtual environment and install dev dependencies: `pip install -e .`.
+4. Run `make docs-check` before pushing.
 
 ## Code style
 
@@ -24,13 +24,13 @@ standards outlined here.
 - Run `make docs` to ensure `mkdocs build --strict` succeeds. CI enforces zero warnings,
   markdownlint, vale, codespell, interrogate, and link checking.
 
-## Testing
+## Quality checks
 
-- Add or update pytest coverage for new behaviour.
-- Use fixtures to avoid mutating real state. Override `GAME_STATE_ROOT` in tests when
-  necessary.
-- Ensure docstring examples remain valid by running `pytest --doctest-glob="*.py"` when
-  adding doctests.
+- Exercise new behaviour with the guard scripts (for example `make ci-wrap-check`) to
+  confirm command flows remain stable.
+- Override `GAME_STATE_ROOT` when running manual probes so catalogue data stays isolated.
+- Ensure docstring examples remain valid by running `python -m mutants.bootstrap.validate`
+  after significant documentation updates.
 
 ## Commit messages & PRs
 

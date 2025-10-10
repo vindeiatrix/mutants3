@@ -55,7 +55,6 @@ nav:
   - Guides:
       - Extending Items: guides/extending-items.md
       - Writing Commands: guides/writing-commands.md
-      - Testing: guides/testing.md
       - Performance: guides/performance.md
   - Reference:
       - CLI & Tools: reference/cli.md

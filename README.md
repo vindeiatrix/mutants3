@@ -21,8 +21,7 @@ built with MkDocs Material + mkdocstrings.
 python -m venv .venv
 source .venv/bin/activate
 pip install --upgrade pip
-pip install -e .[dev]
-pytest
+pip install -e .
 make docs
 ```
 
@@ -65,7 +64,6 @@ sqlite3 state/mutants.db "PRAGMA optimize;"
 ```text
 src/mutants/      # game logic, registries, services, commands
 state/            # default catalog and instance data
-tests/            # pytest suites covering registries, combat, and commands
 docs/             # MkDocs site (architecture, guides, ADRs)
 tools/            # maintenance scripts (fix_iids, migrations)
 ```

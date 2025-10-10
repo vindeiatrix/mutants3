@@ -48,4 +48,4 @@ flowchart LR
 
 - [Registries](registries.md)
 - [Validation](validation.md)
-- [Guides → Testing](../guides/testing.md)
+- [Guides → Writing Commands](../guides/writing-commands.md)

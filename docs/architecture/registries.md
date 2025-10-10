@@ -45,7 +45,7 @@ The catalog loader lives in [`mutants.registries.items_catalog`](../api/mutants.
 provides the authoritative API for live items.
 
 - **IID policy** – `mint_iid` and `remint_iid` generate UUID4-based identifiers and cache
-  them in the provided set. `STRICT_DUP_IIDS` defaults to true under pytest or when
+  them in the provided set. `STRICT_DUP_IIDS` defaults to true in CI or when
   `WORLD_DEBUG=1`. Duplicate detection logs warnings and raises when strict.
 - **Normalisation** – `_normalize_instance` aligns IID fields (`iid`, `instance_id`),
   clamps enchant level (0–100), sanitises condition (1–100), and clears condition for
