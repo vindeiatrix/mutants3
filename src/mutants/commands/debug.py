@@ -60,8 +60,13 @@ def _spawn_items_at_player(
     year, x, y = _pos_from_ctx(ctx)
     spawned: list[str] = []
     for _ in range(count):
-        iid = itemsreg.mint_instance(item_id, origin="debug_add")
-        itemsreg.set_position(iid, year, x, y)
+        iid = itemsreg.mint_on_ground_with_defaults(
+            item_id,
+            year=year,
+            x=x,
+            y=y,
+            origin="debug_add",
+        )
         spawned.append(iid)
     return spawned, (year, x, y)
 
