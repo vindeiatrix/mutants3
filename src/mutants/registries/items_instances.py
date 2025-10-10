@@ -597,6 +597,12 @@ def _store_payload_from_instance(inst: Mapping[str, Any]) -> Dict[str, Any]:
         "drop_source": inst.get("drop_source"),
         "created_at": inst.get("created_at"),
     }
+    charges_value = inst.get("charges")
+    if charges_value is not None:
+        try:
+            payload["charges"] = int(charges_value)
+        except (TypeError, ValueError):
+            pass
     _apply_catalog_defaults(payload)
     return payload
 
@@ -728,6 +734,16 @@ def update_instance(iid: str, **fields: Any) -> Dict[str, Any]:
             to_set["condition"] = None
         else:
             to_set["condition"] = _sanitize_condition(fields.get("condition"))
+
+    if "charges" in fields:
+        value = fields.get("charges")
+        if value is REMOVE_FIELD:
+            to_set["charges"] = None
+        else:
+            try:
+                to_set["charges"] = int(value)
+            except (TypeError, ValueError):
+                pass
 
     # Simple optional string fields
     for attr in ("owner", "origin", "drop_source"):
