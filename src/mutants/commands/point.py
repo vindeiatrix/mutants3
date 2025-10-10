@@ -2,6 +2,7 @@ from __future__ import annotations
 from .argcmd import coerce_direction
 from ._helpers import find_inventory_item_by_prefix
 from ..registries import items_catalog, items_instances as itemsreg
+from ..services import items_ranged
 
 
 def point_cmd(arg: str, ctx):
@@ -26,9 +27,12 @@ def point_cmd(arg: str, ctx):
     if not tpl.get("charges_max"):
         bus.push("SYSTEM/WARN", "That item can't be fired.")
         return
-    if not itemsreg.spend_charge(iid):
-        bus.push("SYSTEM/WARN", "It sputters—no charge left.")
+    charges = items_ranged.charges_for_instance(inst)
+    if charges <= 0:
+        bus.push("SYSTEM/WARN", "It’s drained.")
         return
+
+    items_ranged.consume_charge(iid, charges=charges)
     bus.push("COMBAT/POINT", f"You fire the {name} to the {d.title()}.")
 
 
