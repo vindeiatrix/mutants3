@@ -41,11 +41,11 @@ consistent.
   commands. Pass `items_instances.REMOVE_FIELD` to delete fields safely.
 - For manual repair, prefer the CLI helper in [Reference → CLI](../reference/cli.md).
 
-## Testing changes
+## Verifying changes
 
-- Add or update fixtures under `state/` as needed.
-- Extend coverage with targeted pytest cases when the item introduces new behaviour.
-- Run `pytest` and `make docs` before sending a PR.
+- Add or update sample payloads under `state/` as needed.
+- Exercise new behaviour manually using the guard scripts before sending a PR.
+- Run `make docs` before sending a PR.
 
 ## Common pitfalls
 
@@ -60,4 +60,4 @@ consistent.
 
 - [Architecture → Registries](../architecture/registries.md)
 - [Architecture → Items Schema](../architecture/items-schema.md)
-- [Guides → Testing](testing.md)
+- [Guides → Performance](performance.md)

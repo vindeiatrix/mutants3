@@ -2,8 +2,8 @@
 
 ## When does the validator run?
 
-On boot, during pytest, in CI, and whenever `MUTANTS_VALIDATE_CONTENT=1` is set. Disable it
-locally with `MUTANTS_SKIP_VALIDATOR=1` only for temporary debugging.
+On boot, in CI, and whenever `MUTANTS_VALIDATE_CONTENT=1` is set. Disable it locally with
+`MUTANTS_SKIP_VALIDATOR=1` only for temporary debugging.
 
 ## How do I repair duplicate IIDs?
 

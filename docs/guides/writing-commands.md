@@ -38,16 +38,16 @@ def my_command(arg: str, ctx: Mapping[str, Any]) -> Mapping[str, Any]:
 - Drops loot via `combat_loot.drop_monster_loot`, respecting ground capacity.
 - Emits `COMBAT/HIT` and `COMBAT/KILL` events plus structured turn log entries.
 
-## Testing commands
+## Verifying commands
 
-- Use pytest fixtures to stub buses and registries. The tests under `tests/commands/`
-  provide examples of asserting event streams.
-- Validate invariants by asserting no direct file writes occur; use monkeypatching to track
-  registry calls when necessary.
+- Use the guard scripts and logging tools to stub buses and registries during manual runs
+  and observe the emitted event streams.
+- Validate invariants by watching for unexpected file writes; leverage the logging probe
+  to confirm registries handle persistence.
 - When adding new commands, document them in [Reference → FAQ](../reference/faq.md).
 
 ## Related docs
 
 - [Architecture → Runtime Flow](../architecture/runtime.md)
 - [Architecture → Damage & Strike](../architecture/damage-and-strike.md)
-- [Guides → Testing](testing.md)
+- [Guides → Extending Items](extending-items.md)

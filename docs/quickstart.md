@@ -23,11 +23,8 @@ documentation.
 python -m venv .venv
 source .venv/bin/activate
 pip install --upgrade pip
-pip install -e .[dev]
+pip install -e .
 ```
-
-The development extras install pytest and coverage tooling. Docs dependencies are
-managed separately via the Makefile so that runtime installations remain light.
 
 ## 2. Inspect the project layout
 
@@ -51,16 +48,7 @@ python -m mutants.bootstrap.validate
 On success the command exits silently. Validation errors enumerate which invariants
 failed and reference repair scripts such as `tools/fix_iids.py`.
 
-## 4. Launch tests
-
-```bash
-pytest
-```
-
-Tests cover registries, combat math, and regression suites for commands. See
-[Guides → Testing](guides/testing.md) for deeper context.
-
-## 5. Build the docs
+## 4. Build the docs
 
 ```bash
 make docs

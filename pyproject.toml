@@ -18,9 +18,6 @@ classifiers = [
 [project.urls]
 homepage = "https://github.com/your-org-or-user/your-repo"
 
-[project.optional-dependencies]
-dev = ["pytest", "pytest-cov"]
-
 [tool.setuptools]
 package-dir = {"" = "src"}
 packages = [
@@ -37,7 +34,7 @@ packages = [
 
 [tool.interrogate]
 fail-under = 95
-exclude = ["tests", "docs", "scripts"]
+exclude = ["docs", "scripts"]
 ignore-init-method = true
 ignore-init-module = true
 verbose = 1

@@ -18,15 +18,13 @@ flowchart TD
   subgraph Environment
     DEV[MUTANTS_DEV]
     CI[CI]
-    PYTEST[PYTEST_CURRENT_TEST]
     FORCE[MUTANTS_VALIDATE_CONTENT]
     SKIP[MUTANTS_SKIP_VALIDATOR]
   end
   SKIP -->|true| STOP((skip))
   FORCE -->|true| RUN
-  DEV -->|true| RUN
   CI -->|true| RUN
-  PYTEST -->|true| RUN
+  DEV -->|true| RUN
   RUN(run) --> LOAD[load_catalog + load_instances(strict=True)]
   LOAD --> SUMMARY[summary dict]
 ```
@@ -36,7 +34,7 @@ flowchart TD
 - `mutants.bootstrap.validator.run_on_boot()` runs automatically for CLI entry points that
   import the bootstrap module.
 - `should_run()` respects `MUTANTS_SKIP_VALIDATOR` (off switch) and `MUTANTS_VALIDATE_CONTENT`
-  (force on). Otherwise, pytest, CI, or `MUTANTS_DEV` enable it by default.
+  (force on). Otherwise, CI or `MUTANTS_DEV` enable it by default.
 - Validation is strict: catalog errors raise `ValueError`, instance duplicates raise
   `ValueError` when `strict=True`.
 
@@ -68,4 +66,3 @@ includes counts for audit.
 
 - [Registries](registries.md)
 - [Migrations](migrations.md)
-- [Guides → Testing](../guides/testing.md)

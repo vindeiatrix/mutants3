@@ -33,8 +33,8 @@ extend the game safely.
   deprecations.
 - [API Reference](api/index.md) — auto-generated reference for the stable Python
   surface.
-- [Guides](guides/testing.md) — practical walkthroughs for extending items, commands,
-  and profiling hot paths.
+- [Guides](guides/extending-items.md) — practical walkthroughs for extending items,
+  commands, and profiling hot paths.
 - [Reference](reference/glossary.md) — glossary, CLI utilities, ADR index, and FAQ.
 - [Contributing](contributing.md) — style, review expectations, and docs rules.
 - [Changelog](changelog.md) — high level history of notable changes.
