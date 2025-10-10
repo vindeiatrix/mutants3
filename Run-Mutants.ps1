@@ -21,6 +21,12 @@ $PyExe    = Join-Path $VenvDir "Scripts\python.exe"
 $PipExe   = Join-Path $VenvDir "Scripts\pip.exe"
 $DBPath   = Join-Path $StateDir "mutants.db"
 
+function Invoke-SqlScalar([string]$dbPath, [string]$sql) {
+  $out = & $PyExe "$PSScriptRoot\tools\sqlite_eval.py" --db $dbPath --scalar $sql
+  if ($LASTEXITCODE -ne 0) { throw "Invoke-SqlScalar failed: $sql" }
+  return [int]("$out" -replace '\s+$','')
+}
+
 if (!(Test-Path $StateDir)) { New-Item -ItemType Directory -Path $StateDir | Out-Null }
 if (!(Test-Path $DBPath)) {
   Write-Host "Creating SQLite database file..."
@@ -47,22 +53,13 @@ if (!(Test-Path $PyExe)) {
 & $PyExe tools\sqlite_admin.py init
 
 # --- Import ITEMS catalog into SQLite if empty (idempotent) ---
-$pyCheckCatalog = @"
-import os, sqlite3, json, sys
-root = os.environ['GAME_STATE_ROOT']; db = os.path.join(root,'mutants.db')
-conn = sqlite3.connect(db); cur = conn.cursor()
-try:
-    cur.execute('SELECT COUNT(*) FROM items_catalog'); n = cur.fetchone()[0]
-except sqlite3.OperationalError:
-    n = -1
-print(n)
-"@
-$tmp1 = [System.IO.Path]::GetTempFileName() + ".py"
-$pyCheckCatalog | Set-Content -Path $tmp1 -Encoding UTF8
-$catalogCount = (& $PyExe $tmp1).Trim()
-Remove-Item $tmp1 -Force
+try {
+  $catalogCount = Invoke-SqlScalar $DBPath "SELECT COUNT(*) FROM items_catalog"
+} catch {
+  $catalogCount = -1
+}
 
-if ($catalogCount -eq "0" -and (Test-Path "$StateDir\items\catalog.json")) {
+if ($catalogCount -eq 0 -and (Test-Path "$StateDir\items\catalog.json")) {
   Write-Host "Importing items catalog into SQLite..."
   & $PyExe tools\sqlite_admin.py catalog-import-items
 } else {
@@ -72,63 +69,39 @@ if ($catalogCount -eq "0" -and (Test-Path "$StateDir\items\catalog.json")) {
 # --- Ensure daily litter exists today (force once if empty) ---
 & $PyExe tools\sqlite_admin.py litter-run-now
 
-$itemsTotal = sqlite3 "$env:GAME_STATE_ROOT\mutants.db" "SELECT COUNT(*) FROM items_instances WHERE origin='daily_litter';"
-if (-not $itemsTotal -or $itemsTotal -eq "0") {
+$itemsTotal = Invoke-SqlScalar $DBPath "SELECT COUNT(*) FROM items_instances WHERE origin='daily_litter'"
+if (-not $itemsTotal -or $itemsTotal -eq 0) {
   & $PyExe tools\sqlite_admin.py litter-force-today
 }
 
 # --- Ensure monsters catalog import and initial spawn (idempotent) ---
-$pyCheckMonstersCatalog = @"
-import sqlite3, sys
-db = sys.argv[1]
-conn = sqlite3.connect(db)
-cur = conn.cursor()
-try:
-    cur.execute('SELECT COUNT(*) FROM monsters_catalog')
-    n = cur.fetchone()[0]
-except sqlite3.OperationalError:
-    n = -1
-print(n)
-"@
-$tmpMonCatalog = [System.IO.Path]::GetTempFileName() + ".py"
-$pyCheckMonstersCatalog | Set-Content -Path $tmpMonCatalog -Encoding UTF8
-$getMonsterCatalogCount = {
-  param($db)
-  (& $PyExe $tmpMonCatalog $db).Trim()
+try {
+  $monsterCatalogCount = Invoke-SqlScalar $DBPath "SELECT COUNT(*) FROM monsters_catalog"
+} catch {
+  $monsterCatalogCount = -1
 }
-$monsterCatalogCount = & $getMonsterCatalogCount $DBPath
 
-if ((Test-Path "$StateDir\monsters\catalog.json") -and ($monsterCatalogCount -eq "0" -or $monsterCatalogCount -eq "-1")) {
+if ((Test-Path "$StateDir\monsters\catalog.json") -and ($monsterCatalogCount -eq 0 -or $monsterCatalogCount -eq -1)) {
   Write-Host "Importing monsters catalog into SQLite..."
   & $PyExe scripts\monsters_import.py --catalog "$StateDir\monsters\catalog.json" --db $DBPath
   if ($LASTEXITCODE -ne 0) {
-    if (Test-Path $tmpMonCatalog) { Remove-Item $tmpMonCatalog -Force }
     Write-Error "Monster catalog import failed."
     exit 1
   }
-  $monsterCatalogCount = & $getMonsterCatalogCount $DBPath
+  try {
+    $monsterCatalogCount = Invoke-SqlScalar $DBPath "SELECT COUNT(*) FROM monsters_catalog"
+  } catch {
+    $monsterCatalogCount = -1
+  }
 } else {
   Write-Host "Monsters catalog present (rows: $monsterCatalogCount)."
 }
 
-if (Test-Path $tmpMonCatalog) { Remove-Item $tmpMonCatalog -Force }
-
-$pyCheckMonstersInstances = @"
-import sqlite3, sys
-db = sys.argv[1]
-conn = sqlite3.connect(db)
-cur = conn.cursor()
-try:
-    cur.execute('SELECT COUNT(*) FROM monsters_instances')
-    n = cur.fetchone()[0]
-except sqlite3.OperationalError:
-    n = 0
-print(n)
-"@
-$tmpMonInstances = [System.IO.Path]::GetTempFileName() + ".py"
-$pyCheckMonstersInstances | Set-Content -Path $tmpMonInstances -Encoding UTF8
-$monsterInstanceCount = (& $PyExe $tmpMonInstances $DBPath).Trim()
-if (-not $monsterInstanceCount) { $monsterInstanceCount = "0" }
+try {
+  $monsterInstanceCount = Invoke-SqlScalar $DBPath "SELECT COUNT(*) FROM monsters_instances"
+} catch {
+  $monsterInstanceCount = 0
+}
 Write-Host "Monsters currently present (rows: $monsterInstanceCount)."
 
 $spawnArgs = @("--db", $DBPath, "--per-monster", "4")
@@ -140,12 +113,9 @@ if ($Years) {
 Write-Host "Ensuring passive monsters are topped up across all world years..."
 & $PyExe "scripts\monsters_initial_spawn.py" @spawnArgs
 if ($LASTEXITCODE -ne 0) {
-  if (Test-Path $tmpMonInstances) { Remove-Item $tmpMonInstances -Force }
   Write-Error "Monster spawn top-up failed."
   exit 1
 }
-
-if (Test-Path $tmpMonInstances) { Remove-Item $tmpMonInstances -Force }
 
 # --- Launch the game ---
 Write-Host ""
