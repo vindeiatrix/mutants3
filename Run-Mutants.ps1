@@ -12,6 +12,7 @@ $ErrorActionPreference = "Stop"
 # --- Locate repo root (the folder containing this script) ---
 $Repo = Split-Path -Parent $MyInvocation.MyCommand.Path
 Set-Location $Repo
+Unblock-File -Path "$PSScriptRoot\Run-Mutants.ps1" -ErrorAction SilentlyContinue
 
 # --- Paths & env for this session ---
 $StateDir = Join-Path $Repo "state"

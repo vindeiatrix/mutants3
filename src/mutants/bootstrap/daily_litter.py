@@ -177,15 +177,37 @@ def _load_spawnables_from_db(manager: SQLiteConnectionManager) -> Dict[str, Dict
 # world helpers
 
 
-def _list_years(world_dir: Path) -> List[int]:
-    years: List[int] = []
-    try:
-        for fn in os.listdir(world_dir):
-            if fn.endswith(".json"):
-                years.append(int(os.path.splitext(fn)[0]))
-    except FileNotFoundError:
-        pass
-    return sorted(years)
+def _list_years(world_dir: str) -> list[int]:
+    # Prefer explicit config file if present
+    cfg = os.path.join(world_dir, "years.json")
+    years: set[int] = set()
+    if os.path.isfile(cfg):
+        try:
+            with open(cfg, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            for y in data.get("years", []):
+                if isinstance(y, int):
+                    years.add(y)
+        except Exception as e:
+            LOG.warning(
+                "years.json present but unreadable; falling back to directory scan: %s",
+                e,
+            )
+
+    # Fallback: scan directory names/files that look like years
+    if not years:
+        try:
+            for fn in os.listdir(world_dir):
+                stem, _ = os.path.splitext(fn)
+                if stem.isdigit():
+                    years.add(int(stem))
+        except FileNotFoundError:
+            pass
+
+    out = sorted(years)
+    if not out:
+        LOG.warning("No world years discovered in %s", world_dir)
+    return out
 
 
 def _collect_open_tiles_for_year(year: int, world_dir: Path) -> List[Tuple[int, int]]:
