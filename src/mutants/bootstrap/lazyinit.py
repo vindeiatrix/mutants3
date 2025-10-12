@@ -28,6 +28,7 @@ from typing import Any, Dict, List, Optional
 
 from mutants.io.atomic import atomic_write_json
 from mutants.bootstrap.runtime import discover_world_years, read_config
+from mutants.players import startup as player_startup
 
 try:
     from importlib.resources import files  # Python 3.9+
@@ -207,6 +208,8 @@ def ensure_player_state(state_dir: str = "state",
         players.append(p)
 
     state = {"players": players, "active_id": active_id}
+    for player in players:
+        player_startup.grant_starting_ions(player, "fresh", state=state)
     atomic_write_json(out_path, state)
     return state
 
