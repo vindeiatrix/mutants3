@@ -1,6 +1,6 @@
 from __future__ import annotations
 from .argcmd import coerce_direction
-from ._helpers import find_inventory_item_by_prefix
+from ._util.items import resolve_item_arg
 from ..registries import items_catalog, items_instances as itemsreg
 from ..services import items_ranged
 
@@ -16,7 +16,7 @@ def point_cmd(arg: str, ctx):
     if not d:
         bus.push("SYSTEM/WARN", "Try north, south, east, or west.")
         return
-    iid = find_inventory_item_by_prefix(ctx, item_token)
+    iid = resolve_item_arg(ctx, item_token)
     if not iid:
         bus.push("SYSTEM/WARN", f"You're not carrying a {item_token}.")
         return
