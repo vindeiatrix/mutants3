@@ -1,0 +1,3474 @@
+
+# Log file open.
+
+stat
+***
+
+Name: Vindeiatrix / Mutant Mage
+Exhaustion    : 0  
+Str: 82     Int: 118   Wis: 115
+Dex: 64     Con: 70    Cha: 106
+Hit Points    : 88  / 94 
+Exp. Points   : 20289346 Level: 13 
+Riblets       : 774288 
+Ions          : 28853767
+Wearing Armor : Satanic-Armour  Armour Class: 1016
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D.      : 2000
+
+You are carrying the following items:  (Total Weight: 129 LB's)
+Lightning-Rod, Hell-Blade.
+***
+Thief-242 picked up the Ion-Pack.
+>
+look t
+***
+Standing before you is a level 1 Thief!
+***
+Thief-242 looks in great shape and ready for battle!
+***
+You notice Thief-242 is carrying a Knife!
+>
+k
+***
+You're king!
+***
+Thief-242 picked up the Skull.
+>
+last
+
+***
+You're king!
+***
+You see a blinding white flash illuminate from Thief-242's body!
+>
+last
+***
+You're king!
+***
+Thief-242 has hit you with his Gold-Chunck!
+>
+last
+***
+You're king!
+***
+Thief-242 has hit you with his Gold-Chunck!
+>last
+***
+You're king!
+>
+
+last
+***
+You're king!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+>
+
+last
+***
+You're king!
+>last
+***
+You're king!
+>
+last
+***
+You're king!
+***
+Thief-242 has hit you with his Gold-Chunck!
+>
+last
+***
+You're king!
+>
+
+last
+***
+You're king!
+>
+last
+last
+***
+You're king!
+>***
+You're king!
+>
+last
+***
+You're king!
+***
+Thief-242 has hit you with his Gold-Chunck!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+***
+Thief-242 has hit you with his Gold-Chunck!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+***
+Thief-242 has hit you with his Gold-Chunck!
+>last
+***
+You're king!
+>
+
+last
+
+last
+***
+You're king!
+>***
+You're king!
+>
+last
+***
+You're king!
+***
+Thief-242 has hit you with his Gold-Chunck!
+>
+last
+***
+You're king!
+***
+Thief-242 has hit you with his Gold-Chunck!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+***
+Thief-242 has hit you with his Gold-Chunck!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+***
+Thief-242 has hit you with his Gold-Chunck!
+>
+last
+***
+You're king!
+***
+Thief-242 has hit you with his Gold-Chunck!
+>last
+***
+You're king!
+>
+last
+
+***
+You're king!
+>
+last
+***
+You're king!
+>
+
+last
+***
+You're king!
+>
+last
+last
+***
+You're king!
+***
+Thief-242 has hit you with his Gold-Chunck!
+>***
+You're king!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+>last
+***
+You're king!
+>
+last
+
+***
+You're king!
+***
+Thief-242 has hit you with his Gold-Chunck!
+>
+last
+***
+You're king!
+***
+Thief-242 has hit you with his Gold-Chunck!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+***
+Thief-242 has hit you with his Gold-Chunck!
+>
+last
+***
+You're king!
+***
+Thief-242 has hit you with his Gold-Chunck!
+>
+last
+last
+***
+You're king!
+>***
+You're king!
+***
+Thief-242 has hit you with his Gold-Chunck!
+>
+hea
+***
+Your body glows at it heals 18 points!
+***
+You're healed to the maximum!
+>
+tra 2500
+***
+ZAAAAPPPPP!! You've been sent to the year 2500 A.D.
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (0E : 0N)
+south - open gate.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Devil-Key, An Axe, A Skull, A Skull (1). 
+>
+e
+55
+***
+You're in a wrecked building.
+Compass: (1E : 0N)
+east  - area continues.
+west  - area continues.
+>***
+You're 55ing!
+>
+w
+
+***
+Crumbling buildings surround you.
+Compass: (0E : 0N)
+south - open gate.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Devil-Key, An Axe, A Skull, A Skull (1). 
+>s
+***
+STORE OWNED BY Minex
+Compass: (0E : -1N)
+north - open gate.
+west  - area continues.
+***
+On the ground lies:
+A Cheese. 
+>
+s
+***
+You're blocked!
+>
+w
+***
+The two moons are rising above.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+You see shadows to the south.
+>
+look so
+***
+You're looking south...
+***
+You're in an abandoned building.
+Compass: (-1E : -2N)
+north - area continues.
+south - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon. 
+***
+Frost-Giant-1447 is here.
+>
+s
+***
+You're in an abandoned building.
+Compass: (-1E : -2N)
+north - area continues.
+south - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon. 
+***
+Frost-Giant-1447 is here.
+***
+Frost-Giant-1447 ughs: I'll step on yer head!, Vindeiatrix!
+***
+The Frost-Giant-1447 blows cold WIND at you!
+***
+You suffer 6 hit points of damage!
+>
+look f
+***
+Standing before you is a level 5 Frost-Giant!
+***
+Frost-Giant-1447 looks in great shape and ready for battle!
+***
+You notice Frost-Giant-1447 is carrying a Blizzard-Staff!
+>
+k
+***
+You're king!
+>
+last
+
+***
+You're king!
+***
+Frost-Giant-1447 has hit you with his Blizzard-Staff!
+>
+last
+***
+You're king!
+***
+Frost-Giant-1447 has hit you with his Blizzard-Staff!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+***
+Frost-Giant-1447 has hit you with his Blizzard-Staff!
+>
+last
+***
+You're king!
+>last
+***
+You're king!
+>
+last
+
+***
+You're king!
+>
+last
+***
+You're king!
+***
+The Frost-Giant-1447 blows cold WIND at you!
+***
+You suffer 6 hit points of damage!
+>
+last
+***
+You're king!
+>last
+***
+You're king!
+>
+last
+
+***
+You're king!
+***
+The Frost-Giant-1447 blows cold WIND at you!
+***
+You suffer 6 hit points of damage!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+***
+Frost-Giant-1447 has hit you with his Blizzard-Staff!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+***
+Frost-Giant-1447 has hit you with his Blizzard-Staff!
+>
+last
+***
+You're king!
+***
+Frost-Giant-1447 has hit you with his Blizzard-Staff!
+>
+last
+***
+You're king!
+***
+Frost-Giant-1447 has hit you with his Blizzard-Staff!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+***
+Frost-Giant-1447 has hit you with his Blizzard-Staff!
+>
+last
+***
+You're king!
+***
+The Frost-Giant-1447 blows cold WIND at you!
+***
+You suffer 6 hit points of damage!
+>
+last
+***
+You're king!
+***
+Frost-Giant-1447 has hit you with his Blizzard-Staff!
+>
+last
+***
+You're king!
+***
+Frost-Giant-1447 has hit you with his Blizzard-Staff!
+>
+last
+***
+You're king!
+***
+The Frost-Giant-1447 blows cold WIND at you!
+***
+You suffer 6 hit points of damage!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+***
+Frost-Giant-1447 has hit you with his Blizzard-Staff!
+>
+last
+***
+You're king!
+***
+Frost-Giant-1447 has hit you with his Blizzard-Staff!
+>last
+***
+You're king!
+>
+hea
+
+***
+Your body glows at it heals 18 points!
+***
+Frost-Giant-1447 has hit you with his Blizzard-Staff!
+>
+hea
+***
+Your body glows at it heals 18 points!
+***
+You're healed to the maximum!
+>
+last
+***
+Nothing happens!
+>
+last
+***
+Nothing happens!
+***
+Frost-Giant-1447 has hit you with his Blizzard-Staff!
+>
+last
+***
+Nothing happens!
+***
+The Frost-Giant-1447 blows cold WIND at you!
+***
+You suffer 6 hit points of damage!
+>
+last
+***
+Your body glows at it heals 18 points!
+***
+You're healed to the maximum!
+>
+last
+***
+Nothing happens!
+>
+last
+***
+Nothing happens!
+>
+last
+***
+Nothing happens!
+***
+The Frost-Giant-1447 blows cold WIND at you!
+***
+You suffer 6 hit points of damage!
+>
+last
+***
+Your body glows at it heals 18 points!
+***
+You're healed to the maximum!
+***
+Frost-Giant-1447 has hit you with his Blizzard-Staff!
+>
+last
+***
+Nothing happens!
+>last
+***
+Nothing happens!
+>
+
+hea
+hea
+***
+Nothing happens!
+***
+Frost-Giant-1447 has hit you with his Blizzard-Staff!
+>***
+Nothing happens!
+***
+The Frost-Giant-1447 blows cold WIND at you!
+***
+You suffer 6 hit points of damage!
+>
+
+last
+
+last
+***
+Your body glows at it heals 18 points!
+***
+You're healed to the maximum!
+>***
+Nothing happens!
+>
+last
+***
+Nothing happens!
+>last
+***
+Nothing happens!
+>
+last
+
+***
+Nothing happens!
+>
+last
+***
+Nothing happens!
+>
+last
+***
+Nothing happens!
+>
+last
+***
+Nothing happens!
+***
+Frost-Giant-1447 has hit you with his Blizzard-Staff!
+>last
+***
+Nothing happens!
+>
+hea
+***
+Nothing happens!
+>
+tra 3000
+***
+ZAAAAPPPPP!! You've been sent to the year 3000 A.D.
+>
+look
+***
+An old hydro line has fallen here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Monster-Bait, A Monster-Bait (1), A Skull, A Skull (1), A Bug-Plate. 
+>
+e
+***
+You see rubble everywhere.
+Compass: (1E : 0N)
+north - open gate.
+south - open gate.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Skull. 
+>
+e
+***
+You're in a maintenance shop.
+Compass: (2E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+>
+s
+***
+An old hydro line has fallen here.
+Compass: (2E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+>
+s
+***
+You hear volcanoes erupt in the distance.
+Compass: (2E : -2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the west.
+>
+look we
+***
+You're looking west...
+***
+Crumbling buildings surround you.
+Compass: (1E : -2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Master-Key, A Brass-Key, A Skull, A Silver-Key, A Master-Key (1). 
+***
+Golden-Serpant-332 is here.
+>
+hea
+***
+Nothing happens!
+>
+w
+***
+Crumbling buildings surround you.
+Compass: (1E : -2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Master-Key, A Brass-Key, A Skull, A Silver-Key, A Master-Key (1). 
+***
+Golden-Serpant-332 is here.
+***
+Golden-Serpant-332 hisss: You invaded my privacy, Vindeiatrix!
+***
+Golden-Serpant-332 picked up the Master-Key.
+>
+look g
+***
+Standing before you is a level 9 Golden-Serpant!
+***
+Golden-Serpant-332 looks in great shape and ready for battle!
+***
+You notice Golden-Serpant-332 is carrying a Master-Key!
+***
+Golden-Serpant-332 picked up the Brass-Key.
+>
+k
+***
+You're king!
+***
+Golden-Serpant-332 has hit you with his Monster-Bait!
+>
+last
+
+***
+You're king!
+***
+Golden-Serpant-332 picked up the Silver-Key.
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+***
+Golden-Serpant-332 picked up the Skull.
+>
+last
+***
+You're king!
+***
+Golden-Serpant-332 has hit you with his Monster-Bait!
+***
+You see a blinding white flash illuminate from Golden-Serpant-332's body!
+>
+
+last
+***
+You're king!
+***
+Golden-Serpant-332 picked up the Master-Key.
+>last
+last
+***
+You're king!
+>***
+You're king!
+>
+last
+
+***
+You're king!
+>last
+***
+You're king!
+>
+
+last
+
+last
+***
+You're king!
+***
+Golden-Serpant-332 has hit you with his Monster-Bait!
+>***
+You're king!
+***
+Golden-Serpant-332 has hit you with his Monster-Bait!
+>
+last
+***
+You're king!
+>last
+***
+You're king!
+***
+Golden-Serpant-332 has hit you with his Monster-Bait!
+>
+
+last
+
+last
+55
+***
+You're king!
+>***
+You're king!
+***
+Golden-Serpant-332 has hit you with his Monster-Bait!
+>***
+You're 55ing!
+>
+last
+***
+You're 55ing!
+>
+last
+***
+You're 55ing!
+***
+Golden-Serpant-332 has hit you with his Monster-Bait!
+>
+last
+***
+You're 55ing!
+>last
+***
+You're 55ing!
+>
+
+last
+
+last
+***
+You're 55ing!
+>***
+You're 55ing!
+>
+last
+***
+You're 55ing!
+>
+last
+***
+You're 55ing!
+>
+last
+***
+You're 55ing!
+>
+last
+***
+You're 55ing!
+>
+last
+***
+You're 55ing!
+>
+last
+***
+You're 55ing!
+***
+Golden-Serpant-332 has hit you with his Monster-Bait!
+>
+last
+***
+You're 55ing!
+>
+last
+***
+You're 55ing!
+>
+last
+***
+You're 55ing!
+>
+last
+***
+You're 55ing!
+>
+last
+***
+You're 55ing!
+***
+Golden-Serpant-332 has hit you with his Monster-Bait!
+>last
+***
+You're 55ing!
+>
+last
+
+
+***
+You're 55ing!
+>
+last
+last
+***
+You're 55ing!
+***
+Golden-Serpant-332 has hit you with his Monster-Bait!
+>***
+You're 55ing!
+>
+last
+***
+You're 55ing!
+>
+last
+***
+You're 55ing!
+>
+last
+***
+You're 55ing!
+>
+last
+***
+You're 55ing!
+>
+last
+***
+You're 55ing!
+***
+Golden-Serpant-332 has hit you with his Monster-Bait!
+>
+last
+***
+You're 55ing!
+>last
+***
+You're 55ing!
+***
+Golden-Serpant-332 has hit you with his Monster-Bait!
+>
+
+last
+
+last
+***
+You're 55ing!
+***
+The Golden-Serpant-332 bites you!
+***
+You suffer 6 hit points of damage!
+>***
+You're 55ing!
+>
+last
+***
+You're 55ing!
+>
+last
+***
+You're 55ing!
+>last
+***
+You're 55ing!
+>
+
+last
+last
+***
+You're 55ing!
+***
+Golden-Serpant-332 has hit you with his Monster-Bait!
+>***
+You're 55ing!
+***
+The Golden-Serpant-332 bites you!
+***
+You suffer 6 hit points of damage!
+>
+last
+
+***
+You're 55ing!
+>last
+***
+You're 55ing!
+***
+Golden-Serpant-332 has hit you with his Monster-Bait!
+>
+hea
+***
+Your body glows at it heals 18 points!
+***
+You're healed to the maximum!
+***
+Golden-Serpant-332 has hit you with his Monster-Bait!
+>
+tra 3500
+***
+ZAAAAPPPPP!! You've been sent to the year 3500 A.D.
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon. 
+>
+hea
+
+***
+Nothing happens!
+>w
+***
+Crumbling buildings surround you.
+Compass: (-1E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear-thong, A Broken-Weapon. 
+***
+You see shadows to the west.
+>
+look we
+***
+You're looking west...
+***
+An old hydro line has fallen here.
+Compass: (-2E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1), A Broken-Weapon (2). 
+***
+Displacer-Beast-2257 is here.
+>
+w
+***
+An old hydro line has fallen here.
+Compass: (-2E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1), A Broken-Weapon (2). 
+***
+Displacer-Beast-2257 is here.
+***
+You see shadows to the north.
+>
+look no
+***
+You're looking north...
+***
+Broken lamp posts line the streets.
+Compass: (-2E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+Mutant-Iguana-97 is here.
+>
+n
+***
+Broken lamp posts line the streets.
+Compass: (-2E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+Mutant-Iguana-97 is here.
+***
+You see shadows to the south.
+>
+look m
+***
+Standing before you is a level 14 Mutant-Iguana!
+***
+Mutant-Iguana-97 looks in great shape and ready for battle!
+>
+look
+***
+Broken lamp posts line the streets.
+Compass: (-2E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+Mutant-Iguana-97 is here.
+***
+You see shadows to the south.
+***
+Mutant-Iguana-97 hisss: You look delicious, Vindeiatrix!
+>
+k
+***
+You're king!
+>
+last
+
+
+***
+You're king!
+***
+Mutant-Iguana-97 waves his arms in the air frantically, and begins to chant!
+>
+
+last
+last
+last
+***
+You're king!
+>***
+You're king!
+>***
+You're king!
+>
+
+
+last
+last
+last
+***
+You're king!
+>***
+You're king!
+>***
+You're king!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+>last
+***
+You're king!
+>
+last
+
+
+***
+You're king!
+>
+last
+***
+You're king!
+>
+last
+last
+***
+You're king!
+>***
+You're king!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+***
+The Mutant-Iguana-97 bites you!
+***
+You suffer 6 hit points of damage!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+>last
+***
+You're king!
+>
+last
+
+
+***
+You're king!
+>last
+last
+***
+You're king!
+>***
+You're king!
+>
+last
+
+***
+You're king!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+>last
+***
+You're king!
+>
+tra 4000
+***
+ZAAAAPPPPP!! You've been sent to the year 4000 A.D.
+>
+hea
+
+***
+Your body glows at it heals 18 points!
+***
+You're healed to the maximum!
+>look
+***
+Graffiti lines the city walls.
+Compass: (0E : 0N)
+south - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Bottle-Cap, A Skull, Rune-Scales. 
+>
+s
+***
+You're in a wrecked building.
+Compass: (0E : -1N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+A Nuclear-Waste, A Broken-Weapon. 
+***
+You see shadows to the south.
+>
+s
+***
+Broken lamp posts line the streets.
+Compass: (0E : -2N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+A Nuclear-Decay, A Bubble-Potion, A Buckler. 
+***
+Skeleton-1062 is here.
+***
+You see shadows to the south.
+>55
+***
+You're 55ing!
+>
+look sk
+***
+Standing before you is a level 18 Skeleton!
+***
+Skeleton-1062 looks in great shape and ready for battle!
+***
+You notice Skeleton-1062 is carrying a Knuckle-Axe!
+>
+look
+***
+Broken lamp posts line the streets.
+Compass: (0E : -2N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+A Nuclear-Decay, A Bubble-Potion, A Buckler. 
+***
+Skeleton-1062 is here.
+***
+You see shadows to the south.
+***
+Skeleton-1062 howls: I want your skull, Vindeiatrix!
+***
+Skeleton-1062 picked up the Buckler.
+>
+k
+***
+You're king!
+***
+Skeleton-1062 has hit you with his Buckler!
+>
+last
+
+***
+You're king!
+***
+Skeleton-1062 has hit you with his Buckler!
+>
+last
+***
+You're king!
+***
+Skeleton-1062 has hit you with his Buckler!
+>
+last
+***
+You're king!
+***
+Skeleton-1062 has hit you with his Buckler!
+>
+last
+***
+You're king!
+***
+Skeleton-1062 has hit you with his Buckler!
+>
+last
+***
+You're king!
+***
+Skeleton-1062 is removing his Sheet.
+>
+last
+***
+You're king!
+***
+Skeleton-1062 has just put on his Buckler.
+>
+last
+***
+You're king!
+***
+Skeleton-1062 picked up the Bubble-Potion.
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+***
+Skeleton-1062 has hit you with his Knuckle-Axe!
+***
+Skeleton-1062's Knuckle-Axe has just cracked in half!
+>last
+***
+You're king!
+***
+Skeleton-1062 picked up the Nuclear-Decay.
+>
+
+last
+
+last
+***
+You're king!
+***
+Skeleton-1062 has hit you with his Nuclear-Decay!
+>***
+You're king!
+***
+Skeleton-1062 dropped his Broken-Weapon.
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+***
+Skeleton-1062 has hit you with his Nuclear-Decay!
+>
+last
+***
+You're king!
+>
+
+last
+last
+***
+You're king!
+>***
+You're king!
+***
+Skeleton-1062 has hit you with his Nuclear-Decay!
+>
+last
+***
+You're king!
+***
+Skeleton-1062 has hit you with his Nuclear-Decay!
+>last
+***
+You're king!
+***
+The Skeleton-1062 strikes you!
+***
+You suffer 6 hit points of damage!
+>
+last
+
+
+***
+You're king!
+***
+Skeleton-1062 has hit you with his Nuclear-Decay!
+>
+last
+last
+***
+You're king!
+>***
+You're king!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+***
+Skeleton-1062 has hit you with his Nuclear-Decay!
+>last
+***
+You're king!
+>
+
+last
+last
+***
+You're king!
+>***
+You're king!
+>
+last
+
+***
+You're king!
+>last
+***
+You're king!
+>
+last
+
+***
+You're king!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+***
+The Skeleton-1062 strikes you!
+***
+You suffer 6 hit points of damage!
+>
+last
+***
+You're king!
+***
+The Skeleton-1062 strikes you!
+***
+You suffer 6 hit points of damage!
+>
+last
+***
+You're king!
+***
+Skeleton-1062 has hit you with his Nuclear-Decay!
+>
+last
+***
+You're king!
+***
+Skeleton-1062 has hit you with his Nuclear-Decay!
+>
+last
+***
+You're king!
+***
+Skeleton-1062 has hit you with his Nuclear-Decay!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+***
+Skeleton-1062 is saying: what?
+>last
+***
+You're king!
+***
+Skeleton-1062 has hit you with his Nuclear-Decay!
+>
+last
+
+***
+You're king!
+***
+Skeleton-1062 has hit you with his Nuclear-Decay!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+***
+Skeleton-1062 has hit you with his Nuclear-Decay!
+>
+last
+***
+You're king!
+***
+Skeleton-1062 has hit you with his Nuclear-Decay!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+***
+Skeleton-1062 has hit you with his Nuclear-Decay!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+***
+Skeleton-1062 has hit you with his Nuclear-Decay!
+>last
+***
+You're king!
+***
+Skeleton-1062 has hit you with his Nuclear-Decay!
+>
+hea
+***
+Your body glows at it heals 18 points!
+>
+hea
+***
+Nothing happens!
+>
+tra 4000
+***
+You're already in the 41th Century!
+***
+You hear faint sounds of yelling and screaming far to the south.
+***
+You hear loud sounds of footsteps to the south.
+>
+tra 4500
+***
+ZAAAAPPPPP!! You've been sent to the year 4500 A.D.
+>
+hea
+***
+Nothing happens!
+>
+look
+***
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Bottle-Cap, A Skull, A Skull (1), A Skull (2). 
+>
+s
+
+***
+You're blocked!
+>e
+***
+An eerie calm settles in the distance.
+Compass: (1E : 0N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear-Rock, A Broken-Weapon, A Broken-Weapon (1), A Broken-Weapon (2). 
+***
+You see shadows to the east.
+>
+look ea
+***
+You're looking east...
+***
+Broken lamp posts line the streets.
+Compass: (2E : 0N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1), A Broken-Weapon (2), A Broken-Weapon (3),
+A Broken-Weapon (4). 
+***
+Remorhaz-2507 is here.
+>
+e
+***
+Broken lamp posts line the streets.
+Compass: (2E : 0N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1), A Broken-Weapon (2), A Broken-Weapon (3),
+A Broken-Weapon (4). 
+***
+Remorhaz-2507 is here.
+***
+You see shadows to the east.
+>
+look r
+***
+Standing before you is a level 25 Remorhaz!
+***
+Remorhaz-2507 looks in great shape and ready for battle!
+***
+You notice Remorhaz-2507 is carrying a Flame-Horns!
+>
+look
+***
+Broken lamp posts line the streets.
+Compass: (2E : 0N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1), A Broken-Weapon (2), A Broken-Weapon (3),
+A Broken-Weapon (4). 
+***
+Remorhaz-2507 is here.
+***
+You see shadows to the east.
+***
+Remorhaz-2507 growls: I want your heart, Vindeiatrix!
+***
+Remorhaz-2507 has hit you with his Flame-Horns!
+***
+Remorhaz-2507's Flame-Horns has just cracked in half!
+>
+look
+***
+Broken lamp posts line the streets.
+Compass: (2E : 0N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1), A Broken-Weapon (2), A Broken-Weapon (3),
+A Broken-Weapon (4). 
+***
+Remorhaz-2507 is here.
+***
+You see shadows to the east.
+***
+Remorhaz-2507 has hit you with his Broken-Weapon!
+>
+k
+***
+You're king!
+***
+Remorhaz-2507 dropped his Broken-Weapon.
+>
+last
+
+***
+You're king!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+***
+Remorhaz-2507 is smiling at you.
+>
+
+
+last
+last
+last
+***
+You're king!
+>***
+You're king!
+>***
+You're king!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+>last
+***
+You're king!
+>
+last
+
+***
+You're king!
+>
+
+last
+***
+You're king!
+>
+last
+last
+***
+You're king!
+>***
+You're king!
+>last
+***
+You're king!
+>
+last
+
+***
+You're king!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+>last
+55
+***
+You're king!
+>***
+You're 55ing!
+>
+last
+
+***
+You're 55ing!
+>
+last
+***
+You're 55ing!
+>
+last
+***
+You're 55ing!
+>
+last
+***
+You're 55ing!
+>
+last
+***
+You're 55ing!
+>
+last
+***
+You're 55ing!
+>
+last
+***
+You're 55ing!
+>
+last
+***
+You're 55ing!
+>
+last
+***
+You're 55ing!
+>last
+***
+You're 55ing!
+>
+last
+
+***
+You're 55ing!
+>
+last
+***
+You're 55ing!
+>
+last
+***
+You're 55ing!
+>
+last
+***
+You're 55ing!
+>last
+***
+You're 55ing!
+>
+look
+***
+Broken lamp posts line the streets.
+Compass: (2E : 0N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1), A Broken-Weapon (2), A Broken-Weapon (3),
+A Broken-Weapon (4), A Broken-Weapon (5). 
+***
+Remorhaz-2507 is here.
+***
+You see shadows to the east.
+>
+look
+***
+Broken lamp posts line the streets.
+Compass: (2E : 0N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1), A Broken-Weapon (2), A Broken-Weapon (3),
+A Broken-Weapon (4), A Broken-Weapon (5). 
+***
+Remorhaz-2507 is here.
+***
+You see shadows to the east.
+>
+w
+***
+An eerie calm settles in the distance.
+Compass: (1E : 0N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear-Rock, A Broken-Weapon, A Broken-Weapon (1), A Broken-Weapon (2). 
+***
+You see shadows to the east.
+***
+Remorhaz-2507 has just arrived from the east.
+>
+e
+***
+Broken lamp posts line the streets.
+Compass: (2E : 0N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1), A Broken-Weapon (2), A Broken-Weapon (3),
+A Broken-Weapon (4), A Broken-Weapon (5). 
+***
+You see shadows to the east, west.
+***
+Remorhaz-2507 has just arrived from the west.
+>
+hea
+***
+Nothing happens!
+>
+
+com r
+
+***
+You're ready to combat Remorhaz-2507!
+>
+wie he
+***
+You've hit Remorhaz-2507 with your Hell-Blade!
+>wie he
+***
+You've hit Remorhaz-2507 with your Hell-Blade!
+***
+Remorhaz-2507's armour has just cracked down the center!
+***
+You have slain Remorhaz-2507!
+Your experience points are increased by 17333!
+You collect 19480 Riblets and 9000 ions from the slain body.
+***
+
+Remorhaz-2507 is crumbling to dust!
+>
+hea
+
+***
+Nothing happens!
+>e
+***
+You're in a maintenance shop.
+Compass: (3E : 0N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1), A Broken-Weapon (2). 
+***
+Centaur-Warrior-347 is here.
+***
+You see shadows to the east.
+***
+Centaur-Warrior-347 talks: You're a fool, Vindeiatrix!
+>
+look ce
+***
+Standing before you is a level 25 Centaur-Warrior!
+***
+Centaur-Warrior-347 looks in great shape and ready for battle!
+***
+You notice Centaur-Warrior-347 is carrying a Compound-Sword!
+***
+Centaur-Warrior-347 has hit you with his Compound-Sword!
+***
+Centaur-Warrior-347's Compound-Sword has just cracked in half!
+>
+k
+***
+You're king!
+***
+The Centaur-Warrior-347 smashes a fist into you!
+***
+You suffer 6 hit points of damage!
+***
+Centaur-Warrior-347 dropped his Broken-Weapon.
+>
+last
+***
+You're king!
+***
+The Centaur-Warrior-347 smashes a fist into you!
+***
+You suffer 6 hit points of damage!
+>
+last
+
+***
+You're king!
+>
+
+last
+***
+You're king!
+***
+The Centaur-Warrior-347 smashes a fist into you!
+***
+You suffer 6 hit points of damage!
+>
+last
+***
+You're king!
+***
+Centaur-Warrior-347 has hit you with his Nuclear-Waste!
+>
+
+last
+last
+last
+***
+You're king!
+***
+Centaur-Warrior-347 has hit you with his Nuclear-Waste!
+>***
+You're king!
+***
+The Centaur-Warrior-347 smashes a fist into you!
+***
+You suffer 6 hit points of damage!
+***
+Centaur-Warrior-347 waves his arms in the air frantically, and begins to chant!
+>***
+You're king!
+>
+last
+***
+You're king!
+***
+Centaur-Warrior-347 has hit you with his Nuclear-Waste!
+>
+last
+***
+You're king!
+***
+The Centaur-Warrior-347 smashes a fist into you!
+***
+You suffer 6 hit points of damage!
+>
+last
+last
+***
+You're king!
+***
+The Centaur-Warrior-347 smashes a fist into you!
+***
+You suffer 6 hit points of damage!
+>***
+You're king!
+>
+last
+
+***
+You're king!
+>
+last
+***
+You're king!
+***
+Centaur-Warrior-347 has hit you with his Nuclear-Waste!
+>
+last
+***
+You're king!
+***
+Centaur-Warrior-347 has hit you with his Nuclear-Waste!
+>
+
+last
+***
+You're king!
+***
+Centaur-Warrior-347 has hit you with his Nuclear-Waste!
+>
+last
+last
+***
+You're king!
+>***
+You're king!
+>
+last
+***
+You're king!
+***
+Centaur-Warrior-347 is sitting down.
+>
+last
+***
+You're king!
+***
+The Centaur-Warrior-347 smashes a fist into you!
+***
+You suffer 6 hit points of damage!
+>
+last
+***
+You're king!
+***
+The Centaur-Warrior-347 smashes a fist into you!
+***
+You suffer 6 hit points of damage!
+>last
+***
+You're king!
+***
+Centaur-Warrior-347 waves his arms in the air frantically, and begins to chant!
+>
+last
+
+
+***
+You're king!
+***
+The Centaur-Warrior-347 smashes a fist into you!
+***
+You suffer 6 hit points of damage!
+>
+last
+last
+***
+You're king!
+***
+The Centaur-Warrior-347 smashes a fist into you!
+***
+You suffer 6 hit points of damage!
+>***
+You're king!
+***
+The Centaur-Warrior-347 smashes a fist into you!
+***
+You suffer 6 hit points of damage!
+>
+last
+***
+You're king!
+***
+Centaur-Warrior-347 has hit you with his Nuclear-Waste!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+***
+Centaur-Warrior-347 waves his arms in the air frantically, and begins to chant!
+>last
+***
+You're king!
+>
+last
+
+
+
+last
+last
+***
+You're king!
+***
+The Centaur-Warrior-347 smashes a fist into you!
+***
+You suffer 6 hit points of damage!
+***
+Centaur-Warrior-347 waves his arms in the air frantically, and begins to chant!
+>***
+You're king!
+***
+The Centaur-Warrior-347 smashes a fist into you!
+***
+You suffer 6 hit points of damage!
+>***
+You're king!
+***
+Centaur-Warrior-347 has hit you with his Nuclear-Waste!
+>
+hea
+***
+Your body glows at it heals 18 points!
+***
+Centaur-Warrior-347 waves his arms in the air frantically, and begins to chant!
+>
+hea
+***
+Your body glows at it heals 18 points!
+***
+The Centaur-Warrior-347 smashes a fist into you!
+***
+You suffer 6 hit points of damage!
+>hea
+***
+Your body glows at it heals 18 points!
+>
+hea
+
+
+***
+Your body glows at it heals 18 points!
+>
+hea
+last
+***
+Your body glows at it heals 18 points!
+***
+You're healed to the maximum!
+>***
+Nothing happens!
+***
+Centaur-Warrior-347 is looking around dumbfounded.
+>
+last
+***
+Nothing happens!
+***
+Centaur-Warrior-347 has hit you with his Nuclear-Waste!
+>
+last
+***
+Nothing happens!
+***
+The Centaur-Warrior-347 smashes a fist into you!
+***
+You suffer 6 hit points of damage!
+>
+last
+***
+Your body glows at it heals 18 points!
+***
+You're healed to the maximum!
+>
+last
+***
+Nothing happens!
+>
+
+last
+***
+Nothing happens!
+>
+last
+last
+***
+Nothing happens!
+>***
+Nothing happens!
+>
+last
+***
+Nothing happens!
+>
+hea
+***
+Nothing happens!
+***
+The Centaur-Warrior-347 smashes a fist into you!
+***
+You suffer 6 hit points of damage!
+>
+hea
+***
+Your body glows at it heals 18 points!
+***
+You're healed to the maximum!
+>hea
+***
+Nothing happens!
+>
+last
+
+***
+Nothing happens!
+>
+last
+***
+Nothing happens!
+***
+Centaur-Warrior-347 has hit you with his Nuclear-Waste!
+>
+last
+***
+Nothing happens!
+>
+last
+***
+Nothing happens!
+>
+last
+***
+Nothing happens!
+>
+
+last
+***
+Nothing happens!
+>last
+last
+***
+Nothing happens!
+>***
+Nothing happens!
+>
+
+last
+last
+***
+Nothing happens!
+>***
+Nothing happens!
+***
+The Centaur-Warrior-347 smashes a fist into you!
+***
+You suffer 6 hit points of damage!
+>
+
+hea
+
+hea
+***
+Your body glows at it heals 18 points!
+***
+You're healed to the maximum!
+>***
+Nothing happens!
+***
+The Centaur-Warrior-347 smashes a fist into you!
+***
+You suffer 6 hit points of damage!
+>hea
+***
+Your body glows at it heals 18 points!
+***
+You're healed to the maximum!
+>
+
+hea
+hea
+***
+Nothing happens!
+>***
+Nothing happens!
+***
+The Centaur-Warrior-347 smashes a fist into you!
+***
+You suffer 6 hit points of damage!
+>
+
+last
+
+last
+***
+Your body glows at it heals 18 points!
+***
+You're healed to the maximum!
+***
+Centaur-Warrior-347 has hit you with his Nuclear-Waste!
+>***
+Nothing happens!
+***
+The Centaur-Warrior-347 smashes a fist into you!
+***
+You suffer 6 hit points of damage!
+>
+last
+***
+Your body glows at it heals 18 points!
+***
+You're healed to the maximum!
+>last
+***
+Nothing happens!
+>
+hea
+
+***
+Nothing happens!
+>
+last
+55
+***
+Nothing happens!
+***
+The Centaur-Warrior-347 smashes a fist into you!
+***
+You suffer 6 hit points of damage!
+>***
+You're 55ing!
+***
+The Centaur-Warrior-347 smashes a fist into you!
+***
+You suffer 6 hit points of damage!
+>
+
+hea
+***
+Your body glows at it heals 18 points!
+***
+You're healed to the maximum!
+***
+The Centaur-Warrior-347 smashes a fist into you!
+***
+You suffer 6 hit points of damage!
+>
+
+last
+hea
+***
+Your body glows at it heals 18 points!
+***
+You're healed to the maximum!
+***
+The Centaur-Warrior-347 smashes a fist into you!
+***
+You suffer 6 hit points of damage!
+>***
+Your body glows at it heals 18 points!
+***
+You're healed to the maximum!
+>last
+hea
+***
+Nothing happens!
+***
+The Centaur-Warrior-347 smashes a fist into you!
+***
+You suffer 6 hit points of damage!
+>***
+Your body glows at it heals 18 points!
+***
+You're healed to the maximum!
+***
+Centaur-Warrior-347 has hit you with his Nuclear-Waste!
+>
+stat
+***
+
+Name: Vindeiatrix / Mutant Mage
+Exhaustion    : 0  
+Str: 82     Int: 118   Wis: 115
+Dex: 64     Con: 70    Cha: 106
+Hit Points    : 94  / 94 
+Exp. Points   : 20306679 Level: 13 
+Riblets       : 793768 
+Ions          : 28374367
+Wearing Armor : Satanic-Armour  Armour Class: 1016
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D.      : 4500
+
+You are carrying the following items:  (Total Weight: 129 LB's)
+Lightning-Rod, Hell-Blade.
+>
+hea
+***
+Nothing happens!
+***
+Centaur-Warrior-347 has hit you with his Nuclear-Waste!
+>
+tra 5000
+***
+ZAAAAPPPPP!! You've been sent to the year 5000 A.D.
+>
+hea
+***
+Nothing happens!
+>
+look
+***
+You're in a wrecked building.
+Compass: (0E : 0N)
+south - area continues.
+east  - area continues.
+***
+On the ground lies:
+A Nuclear-thong. 
+>
+e
+***
+The two moons are rising above.
+Compass: (1E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+>
+e
+***
+You feel a cold breeze.
+Compass: (2E : 0N)
+east  - area continues.
+west  - area continues.
+>
+
+w
+n
+***
+The two moons are rising above.
+Compass: (1E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+>***
+Broken glass covers the road.
+Compass: (1E : 1N)
+north - area continues.
+south - area continues.
+>
+n
+***
+You're in a maintenance shop.
+Compass: (1E : 2N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Monster-Bait, A Skull. 
+***
+You see shadows to the west.
+>
+look we
+***
+You're looking west...
+***
+You're in a wrecked building.
+Compass: (0E : 2N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+An Ion-Decay. 
+***
+Energy-Wizard-1632 is here.
+>
+n
+***
+You're blocked!
+>
+e
+***
+The wind is whistling through open windows.
+Compass: (2E : 2N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear-Waste. 
+>
+e
+***
+You're in a maintenance shop.
+Compass: (3E : 2N)
+south - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Gold-Chunck, A Hell-Blade. 
+>
+s
+***
+An old hydro line has fallen here.
+Compass: (3E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+On the ground lies:
+A Cigarette-Butt, A Giant-Sword, A Grenade-Rod, A Skull. 
+>
+e
+***
+You're in a wrecked building.
+Compass: (4E : 1N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cigarette-Butt, A Broken-Weapon, A Broken-Weapon (1). 
+>
+s
+***
+You're in a maintenance shop.
+Compass: (4E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Pseudo-Sword, A Skull, A Dragon-Plate. 
+>
+s
+
+***
+You're blocked!
+>e
+***
+You feel a cold breeze.
+Compass: (5E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+>
+e
+***
+You're in a wrecked building.
+Compass: (6E : 0N)
+north - area continues.
+south - open gate.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cheese. 
+***
+You see shadows to the south.
+>
+loo so
+***
+You're looking south...
+***
+A sign reads: FOR SALE $ 775000
+Compass: (6E : -1N)
+north - open gate.
+south - area continues.
+east  - area continues.
+***
+On the ground lies:
+A Nuclear-thong. 
+***
+Ranger-2992 is here.
+>
+s
+***
+A sign reads: FOR SALE $ 775000
+Compass: (6E : -1N)
+north - open gate.
+south - area continues.
+east  - area continues.
+***
+On the ground lies:
+A Nuclear-thong. 
+***
+Ranger-2992 is here.
+>
+look
+***
+A sign reads: FOR SALE $ 775000
+Compass: (6E : -1N)
+north - open gate.
+south - area continues.
+east  - area continues.
+***
+On the ground lies:
+A Nuclear-thong. 
+***
+Ranger-2992 is here.
+***
+Ranger-2992 warns: I kill players like you, Vindeiatrix!
+***
+Ranger-2992 picked up the Nuclear-thong.
+>
+k
+***
+You're king!
+>
+last
+***
+You're king!
+***
+Ranger-2992 has hit you with his Billy-Club!
+***
+Ranger-2992's Billy-Club has just cracked in half!
+>
+last
+***
+You're king!
+***
+Ranger-2992 has hit you with his Nuclear-thong!
+>
+last
+***
+You're king!
+***
+Ranger-2992 dropped his Broken-Weapon.
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+***
+Ranger-2992 has hit you with his Nuclear-thong!
+>
+last
+***
+You're king!
+>
+last
+***
+You're king!
+***
+The Ranger-2992 lips you!
+***
+You suffer 6 hit points of damage!
+***
+Ranger-2992 waves his arms in the air frantically, and begins to chant!
+***
+Darkness suddenly overcomes this area.
+>
+s
+***
+It's too dark to see anything!
+***
+You hear loud sounds of yelling and screaming to the north.
+***
+You hear footsteps very close to you.
+>
+w
+***
+You're blocked!
+>
+e
+***
+An old hydro line has fallen here.
+Compass: (7E : -2N)
+north - area continues.
+south - area continues.
+west  - area continues.
+***
+You see shadows to the west.
+***
+Ranger-2992 has just arrived from the west.
+>
+k
+***
+You're king!
+>
+last
+***
+You're king!
+***
+Ranger-2992 has hit you with his Nuclear-thong!
+>
+last
+***
+You're king!
+***
+The Ranger-2992 lips you!
+***
+You suffer 6 hit points of damage!
+>
+last
+***
+You're king!
+***
+Ranger-2992 has hit you with his Nuclear-thong!
+>
+last
+***
+You're king!
+***
+Ranger-2992 has hit you with his Nuclear-thong!
+>
+last
+***
+You're king!
+***
+The Ranger-2992 lips you!
+***
+You suffer 6 hit points of damage!
+>
+last
+
+***
+You're king!
+***
+Ranger-2992 is smiling at you.
+>last
+***
+You're king!
+>
+last
+
+***
+You're king!
+***
+Ranger-2992 waves his arms in the air frantically, and begins to chant!
+***
+Darkness suddenly overcomes this area.
+>last
+***
+You're king!
+>
+55
+n
+***
+You're 55ing!
+>***
+Crumbling buildings surround you.
+Compass: (7E : -1N)
+north - area continues.
+south - area continues.
+west  - area continues.
+***
+You see shadows to the south.
+***
+Ranger-2992 has just arrived from the south.
+>
+tra 5100
+***
+ZAAAAPPPPP!! You've been sent to the year 5100 A.D.
+>
+hea
+***
+Your body glows at it heals 18 points!
+>
+hea
+***
+Nothing happens!
+>
+look
+***
+City Trading Centre
+Compass: (0E : 0N)
+north - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear-Waste, A Nuclear-Rock. 
+>
+n
+***
+The two moons are rising above.
+Compass: (0E : 1N)
+north - open gate.
+south - area continues.
+***
+On the ground lies:
+An Ion-Decay. 
+>
+n
+***
+A sign reads: FOR SALE $ 800000
+Compass: (0E : 2N)
+north - open gate.
+south - open gate.
+***
+On the ground lies:
+An Ion-Booster. 
+>
+n
+***
+A sign reads: FOR SALE $ 800000
+Compass: (0E : 3N)
+north - area continues.
+south - open gate.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1). 
+>
+n
+***
+The two moons are rising above.
+Compass: (0E : 4N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+A Gold-Chunck, A Broken-Weapon, A Broken-Weapon (1). 
+>
+n
+***
+Graffiti lines the city walls.
+Compass: (0E : 5N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+An Ion-Booster. 
+>
+n
+***
+Crumbling buildings surround you.
+Compass: (0E : 6N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+An Ion-Booster. 
+>
+n
+***
+Broken lamp posts line the streets.
+Compass: (0E : 7N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+A Broken-Weapon. 
+>
+n
+***
+Broken glass covers the road.
+Compass: (0E : 8N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+A Gold-Chunck. 
+>
+n
+
+***
+Relics of the war line the streets.
+Compass: (0E : 9N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+A Cheese, A Skull. 
+>n
+***
+You're in a maintenance shop.
+Compass: (0E : 10N)
+north - open gate.
+south - area continues.
+***
+On the ground lies:
+A Monster-Bait. 
+***
+You see shadows to the north.
+>
+n
+***
+A sign reads: FOR SALE $ 800000
+Compass: (0E : 11N)
+north - area continues.
+south - open gate.
+east  - area continues.
+***
+On the ground lies:
+A Bottle-Cap, A Broken-Weapon. 
+***
+Critter-2113 is here.
+***
+Critter-2113 says: I have rabies, Vindeiatrix!
+***
+The Critter-2113 bites you!
+***
+You suffer 6 hit points of damage!
+>
+k
+***
+You're king!
+***
+The Critter-2113 bites you!
+***
+You suffer 6 hit points of damage!
+>
+last
+
+***
+You're king!
+***
+Critter-2113 has hit you with his Recycled-Sword!
+***
+Critter-2113's Recycled-Sword has just cracked in half!
+>last
+***
+You're king!
+***
+The Critter-2113 bites you!
+***
+You suffer 6 hit points of damage!
+***
+Critter-2113 dropped his Broken-Weapon.
+>
+last
+***
+You're king!
+***
+Critter-2113 waves his arms in the air frantically, and begins to chant!
+>
+last
+
+***
+You're king!
+***
+Critter-2113 picked up the Bottle-Cap.
+>last
+***
+You're king!
+>
+last
+
+***
+You're king!
+>
+last
+***
+You're king!
+>last
+***
+You're king!
+>
+
+last
+last
+***
+You're king!
+>***
+You're king!
+***
+Critter-2113 has hit you with his Bottle-Cap!
+>
+last
+***
+You're king!
+***
+Critter-2113 has hit you with his Bottle-Cap!
+>
+hea
+***
+Your body glows at it heals 18 points!
+***
+The Critter-2113 bites you!
+***
+You suffer 6 hit points of damage!
+>
+
+hea
+hea
+***
+Your body glows at it heals 18 points!
+***
+You're healed to the maximum!
+>***
+Nothing happens!
+***
+Critter-2113 has hit you with his Bottle-Cap!
+>
+last
+
+***
+Nothing happens!
+***
+Critter-2113 has hit you with his Bottle-Cap!
+>
+last
+***
+Nothing happens!
+***
+Critter-2113 has hit you with his Bottle-Cap!
+>last
+***
+Nothing happens!
+>
+last
+
+***
+Nothing happens!
+>
+last
+***
+Nothing happens!
+>
+last
+***
+Nothing happens!
+***
+Critter-2113 has hit you with his Bottle-Cap!
+>
+last
+***
+Nothing happens!
+***
+Critter-2113 has hit you with his Bottle-Cap!
+>last
+***
+Nothing happens!
+***
+Critter-2113 has hit you with his Bottle-Cap!
+>
+
+last
+
+***
+Nothing happens!
+***
+Critter-2113 has hit you with his Bottle-Cap!
+>
+last
+last
+***
+Nothing happens!
+***
+Critter-2113 has hit you with his Bottle-Cap!
+>***
+Nothing happens!
+***
+Critter-2113 has hit you with his Bottle-Cap!
+>
+last
+***
+Nothing happens!
+>
+last
+***
+Nothing happens!
+***
+Critter-2113 has hit you with his Bottle-Cap!
+>
+last
+***
+Nothing happens!
+>
+last
+***
+Nothing happens!
+***
+Critter-2113 has hit you with his Bottle-Cap!
+>
+last
+***
+Nothing happens!
+***
+Critter-2113 has hit you with his Bottle-Cap!
+>
+last
+***
+Nothing happens!
+>last
+***
+Nothing happens!
+>
+
+hea
+
+last
+***
+Nothing happens!
+***
+Critter-2113 has hit you with his Bottle-Cap!
+>***
+Nothing happens!
+>last
+***
+Nothing happens!
+***
+Critter-2113 has hit you with his Bottle-Cap!
+>
+last
+
+***
+Nothing happens!
+>
+last
+***
+Nothing happens!
+>
+last
+***
+Nothing happens!
+***
+Critter-2113 has hit you with his Bottle-Cap!
+>
+last
+***
+Nothing happens!
+>
+last
+***
+Nothing happens!
+>
+last
+***
+Nothing happens!
+***
+The Critter-2113 bites you!
+***
+You suffer 6 hit points of damage!
+>
+last
+***
+Your body glows at it heals 18 points!
+***
+You're healed to the maximum!
+***
+The Critter-2113 bites you!
+***
+You suffer 6 hit points of damage!
+>last
+***
+Your body glows at it heals 18 points!
+***
+You're healed to the maximum!
+>
+hea
+
+
+***
+Nothing happens!
+>
+hea
+last
+***
+Nothing happens!
+>***
+Nothing happens!
+>
+last
+***
+Nothing happens!
+***
+Critter-2113 has hit you with his Bottle-Cap!
+>
+last
+***
+Nothing happens!
+***
+The Critter-2113 bites you!
+***
+You suffer 6 hit points of damage!
+>
+last
+***
+Your body glows at it heals 18 points!
+***
+You're healed to the maximum!
+>
+last
+***
+Nothing happens!
+***
+Critter-2113 has hit you with his Bottle-Cap!
+>last
+***
+Nothing happens!
+***
+Critter-2113 has hit you with his Bottle-Cap!
+>
+last
+
+***
+Nothing happens!
+>
+last
+***
+Nothing happens!
+>last
+***
+Nothing happens!
+***
+The Critter-2113 bites you!
+***
+You suffer 6 hit points of damage!
+>
+last
+***
+Your body glows at it heals 18 points!
+***
+You're healed to the maximum!
+>
+hea
+***
+Nothing happens!
+***
+Critter-2113 has hit you with his Bottle-Cap!
+>
+last
+
+***
+Nothing happens!
+>
+last
+***
+Nothing happens!
+***
+The Critter-2113 bites you!
+***
+You suffer 6 hit points of damage!
+>last
+***
+Your body glows at it heals 18 points!
+***
+You're healed to the maximum!
+***
+Critter-2113 has hit you with his Bottle-Cap!
+>
+hea
+***
+Nothing happens!
+>
+

@@ -1,0 +1,3640 @@
+Here I am fighting in 2900 with the same character I was using in 4600.  Except this time I'm using my Gold-Chunk instead of a hell-blade to give a different look at damage scaling, and this is a lower year with lower level monsters.  The Gold-Chunk does 21 damage to an armor class of 2.  I think the armor the monsters wear in 2900 are probably around 15ish.  The ground here looks more untouched because I normally don't grind here.  There's a fair amount of spawned items littering the ground but hardly any monster gear.  That's normal for a year untouched by player grinding.  You can see the "Cleric-971" converts his Cleric-Rod early in the fight and then laughs at me because it is a passage making ranged item and he knows they are sought after.  At some point Cleric-971 waves his arms in the air in an attempt to cast a spell, but it seems to fail.  Maybe he did not have enough ions, or more likely the spell just failed due to a bad roll.  Notice the "Sasquatch-331" dodging out of the way., he must have some very high dexterity to be able to do that so much.  Notice how I came across a store and bought it, and how the store mechanics work (markup, markdown, how it effects prices, and everything).  And again, I'm wearing a very over powered armor here so everybody's weapon is just cracking in half and no one can do any damage to me.  At some point during my grind session, I see "You notice an egg is hatching!".  That is the game spawning a monster to replace the ones I'm killing.  It seems to take around 1-5 minutes for them to hatch but it's random.
+
+# Log file open.
+
+look
+***
+You hear volcanoes erupt in the distance.
+Compass: (-7E : -6N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Monster-Bait, A Hound-Fang, A Lava-Dagger, A Skull, A Skull (1). 
+>
+w
+***
+Crumbling buildings surround you.
+Compass: (-8E : -6N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Bottle-Cap. 
+>
+stat
+***
+
+Name: Vindeiatrix / Mutant Mage
+Exhaustion    : 0  
+Str: 68     Int: 109   Wis: 105
+Dex: 58     Con: 64    Cha: 98 
+Hit Points    : 87  / 87 
+Exp. Points   : 16973213 Level: 12 
+Riblets       : 10351026
+Ions          : 2044798
+Wearing Armor : Eazy-Armour  Armour Class: 461
+Ready to Combat: NO ONE
+Readied Spell  : Hide: READY.
+Year A.D.      : 2900
+
+You are carrying the following items:  (Total Weight: 264 LB's)
+Lightning-Rod, Cleric-Rod, Hell-Blade, Gold-Chunck.
+>
+w
+***
+You're in a maintenance shop.
+Compass: (-9E : -6N)
+north - area continues.
+east  - area continues.
+>
+n
+***
+Crumbling buildings surround you.
+Compass: (-9E : -5N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+A Bottle-Cap. 
+>
+n
+***
+You're in an abandoned building.
+Compass: (-9E : -4N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+A Nuclear-thong. 
+>
+n
+***
+An eerie calm settles in the distance.
+Compass: (-9E : -3N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+On the ground lies:
+An Ion-Pack. 
+>
+n
+***
+You see rubble everywhere.
+Compass: (-9E : -2N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+A Nuclear-Decay. 
+>
+n
+***
+Graffiti lines the city walls.
+Compass: (-9E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+On the ground lies:
+A Nuclear-Waste. 
+***
+You see shadows to the east.
+>
+e
+***
+An old hydro line has fallen here.
+Compass: (-8E : -1N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+An Ion-Pack. 
+***
+Silver-Dragon-411 is here.
+***
+You see shadows to the east.
+***
+Silver-Dragon-411 roars: You disgust me, Vindeiatrix!
+***
+Silver-Dragon-411 has hit you with his Silver-Horn!
+***
+Silver-Dragon-411's Silver-Horn has just cracked in half!
+>
+
+com s
+***
+You're ready to combat Silver-Dragon-411!
+***
+Silver-Dragon-411 has hit you with his Broken-Weapon!
+>
+wie gold
+***
+You've hit Silver-Dragon-411 with your Gold-Chunck!
+***
+Silver-Dragon-411 has hit you with his Broken-Weapon!
+>
+wie gold
+***
+You've hit Silver-Dragon-411 with your Gold-Chunck!
+***
+Silver-Dragon-411 has hit you with his Broken-Weapon!
+>
+wie gold
+***
+You've hit Silver-Dragon-411 with your Gold-Chunck!
+***
+Silver-Dragon-411's body is glowing!
+>
+wie gold
+***
+You've hit Silver-Dragon-411 with your Gold-Chunck!
+***
+Silver-Dragon-411's body is glowing!
+>
+wie gold
+***
+You've hit Silver-Dragon-411 with your Gold-Chunck!
+***
+Silver-Dragon-411's body is glowing!
+>
+wie gold
+***
+You've hit Silver-Dragon-411 with your Gold-Chunck!
+***
+Silver-Dragon-411 has hit you with his Broken-Weapon!
+>
+wie gold
+***
+You've hit Silver-Dragon-411 with your Gold-Chunck!
+***
+Silver-Dragon-411's body is glowing!
+>
+wie gold
+***
+You've hit Silver-Dragon-411 with your Gold-Chunck!
+***
+Silver-Dragon-411's body is glowing!
+>
+wie gold
+***
+You've hit Silver-Dragon-411 with your Gold-Chunck!
+***
+Silver-Dragon-411's body is glowing!
+>
+wie gold
+***
+You've hit Silver-Dragon-411 with your Gold-Chunck!
+***
+Silver-Dragon-411's body is glowing!
+>
+wie gold
+***
+You've hit Silver-Dragon-411 with your Gold-Chunck!
+***
+Silver-Dragon-411 has hit you with his Broken-Weapon!
+>
+wie gold
+***
+You've hit Silver-Dragon-411 with your Gold-Chunck!
+>
+wie gold
+***
+You've hit Silver-Dragon-411 with your Gold-Chunck!
+***
+Silver-Dragon-411 has hit you with his Broken-Weapon!
+>
+wie gold
+***
+You've hit Silver-Dragon-411 with your Gold-Chunck!
+***
+The Silver-Dragon-411 breathes fire on you!
+***
+You suffer 6 hit points of damage!
+***
+Silver-Dragon-411 picked up the Ion-Pack.
+>
+wie gold
+***
+You've hit Silver-Dragon-411 with your Gold-Chunck!
+***
+Silver-Dragon-411 has hit you with his Ion-Pack!
+>
+wie gold
+***
+You've hit Silver-Dragon-411 with your Gold-Chunck!
+***
+Silver-Dragon-411's armour has just cracked down the center!
+>
+look sil
+***
+Standing before you is a level 11 Silver-Dragon!
+***
+Silver-Dragon-411 looks in good shape, but has some cuts!
+***
+You notice Silver-Dragon-411 is carrying a Broken-Weapon!
+>
+wie gold
+***
+You've hit Silver-Dragon-411 with your Gold-Chunck!
+>
+wie gold
+***
+You've hit Silver-Dragon-411 with your Gold-Chunck!
+***
+Silver-Dragon-411 has hit you with his Ion-Pack!
+>
+wie gold
+***
+You've hit Silver-Dragon-411 with your Gold-Chunck!
+>
+wie gold
+***
+You've hit Silver-Dragon-411 with your Gold-Chunck!
+***
+Silver-Dragon-411 has hit you with his Ion-Pack!
+>
+wie gold
+***
+You've hit Silver-Dragon-411 with your Gold-Chunck!
+***
+Silver-Dragon-411 has hit you with his Ion-Pack!
+>
+wie gold
+***
+You've hit Silver-Dragon-411 with your Gold-Chunck!
+***
+Silver-Dragon-411 has hit you with his Ion-Pack!
+>
+wie gold
+***
+You've hit Silver-Dragon-411 with your Gold-Chunck!
+***
+Silver-Dragon-411 has hit you with his Ion-Pack!
+>
+wie gold
+***
+You've hit Silver-Dragon-411 with your Gold-Chunck!
+***
+Silver-Dragon-411 dropped his Broken-Weapon.
+>
+wie gold
+***
+You've hit Silver-Dragon-411 with your Gold-Chunck!
+***
+You have slain Silver-Dragon-411!
+Your experience points are increased by 8000!
+You collect 5080 Riblets and 832 ions from the slain body.
+***
+
+An Ion-Pack is falling from Silver-Dragon-411's body!
+***
+A Skull is falling from Silver-Dragon-411's body!
+***
+Silver-Dragon-411 is crumbling to dust!
+>
+hea
+
+***
+Your body glows at it heals 17 points!
+***
+You're healed to the maximum!
+>look
+***
+An old hydro line has fallen here.
+Compass: (-8E : -1N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon, An Ion-Pack, A Skull. 
+***
+You see shadows to the east.
+>
+e
+***
+An eerie calm settles in the distance.
+Compass: (-7E : -1N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cheese. 
+***
+Cleric-971 is here.
+>
+
+com cl
+
+***
+You're ready to combat Cleric-971!
+>wie gold
+***
+You've hit Cleric-971 with your Gold-Chunck!
+***
+The Cleric-971 talks: I am not afraid of you, Vindeiatrix!
+***
+Cleric-971 is getting ready to combat you!
+***
+Cleric-971 waves his arms in the air frantically, and begins to chant!
+***
+Cleric-971 has magically disappeared!
+>
+mem dis
+***
+You have finished memorizing the Dispell Magic Spell!
+***
+Cleric-971's body is glowing!
+>
+look
+***
+An eerie calm settles in the distance.
+Compass: (-7E : -1N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cheese. 
+***
+Cleric-971's body is glowing!
+>
+look
+***
+An eerie calm settles in the distance.
+Compass: (-7E : -1N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cheese. 
+***
+Cleric-971 laughs: You can't fool me!!
+***
+You see a blinding white flash illuminate from Cleric-971's body!
+>
+wie gold
+***
+Cleric-971 isn't around here!
+***
+The Cheese has magically disappeared!
+>
+look
+***
+An eerie calm settles in the distance.
+Compass: (-7E : -1N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+>
+look
+***
+An eerie calm settles in the distance.
+Compass: (-7E : -1N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+>
+look
+***
+An eerie calm settles in the distance.
+Compass: (-7E : -1N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+>
+look
+***
+An eerie calm settles in the distance.
+Compass: (-7E : -1N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+>
+look
+***
+An eerie calm settles in the distance.
+Compass: (-7E : -1N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+>
+look
+***
+An eerie calm settles in the distance.
+Compass: (-7E : -1N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+Cleric-971 has magically appeared!
+***
+Cleric-971 has hit you with his Cheese!
+>
+look
+***
+An eerie calm settles in the distance.
+Compass: (-7E : -1N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+Cleric-971 is here.
+***
+Cleric-971 has hit you with his Cheese!
+>
+wie gold
+***
+You've hit Cleric-971 with your Gold-Chunck!
+***
+Cleric-971's body is glowing!
+>
+wie gold
+***
+You've hit Cleric-971 with your Gold-Chunck!
+***
+Cleric-971 has hit you with his Cheese!
+>
+wie gold
+***
+You've hit Cleric-971 with your Gold-Chunck!
+***
+Cleric-971's body is glowing!
+>
+wie gold
+***
+You've hit Cleric-971 with your Gold-Chunck!
+***
+Cleric-971 has hit you with his Cheese!
+>
+wie gold
+***
+You've hit Cleric-971 with your Gold-Chunck!
+***
+Cleric-971's armour has just cracked down the center!
+***
+Cleric-971 has hit you with his Cheese!
+>
+wie gold
+***
+You've hit Cleric-971 with your Gold-Chunck!
+***
+You have slain Cleric-971!
+Your experience points are increased by 6666!
+You collect 11080 Riblets and 33775 ions from the slain body.
+***
+Cleric-971 has magically appeared!
+***
+
+A Cheese is falling from Cleric-971's body!
+***
+A Skull is falling from Cleric-971's body!
+***
+Cleric-971 is crumbling to dust!
+>
+hea
+***
+Nothing happens!
+>
+e
+***
+The street is cracked here.
+Compass: (-6E : -1N)
+north - area continues.
+south - area continues.
+west  - area continues.
+>
+e
+***
+You're blocked!
+>
+n
+***
+You hear volcanoes erupt in the distance.
+Compass: (-6E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cigarette-Butt. 
+>
+e
+***
+Broken lamp posts line the streets.
+Compass: (-5E : 0N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear-Decay. 
+***
+You see shadows to the east.
+>
+e
+***
+You're in a maintenance shop.
+Compass: (-4E : 0N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+An Ion-Booster. 
+***
+Hellhound-2011 is here.
+***
+Hellhound-2011 Howls: Get lost, Vindeiatrix!
+***
+Hellhound-2011 picked up the Ion-Booster.
+>
+
+
+com h
+wie gold
+***
+You're ready to combat Hellhound-2011!
+***
+Hellhound-2011 has hit you with his Lava-Dagger!
+>***
+You've hit Hellhound-2011 with your Gold-Chunck!
+***
+Hellhound-2011 has hit you with his Lava-Dagger!
+>
+wie gold
+***
+You've hit Hellhound-2011 with your Gold-Chunck!
+***
+Hellhound-2011's body is glowing!
+>
+
+wie gold
+wie gold
+***
+You've hit Hellhound-2011 with your Gold-Chunck!
+***
+Hellhound-2011's body is glowing!
+>***
+You've hit Hellhound-2011 with your Gold-Chunck!
+***
+Hellhound-2011 has hit you with his Lava-Dagger!
+>
+wie gold
+
+***
+You've hit Hellhound-2011 with your Gold-Chunck!
+***
+Hellhound-2011's armour has just cracked down the center!
+***
+Hellhound-2011 screams: Get away from me, Vindeiatrix!!!
+***
+Hellhound-2011 has just left east
+***
+You hear loud sounds of footsteps to the east.
+>wie gold
+***
+Hellhound-2011 isn't around here!
+>
+e
+***
+Graffiti lines the city walls.
+Compass: (-3E : 0N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Gold-Chunck. 
+***
+Hellhound-2011 is here.
+***
+Hellhound-2011 has hit you with his Lava-Dagger!
+>
+wie gold
+***
+You've hit Hellhound-2011 with your Gold-Chunck!
+***
+You have slain Hellhound-2011!
+Your experience points are increased by 5333!
+You collect 7480 Riblets and 1701 ions from the slain body.
+***
+
+A Hound-Fang is falling from Hellhound-2011's body!
+***
+A Lava-Dagger is falling from Hellhound-2011's body!
+***
+An Ion-Booster is falling from Hellhound-2011's body!
+***
+A Skull is falling from Hellhound-2011's body!
+***
+Hellhound-2011 is crumbling to dust!
+>
+hea
+***
+Nothing happens!
+>
+e
+***
+An eerie calm settles in the distance.
+Compass: (-2E : 0N)
+north - open gate.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cigarette-Butt. 
+>
+e
+***
+The two moons are rising above.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear-Decay. 
+>
+w
+
+***
+An eerie calm settles in the distance.
+Compass: (-2E : 0N)
+north - open gate.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cigarette-Butt. 
+>n
+***
+A sign reads: FOR SALE $ 250000
+Compass: (-2E : 1N)
+north - area continues.
+south - open gate.
+east  - area continues.
+***
+On the ground lies:
+An Ion-Booster. 
+>
+n
+***
+It's too dark to see anything!
+>
+n
+***
+Relics of the war line the streets.
+Compass: (-2E : 3N)
+north - open gate.
+south - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cheese. 
+***
+You see shadows to the west.
+>
+w
+***
+Relics of the war line the streets.
+Compass: (-3E : 3N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Gold-Chunck. 
+***
+Silver-Serpant-2331 is here.
+***
+Silver-Serpant-2331 hisss: Never invade my privacy, Vindeiatrix!
+***
+The Silver-Serpant-2331 bites you!
+***
+You suffer 6 hit points of damage!
+***
+Silver-Serpant-2331 picked up the Gold-Chunck.
+>
+
+com s
+***
+You're ready to combat Silver-Serpant-2331!
+***
+Silver-Serpant-2331 has hit you with his Gold-Chunck!
+>
+wie gold
+
+***
+You've hit Silver-Serpant-2331 with your Gold-Chunck!
+***
+Silver-Serpant-2331's body is glowing!
+>
+wie gold
+***
+You've hit Silver-Serpant-2331 with your Gold-Chunck!
+***
+Silver-Serpant-2331's body is glowing!
+>wie gold
+***
+You've hit Silver-Serpant-2331 with your Gold-Chunck!
+***
+Silver-Serpant-2331's body is glowing!
+>
+wie gold
+
+***
+You've hit Silver-Serpant-2331 with your Gold-Chunck!
+>
+wie gold
+***
+You've hit Silver-Serpant-2331 with your Gold-Chunck!
+***
+Silver-Serpant-2331 has hit you with his Gold-Chunck!
+>wie gold
+***
+You've hit Silver-Serpant-2331 with your Gold-Chunck!
+>
+wie gold
+
+***
+You've hit Silver-Serpant-2331 with your Gold-Chunck!
+***
+You have slain Silver-Serpant-2331!
+Your experience points are increased by 6000!
+You collect 9880 Riblets and 24840 ions from the slain body.
+***
+
+A Gold-Chunck is falling from Silver-Serpant-2331's body!
+***
+A Skull is falling from Silver-Serpant-2331's body!
+***
+Silver-Serpant-2331 is crumbling to dust!
+>wie gold
+***
+You're not ready to combat anyone!
+>
+hea
+
+***
+Your body glows at it heals 17 points!
+***
+You're healed to the maximum!
+>look
+***
+Relics of the war line the streets.
+Compass: (-3E : 3N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Gold-Chunck, A Skull. 
+>
+w
+***
+Relics of the war line the streets.
+Compass: (-4E : 3N)
+east  - area continues.
+west  - open gate.
+***
+On the ground lies:
+A Nuclear-Decay. 
+>
+w
+***
+A sign reads: FOR SALE $ 250000
+Compass: (-5E : 3N)
+east  - open gate.
+west  - open gate.
+***
+On the ground lies:
+A Monster-Bait. 
+>
+w
+***
+An old hydro line has fallen here.
+Compass: (-6E : 3N)
+north - area continues.
+south - area continues.
+east  - open gate.
+***
+On the ground lies:
+A Cigarette-Butt. 
+>
+w
+***
+You're blocked!
+>
+n
+***
+You see rubble everywhere.
+Compass: (-6E : 4N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+A Bottle-Cap. 
+***
+You see shadows to the north.
+>
+n
+***
+A sign reads: FOR SALE $ 250000
+Compass: (-6E : 5N)
+south - area continues.
+east  - open gate.
+west  - area continues.
+***
+On the ground lies:
+An Ion-Booster. 
+***
+Black-Dragon-91 is here.
+***
+You see shadows to the east, west.
+***
+Black-Dragon-91 Bellows: Just try to outsmart me, Vindeiatrix!
+***
+Black-Dragon-91 has hit you with his Trophy!
+***
+Black-Dragon-91's Trophy has just cracked in half!
+>
+look bl
+***
+Standing before you is a level 11 Black-Dragon!
+***
+Black-Dragon-91 looks in great shape and ready for battle!
+***
+You notice Black-Dragon-91 is carrying a Broken-Weapon!
+***
+Black-Dragon-91 dropped his Broken-Weapon.
+>
+
+com b
+***
+You're ready to combat Black-Dragon-91!
+>
+wie gold
+
+***
+You've hit Black-Dragon-91 with your Gold-Chunck!
+***
+The Black-Dragon-91 breathes acid on you!
+***
+You suffer 6 hit points of damage!
+***
+Black-Dragon-91 picked up the Ion-Booster.
+>
+wie gold
+***
+You've hit Black-Dragon-91 with your Gold-Chunck!
+***
+Black-Dragon-91 has hit you with his Ion-Booster!
+>
+
+wie gold
+***
+You've hit Black-Dragon-91 with your Gold-Chunck!
+***
+Black-Dragon-91 has hit you with his Ion-Booster!
+>wie gold
+***
+You've hit Black-Dragon-91 with your Gold-Chunck!
+***
+The Black-Dragon-91 breathes acid on you!
+***
+You suffer 6 hit points of damage!
+>wie gold
+
+***
+You've hit Black-Dragon-91 with your Gold-Chunck!
+***
+Black-Dragon-91 has hit you with his Ion-Booster!
+>wie gold
+***
+You've hit Black-Dragon-91 with your Gold-Chunck!
+***
+Black-Dragon-91's body is glowing!
+>
+
+wie gold
+
+***
+You've hit Black-Dragon-91 with your Gold-Chunck!
+***
+Black-Dragon-91's body is glowing!
+>wie gold
+wie gold
+***
+You've hit Black-Dragon-91 with your Gold-Chunck!
+***
+Black-Dragon-91 has hit you with his Ion-Booster!
+>***
+You've hit Black-Dragon-91 with your Gold-Chunck!
+***
+Black-Dragon-91's body is glowing!
+>
+wie gold
+
+
+***
+You've hit Black-Dragon-91 with your Gold-Chunck!
+***
+Black-Dragon-91's body is glowing!
+>wie gold
+wie gold
+***
+You've hit Black-Dragon-91 with your Gold-Chunck!
+***
+The Black-Dragon-91 breathes acid on you!
+***
+You suffer 6 hit points of damage!
+>***
+You've hit Black-Dragon-91 with your Gold-Chunck!
+***
+Black-Dragon-91's body is glowing!
+>
+
+wie gold
+
+wie gold
+***
+You've hit Black-Dragon-91 with your Gold-Chunck!
+***
+Black-Dragon-91's body is glowing!
+>***
+You've hit Black-Dragon-91 with your Gold-Chunck!
+***
+Black-Dragon-91's armour has just cracked down the center!
+***
+Black-Dragon-91's body is glowing!
+>wie gold
+***
+You've hit Black-Dragon-91 with your Gold-Chunck!
+***
+Black-Dragon-91's body is glowing!
+>
+wie gold
+
+
+***
+You've hit Black-Dragon-91 with your Gold-Chunck!
+***
+Black-Dragon-91 has hit you with his Ion-Booster!
+>wie gold
+wie gold
+***
+You've hit Black-Dragon-91 with your Gold-Chunck!
+***
+Black-Dragon-91 has hit you with his Ion-Booster!
+>***
+You've hit Black-Dragon-91 with your Gold-Chunck!
+***
+Black-Dragon-91 has hit you with his Ion-Booster!
+>
+
+wie gold
+
+***
+You've hit Black-Dragon-91 with your Gold-Chunck!
+***
+Black-Dragon-91's body is glowing!
+>wie gold
+wie gold
+***
+You've hit Black-Dragon-91 with your Gold-Chunck!
+***
+Black-Dragon-91's body is glowing!
+>***
+You've hit Black-Dragon-91 with your Gold-Chunck!
+***
+The Black-Dragon-91 breathes acid on you!
+***
+You suffer 6 hit points of damage!
+>
+
+
+wie gold
+wie gold
+***
+You've hit Black-Dragon-91 with your Gold-Chunck!
+***
+Black-Dragon-91's body is glowing!
+>***
+You've hit Black-Dragon-91 with your Gold-Chunck!
+***
+Black-Dragon-91's body is glowing!
+>wie gold
+***
+You've hit Black-Dragon-91 with your Gold-Chunck!
+***
+Black-Dragon-91's body is glowing!
+>
+wie gold
+
+
+***
+You've hit Black-Dragon-91 with your Gold-Chunck!
+***
+Black-Dragon-91's body is glowing!
+>wie gold
+wie gold
+***
+You've hit Black-Dragon-91 with your Gold-Chunck!
+***
+Black-Dragon-91 has hit you with his Ion-Booster!
+>***
+You've hit Black-Dragon-91 with your Gold-Chunck!
+***
+Black-Dragon-91's body is glowing!
+>
+
+wie gold
+
+wie gold
+***
+You've hit Black-Dragon-91 with your Gold-Chunck!
+***
+Black-Dragon-91 has hit you with his Ion-Booster!
+>***
+You've hit Black-Dragon-91 with your Gold-Chunck!
+***
+Black-Dragon-91 has hit you with his Ion-Booster!
+>wie gold
+***
+You've hit Black-Dragon-91 with your Gold-Chunck!
+***
+Black-Dragon-91 has hit you with his Ion-Booster!
+>
+
+wie gold
+
+wie gold
+***
+You've hit Black-Dragon-91 with your Gold-Chunck!
+***
+Black-Dragon-91 has hit you with his Ion-Booster!
+>***
+You've hit Black-Dragon-91 with your Gold-Chunck!
+***
+Black-Dragon-91's body is glowing!
+>wie gold
+***
+You've hit Black-Dragon-91 with your Gold-Chunck!
+>
+
+wie gold
+
+wie gold
+***
+You've hit Black-Dragon-91 with your Gold-Chunck!
+***
+You have slain Black-Dragon-91!
+Your experience points are increased by 8000!
+You collect 6280 Riblets and 23746 ions from the slain body.
+***
+
+An Ion-Booster is falling from Black-Dragon-91's body!
+***
+A Skull is falling from Black-Dragon-91's body!
+***
+Black-Dragon-91 is crumbling to dust!
+>***
+You're not ready to combat anyone!
+>wie gold
+***
+You're not ready to combat anyone!
+>
+hea
+***
+Your body glows at it heals 17 points!
+>
+
+look
+***
+A sign reads: FOR SALE $ 250000
+Compass: (-6E : 5N)
+south - area continues.
+east  - open gate.
+west  - area continues.
+***
+On the ground lies:
+An Ion-Booster, A Broken-Weapon, A Skull. 
+***
+You see shadows to the east, west.
+>hea
+***
+Your body glows at it heals 17 points!
+***
+You're healed to the maximum!
+>
+e
+***
+The two moons are rising above.
+Compass: (-5E : 5N)
+north - open gate.
+east  - area continues.
+west  - open gate.
+***
+On the ground lies:
+A Broken-Weapon. 
+***
+Sasquatch-331 is here.
+***
+You see shadows to the north.
+***
+Sasquatch-331 Grunts: I'll take you punk, Vindeiatrix!
+>
+
+com s
+
+***
+You're ready to combat Sasquatch-331!
+>
+wie gold
+***
+You've hit Sasquatch-331 with your Gold-Chunck!
+***
+The Sasquatch-331 drives his fist at you!
+***
+You suffer 6 hit points of damage!
+>
+wie gold
+***
+You've hit Sasquatch-331 with your Gold-Chunck!
+***
+Sasquatch-331's body is glowing!
+>wie gold
+***
+You've hit Sasquatch-331 with your Gold-Chunck!
+***
+Sasquatch-331's body is glowing!
+>
+wie gold
+
+***
+Sasquatch-331 dodged out of the way!
+***
+Sasquatch-331's body is glowing!
+>
+wie gold
+***
+You've hit Sasquatch-331 with your Gold-Chunck!
+***
+Sasquatch-331 has hit you with his Tree-Stump!
+***
+Sasquatch-331's Tree-Stump has just cracked in half!
+>
+wie gold
+***
+Sasquatch-331 dodged out of the way!
+***
+Sasquatch-331 has hit you with his Saphire!
+***
+Sasquatch-331's Saphire has just cracked in half!
+>
+wie gold
+***
+You've hit Sasquatch-331 with your Gold-Chunck!
+***
+Sasquatch-331 has hit you with his Broken-Weapon!
+>wie gold
+***
+Sasquatch-331 dodged out of the way!
+***
+Sasquatch-331's body is glowing!
+>
+wie gold
+***
+You've hit Sasquatch-331 with your Gold-Chunck!
+***
+Sasquatch-331's body is glowing!
+>
+wie gold
+
+***
+Sasquatch-331 dodged out of the way!
+***
+The Sasquatch-331 drives his fist at you!
+***
+You suffer 6 hit points of damage!
+***
+Sasquatch-331 dropped his Broken-Weapon.
+>wie gold
+***
+You've hit Sasquatch-331 with your Gold-Chunck!
+***
+Sasquatch-331's body is glowing!
+>
+wie gold
+
+***
+You've hit Sasquatch-331 with your Gold-Chunck!
+***
+Sasquatch-331's body is glowing!
+>wie gold
+***
+You've hit Sasquatch-331 with your Gold-Chunck!
+***
+Sasquatch-331's body is glowing!
+>
+wie gold
+
+***
+Sasquatch-331 dodged out of the way!
+***
+Sasquatch-331 has hit you with his Broken-Weapon!
+>
+wie gold
+***
+Sasquatch-331 dodged out of the way!
+***
+Sasquatch-331's body is glowing!
+>wie gold
+***
+Sasquatch-331 dodged out of the way!
+***
+Sasquatch-331 has hit you with his Broken-Weapon!
+>
+wie gold
+***
+You've hit Sasquatch-331 with your Gold-Chunck!
+***
+Sasquatch-331's body is glowing!
+>
+wie gold
+***
+You've hit Sasquatch-331 with your Gold-Chunck!
+***
+Sasquatch-331's body is glowing!
+>
+wie gold
+
+***
+You've hit Sasquatch-331 with your Gold-Chunck!
+***
+Sasquatch-331's body is glowing!
+>wie gold
+***
+You've hit Sasquatch-331 with your Gold-Chunck!
+***
+Sasquatch-331's body is glowing!
+>
+wie gold
+***
+You've hit Sasquatch-331 with your Gold-Chunck!
+***
+The Sasquatch-331 drives his fist at you!
+***
+You suffer 6 hit points of damage!
+***
+Sasquatch-331 dropped his Broken-Weapon.
+>
+look s
+***
+Standing before you is a level 11 Sasquatch!
+***
+Sasquatch-331 is gashed, bleeding, and looks almost dead!
+***
+The Sasquatch-331 drives his fist at you!
+***
+You suffer 6 hit points of damage!
+>
+hea
+***
+Your body glows at it heals 17 points!
+>
+hea
+
+***
+Your body glows at it heals 17 points!
+***
+You're healed to the maximum!
+***
+Sasquatch-331's body is glowing!
+>wie gold
+***
+You've hit Sasquatch-331 with your Gold-Chunck!
+***
+The Sasquatch-331 drives his fist at you!
+***
+You suffer 6 hit points of damage!
+>
+
+hea
+wie gold
+***
+Your body glows at it heals 17 points!
+***
+You're healed to the maximum!
+>***
+You've hit Sasquatch-331 with your Gold-Chunck!
+>
+wie gold
+***
+Sasquatch-331 dodged out of the way!
+***
+Sasquatch-331 screams: Get away from me, Vindeiatrix!!!
+***
+Sasquatch-331 has just left west
+***
+You hear loud sounds of footsteps to the west.
+>
+poi w m
+Some items such as staves, possess strange abilities when
+pointed in a direction. It's wise to try and point all unfamiliar items
+to see if they possess a magical ability.
+
+Type POINT [direction] [staff name/item name] to use a staff.
+>
+look
+***
+The two moons are rising above.
+Compass: (-5E : 5N)
+north - open gate.
+east  - area continues.
+west  - open gate.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1), A Broken-Weapon (2). 
+***
+You see shadows to the west, north.
+>
+poi w li
+***
+You release the lightning bolt west!
+***
+This area suddenly lights up with a white, blinding flash!
+***
+You hit Sasquatch-331 with the lightning bolt!
+***
+You have slain Sasquatch-331!
+Your experience points are increased by 8000!
+You collect 2680 Riblets and 32025 ions from the slain body.
+>
+
+hea
+look
+***
+Nothing happens!
+>***
+The two moons are rising above.
+Compass: (-5E : 5N)
+north - open gate.
+east  - area continues.
+west  - open gate.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1), A Broken-Weapon (2). 
+***
+You see shadows to the north.
+>
+n
+***
+A sign reads: FOR SALE $ 250000
+Compass: (-5E : 6N)
+north - open gate.
+south - open gate.
+***
+On the ground lies:
+A Nuclear-Rock. 
+***
+Vampire-1611 is here.
+***
+Vampire-1611 Snarls: I'll show you blood, Vindeiatrix!
+***
+Vampire-1611 has hit you with his Iron-Sickle!
+***
+Vampire-1611's Iron-Sickle has just cracked in half!
+>
+
+
+
+com va
+wie gold
+***
+You're ready to combat Vampire-1611!
+***
+Vampire-1611 has hit you with his Broken-Weapon!
+>***
+You've hit Vampire-1611 with your Gold-Chunck!
+***
+Vampire-1611 has hit you with his Broken-Weapon!
+>wie gold
+***
+You've hit Vampire-1611 with your Gold-Chunck!
+***
+Vampire-1611's body is glowing!
+>
+wie gold
+
+***
+You've hit Vampire-1611 with your Gold-Chunck!
+***
+Vampire-1611's body is glowing!
+>
+wie gold
+***
+You've hit Vampire-1611 with your Gold-Chunck!
+***
+Vampire-1611 picked up the Nuclear-Rock.
+>wie gold
+***
+You've hit Vampire-1611 with your Gold-Chunck!
+***
+Vampire-1611's body is glowing!
+>
+wie gold
+
+***
+You've hit Vampire-1611 with your Gold-Chunck!
+***
+Vampire-1611's body is glowing!
+>wie gold
+***
+You've hit Vampire-1611 with your Gold-Chunck!
+***
+Vampire-1611's body is glowing!
+>
+wie gold
+
+***
+You've hit Vampire-1611 with your Gold-Chunck!
+***
+Vampire-1611's body is glowing!
+>wie gold
+***
+You've hit Vampire-1611 with your Gold-Chunck!
+***
+Vampire-1611's body is glowing!
+>
+
+wie gold
+
+wie gold
+***
+You've hit Vampire-1611 with your Gold-Chunck!
+***
+Vampire-1611's body is glowing!
+>***
+You've hit Vampire-1611 with your Gold-Chunck!
+***
+Vampire-1611 has hit you with his Nuclear-Rock!
+>wie gold
+***
+You've hit Vampire-1611 with your Gold-Chunck!
+***
+Vampire-1611's body is glowing!
+>
+
+wie gold
+
+wie gold
+***
+You've hit Vampire-1611 with your Gold-Chunck!
+***
+Vampire-1611 has hit you with his Nuclear-Rock!
+>***
+You've hit Vampire-1611 with your Gold-Chunck!
+***
+Vampire-1611 has hit you with his Nuclear-Rock!
+>wie gold
+***
+You've hit Vampire-1611 with your Gold-Chunck!
+***
+Vampire-1611 has hit you with his Nuclear-Rock!
+>
+
+wie gold
+***
+You've hit Vampire-1611 with your Gold-Chunck!
+***
+Vampire-1611's body is glowing!
+>wie gold
+***
+You've hit Vampire-1611 with your Gold-Chunck!
+***
+Vampire-1611's body is glowing!
+>
+wie gold
+
+***
+You've hit Vampire-1611 with your Gold-Chunck!
+***
+Vampire-1611's body is glowing!
+>wie gold
+***
+You've hit Vampire-1611 with your Gold-Chunck!
+***
+Vampire-1611 screams: Get away from me, Vindeiatrix!!!
+>
+wie gold
+
+***
+You've hit Vampire-1611 with your Gold-Chunck!
+***
+You have slain Vampire-1611!
+Your experience points are increased by 6666!
+You collect 5080 Riblets and 3304 ions from the slain body.
+***
+
+A Nuclear-Rock is falling from Vampire-1611's body!
+***
+A Skull is falling from Vampire-1611's body!
+***
+A Grey-Suit is falling from Vampire-1611's body!
+***
+Vampire-1611 is crumbling to dust!
+>wie gold
+***
+You're not ready to combat anyone!
+>
+hea
+***
+Nothing happens!
+>
+get gre
+***
+You pick up the Grey-Suit.
+>
+look gre
+***
+The armour is falling apart everywhere.
+>
+con gre
+***
+The Grey-Suit vanishes with a flash!
+You convert the Grey-Suit into 6000 ions.
+>
+hea
+
+***
+Nothing happens!
+>look
+***
+A sign reads: FOR SALE $ 250000
+Compass: (-5E : 6N)
+north - open gate.
+south - open gate.
+***
+On the ground lies:
+A Nuclear-Rock, A Skull. 
+>
+n
+***
+A sign reads: FOR SALE $ 250000
+Compass: (-5E : 7N)
+north - area continues.
+south - open gate.
+***
+On the ground lies:
+A Nuclear-thong. 
+>
+n
+***
+You're in an abandoned building.
+Compass: (-5E : 8N)
+south - area continues.
+east  - open gate.
+***
+On the ground lies:
+An Ion-Decay. 
+>
+n
+
+***
+You're blocked!
+>e
+***
+A sign reads: FOR SALE $ 250000
+Compass: (-4E : 8N)
+east  - area continues.
+west  - open gate.
+***
+On the ground lies:
+A Broken-Weapon. 
+>
+e
+
+***
+You're in a wrecked building.
+Compass: (-3E : 8N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Monster-Bait. 
+>e
+***
+You're in a maintenance shop.
+Compass: (-2E : 8N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1). 
+>
+
+e
+e
+***
+You're in a maintenance shop.
+Compass: (-1E : 8N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear-Waste. 
+>***
+You're in a maintenance shop.
+Compass: (0E : 8N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+An Ion-Booster. 
+***
+You see shadows to the east.
+>
+e
+***
+The two moons are rising above.
+Compass: (1E : 8N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon. 
+***
+Minotaur-2171 is here.
+***
+You see shadows to the east.
+***
+Minotaur-2171 snorts: You shall not escape, Vindeiatrix!
+***
+Minotaur-2171 has hit you with his Gold-Spear!
+***
+Minotaur-2171's Gold-Spear has just cracked in half!
+>
+
+com m
+***
+You're ready to combat Minotaur-2171!
+***
+Minotaur-2171 has hit you with his Pink-Potion!
+>
+wie gold
+
+***
+You've hit Minotaur-2171 with your Gold-Chunck!
+***
+Minotaur-2171's body is glowing!
+>wie gold
+***
+You've hit Minotaur-2171 with your Gold-Chunck!
+***
+Minotaur-2171 has hit you with his Pink-Potion!
+>
+wie gold
+
+***
+You've hit Minotaur-2171 with your Gold-Chunck!
+***
+Minotaur-2171 dropped his Broken-Weapon.
+>
+wie gold
+***
+You've hit Minotaur-2171 with your Gold-Chunck!
+>
+wie gold
+***
+You've hit Minotaur-2171 with your Gold-Chunck!
+***
+You have slain Minotaur-2171!
+Your experience points are increased by 6000!
+You collect 7480 Riblets and 22596 ions from the slain body.
+***
+
+A Pink-Potion is falling from Minotaur-2171's body!
+***
+A Skull is falling from Minotaur-2171's body!
+***
+A Leather-Armor is falling from Minotaur-2171's body!
+***
+Minotaur-2171 is crumbling to dust!
+>
+wie gold
+***
+You're not ready to combat anyone!
+>wie gold
+***
+You're not ready to combat anyone!
+>
+get pin
+***
+You pick up the Pink-Potion.
+>
+drink pink
+***
+You drink the potion. You feel ...?
+>
+hea
+
+***
+Nothing happens!
+>look
+***
+The two moons are rising above.
+Compass: (1E : 8N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1), A Skull, A Leather-Armor. 
+***
+You see shadows to the east.
+>
+e
+***
+An eerie calm settles in the distance.
+Compass: (2E : 8N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Gold-Chunck, A Broken-Weapon. 
+***
+Carrion-Crawler-2651 is here.
+***
+Carrion-Crawler-2651 clamors: You're more ugly then me, Vindeiatrix!
+***
+Carrion-Crawler-2651 picked up the Gold-Chunck.
+>
+
+com c
+
+***
+You're ready to combat Carrion-Crawler-2651!
+>
+wie gold
+***
+You've hit Carrion-Crawler-2651 with your Gold-Chunck!
+***
+Carrion-Crawler-2651's body is glowing!
+>
+wie gold
+***
+You've hit Carrion-Crawler-2651 with your Gold-Chunck!
+***
+Carrion-Crawler-2651's body is glowing!
+>
+wie gold
+***
+You've hit Carrion-Crawler-2651 with your Gold-Chunck!
+***
+Carrion-Crawler-2651 has hit you with his Golden-Needle!
+***
+Carrion-Crawler-2651's Golden-Needle has just cracked in half!
+>wie gold
+***
+You've hit Carrion-Crawler-2651 with your Gold-Chunck!
+***
+Carrion-Crawler-2651 has hit you with his Gold-Chunck!
+>
+wie gold
+
+***
+You've hit Carrion-Crawler-2651 with your Gold-Chunck!
+***
+Carrion-Crawler-2651's body is glowing!
+>wie gold
+***
+You've hit Carrion-Crawler-2651 with your Gold-Chunck!
+***
+Carrion-Crawler-2651's armour has just cracked down the center!
+***
+Carrion-Crawler-2651's body is glowing!
+>
+wie gold
+
+***
+You've hit Carrion-Crawler-2651 with your Gold-Chunck!
+***
+Carrion-Crawler-2651 screams: Get away from me, Vindeiatrix!!!
+***
+Carrion-Crawler-2651 has just left east
+***
+You hear loud sounds of footsteps to the east.
+>wie gold
+***
+Carrion-Crawler-2651 isn't around here!
+>
+poi e m
+Some items such as staves, possess strange abilities when
+pointed in a direction. It's wise to try and point all unfamiliar items
+to see if they possess a magical ability.
+
+Type POINT [direction] [staff name/item name] to use a staff.
+>
+poi e li
+***
+You release the lightning bolt east!
+***
+This area suddenly lights up with a white, blinding flash!
+***
+You hit Carrion-Crawler-2651 with the lightning bolt!
+***
+You have slain Carrion-Crawler-2651!
+Your experience points are increased by 7333!
+You collect 2680 Riblets and 44235 ions from the slain body.
+>
+
+hea
+look
+***
+Nothing happens!
+>***
+An eerie calm settles in the distance.
+Compass: (2E : 8N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon. 
+>
+look li
+***
+The Lightning-Rod has 19 blasts left.
+>
+e
+***
+You hear volcanoes erupt in the distance.
+Compass: (3E : 8N)
+south - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear-Rock, A Gold-Chunck, A Skull. 
+>
+e
+
+***
+You're blocked!
+>n
+***
+You're blocked!
+>
+s
+***
+You hear volcanoes erupt in the distance.
+Compass: (3E : 7N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+A Bottle-Cap. 
+>
+
+s
+***
+The wind is whistling through open windows.
+Compass: (3E : 6N)
+north - area continues.
+south - area continues.
+west  - area continues.
+***
+On the ground lies:
+An Iron-Sickle, A Cigarette-Butt, A Grey-Suit. 
+>s
+***
+The two moons are rising above.
+Compass: (3E : 5N)
+north - area continues.
+south - open gate.
+***
+On the ground lies:
+A Monster-Bait. 
+***
+You see shadows to the south.
+>
+s
+***
+A sign reads: FOR SALE $ 250000
+Compass: (3E : 4N)
+north - open gate.
+south - area continues.
+***
+On the ground lies:
+A Gold-Chunck. 
+***
+Cave-Bear-1451 is here.
+***
+You see shadows to the south.
+>
+
+com ca
+***
+You're ready to combat Cave-Bear-1451!
+>
+wie gold
+
+***
+You've hit Cave-Bear-1451 with your Gold-Chunck!
+***
+The Cave-Bear-1451 roars: You don't scare me, Vindeiatrix!
+***
+Cave-Bear-1451 is getting ready to combat you!
+***
+The Cave-Bear-1451 claws you!
+***
+You suffer 6 hit points of damage!
+>
+wie gold
+***
+You've hit Cave-Bear-1451 with your Gold-Chunck!
+***
+Cave-Bear-1451 picked up the Gold-Chunck.
+>wie gold
+***
+You've hit Cave-Bear-1451 with your Gold-Chunck!
+***
+Cave-Bear-1451's body is glowing!
+>
+
+wie gold
+wie gold
+***
+You've hit Cave-Bear-1451 with your Gold-Chunck!
+>***
+You've hit Cave-Bear-1451 with your Gold-Chunck!
+***
+The Cave-Bear-1451 claws you!
+***
+You suffer 6 hit points of damage!
+>
+wie gold
+
+***
+You've hit Cave-Bear-1451 with your Gold-Chunck!
+***
+Cave-Bear-1451's armour has just cracked down the center!
+***
+Cave-Bear-1451's body is glowing!
+>wie gold
+***
+You've hit Cave-Bear-1451 with your Gold-Chunck!
+***
+Cave-Bear-1451's body is glowing!
+>
+wie gold
+
+***
+You've hit Cave-Bear-1451 with your Gold-Chunck!
+>wie gold
+***
+You've hit Cave-Bear-1451 with your Gold-Chunck!
+***
+The Cave-Bear-1451 claws you!
+***
+You suffer 6 hit points of damage!
+>
+
+wie gold
+
+wie gold
+***
+You've hit Cave-Bear-1451 with your Gold-Chunck!
+***
+The Cave-Bear-1451 claws you!
+***
+You suffer 6 hit points of damage!
+>***
+You've hit Cave-Bear-1451 with your Gold-Chunck!
+***
+Cave-Bear-1451's body is glowing!
+>wie gold
+***
+You've hit Cave-Bear-1451 with your Gold-Chunck!
+>
+
+wie gold
+wie gold
+***
+You've hit Cave-Bear-1451 with your Gold-Chunck!
+>***
+You've hit Cave-Bear-1451 with your Gold-Chunck!
+***
+You have slain Cave-Bear-1451!
+Your experience points are increased by 6666!
+You collect 280 Riblets and 37686 ions from the slain body.
+***
+
+A Gold-Chunck is falling from Cave-Bear-1451's body!
+***
+A Skull is falling from Cave-Bear-1451's body!
+***
+Cave-Bear-1451 is crumbling to dust!
+>
+hea
+
+***
+Your body glows at it heals 17 points!
+>look
+***
+A sign reads: FOR SALE $ 250000
+Compass: (3E : 4N)
+north - open gate.
+south - area continues.
+***
+On the ground lies:
+A Gold-Chunck, A Skull. 
+***
+You see shadows to the south.
+>
+hea
+***
+Your body glows at it heals 17 points!
+***
+You're healed to the maximum!
+>
+rep
+***
+
+Selling Price  : 250000
+Assessed Value : 250000
+Tax Rate       : 5000
+***
+Owned By       : VILLAGE
+>
+report
+***
+
+Selling Price  : 250000
+Assessed Value : 250000
+Tax Rate       : 5000
+***
+Owned By       : VILLAGE
+>
+
+hea
+look
+***
+Nothing happens!
+>***
+A sign reads: FOR SALE $ 250000
+Compass: (3E : 4N)
+north - open gate.
+south - area continues.
+***
+On the ground lies:
+A Gold-Chunck, A Skull. 
+***
+You see shadows to the south.
+>
+buy
+You can buy items at the village stores.
+
+Type BUY [item number] to purchase an item.
+Type BUY by itself to see a list of items for sale.
+
+When there is a store for sale, if you have enough Riblets, you may
+purchase the store so that you may begin trading.
+
+Type BUY STORE to purchase a store.
+
+At Maintenance shops you may purchase credits or ions.
+
+Type BUY CREDITS [Amount] - the shop will inform you of the cost
+Type BUY IONS    [Amount] - the shop will inform you of the cost
+
+>
+buy store
+***
+Ok, you are now the proud owner of a trading store in the village!
+>
+report
+***
+
+              Accounting Report
+-----------------------------------------------
+Markup Rate for selling goods  : 10 
+Markup Rate for buying goods   : -15 
+Riblets in deposit safes       : 0 
+Tax Rate in Riblets            : 5000 per day
+Security Ion-R                 : 0 ions
+Assessed Value in Riblets      : 250000
+-----------------------------------------------
+>
+buy
+***
+"I have nothing for sale for you right now.", the store keeper
+grumbles.
+>
+markup 3000
+***
+The new selling rate is 3000 
+>
+markdown -3000
+***
+The new buying rate is -3000 
+>
+dep 50000
+***
+You deposit 50000 Riblets.
+>
+sec 100000
+***
+You have transferred 100000 ions to your Ion-R security system.
+>
+report
+***
+
+              Accounting Report
+-----------------------------------------------
+Markup Rate for selling goods  : 3000 
+Markup Rate for buying goods   : -3000 
+Riblets in deposit safes       : 50000 
+Tax Rate in Riblets            : 5000 per day
+Security Ion-R                 : 100000 ions
+Assessed Value in Riblets      : 250000
+-----------------------------------------------
+>
+buy
+***
+"I have nothing for sale for you right now.", the store keeper
+grumbles.
+>
+inv
+***
+You are carrying the following items:  (Total Weight: 264 LB's)
+Lightning-Rod, Cleric-Rod, Hell-Blade, Gold-Chunck.
+>
+stock cle
+***
+You've just put the Cleric-Rod in stock.
+>
+buy
+***
+"Well, i have these lovely items for sale!", the store keeper says,
+excitedly.
+
+***
+ 1. Cleric-Rod           $ 3550200   
+>
+markup 2000
+***
+The new selling rate is 2000 
+>
+buy
+***
+"Well, i have these lovely items for sale!", the store keeper says,
+excitedly.
+
+***
+ 1. Cleric-Rod           $ 2386200   
+>
+markup 1000
+***
+The new selling rate is 1000 
+>
+buy
+***
+"Well, i have these lovely items for sale!", the store keeper says,
+excitedly.
+
+***
+ 1. Cleric-Rod           $ 1222200   
+>
+markup 500
+***
+The new selling rate is 500 
+>
+buy
+***
+"Well, i have these lovely items for sale!", the store keeper says,
+excitedly.
+
+***
+ 1. Cleric-Rod           $ 640200    
+>
+markup 0
+***
+The new selling rate is 0 
+>
+buy
+***
+"Well, i have these lovely items for sale!", the store keeper says,
+excitedly.
+
+***
+ 1. Cleric-Rod           $ 58200     
+>
+markup -500
+***
+The new selling rate is -500 
+>
+buy
+***
+"Well, i have these lovely items for sale!", the store keeper says,
+excitedly.
+
+***
+ 1. Cleric-Rod           $ 0         
+>
+unst 1
+***
+You now have the Cleric-Rod.
+>
+
+hea
+look
+***
+Nothing happens!
+>***
+STORE OWNED BY Vindeiatrix
+Compass: (3E : 4N)
+north - open gate.
+south - area continues.
+***
+On the ground lies:
+A Gold-Chunck, A Skull. 
+***
+You see shadows to the south.
+>
+stat
+***
+
+Name: Vindeiatrix / Mutant Mage
+Exhaustion    : 0  
+Str: 68     Int: 109   Wis: 105
+Dex: 58     Con: 64    Cha: 99 
+Hit Points    : 87  / 87 
+Exp. Points   : 17041877 Level: 12 
+Riblets       : 10109026
+Ions          : 1996438
+Wearing Armor : Eazy-Armour  Armour Class: 461
+Ready to Combat: NO ONE
+Readied Spell  : Dispell Magic: READY.
+Year A.D.      : 2900
+
+You are carrying the following items:  (Total Weight: 264 LB's)
+Lightning-Rod, Cleric-Rod, Hell-Blade, Gold-Chunck.
+>
+s
+***
+An eerie calm settles in the distance.
+Compass: (3E : 3N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+A Nuclear-thong. 
+***
+Ghoul-1851 is here.
+>
+look g
+***
+Standing before you is a level 8 Ghoul!
+***
+Ghoul-1851 looks in great shape and ready for battle!
+***
+You notice Ghoul-1851 is carrying a Bloody-Arm!
+>
+
+com g
+***
+You're ready to combat Ghoul-1851!
+>
+wie gold
+***
+You've hit Ghoul-1851 with your Gold-Chunck!
+***
+The Ghoul-1851 chants: Brains...more brains, Vindeiatrix!
+***
+Ghoul-1851 is getting ready to combat you!
+***
+Ghoul-1851's body is glowing!
+>
+wie gold
+***
+You've hit Ghoul-1851 with your Gold-Chunck!
+***
+Ghoul-1851 screams: Get away from me, Vindeiatrix!!!
+***
+Ghoul-1851 has just left south
+***
+You hear loud sounds of footsteps to the south.
+>
+look so
+***
+You're looking south...
+***
+You're in an abandoned building.
+Compass: (3E : 2N)
+north - area continues.
+south - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear-Rock. 
+***
+Ghoul-1851 is here.
+***
+You hear faint sounds of footsteps far to the south.
+>
+look
+***
+An eerie calm settles in the distance.
+Compass: (3E : 3N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+A Nuclear-thong. 
+>
+s
+***
+You're in an abandoned building.
+Compass: (3E : 2N)
+north - area continues.
+south - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear-Rock. 
+***
+You see shadows to the south.
+>
+look so
+***
+You're looking south...
+***
+You're in a maintenance shop.
+Compass: (3E : 1N)
+north - area continues.
+south - open gate.
+***
+On the ground lies:
+A Nuclear-Rock. 
+***
+Ghoul-1851 is here.
+>
+look
+***
+You're in an abandoned building.
+Compass: (3E : 2N)
+north - area continues.
+south - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear-Rock. 
+>
+s
+***
+You're in a maintenance shop.
+Compass: (3E : 1N)
+north - area continues.
+south - open gate.
+***
+On the ground lies:
+A Nuclear-Rock. 
+***
+You see shadows to the south.
+>
+look so
+***
+You're looking south...
+***
+City Trading Centre
+Compass: (3E : 0N)
+north - open gate.
+east  - area continues.
+west  - open gate.
+***
+On the ground lies:
+A Skull, A Skull (1), A Skull (2), A Cheese, A Broken-Weapon, A Skull (3). 
+***
+Ghoul-1851 is here.
+>
+look
+***
+You're in a maintenance shop.
+Compass: (3E : 1N)
+north - area continues.
+south - open gate.
+***
+On the ground lies:
+A Nuclear-Rock. 
+***
+You see shadows to the south.
+>
+s
+***
+It's too dark to see anything!
+***
+Ghoul-1851 screams: Get away from me, Vindeiatrix!!!
+***
+You hear loud sounds of footsteps to the east.
+>
+e
+***
+Relics of the war line the streets.
+Compass: (4E : 0N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+An Ion-Booster. 
+***
+Ghoul-1851 is here.
+***
+You see shadows to the east.
+***
+Ghoul-1851 has hit you with his Bloody-Arm!
+***
+Ghoul-1851's Bloody-Arm has just cracked in half!
+>
+wie gold
+***
+You've hit Ghoul-1851 with your Gold-Chunck!
+***
+You have slain Ghoul-1851!
+Your experience points are increased by 6000!
+You collect 3880 Riblets and 20232 ions from the slain body.
+***
+
+A Skull is falling from Ghoul-1851's body!
+***
+A Bug-Plate is falling from Ghoul-1851's body!
+***
+Ghoul-1851 is crumbling to dust!
+>
+get bug
+***
+You pick up the Bug-Plate.
+>
+look bug
+***
+The Bug-Plate is chipped from all its killings, but can still do some damage.
+>
+con bug
+***
+The Bug-Plate vanishes with a flash!
+You convert the Bug-Plate into 8200 ions.
+>
+get sk
+***
+You pick up the Skull.
+>
+con sk
+***
+The Skull vanishes with a flash!
+You convert the Skull into 9000 ions.
+>
+
+hea
+look
+***
+Nothing happens!
+>***
+Relics of the war line the streets.
+Compass: (4E : 0N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+An Ion-Booster. 
+***
+You see shadows to the east.
+>
+e
+***
+An eerie calm settles in the distance.
+Compass: (5E : 0N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear-thong. 
+***
+Invisible-Man-1291 is here.
+***
+Invisible-Man-1291 talkss: I see you, Vindeiatrix!
+***
+Invisible-Man-1291 has hit you with his Invisible-Knife!
+>
+
+com in
+***
+You're ready to combat Invisible-Man-1291!
+***
+Invisible-Man-1291 has hit you with his Invisible-Knife!
+>
+wie gold
+***
+You've hit Invisible-Man-1291 with your Gold-Chunck!
+***
+Invisible-Man-1291's body is glowing!
+>
+wie gold
+***
+You've hit Invisible-Man-1291 with your Gold-Chunck!
+***
+Invisible-Man-1291's body is glowing!
+>
+look inv
+***
+Standing before you is a level 8 Invisible-Man!
+***
+Invisible-Man-1291 looks in good shape, but has some cuts!
+***
+You notice Invisible-Man-1291 is carrying a Invisible-Knife!
+>
+wie gold
+***
+You've hit Invisible-Man-1291 with your Gold-Chunck!
+>
+wie gold
+***
+You've hit Invisible-Man-1291 with your Gold-Chunck!
+***
+Invisible-Man-1291 has hit you with his Invisible-Knife!
+>
+wie gold
+***
+You've hit Invisible-Man-1291 with your Gold-Chunck!
+***
+Invisible-Man-1291's body is glowing!
+>
+wie gold
+***
+You've hit Invisible-Man-1291 with your Gold-Chunck!
+***
+Invisible-Man-1291 has hit you with his Invisible-Knife!
+>
+wie gold
+
+***
+You've hit Invisible-Man-1291 with your Gold-Chunck!
+***
+Invisible-Man-1291 picked up the Nuclear-thong.
+>wie gold
+***
+You've hit Invisible-Man-1291 with your Gold-Chunck!
+>
+wie gold
+
+***
+You've hit Invisible-Man-1291 with your Gold-Chunck!
+***
+Invisible-Man-1291's body is glowing!
+>wie gold
+***
+You've hit Invisible-Man-1291 with your Gold-Chunck!
+***
+Invisible-Man-1291 has hit you with his Invisible-Knife!
+>
+wie gold
+
+***
+You've hit Invisible-Man-1291 with your Gold-Chunck!
+***
+Invisible-Man-1291 screams: Get away from me, Vindeiatrix!!!
+>wie gold
+***
+You've hit Invisible-Man-1291 with your Gold-Chunck!
+***
+You have slain Invisible-Man-1291!
+Your experience points are increased by 6000!
+You collect 280 Riblets and 11476 ions from the slain body.
+***
+
+An Invisible-Knife is falling from Invisible-Man-1291's body!
+***
+A Nuclear-thong is falling from Invisible-Man-1291's body!
+***
+A Skull is falling from Invisible-Man-1291's body!
+***
+An Invisible-Cloth is falling from Invisible-Man-1291's body!
+***
+Invisible-Man-1291 is crumbling to dust!
+>
+hea
+***
+Nothing happens!
+>
+get inv
+***
+You pick up the Invisible-Knife.
+>
+look inv
+***
+The Invisible-Knife possesses a magical aura. Concentrating stronger, you
+realize this is a +5 Invisible-Knife!
+>
+con inv
+***
+The Invisible-Knife vanishes with a flash!
+You convert the Invisible-Knife into 71500 ions.
+>
+get inv
+***
+You pick up the Invisible-Cloth.
+>
+look inv
+***
+The Invisible-Cloth possesses a magical aura. Concentrating stronger, you
+realize this is a +6 Invisible-Cloth!
+>
+stat
+***
+
+Name: Vindeiatrix / Mutant Mage
+Exhaustion    : 0  
+Str: 68     Int: 109   Wis: 105
+Dex: 58     Con: 64    Cha: 99 
+Hit Points    : 87  / 87 
+Exp. Points   : 17053877 Level: 12 
+Riblets       : 10113186
+Ions          : 2106346
+Wearing Armor : Eazy-Armour  Armour Class: 461
+Ready to Combat: NO ONE
+Readied Spell  : Dispell Magic: READY.
+Year A.D.      : 2900
+
+You are carrying the following items:  (Total Weight: 364 LB's)
+Lightning-Rod, Cleric-Rod, Hell-Blade, Gold-Chunck, Invisible-Cloth.
+>
+wear inv
+***
+You've removed the Eazy-Armour.
+***
+You've just put on the Invisible-Cloth.
+>
+stat
+***
+
+Name: Vindeiatrix / Mutant Mage
+Exhaustion    : 0  
+Str: 68     Int: 109   Wis: 105
+Dex: 58     Con: 64    Cha: 99 
+Hit Points    : 87  / 87 
+Exp. Points   : 17053877 Level: 12 
+Riblets       : 10113186
+Ions          : 2104846
+Wearing Armor : Invisible-Cloth  Armour Class: 17 
+Ready to Combat: NO ONE
+Readied Spell  : Dispell Magic: READY.
+Year A.D.      : 2900
+
+You are carrying the following items:  (Total Weight: 464 LB's)
+Lightning-Rod, Cleric-Rod, Hell-Blade, Gold-Chunck, Eazy-Armour.
+>
+wea ea
+***
+You've removed the Invisible-Cloth.
+***
+You've just put on the Eazy-Armour.
+>
+stat
+***
+
+Name: Vindeiatrix / Mutant Mage
+Exhaustion    : 0  
+Str: 68     Int: 109   Wis: 105
+Dex: 58     Con: 64    Cha: 99 
+Hit Points    : 87  / 87 
+Exp. Points   : 17053877 Level: 12 
+Riblets       : 10113186
+Ions          : 2104846
+Wearing Armor : Eazy-Armour  Armour Class: 461
+Ready to Combat: NO ONE
+Readied Spell  : Dispell Magic: READY.
+Year A.D.      : 2900
+
+You are carrying the following items:  (Total Weight: 364 LB's)
+Lightning-Rod, Cleric-Rod, Hell-Blade, Gold-Chunck, Invisible-Cloth.
+>
+look
+***
+An eerie calm settles in the distance.
+Compass: (5E : 0N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear-thong, A Skull. 
+>
+e
+***
+Broken glass covers the road.
+Compass: (6E : 0N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Bottle-Cap. 
+>
+e
+***
+You're in a maintenance shop.
+Compass: (7E : 0N)
+north - open gate.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Bottle-Cap. 
+***
+You see shadows to the east.
+***
+You notice an egg is hatching!
+>
+hea
+***
+Nothing happens!
+>
+look
+***
+You're in a maintenance shop.
+Compass: (7E : 0N)
+north - open gate.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Bottle-Cap. 
+***
+You see shadows to the east.
+***
+You notice an egg is hatching!
+>
+e
+***
+It's too dark to see anything!
+>
+mem dis
+
+***
+You've already memorized that spell!
+>cas
+***
+The darkness has been lifted from this area.
+***
+...casted!
+>
+last
+
+***
+...casted!
+>last
+***
+...casted!
+>
+look
+***
+You're in a maintenance shop.
+Compass: (8E : 0N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1). 
+***
+Troll-571, and Hydra-1371 are here with you.
+***
+Troll-571 grunts: Just run away, Vindeiatrix!
+***
+Hydra-1371 roars: I'll spill your blood, Vindeiatrix!
+>
+
+com h
+***
+You're ready to combat Hydra-1371!
+***
+Hydra-1371 has hit you with his Lion-Sword!
+***
+Hydra-1371's Lion-Sword has just cracked in half!
+>
+wie gold
+***
+You've hit Hydra-1371 with your Gold-Chunck!
+***
+Hydra-1371's body is glowing!
+>
+
+wie gold
+wie gold
+***
+You've hit Hydra-1371 with your Gold-Chunck!
+***
+Hydra-1371's body is glowing!
+>***
+You've hit Hydra-1371 with your Gold-Chunck!
+***
+Hydra-1371's body is glowing!
+>
+wie gold
+
+
+***
+You've hit Hydra-1371 with your Gold-Chunck!
+***
+Hydra-1371 has hit you with his Broken-Weapon!
+>wie gold
+wie gold
+***
+Hydra-1371 dodged out of the way!
+***
+Troll-571 is crying.
+***
+Hydra-1371's body is glowing!
+>***
+You've hit Hydra-1371 with your Gold-Chunck!
+***
+Troll-571 waves his arms in the air frantically, and begins to chant!
+***
+Hydra-1371 has hit you with his Broken-Weapon!
+>
+wie gold
+***
+You've hit Hydra-1371 with your Gold-Chunck!
+***
+Hydra-1371's body is glowing!
+>
+wie gold
+
+***
+You've hit Hydra-1371 with your Gold-Chunck!
+***
+Troll-571 laughs: You can't fool me!!
+***
+You see a blinding white flash illuminate from Troll-571's body!
+***
+Hydra-1371 has hit you with his Broken-Weapon!
+>
+wie gold
+***
+You've hit Hydra-1371 with your Gold-Chunck!
+***
+Hydra-1371 screams: Get away from me, Vindeiatrix!!!
+>wie gold
+***
+You've hit Hydra-1371 with your Gold-Chunck!
+***
+You have slain Hydra-1371!
+Your experience points are increased by 7333!
+You collect 7480 Riblets and 39995 ions from the slain body.
+***
+
+A Skull is falling from Hydra-1371's body!
+***
+Hydra-1371 is crumbling to dust!
+>
+
+
+com tr
+
+wie gold
+***
+You're ready to combat Troll-571!
+***
+Troll-571 picked up the Skull.
+>***
+You've hit Troll-571 with your Gold-Chunck!
+***
+Troll-571's body is glowing!
+***
+You see a blinding white flash illuminate from Troll-571's body!
+>
+wie gold
+wie gold
+***
+You've hit Troll-571 with your Gold-Chunck!
+***
+Troll-571 has hit you with his Troll-Sword!
+***
+Troll-571's Troll-Sword has just cracked in half!
+>***
+You've hit Troll-571 with your Gold-Chunck!
+***
+Troll-571 has hit you with his Broken-Weapon!
+>
+
+wie gold
+wie gold
+***
+You've hit Troll-571 with your Gold-Chunck!
+***
+Troll-571 has hit you with his Broken-Weapon!
+>***
+You've hit Troll-571 with your Gold-Chunck!
+***
+Troll-571 dropped his Broken-Weapon.
+>
+
+wie gold
+wie gold
+***
+You've hit Troll-571 with your Gold-Chunck!
+***
+You have slain Troll-571!
+Your experience points are increased by 5333!
+You collect 2680 Riblets and 18038 ions from the slain body.
+***
+
+A Skull is falling from Troll-571's body!
+***
+A Troll-Skin is falling from Troll-571's body!
+***
+Troll-571 is crumbling to dust!
+>***
+You're not ready to combat anyone!
+>
+hea
+***
+Nothing happens!
+>
+look
+***
+You're in a maintenance shop.
+Compass: (8E : 0N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1), A Broken-Weapon (2), A Skull, A
+Troll-Skin. 
+>
+stat
+***
+
+Name: Vindeiatrix / Mutant Mage
+Exhaustion    : 0  
+Str: 68     Int: 109   Wis: 105
+Dex: 58     Con: 64    Cha: 99 
+Hit Points    : 87  / 87 
+Exp. Points   : 17066543 Level: 12 
+Riblets       : 10123346
+Ions          : 2126879
+Wearing Armor : Eazy-Armour  Armour Class: 461
+Ready to Combat: NO ONE
+Readied Spell  : Dispell Magic: READY.
+Year A.D.      : 2900
+
+You are carrying the following items:  (Total Weight: 364 LB's)
+Lightning-Rod, Cleric-Rod, Hell-Blade, Gold-Chunck, Invisible-Cloth.
+>
+look
+***
+You're in a maintenance shop.
+Compass: (8E : 0N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1), A Broken-Weapon (2), A Skull, A
+Troll-Skin. 
+***
+You see shadows to the west.
+>
+fix cle
+***
+The store keeper takes 6300 of your Riblets and returns your
+Cleric-Rod in new condition!
+>
+fix lig
+***
+The store keeper takes 6000 of your Riblets and returns your
+Lightning-Rod in new condition!
+>
+w
+***
+You're in a maintenance shop.
+Compass: (7E : 0N)
+north - open gate.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Bottle-Cap. 
+***
+Black-Dragon-1291 is here.
+>
+
+com bl
+
+***
+You're ready to combat Black-Dragon-1291!
+>
+wie gold
+***
+You've hit Black-Dragon-1291 with your Gold-Chunck!
+***
+The Black-Dragon-1291 Bellows: Just try to outsmart me, Vindeiatrix!
+***
+Black-Dragon-1291 is getting ready to combat you!
+***
+Black-Dragon-1291's body is glowing!
+>
+wie gold
+***
+You've hit Black-Dragon-1291 with your Gold-Chunck!
+***
+The Black-Dragon-1291 breathes acid on you!
+***
+You suffer 6 hit points of damage!
+>
+wie gold
+***
+You've hit Black-Dragon-1291 with your Gold-Chunck!
+***
+Black-Dragon-1291 has hit you with his Trophy!
+***
+Black-Dragon-1291's Trophy has just cracked in half!
+>wie gold
+***
+You've hit Black-Dragon-1291 with your Gold-Chunck!
+***
+Black-Dragon-1291's body is glowing!
+>
+
+wie gold
+
+wie gold
+***
+You've hit Black-Dragon-1291 with your Gold-Chunck!
+***
+Black-Dragon-1291's body is glowing!
+>***
+You've hit Black-Dragon-1291 with your Gold-Chunck!
+***
+Black-Dragon-1291's body is glowing!
+>wie gold
+***
+You've hit Black-Dragon-1291 with your Gold-Chunck!
+***
+Black-Dragon-1291's body is glowing!
+>
+
+wie gold
+
+wie gold
+***
+You've hit Black-Dragon-1291 with your Gold-Chunck!
+***
+Black-Dragon-1291 has hit you with his Broken-Weapon!
+>***
+You've hit Black-Dragon-1291 with your Gold-Chunck!
+***
+Black-Dragon-1291 has hit you with his Broken-Weapon!
+>wie gold
+***
+You've hit Black-Dragon-1291 with your Gold-Chunck!
+***
+Black-Dragon-1291 has hit you with his Broken-Weapon!
+>
+
+wie gold
+
+wie gold
+***
+You've hit Black-Dragon-1291 with your Gold-Chunck!
+***
+Black-Dragon-1291 has hit you with his Broken-Weapon!
+>***
+You've hit Black-Dragon-1291 with your Gold-Chunck!
+***
+Black-Dragon-1291 has hit you with his Broken-Weapon!
+>wie gold
+***
+You've hit Black-Dragon-1291 with your Gold-Chunck!
+***
+Black-Dragon-1291's body is glowing!
+>
+
+wie gold
+
+wie gold
+***
+You've hit Black-Dragon-1291 with your Gold-Chunck!
+***
+Black-Dragon-1291 has hit you with his Broken-Weapon!
+>***
+You've hit Black-Dragon-1291 with your Gold-Chunck!
+***
+Black-Dragon-1291's armour has just cracked down the center!
+***
+Black-Dragon-1291 has hit you with his Broken-Weapon!
+>wie gold
+***
+You've hit Black-Dragon-1291 with your Gold-Chunck!
+***
+Black-Dragon-1291 screams: Get away from me, Vindeiatrix!!!
+>
+
+wie gold
+wie gold
+***
+You've hit Black-Dragon-1291 with your Gold-Chunck!
+***
+You have slain Black-Dragon-1291!
+Your experience points are increased by 8000!
+You collect 6280 Riblets and 47473 ions from the slain body.
+***
+
+A Skull is falling from Black-Dragon-1291's body!
+***
+Black-Dragon-1291 is crumbling to dust!
+>***
+You're not ready to combat anyone!
+>
+hea
+***
+Your body glows at it heals 17 points!
+***
+You're healed to the maximum!
+>
+e
+***
+You're in a maintenance shop.
+Compass: (8E : 0N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1), A Broken-Weapon (2), A Skull, A
+Troll-Skin. 
+>
+e
+***
+An eerie calm settles in the distance.
+Compass: (9E : 0N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1). 
+***
+You see shadows to the east.
+>
+e
+***
+An old hydro line has fallen here.
+Compass: (10E : 0N)
+south - area continues.
+east  - open gate.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon. 
+***
+Silver-Dragon-2971 is here.
+***
+You see shadows to the east.
+***
+Silver-Dragon-2971 roars: You disgust me, Vindeiatrix!
+***
+Silver-Dragon-2971 has hit you with his Silver-Horn!
+***
+Silver-Dragon-2971's Silver-Horn has just cracked in half!
+>
+
+
+com s
+
+wie gold
+***
+You're ready to combat Silver-Dragon-2971!
+***
+Silver-Dragon-2971 dropped his Broken-Weapon.
+>***
+You've hit Silver-Dragon-2971 with your Gold-Chunck!
+***
+Silver-Dragon-2971's body is glowing!
+>wie gold
+***
+You've hit Silver-Dragon-2971 with your Gold-Chunck!
+>
+wie gold
+
+***
+You've hit Silver-Dragon-2971 with your Gold-Chunck!
+***
+Silver-Dragon-2971's body is glowing!
+>
+wie gold
+***
+You've hit Silver-Dragon-2971 with your Gold-Chunck!
+***
+Silver-Dragon-2971's body is glowing!
+>
+
+wie gold
+***
+You've hit Silver-Dragon-2971 with your Gold-Chunck!
+***
+Silver-Dragon-2971's body is glowing!
+>
+wie gold
+wie gold
+***
+You've hit Silver-Dragon-2971 with your Gold-Chunck!
+***
+Silver-Dragon-2971's body is glowing!
+>***
+You've hit Silver-Dragon-2971 with your Gold-Chunck!
+***
+Silver-Dragon-2971's body is glowing!
+>
+wie gold
+***
+You've hit Silver-Dragon-2971 with your Gold-Chunck!
+***
+Silver-Dragon-2971's body is glowing!
+>
+wie gold
+***
+You've hit Silver-Dragon-2971 with your Gold-Chunck!
+>
+wie gold
+***
+You've hit Silver-Dragon-2971 with your Gold-Chunck!
+>
+wie gold
+***
+You've hit Silver-Dragon-2971 with your Gold-Chunck!
+***
+Silver-Dragon-2971's body is glowing!
+>wie gold
+***
+You've hit Silver-Dragon-2971 with your Gold-Chunck!
+***
+Silver-Dragon-2971's body is glowing!
+>
+wie gold
+
+
+***
+You've hit Silver-Dragon-2971 with your Gold-Chunck!
+>wie gold
+***
+You've hit Silver-Dragon-2971 with your Gold-Chunck!
+>
+wie gold
+***
+You've hit Silver-Dragon-2971 with your Gold-Chunck!
+>
+wie gold
+***
+You've hit Silver-Dragon-2971 with your Gold-Chunck!
+***
+Silver-Dragon-2971's armour has just cracked down the center!
+>
+wie gold
+***
+You've hit Silver-Dragon-2971 with your Gold-Chunck!
+>
+wie gold
+***
+You've hit Silver-Dragon-2971 with your Gold-Chunck!
+>wie gold
+***
+You've hit Silver-Dragon-2971 with your Gold-Chunck!
+>
+wie gold
+
+
+***
+You've hit Silver-Dragon-2971 with your Gold-Chunck!
+>wie gold
+wie gold
+***
+You've hit Silver-Dragon-2971 with your Gold-Chunck!
+>***
+You've hit Silver-Dragon-2971 with your Gold-Chunck!
+>
+
+wie gold
+
+wie gold
+***
+You've hit Silver-Dragon-2971 with your Gold-Chunck!
+>***
+You've hit Silver-Dragon-2971 with your Gold-Chunck!
+>wie gold
+***
+You've hit Silver-Dragon-2971 with your Gold-Chunck!
+>
+wie gold
+
+***
+You've hit Silver-Dragon-2971 with your Gold-Chunck!
+***
+You have slain Silver-Dragon-2971!
+Your experience points are increased by 8000!
+You collect 5080 Riblets and 837 ions from the slain body.
+***
+
+A Skull is falling from Silver-Dragon-2971's body!
+***
+Silver-Dragon-2971 is crumbling to dust!
+>wie gold
+***
+You're not ready to combat anyone!
+>
+wie gold
+***
+You're not ready to combat anyone!
+>
+hea
+
+***
+Nothing happens!
+>look
+***
+An old hydro line has fallen here.
+Compass: (10E : 0N)
+south - area continues.
+east  - open gate.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1), A Skull. 
+***
+You see shadows to the east.
+>
+e
+***
+City Trading Centre
+Compass: (11E : 0N)
+east  - area continues.
+west  - open gate.
+***
+On the ground lies:
+A Monster-Bait, A Skull. 
+***
+Golden-Serpant-331, and Key-Master-2011 are here with you.
+>
+inv
+***
+You are carrying the following items:  (Total Weight: 364 LB's)
+Lightning-Rod, Cleric-Rod, Hell-Blade, Gold-Chunck, Invisible-Cloth.
+>
+app inv
+***
+The shop keeper takes the Invisible-Cloth, look carefully at it, and says,
+"I'll give you 50820 Riblets for it. Take it or Leave it."
+>
+sell inv
+***
+The shop keeper takes your Invisible-Cloth and hands you 50820 in Riblets.
+"Thanks! Come again!", he says grinning at you.
+>
+app go
+***
+The shop keeper takes the Gold-Chunck, look carefully at it, and says, "I'll
+give you 49800 Riblets for it. Take it or Leave it."
+>
+app he
+***
+The shop keeper takes the Hell-Blade, look carefully at it, and says, "I'll
+give you 237082 Riblets for it. Take it or Leave it."
+>
+look
+***
+City Trading Centre
+Compass: (11E : 0N)
+east  - area continues.
+west  - open gate.
+***
+On the ground lies:
+A Monster-Bait, A Skull. 
+***
+Golden-Serpant-331, and Key-Master-2011 are here with you.
+***
+Golden-Serpant-331 hisss: You invaded my privacy, Vindeiatrix!
+>
+
+com g
+
+***
+You're ready to combat Golden-Serpant-331!
+***
+Golden-Serpant-331 picked up the Skull.
+>
+wie gold
+***
+You've hit Golden-Serpant-331 with your Gold-Chunck!
+***
+Golden-Serpant-331's body is glowing!
+***
+You see a blinding white flash illuminate from Golden-Serpant-331's body!
+>wie gold
+***
+You've hit Golden-Serpant-331 with your Gold-Chunck!
+***
+Golden-Serpant-331's body is glowing!
+>
+wie gold
+
+
+***
+You've hit Golden-Serpant-331 with your Gold-Chunck!
+>
+wie gold
+wie gold
+***
+You've hit Golden-Serpant-331 with your Gold-Chunck!
+***
+Golden-Serpant-331 has hit you with his Fang-Dagger!
+***
+Golden-Serpant-331's Fang-Dagger has just cracked in half!
+>***
+You've hit Golden-Serpant-331 with your Gold-Chunck!
+***
+Golden-Serpant-331 has hit you with his Broken-Weapon!
+>wie gold
+***
+You've hit Golden-Serpant-331 with your Gold-Chunck!
+***
+Golden-Serpant-331 dropped his Broken-Weapon.
+>
+wie gold
+
+***
+You've hit Golden-Serpant-331 with your Gold-Chunck!
+***
+Golden-Serpant-331's armour has just cracked down the center!
+>wie gold
+***
+You've hit Golden-Serpant-331 with your Gold-Chunck!
+***
+The Golden-Serpant-331 bites you!
+***
+You suffer 6 hit points of damage!
+***
+Golden-Serpant-331 picked up the Monster-Bait.
+>
+wie gold
+
+***
+You've hit Golden-Serpant-331 with your Gold-Chunck!
+>wie gold
+***
+You've hit Golden-Serpant-331 with your Gold-Chunck!
+***
+You have slain Golden-Serpant-331!
+Your experience points are increased by 6666!
+You collect 9880 Riblets and 46308 ions from the slain body.
+***
+
+A Monster-Bait is falling from Golden-Serpant-331's body!
+***
+A Skull is falling from Golden-Serpant-331's body!
+***
+Golden-Serpant-331 is crumbling to dust!
+>
+hea
+***
+Your body glows at it heals 17 points!
+***
+You're healed to the maximum!
+>
+look
+***
+City Trading Centre
+Compass: (11E : 0N)
+east  - area continues.
+west  - open gate.
+***
+On the ground lies:
+A Monster-Bait, A Broken-Weapon, A Skull. 
+***
+Key-Master-2011 is here.
+***
+Key-Master-2011 says: Im lookin for Gate-Keeper, Vindeiatrix!
+***
+Key-Master-2011 picked up the Skull.
+>
+
+com key
+***
+You're ready to combat Key-Master-2011!
+***
+You see a blinding white flash illuminate from Key-Master-2011's body!
+>
+wie gold
+
+***
+You've hit Key-Master-2011 with your Gold-Chunck!
+***
+Key-Master-2011's body is glowing!
+>
+wie gold
+***
+You've hit Key-Master-2011 with your Gold-Chunck!
+***
+The Key-Master-2011 pokes a key at you!
+***
+You suffer 6 hit points of damage!
+***
+Key-Master-2011 picked up the Monster-Bait.
+>wie gold
+***
+You've hit Key-Master-2011 with your Gold-Chunck!
+***
+The Key-Master-2011 pokes a key at you!
+***
+You suffer 6 hit points of damage!
+>
+wie gold
+
+***
+You've hit Key-Master-2011 with your Gold-Chunck!
+***
+The Key-Master-2011 pokes a key at you!
+***
+You suffer 6 hit points of damage!
+>
+wie gold
+***
+You've hit Key-Master-2011 with your Gold-Chunck!
+***
+Key-Master-2011's body is glowing!
+>wie gold
+***
+You've hit Key-Master-2011 with your Gold-Chunck!
+***
+The Key-Master-2011 pokes a key at you!
+***
+You suffer 6 hit points of damage!
+>
+wie gold
+
+***
+You've hit Key-Master-2011 with your Gold-Chunck!
+***
+The Key-Master-2011 pokes a key at you!
+***
+You suffer 6 hit points of damage!
+>
+wie gold
+***
+You've hit Key-Master-2011 with your Gold-Chunck!
+***
+You have slain Key-Master-2011!
+Your experience points are increased by 7333!
+You collect 12280 Riblets and 47905 ions from the slain body.
+***
+
+A Master-Key is falling from Key-Master-2011's body!
+***
+A Brass-Key is falling from Key-Master-2011's body!
+***
+A Silver-Key is falling from Key-Master-2011's body!
+***
+A Monster-Bait is falling from Key-Master-2011's body!
+***
+A Skull is falling from Key-Master-2011's body!
+***
+Key-Master-2011 is crumbling to dust!
+>wie gold
+***
+You're not ready to combat anyone!
+>
+
+hea
+hea
+***
+Your body glows at it heals 17 points!
+>***
+Your body glows at it heals 17 points!
+***
+You're healed to the maximum!
+>
+get bras
+***
+You pick up the Brass-Key.
+>
+con bras
+***
+The Brass-Key vanishes with a flash!
+You convert the Brass-Key into 4600 ions.
+>
+look
+***
+City Trading Centre
+Compass: (11E : 0N)
+east  - area continues.
+west  - open gate.
+***
+On the ground lies:
+A Master-Key, A Broken-Weapon, A Silver-Key, A Monster-Bait, A Skull. 
+>
+

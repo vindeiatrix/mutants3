@@ -1,0 +1,3393 @@
+The following is a log of me playing the original Mutants game on a BBS.  I am fighting monsters in the year 4600.  I am wielding a +3 hell blade which does 75 damage to an enemy with an armor class of 2.  My character stats are:  Str: 68     Int: 109   Wis: 105 Dex: 58     Con: 64    Cha: 98.  You can see the average levels of the monsters in the log.  The armor the monsters wear in 4600 tend to be 40 - 60 armor class.  You can see that some of them like to cast darkness, and one of them has a passage clearing ranged item that they will convert to ions (you can tell because they laugh) during conflict to keep you from getting it (it's treated a bit like a treasure item by the game).  You can tell how monsters behave during battle and the actions they tend to take.  You can also see the experience, ions and riblets they give up upon death for these levels of monsters.  Some of the monsters who carry ranged items tend to use them alot by shooting you with bolts!  You can also tell how the turn system seems to work.  Sometimes the monsters seem to get to take extra actions.  I had been recently fighting in this year which is why you can see some monster gears on the ground already.  I am wearing very powerful armor (AC over 450) which is why you never see me take any damage, and why monsters weapons tend to break on my armor.  Also, the hell blades weight is only 9 pounds which is why I never get exhausted.  The hell blade is one of the best weapons in the game because of how light it is and how much damage it does.
+
+
+# Log file open.
+
+n
+***
+You're in an abandoned building.
+Compass: (0E : -3N)
+north - area continues.
+south - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Fang-Dagger, A Pink-Potion, A Blast-Grenade, A Gas-Grenade, A Skull. 
+>
+w
+***
+Broken lamp posts line the streets.
+Compass: (-1E : -3N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Golden-Pin, A Skull. 
+>
+w
+***
+You're blocked!
+>
+n
+***
+Broken glass covers the road.
+Compass: (-1E : -2N)
+north - area continues.
+south - area continues.
+east  - open gate.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Gas-Grenade, A Gas-Grenade (1), A Blast-Grenade, A Skull, A
+Skull (1). 
+***
+You see shadows to the north.
+>
+n
+***
+It's too dark to see anything!
+>
+mem dis
+***
+The magic of the Hide spell fades away.
+***
+You reappear!
+***
+You have finished memorizing the Dispell Magic Spell!
+>
+cas
+***
+...casted!
+>
+cas
+***
+...casted!
+>
+cas
+***
+The darkness has been lifted from this area.
+***
+...casted!
+>
+look
+***
+An old hydro line has fallen here.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Glowing-Horn, A Skull, A Giant-Sword, A Gas-Grenade, A Skull
+(1). 
+***
+Umber-Hulk-1228 is here.
+***
+Umber-Hulk-1228 roars: C'mere, Vindeiatrix!
+***
+The Umber-Hulk-1228 bites poison into you!
+***
+You suffer 6 hit points of damage!
+***
+Umber-Hulk-1228 picked up the Skull.
+>
+
+com u
+***
+You're ready to combat Umber-Hulk-1228!
+***
+You see a blinding white flash illuminate from Umber-Hulk-1228's body!
+>
+wie he
+***
+You've hit Umber-Hulk-1228 with your Hell-Blade!
+***
+Umber-Hulk-1228's body is glowing!
+>
+wie he
+***
+You've hit Umber-Hulk-1228 with your Hell-Blade!
+***
+Umber-Hulk-1228's armour has just cracked down the center!
+***
+Umber-Hulk-1228 has hit you with his Thor-Hammer!
+***
+Umber-Hulk-1228's Thor-Hammer has just cracked in half!
+>
+wie he
+***
+You've hit Umber-Hulk-1228 with your Hell-Blade!
+***
+Umber-Hulk-1228's body is glowing!
+>
+wie he
+***
+You've hit Umber-Hulk-1228 with your Hell-Blade!
+***
+Umber-Hulk-1228's body is glowing!
+>
+wie he
+***
+You've hit Umber-Hulk-1228 with your Hell-Blade!
+***
+Umber-Hulk-1228's body is glowing!
+>
+wie he
+***
+You've hit Umber-Hulk-1228 with your Hell-Blade!
+***
+Umber-Hulk-1228 has hit you with his Broken-Weapon!
+>
+wie he
+***
+You've hit Umber-Hulk-1228 with your Hell-Blade!
+***
+Umber-Hulk-1228 has hit you with his Broken-Weapon!
+>
+wie he
+***
+You've hit Umber-Hulk-1228 with your Hell-Blade!
+***
+Umber-Hulk-1228 has hit you with his Broken-Weapon!
+>
+wie he
+***
+You've hit Umber-Hulk-1228 with your Hell-Blade!
+***
+Umber-Hulk-1228's body is glowing!
+>
+wie he
+***
+You've hit Umber-Hulk-1228 with your Hell-Blade!
+***
+Umber-Hulk-1228 screams: Get away from me, Vindeiatrix!!!
+>
+wie he
+***
+You've hit Umber-Hulk-1228 with your Hell-Blade!
+***
+You have slain Umber-Hulk-1228!
+Your experience points are increased by 18666!
+You collect 15880 Riblets and 115546 ions from the slain body.
+***
+
+A Skull is falling from Umber-Hulk-1228's body!
+***
+Umber-Hulk-1228 is crumbling to dust!
+>
+hea
+***
+Your body glows at it heals 17 points!
+***
+You're healed to the maximum!
+>
+look
+***
+An old hydro line has fallen here.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Glowing-Horn, A Skull, A Giant-Sword, A Gas-Grenade, A Skull
+(1). 
+>
+stat
+***
+
+Name: Vindeiatrix / Mutant Mage
+Exhaustion    : 0  
+Str: 68     Int: 109   Wis: 105
+Dex: 58     Con: 64    Cha: 98 
+Hit Points    : 87  / 87 
+Exp. Points   : 16634722 Level: 12 
+Riblets       : 9717946
+Ions          : 1599957
+Wearing Armor : Eazy-Armour  Armour Class: 461
+Ready to Combat: NO ONE
+Readied Spell  : Dispell Magic: READY.
+Year A.D.      : 4600
+
+You are carrying the following items:  (Total Weight: 239 LB's)
+Lightning-Rod, Cleric-Rod, Hell-Blade.
+>
+n
+***
+You're in an abandoned building.
+Compass: (-1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Mood-Ring, A Mood-Ring (1), A Skull, A Broken-Weapon (1). 
+>
+w
+***
+You're in a maintenance shop.
+Compass: (-2E : 0N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cigarette-Butt, A Skull, A Skull (1), A Broken-Weapon, A Broken-Weapon (1). 
+>
+w
+***
+Relics of the war line the streets.
+Compass: (-3E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear-Rock, A Broken-Weapon, A Skull, A Gas-Grenade, A Skull (1). 
+>
+w
+***
+Relics of the war line the streets.
+Compass: (-4E : 0N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1), A Gas-Grenade, A Blast-Grenade, A
+Monster-Bait, A Skull. 
+***
+You see shadows to the west.
+>
+w
+***
+You're in a wrecked building.
+Compass: (-5E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - open gate.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1), A Broken-Weapon (2), A Broken-Weapon (3),
+A Skull. 
+***
+Kraken-588, and Giant-Centipede-1388 are here with you.
+***
+Kraken-588 bubbles: I'll pummel you, Vindeiatrix!
+***
+Kraken-588 has hit you with his Coral-Sword!
+***
+Kraken-588's Coral-Sword has just cracked in half!
+>
+
+com k
+***
+You're ready to combat Kraken-588!
+***
+Kraken-588 dropped his Broken-Weapon.
+>
+wie he
+***
+You've hit Kraken-588 with your Hell-Blade!
+***
+Kraken-588's body is glowing!
+>
+wie he
+***
+You've hit Kraken-588 with your Hell-Blade!
+***
+Kraken-588's armour has just cracked down the center!
+***
+Kraken-588 picked up the Skull.
+>
+wie he
+***
+You've hit Kraken-588 with your Hell-Blade!
+***
+Kraken-588's body is glowing!
+***
+You see a blinding white flash illuminate from Kraken-588's body!
+>
+wie he
+***
+You've hit Kraken-588 with your Hell-Blade!
+***
+Kraken-588 waves his arms in the air frantically, and begins to chant!
+>
+wie he
+***
+You've hit Kraken-588 with your Hell-Blade!
+***
+You have slain Kraken-588!
+Your experience points are increased by 16666!
+You collect 25480 Riblets and 23688 ions from the slain body.
+***
+
+A Skull is falling from Kraken-588's body!
+***
+Kraken-588 is crumbling to dust!
+>
+Brute logs OFF.  [28-AUG-25/11:04:34] Users Online: 1: >
+hea
+***
+Nothing happens!
+>
+w
+***
+You get struck back!
+>
+look
+***
+You're in a wrecked building.
+Compass: (-5E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - open gate.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1), A Broken-Weapon (2), A Broken-Weapon (3),
+A Skull, A Broken-Weapon (4). 
+***
+Giant-Centipede-1388 is here.
+***
+Giant-Centipede-1388 spits: HAHA some more fun!, Vindeiatrix!
+>
+Nadi logs ON line 2.  [28-AUG-25/11:04:38] Users Online: 1: >
+look west
+***
+You're looking west...
+***
+STORE OWNED BY Eradicator
+Compass: (-6E : 0N)
+north - open gate.
+south - area continues.
+east  - open gate.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear-Waste. 
+***
+Giant-Centipede-1388 has hit you with his Bronze-Horn!
+***
+Giant-Centipede-1388's Bronze-Horn has just cracked in half!
+>
+w
+***
+You get struck back!
+***
+Giant-Centipede-1388 picked up the Skull.
+>
+look
+***
+You're in a wrecked building.
+Compass: (-5E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - open gate.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1), A Broken-Weapon (2), A Broken-Weapon (3),
+A Broken-Weapon (4). 
+***
+Giant-Centipede-1388 is here.
+***
+You see a blinding white flash illuminate from Giant-Centipede-1388's body!
+>
+
+com g
+***
+You're ready to combat Giant-Centipede-1388!
+***
+Giant-Centipede-1388 dropped his Broken-Weapon.
+>
+wie he
+***
+You've hit Giant-Centipede-1388 with your Hell-Blade!
+***
+The Giant-Centipede-1388 Bites poison into you!
+***
+You suffer 6 hit points of damage!
+>
+wie he
+***
+You've hit Giant-Centipede-1388 with your Hell-Blade!
+***
+Giant-Centipede-1388's armour has just cracked down the center!
+***
+Giant-Centipede-1388's body is glowing!
+>
+wie he
+***
+You've hit Giant-Centipede-1388 with your Hell-Blade!
+***
+Giant-Centipede-1388's body is glowing!
+>
+wie he
+***
+You've hit Giant-Centipede-1388 with your Hell-Blade!
+***
+Giant-Centipede-1388's body is glowing!
+>
+wie he
+***
+You've hit Giant-Centipede-1388 with your Hell-Blade!
+***
+Giant-Centipede-1388's body is glowing!
+>
+wie he
+***
+You've hit Giant-Centipede-1388 with your Hell-Blade!
+>
+wie he
+***
+You've hit Giant-Centipede-1388 with your Hell-Blade!
+***
+Giant-Centipede-1388 is gasping in amazement!
+>
+wie he
+***
+You've hit Giant-Centipede-1388 with your Hell-Blade!
+***
+You have slain Giant-Centipede-1388!
+Your experience points are increased by 16666!
+You collect 7480 Riblets and 86352 ions from the slain body.
+***
+
+Giant-Centipede-1388 is crumbling to dust!
+>
+hea
+***
+Your body glows at it heals 17 points!
+***
+You're healed to the maximum!
+>
+s
+***
+Broken lamp posts line the streets.
+Compass: (-5E : -1N)
+north - area continues.
+south - open gate.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1), A Sword-Of-Simba, A Demon Vest, A
+Striking Whip. 
+***
+You see shadows to the south.
+>
+s
+***
+STORE OWNED BY Eradicator
+Compass: (-5E : -2N)
+north - open gate.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1), A Broken-Weapon (2), A Skull. 
+***
+Centaur-Warrior-748 is here.
+***
+You see shadows to the east.
+>
+
+com c
+***
+You're ready to combat Centaur-Warrior-748!
+>
+wie he
+***
+You've hit Centaur-Warrior-748 with your Hell-Blade!
+***
+The Centaur-Warrior-748 talks: You're a fool, Vindeiatrix!
+***
+Centaur-Warrior-748 is getting ready to combat you!
+***
+The Centaur-Warrior-748 smashes a fist into you!
+***
+You suffer 6 hit points of damage!
+>
+wie he
+***
+You've hit Centaur-Warrior-748 with your Hell-Blade!
+***
+Centaur-Warrior-748's armour has just cracked down the center!
+***
+You have slain Centaur-Warrior-748!
+Your experience points are increased by 17333!
+You collect 25480 Riblets and 103462 ions from the slain body.
+***
+
+A Compound-Sword is falling from Centaur-Warrior-748's body!
+***
+A Skull is falling from Centaur-Warrior-748's body!
+***
+Centaur-Warrior-748 is crumbling to dust!
+>
+hea
+***
+Your body glows at it heals 17 points!
+***
+You're healed to the maximum!
+>
+look
+
+Imscrewed logs ON line 3.  [28-AUG-25/11:05:06] Users Online: 2: >***
+STORE OWNED BY Eradicator
+Compass: (-5E : -2N)
+north - open gate.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1), A Broken-Weapon (2), A Skull, A
+Compound-Sword, A Skull (1). 
+***
+You see shadows to the east.
+>
+e
+***
+You're in a maintenance shop.
+Compass: (-4E : -2N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Gas-Grenade, A Broken-Weapon, A Godly-Dagger, A Skull, Golden-Horns, An
+Ion-Decay. 
+***
+Destroyer-Demon-1468 is here.
+***
+Destroyer-Demon-1468 whispers: You are my slave now, Vindeiatrix!
+***
+Destroyer-Demon-1468 has hit you with his Sword-Of-Simba!
+>
+
+com d
+***
+You're ready to combat Destroyer-Demon-1468!
+***
+Destroyer-Demon-1468 has hit you with his Sword-Of-Simba!
+>
+wie he
+***
+You've hit Destroyer-Demon-1468 with your Hell-Blade!
+***
+Destroyer-Demon-1468's body is glowing!
+>
+wie he
+***
+You've hit Destroyer-Demon-1468 with your Hell-Blade!
+***
+Destroyer-Demon-1468 has hit you with his Sword-Of-Simba!
+>
+wie he
+***
+You've hit Destroyer-Demon-1468 with your Hell-Blade!
+***
+Destroyer-Demon-1468's body is glowing!
+>
+wie he
+***
+You've hit Destroyer-Demon-1468 with your Hell-Blade!
+***
+Destroyer-Demon-1468 screams: Get away from me, Vindeiatrix!!!
+***
+Destroyer-Demon-1468 has just left east
+***
+You hear loud sounds of footsteps to the east.
+>
+poi e lig
+***
+You release the lightning bolt east!
+***
+This area suddenly lights up with a white, blinding flash!
+***
+You hit Destroyer-Demon-1468 with the lightning bolt!
+***
+You have slain Destroyer-Demon-1468!
+Your experience points are increased by 19333!
+You collect 31480 Riblets and 114800 ions from the slain body.
+>
+e
+***
+You're in an abandoned building.
+Compass: (-3E : -2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon, An Ion-Booster, A Sword-Of-Simba, A Flame-Robe, A Striking
+Whip, A Skull. 
+>
+hea
+***
+Nothing happens!
+>
+get swo
+***
+You pick up the Sword-Of-Simba.
+>
+con swo
+***
+The Sword-Of-Simba vanishes with a flash!
+You convert the Sword-Of-Simba into 174900 ions.
+>
+s
+***
+An old hydro line has fallen here.
+Compass: (-3E : -3N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+A Nuclear-Decay, A Broken-Weapon, A Hell-Blade, A Skull, A Demon-Cloth. 
+>
+s
+***
+A sign reads: FOR SALE $ 675000
+Compass: (-3E : -4N)
+north - area continues.
+east  - area continues.
+west  - open gate.
+***
+On the ground lies:
+A Bull-Whip, A Broken-Weapon, A Bottle-Cap, A Striking Whip, A Skull. 
+***
+You see shadows to the west.
+>
+w
+***
+A sign reads: FOR SALE $ 675000
+Compass: (-4E : -4N)
+east  - open gate.
+west  - open gate.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1), A Skull, A Skull (1). 
+***
+Mutant-Panther-1068 is here.
+>
+
+Imscrewed logs OFF.  [28-AUG-25/11:05:36] Users Online: 2: >
+com m
+***
+You're ready to combat Mutant-Panther-1068!
+>
+wie he
+***
+You've hit Mutant-Panther-1068 with your Hell-Blade!
+***
+The Mutant-Panther-1068 talks: All non-mutants die, Vindeiatrix!
+***
+Mutant-Panther-1068 is getting ready to combat you!
+***
+Mutant-Panther-1068's body is glowing!
+>
+wie he
+***
+You've hit Mutant-Panther-1068 with your Hell-Blade!
+***
+Mutant-Panther-1068's armour has just cracked down the center!
+***
+Mutant-Panther-1068's body is glowing!
+>
+wie he
+***
+You've hit Mutant-Panther-1068 with your Hell-Blade!
+***
+The Mutant-Panther-1068 casts radiaton blast at you!
+***
+You suffer 6 hit points of damage!
+>
+wie he
+***
+You've hit Mutant-Panther-1068 with your Hell-Blade!
+***
+Mutant-Panther-1068 has hit you with his Giant-Sword!
+***
+Mutant-Panther-1068's Giant-Sword has just cracked in half!
+>
+wie he
+***
+You've hit Mutant-Panther-1068 with your Hell-Blade!
+***
+Mutant-Panther-1068's body is glowing!
+>
+wie he
+***
+You've hit Mutant-Panther-1068 with your Hell-Blade!
+***
+Mutant-Panther-1068's body is glowing!
+>
+wie he
+***
+You've hit Mutant-Panther-1068 with your Hell-Blade!
+***
+Mutant-Panther-1068 has hit you with his Blast-Grenade!
+>
+wie he
+***
+You've hit Mutant-Panther-1068 with your Hell-Blade!
+***
+You have slain Mutant-Panther-1068!
+Your experience points are increased by 18666!
+You collect 19480 Riblets and 26256 ions from the slain body.
+***
+
+A Gas-Grenade is falling from Mutant-Panther-1068's body!
+***
+A Blast-Grenade is falling from Mutant-Panther-1068's body!
+***
+Mutant-Panther-1068 is crumbling to dust!
+>
+hea
+***
+Your body glows at it heals 17 points!
+***
+You're healed to the maximum!
+>
+s
+***
+You're blocked!
+>
+w
+***
+Broken lamp posts line the streets.
+Compass: (-5E : -4N)
+north - area continues.
+east  - open gate.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1), A Broken-Weapon (2), A Broken-Weapon (3),
+A Skull, A Sword-Of-Simba. 
+>***
+Telepathic Blurb:  Tunnel-Mutant-155 has slain Sandworm-1195!
+>
+w
+***
+You're in an abandoned building.
+Compass: (-6E : -4N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1), A Glowing-Horn, An Opal Knife, A Skull, A
+Skull (1). 
+***
+You see shadows to the west.
+>
+w
+***
+The wind is whistling through open windows.
+Compass: (-7E : -4N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Gold-Chunck, A Glowing-Horn, A Skull, A Nuclear-Rock, A Skull (1), A
+Hell-Blade. 
+***
+Giant-Centipede-2508 is here.
+***
+You see shadows to the west.
+***
+Giant-Centipede-2508 spits: HAHA some more fun!, Vindeiatrix!
+***
+Giant-Centipede-2508 picked up the Gold-Chunck.
+>
+
+com g
+***
+You're ready to combat Giant-Centipede-2508!
+***
+Giant-Centipede-2508 picked up the Glowing-Horn.
+>
+wie he
+***
+You've hit Giant-Centipede-2508 with your Hell-Blade!
+***
+Giant-Centipede-2508 points his Glowing-Horn west!
+***
+This area suddenly lights up with a white, blinding flash!
+***
+You've been hit by a lightning bolt!
+***
+You suffer 6 hit points of damage!
+>
+wie he
+***
+You've hit Giant-Centipede-2508 with your Hell-Blade!
+***
+Giant-Centipede-2508's armour has just cracked down the center!
+***
+Giant-Centipede-2508 points his Glowing-Horn west!
+***
+This area suddenly lights up with a white, blinding flash!
+***
+You've been hit by a lightning bolt!
+***
+You suffer 6 hit points of damage!
+>
+wie he
+***
+You've hit Giant-Centipede-2508 with your Hell-Blade!
+***
+Giant-Centipede-2508's body is glowing!
+>
+wie he
+***
+You've hit Giant-Centipede-2508 with your Hell-Blade!
+***
+Giant-Centipede-2508 points his Glowing-Horn west!
+***
+This area suddenly lights up with a white, blinding flash!
+***
+You've been hit by a lightning bolt!
+***
+You suffer 6 hit points of damage!
+>
+wie he
+***
+You've hit Giant-Centipede-2508 with your Hell-Blade!
+***
+Giant-Centipede-2508's body is glowing!
+>
+wie he
+***
+You've hit Giant-Centipede-2508 with your Hell-Blade!
+***
+Giant-Centipede-2508 picked up the Skull.
+>
+wie he
+***
+You've hit Giant-Centipede-2508 with your Hell-Blade!
+***
+You have slain Giant-Centipede-2508!
+Your experience points are increased by 16666!
+You collect 6280 Riblets and 94452 ions from the slain body.
+***
+
+A Bronze-Horn is falling from Giant-Centipede-2508's body!
+***
+A Gold-Chunck is falling from Giant-Centipede-2508's body!
+***
+A Glowing-Horn is falling from Giant-Centipede-2508's body!
+***
+Giant-Centipede-2508 is crumbling to dust!
+>
+Brute logs ON line 3.  [28-AUG-25/11:06:04] Users Online: 2: >
+stat
+***
+
+Name: Vindeiatrix / Mutant Mage
+Exhaustion    : 0  
+Str: 68     Int: 109   Wis: 105
+Dex: 58     Con: 64    Cha: 98 
+Hit Points    : 69  / 87 
+Exp. Points   : 16740052 Level: 12 
+Riblets       : 9833626
+Ions          : 2164167
+Wearing Armor : Eazy-Armour  Armour Class: 461
+Ready to Combat: NO ONE
+Readied Spell  : Dispell Magic: READY.
+Year A.D.      : 4600
+
+You are carrying the following items:  (Total Weight: 239 LB's)
+Lightning-Rod, Cleric-Rod, Hell-Blade.
+>
+hea
+***
+Your body glows at it heals 17 points!
+>
+hea
+***
+Your body glows at it heals 17 points!
+***
+You're healed to the maximum!
+>
+w
+***
+A sign reads: FOR SALE $ 675000
+Compass: (-8E : -4N)
+south - area continues.
+east  - area continues.
+west  - open gate.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1), A Broken-Weapon (2), A Broken-Weapon (3),
+A Broken-Weapon (4), A Broken-Weapon (5). 
+***
+Demigorgon-348 is here.
+***
+You see shadows to the west.
+***
+Demigorgon-348 snarls: Your torture begins, Vindeiatrix!
+>
+
+com d
+***
+You're ready to combat Demigorgon-348!
+***
+Demigorgon-348 has hit you with his Bull-Whip!
+***
+Demigorgon-348's Bull-Whip has just cracked in half!
+>
+wie he
+***
+You've hit Demigorgon-348 with your Hell-Blade!
+***
+Demigorgon-348 has hit you with his Brass-Key!
+>
+wie he
+***
+You've hit Demigorgon-348 with your Hell-Blade!
+***
+Demigorgon-348's armour has just cracked down the center!
+***
+Demigorgon-348 has hit you with his Brass-Key!
+>
+wie he
+***
+You've hit Demigorgon-348 with your Hell-Blade!
+***
+Demigorgon-348 has hit you with his Brass-Key!
+>
+wie he
+***
+You've hit Demigorgon-348 with your Hell-Blade!
+***
+You have slain Demigorgon-348!
+Your experience points are increased by 17333!
+You collect 30280 Riblets and 101662 ions from the slain body.
+***
+
+Demigorgon-348 is crumbling to dust!
+>
+look
+***
+A sign reads: FOR SALE $ 675000
+Compass: (-8E : -4N)
+south - area continues.
+east  - area continues.
+west  - open gate.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1), A Broken-Weapon (2), A Broken-Weapon (3),
+A Broken-Weapon (4), A Broken-Weapon (5). 
+***
+You see shadows to the west.
+>
+w
+***
+Graffiti lines the city walls.
+Compass: (-9E : -4N)
+east  - open gate.
+west  - area continues.
+***
+On the ground lies:
+A Bull-Whip, A Bottle-Cap, A Brass-Key, A Skull, A Skull (1), A Demon-Plate. 
+***
+Kraken-188 is here.
+>
+
+com k
+***
+You're ready to combat Kraken-188!
+>
+wie he
+***
+You've hit Kraken-188 with your Hell-Blade!
+***
+The Kraken-188 bubbles: I'll pummel you, Vindeiatrix!
+***
+Kraken-188 is getting ready to combat you!
+***
+Kraken-188 has hit you with his Coral-Sword!
+***
+Kraken-188's Coral-Sword has just cracked in half!
+>
+wie he
+***
+You've hit Kraken-188 with your Hell-Blade!
+***
+Kraken-188's armour has just cracked down the center!
+***
+Kraken-188 screams: Get away from me, Vindeiatrix!!!
+>
+wie he
+***
+You've hit Kraken-188 with your Hell-Blade!
+***
+You have slain Kraken-188!
+Your experience points are increased by 16666!
+You collect 5080 Riblets and 66720 ions from the slain body.
+***
+
+Kraken-188 is crumbling to dust!
+>
+hea
+***
+Nothing happens!
+>
+w
+***
+City Trading Centre
+Compass: (-10E : -4N)
+north - open gate.
+east  - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1), A Broken-Weapon (2), A Broken-Weapon (3),
+A Skull. 
+***
+You see shadows to the north.
+>
+n
+***
+Broken glass covers the road.
+Compass: (-10E : -3N)
+north - area continues.
+south - open gate.
+***
+On the ground lies:
+A Nuclear-thong, A Broken-Weapon, A Thor-Hammer, A Glowing-Horn, A Skull, A
+Skull (1). 
+***
+Thunder-Homonk-1228 is here.
+>
+look t
+***
+Standing before you is a level 26 Thunder-Homonk!
+***
+Thunder-Homonk-1228 looks in great shape and ready for battle!
+***
+You notice Thunder-Homonk-1228 is carrying a Creet-Rod!
+>
+
+com t
+***
+You're ready to combat Thunder-Homonk-1228!
+>
+wie he
+***
+You've hit Thunder-Homonk-1228 with your Hell-Blade!
+***
+The Thunder-Homonk-1228 bellows: Well I guess yer next, Vindeiatrix!
+***
+Thunder-Homonk-1228 is getting ready to combat you!
+***
+Thunder-Homonk-1228's body is glowing!
+>
+wie he
+***
+You've hit Thunder-Homonk-1228 with your Hell-Blade!
+***
+Thunder-Homonk-1228's armour has just cracked down the center!
+***
+Thunder-Homonk-1228's body is glowing!
+>
+wie he
+***
+You've hit Thunder-Homonk-1228 with your Hell-Blade!
+***
+Thunder-Homonk-1228 laughs: You can't fool me!!
+***
+You see a blinding white flash illuminate from Thunder-Homonk-1228's body!
+>
+wie he
+***
+You've hit Thunder-Homonk-1228 with your Hell-Blade!
+***
+Thunder-Homonk-1228's body is glowing!
+>
+wie he
+***
+You've hit Thunder-Homonk-1228 with your Hell-Blade!
+***
+Thunder-Homonk-1228 picked up the Nuclear-thong.
+>
+wie he
+***
+You've hit Thunder-Homonk-1228 with your Hell-Blade!
+***
+Thunder-Homonk-1228 has hit you with his Nuclear-thong!
+>
+wie he
+***
+You've hit Thunder-Homonk-1228 with your Hell-Blade!
+***
+Thunder-Homonk-1228's body is glowing!
+>
+wie he
+***
+You've hit Thunder-Homonk-1228 with your Hell-Blade!
+***
+Thunder-Homonk-1228 has hit you with his Nuclear-thong!
+>
+wie he
+***
+You've hit Thunder-Homonk-1228 with your Hell-Blade!
+***
+You have slain Thunder-Homonk-1228!
+Your experience points are increased by 18000!
+You collect 9880 Riblets and 107920 ions from the slain body.
+***
+
+A Nuclear-thong is falling from Thunder-Homonk-1228's body!
+***
+Thunder-Homonk-1228 is crumbling to dust!
+>
+hea
+***
+Nothing happens!
+>
+n
+***
+Broken glass covers the road.
+Compass: (-10E : -2N)
+north - area continues.
+south - area continues.
+west  - open gate.
+***
+On the ground lies:
+A Curved-Ram, A Nuclear-Decay, A Skull, A Broken-Weapon, A Cigarette-Butt, A
+Skull (1). 
+***
+You see shadows to the north, west.
+>
+w
+***
+A sign reads: FOR SALE $ 675000
+Compass: (-11E : -2N)
+north - area continues.
+east  - open gate.
+west  - area continues.
+***
+On the ground lies:
+A Monster-Bait, A Broken-Weapon, A Broken-Weapon (1), A Gold-Chunck, A
+Brass-Key, A Skull. 
+***
+Centaur-Warrior-2668 is here.
+***
+You see shadows to the west.
+>
+
+com c
+***
+You're ready to combat Centaur-Warrior-2668!
+>
+look c
+***
+Standing before you is a level 25 Centaur-Warrior!
+***
+Centaur-Warrior-2668 looks in great shape and ready for battle!
+***
+You notice Centaur-Warrior-2668 is carrying a Compound-Sword!
+>
+wie he
+***
+You've hit Centaur-Warrior-2668 with your Hell-Blade!
+***
+The Centaur-Warrior-2668 talks: You're a fool, Vindeiatrix!
+***
+Centaur-Warrior-2668 is getting ready to combat you!
+***
+Centaur-Warrior-2668's body is glowing!
+>
+wie he
+***
+You've hit Centaur-Warrior-2668 with your Hell-Blade!
+***
+Centaur-Warrior-2668's armour has just cracked down the center!
+***
+Centaur-Warrior-2668's body is glowing!
+>
+wie he
+***
+You've hit Centaur-Warrior-2668 with your Hell-Blade!
+***
+The Centaur-Warrior-2668 smashes a fist into you!
+***
+You suffer 6 hit points of damage!
+***
+Centaur-Warrior-2668 picked up the Monster-Bait.
+>
+wie he
+***
+You've hit Centaur-Warrior-2668 with your Hell-Blade!
+***
+Centaur-Warrior-2668's body is glowing!
+>
+wie he
+***
+You've hit Centaur-Warrior-2668 with your Hell-Blade!
+***
+Centaur-Warrior-2668's body is glowing!
+>
+wie he
+***
+You've hit Centaur-Warrior-2668 with your Hell-Blade!
+***
+Centaur-Warrior-2668 has hit you with his Compound-Sword!
+***
+Centaur-Warrior-2668's Compound-Sword has just cracked in half!
+>
+wie he
+***
+You've hit Centaur-Warrior-2668 with your Hell-Blade!
+***
+Centaur-Warrior-2668 has hit you with his Monster-Bait!
+>
+wie he
+***
+You've hit Centaur-Warrior-2668 with your Hell-Blade!
+***
+Centaur-Warrior-2668 has hit you with his Monster-Bait!
+>
+wie he
+***
+You've hit Centaur-Warrior-2668 with your Hell-Blade!
+***
+The Centaur-Warrior-2668 smashes a fist into you!
+***
+You suffer 6 hit points of damage!
+***
+Centaur-Warrior-2668 picked up the Gold-Chunck.
+>
+wie he
+***
+You've hit Centaur-Warrior-2668 with your Hell-Blade!
+***
+You have slain Centaur-Warrior-2668!
+Your experience points are increased by 17333!
+You collect 9880 Riblets and 3187 ions from the slain body.
+***
+
+A Monster-Bait is falling from Centaur-Warrior-2668's body!
+***
+A Gold-Chunck is falling from Centaur-Warrior-2668's body!
+***
+Centaur-Warrior-2668 is crumbling to dust!
+>
+hea
+***
+Your body glows at it heals 17 points!
+***
+You're healed to the maximum!
+>
+look
+***
+A sign reads: FOR SALE $ 675000
+Compass: (-11E : -2N)
+north - area continues.
+east  - open gate.
+west  - area continues.
+***
+On the ground lies:
+A Monster-Bait, A Broken-Weapon, A Broken-Weapon (1), A Gold-Chunck, A
+Brass-Key, A Skull. 
+***
+You see shadows to the west.
+>
+w
+***
+The two moons are rising above.
+Compass: (-12E : -2N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Giant-Sword, A Glowing-Horn. 
+***
+Thunder-Homonk-2268 is here.
+***
+You see shadows to the west.
+>
+
+com t
+
+***
+You're ready to combat Thunder-Homonk-2268!
+>wie he
+***
+You've hit Thunder-Homonk-2268 with your Hell-Blade!
+***
+The Thunder-Homonk-2268 bellows: Well I guess yer next, Vindeiatrix!
+***
+Thunder-Homonk-2268 is getting ready to combat you!
+***
+Thunder-Homonk-2268 laughs: You can't fool me!!
+***
+You see a blinding white flash illuminate from Thunder-Homonk-2268's body!
+>
+wie he
+***
+You've hit Thunder-Homonk-2268 with your Hell-Blade!
+***
+Thunder-Homonk-2268's armour has just cracked down the center!
+***
+Thunder-Homonk-2268's body is glowing!
+>
+wie he
+***
+You've hit Thunder-Homonk-2268 with your Hell-Blade!
+>
+wie he
+***
+You've hit Thunder-Homonk-2268 with your Hell-Blade!
+***
+Thunder-Homonk-2268's body is glowing!
+>
+wie he
+***
+You've hit Thunder-Homonk-2268 with your Hell-Blade!
+***
+Thunder-Homonk-2268's body is glowing!
+>
+wie he
+***
+You've hit Thunder-Homonk-2268 with your Hell-Blade!
+***
+Thunder-Homonk-2268 picked up the Giant-Sword.
+>
+wie he
+***
+You've hit Thunder-Homonk-2268 with your Hell-Blade!
+***
+Thunder-Homonk-2268 has hit you with his Giant-Sword!
+***
+Thunder-Homonk-2268's Giant-Sword has just cracked in half!
+>
+wie he
+***
+You've hit Thunder-Homonk-2268 with your Hell-Blade!
+***
+Thunder-Homonk-2268's body is glowing!
+>
+wie he
+***
+You've hit Thunder-Homonk-2268 with your Hell-Blade!
+***
+Thunder-Homonk-2268 has hit you with his Broken-Weapon!
+>
+wie he
+***
+You've hit Thunder-Homonk-2268 with your Hell-Blade!
+***
+Thunder-Homonk-2268's body is glowing!
+>
+wie he
+***
+You've hit Thunder-Homonk-2268 with your Hell-Blade!
+***
+Thunder-Homonk-2268 picked up the Glowing-Horn.
+>
+wie he
+***
+You've hit Thunder-Homonk-2268 with your Hell-Blade!
+***
+You have slain Thunder-Homonk-2268!
+Your experience points are increased by 18000!
+You collect 23080 Riblets and 92918 ions from the slain body.
+***
+
+A Glowing-Horn is falling from Thunder-Homonk-2268's body!
+***
+A Skull is falling from Thunder-Homonk-2268's body!
+***
+Thunder-Homonk-2268 is crumbling to dust!
+>
+hea
+***
+Nothing happens!
+>
+look
+***
+The two moons are rising above.
+Compass: (-12E : -2N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Glowing-Horn, A Skull. 
+***
+You see shadows to the west.
+>
+w
+***
+You feel a cold breeze.
+Compass: (-13E : -2N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1), Stag-Horns, A Godly-Dagger, A Skull. 
+***
+Kraken-588 is here.
+***
+Kraken-588 bubbles: I'll pummel you, Vindeiatrix!
+***
+The Kraken-588 stings you!
+***
+You suffer 6 hit points of damage!
+>
+look k
+***
+Standing before you is a level 24 Kraken!
+***
+Kraken-588 looks in great shape and ready for battle!
+***
+You notice Kraken-588 is carrying a Coral-Sword!
+***
+Kraken-588 picked up the Stag-Horns.
+>
+wie he
+***
+You're not ready to combat anyone!
+>
+wie he
+***
+You're not ready to combat anyone!
+***
+Kraken-588 picked up the Godly-Dagger.
+>
+
+com k
+***
+You're ready to combat Kraken-588!
+***
+Kraken-588 has hit you with his Stag-Horns!
+***
+Kraken-588's Stag-Horns has just cracked in half!
+>
+wie he
+***
+You've hit Kraken-588 with your Hell-Blade!
+***
+Kraken-588 screams: Get away from me, Vindeiatrix!!!
+>
+wie he
+***
+You've hit Kraken-588 with your Hell-Blade!
+***
+Kraken-588's armour has just cracked down the center!
+***
+You have slain Kraken-588!
+Your experience points are increased by 16666!
+You collect 29080 Riblets and 116712 ions from the slain body.
+***
+
+A Coral-Sword is falling from Kraken-588's body!
+***
+A Godly-Dagger is falling from Kraken-588's body!
+***
+A Skull is falling from Kraken-588's body!
+***
+Kraken-588 is crumbling to dust!
+>
+hea
+
+***
+Your body glows at it heals 17 points!
+***
+You're healed to the maximum!
+>look
+***
+You feel a cold breeze.
+Compass: (-13E : -2N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1), A Coral-Sword, A Godly-Dagger, A Skull, A
+Skull (1). 
+>
+w
+***
+An eerie calm settles in the distance.
+Compass: (-14E : -2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+On the ground lies:
+A Mood-Ring, A Broken-Weapon, A Skull, An Ion-Booster, A Skull (1). 
+>
+w
+***
+You're blocked!
+>
+n
+***
+You're in a maintenance shop.
+Compass: (-14E : -1N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1), A Broken-Weapon (2), A Broken-Weapon (3),
+A Fang-Dagger. 
+***
+You see shadows to the north.
+>
+n
+***
+The wind is whistling through open windows.
+Compass: (-14E : 0N)
+north - area continues.
+south - area continues.
+west  - open gate.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1), A Broken-Weapon (2), A Broken-Weapon (3),
+A Flame-Sword, A Skull. 
+***
+Succubus-Demon-2828 is here.
+***
+You see shadows to the north.
+***
+Succubus-Demon-2828 flirts: Happy to see me, Vindeiatrix!
+***
+Succubus-Demon-2828 picked up the Skull.
+>
+
+com s
+***
+You're ready to combat Succubus-Demon-2828!
+***
+You see a blinding white flash illuminate from Succubus-Demon-2828's body!
+>
+wie he
+***
+You've hit Succubus-Demon-2828 with your Hell-Blade!
+***
+Succubus-Demon-2828's body is glowing!
+>
+wie he
+***
+You've hit Succubus-Demon-2828 with your Hell-Blade!
+***
+Succubus-Demon-2828's armour has just cracked down the center!
+***
+Succubus-Demon-2828 has hit you with his Golden-Pin!
+***
+Succubus-Demon-2828's Golden-Pin has just cracked in half!
+>
+wie he
+***
+You've hit Succubus-Demon-2828 with your Hell-Blade!
+***
+Succubus-Demon-2828's body is glowing!
+>
+wie he
+***
+You've hit Succubus-Demon-2828 with your Hell-Blade!
+***
+Succubus-Demon-2828's body is glowing!
+>
+wie he
+***
+You've hit Succubus-Demon-2828 with your Hell-Blade!
+***
+Succubus-Demon-2828 screams: Get away from me, Vindeiatrix!!!
+***
+Succubus-Demon-2828 has just left south
+***
+You hear loud sounds of footsteps to the south.
+>
+s
+***
+You're in a maintenance shop.
+Compass: (-14E : -1N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1), A Broken-Weapon (2), A Broken-Weapon (3),
+A Fang-Dagger. 
+***
+Succubus-Demon-2828 is here.
+***
+Succubus-Demon-2828 picked up the Fang-Dagger.
+>
+look
+***
+You're in a maintenance shop.
+Compass: (-14E : -1N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1), A Broken-Weapon (2), A Broken-Weapon (3).
+
+***
+Succubus-Demon-2828 is here.
+***
+Succubus-Demon-2828 has hit you with his Fang-Dagger!
+***
+Succubus-Demon-2828's Fang-Dagger has just cracked in half!
+>
+look
+***
+You're in a maintenance shop.
+Compass: (-14E : -1N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1), A Broken-Weapon (2), A Broken-Weapon (3).
+
+***
+Succubus-Demon-2828 is here.
+***
+Succubus-Demon-2828 screams: Get away from me, Vindeiatrix!!!
+>
+look
+***
+You're in a maintenance shop.
+Compass: (-14E : -1N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1), A Broken-Weapon (2), A Broken-Weapon (3).
+
+***
+Succubus-Demon-2828 is here.
+***
+Succubus-Demon-2828 has hit you with his Broken-Weapon!
+>
+look
+***
+You're in a maintenance shop.
+Compass: (-14E : -1N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1), A Broken-Weapon (2), A Broken-Weapon (3).
+
+***
+Succubus-Demon-2828 is here.
+***
+Succubus-Demon-2828 dropped his Broken-Weapon.
+>
+look
+***
+You're in a maintenance shop.
+Compass: (-14E : -1N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1), A Broken-Weapon (2), A Broken-Weapon (3),
+A Broken-Weapon (4). 
+***
+Succubus-Demon-2828 is here.
+***
+Succubus-Demon-2828 has hit you with his Broken-Weapon!
+>
+wie he
+***
+You've hit Succubus-Demon-2828 with your Hell-Blade!
+***
+You have slain Succubus-Demon-2828!
+Your experience points are increased by 19333!
+You collect 18280 Riblets and 100852 ions from the slain body.
+***
+
+A Skull is falling from Succubus-Demon-2828's body!
+***
+Succubus-Demon-2828 is crumbling to dust!
+>
+hea
+***
+Nothing happens!
+>
+n
+***
+The wind is whistling through open windows.
+Compass: (-14E : 0N)
+north - area continues.
+south - area continues.
+west  - open gate.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1), A Broken-Weapon (2), A Broken-Weapon (3),
+A Flame-Sword. 
+***
+You see shadows to the north.
+>
+n
+***
+You feel a cold breeze.
+Compass: (-14E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Sword-Of-Simba, A Coral-Sword, A Skull, A Skull (1), A Bottle-Cap, A Skull
+(2). 
+***
+Opal-Cockatrice-1228, and Poison-Couatl-2428 are here with you.
+***
+Opal-Cockatrice-1228 cherps: Touch me, you'll be sorry, Vindeiatrix!
+***
+Poison-Couatl-2428 hissss: They call me dive bomber, Vindeiatrix!
+***
+Opal-Cockatrice-1228 picked up the Bottle-Cap.
+***
+Poison-Couatl-2428 has hit you with his Fang-Dagger!
+***
+Poison-Couatl-2428's Fang-Dagger has just cracked in half!
+>
+
+com p
+***
+You're ready to combat Poison-Couatl-2428!
+***
+Opal-Cockatrice-1228 picked up the Coral-Sword.
+***
+The Poison-Couatl-2428 bites you!
+***
+You suffer 6 hit points of damage!
+***
+Poison-Couatl-2428 picked up the Sword-Of-Simba.
+>
+wie he
+***
+You've hit Poison-Couatl-2428 with your Hell-Blade!
+***
+Poison-Couatl-2428's body is glowing!
+>
+wie he
+***
+You've hit Poison-Couatl-2428 with your Hell-Blade!
+***
+Poison-Couatl-2428's armour has just cracked down the center!
+***
+Opal-Cockatrice-1228 has hit you with his Coral-Sword!
+***
+Opal-Cockatrice-1228's Coral-Sword has just cracked in half!
+***
+Poison-Couatl-2428 has hit you with his Sword-Of-Simba!
+>
+wie he
+***
+You've hit Poison-Couatl-2428 with your Hell-Blade!
+***
+Opal-Cockatrice-1228 has hit you with his Opal Knife!
+***
+Opal-Cockatrice-1228's Opal Knife has just cracked in half!
+***
+Poison-Couatl-2428 has hit you with his Sword-Of-Simba!
+>
+wie he
+***
+You've hit Poison-Couatl-2428 with your Hell-Blade!
+***
+Opal-Cockatrice-1228 picked up the Skull.
+***
+Poison-Couatl-2428 picked up the Skull.
+>
+wie he
+***
+You've hit Poison-Couatl-2428 with your Hell-Blade!
+***
+You have slain Poison-Couatl-2428!
+Your experience points are increased by 17333!
+You collect 21880 Riblets and 67025 ions from the slain body.
+***
+
+A Pink-Potion is falling from Poison-Couatl-2428's body!
+***
+A Sword-Of-Simba is falling from Poison-Couatl-2428's body!
+***
+A Skull is falling from Poison-Couatl-2428's body!
+***
+A Skull is falling from Poison-Couatl-2428's body!
+***
+Poison-Couatl-2428 is crumbling to dust!
+***
+Opal-Cockatrice-1228 has hit you with his Skull!
+***
+You see a blinding white flash illuminate from Opal-Cockatrice-1228's body!
+>
+
+com o
+***
+You're ready to combat Opal-Cockatrice-1228!
+***
+The Opal-Cockatrice-1228 touches you!
+***
+You suffer 6 hit points of damage!
+***
+Opal-Cockatrice-1228 picked up the Pink-Potion.
+>
+wie he
+***
+You've hit Opal-Cockatrice-1228 with your Hell-Blade!
+***
+Opal-Cockatrice-1228's body is glowing!
+>
+wie he
+***
+You've hit Opal-Cockatrice-1228 with your Hell-Blade!
+***
+Opal-Cockatrice-1228's armour has just cracked down the center!
+***
+Opal-Cockatrice-1228's body is glowing!
+>
+wie he
+***
+You've hit Opal-Cockatrice-1228 with your Hell-Blade!
+***
+Opal-Cockatrice-1228 has hit you with his Bottle-Cap!
+>
+wie he
+***
+You've hit Opal-Cockatrice-1228 with your Hell-Blade!
+***
+The Opal-Cockatrice-1228 touches you!
+***
+You suffer 6 hit points of damage!
+***
+Opal-Cockatrice-1228 picked up the Skull.
+>
+wie he
+***
+You've hit Opal-Cockatrice-1228 with your Hell-Blade!
+***
+Opal-Cockatrice-1228 has hit you with his Skull!
+***
+You see a blinding white flash illuminate from Opal-Cockatrice-1228's body!
+>
+wie he
+***
+You've hit Opal-Cockatrice-1228 with your Hell-Blade!
+***
+Opal-Cockatrice-1228 has hit you with his Bottle-Cap!
+>
+wie he
+***
+You've hit Opal-Cockatrice-1228 with your Hell-Blade!
+***
+The Opal-Cockatrice-1228 touches you!
+***
+You suffer 6 hit points of damage!
+***
+Opal-Cockatrice-1228 picked up the Sword-Of-Simba.
+>
+wie he
+***
+You've hit Opal-Cockatrice-1228 with your Hell-Blade!
+***
+Opal-Cockatrice-1228 dropped his Broken-Weapon.
+>
+look op
+***
+Standing before you is a level 25 Opal-Cockatrice!
+***
+Opal-Cockatrice-1228 is gashed, bleeding, and looks almost dead!
+***
+Opal-Cockatrice-1228 picked up the Skull.
+>
+wie he
+***
+You've hit Opal-Cockatrice-1228 with your Hell-Blade!
+***
+You have slain Opal-Cockatrice-1228!
+Your experience points are increased by 17333!
+You collect 13480 Riblets and 20037 ions from the slain body.
+***
+
+A Skull is falling from Opal-Cockatrice-1228's body!
+***
+A Bottle-Cap is falling from Opal-Cockatrice-1228's body!
+***
+A Pink-Potion is falling from Opal-Cockatrice-1228's body!
+***
+A Sword-Of-Simba is falling from Opal-Cockatrice-1228's body!
+***
+Opal-Cockatrice-1228 is crumbling to dust!
+>
+hea
+***
+Your body glows at it heals 17 points!
+>
+hea
+***
+Your body glows at it heals 17 points!
+***
+You're healed to the maximum!
+>
+look
+***
+You feel a cold breeze.
+Compass: (-14E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Skull, A Bottle-Cap, A Pink-Potion, A Sword-Of-Simba, A
+Skull (1). 
+>
+w
+***
+Relics of the war line the streets.
+Compass: (-15E : 1N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Glowing-Horn, A Skull, A Skull (1). 
+>
+
+e
+n
+***
+You feel a cold breeze.
+Compass: (-14E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Skull, A Bottle-Cap, A Pink-Potion, A Sword-Of-Simba, A
+Skull (1). 
+>***
+It's too dark to see anything!
+>
+n
+***
+You're in a wrecked building.
+Compass: (-14E : 3N)
+south - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Gas-Grenade, A Gas-Grenade (1), A Skull, A Broken-Weapon
+(1), A Demon-Plate. 
+>
+n
+***
+You're blocked!
+>
+s
+***
+It's too dark to see anything!
+>
+mem dis
+***
+You've already memorized that spell!
+>
+stat
+***
+
+Name: Vindeiatrix / Mutant Mage
+Exhaustion    : 0  
+Str: 68     Int: 109   Wis: 105
+Dex: 58     Con: 64    Cha: 98 
+Hit Points    : 87  / 87 
+Exp. Points   : 16898049 Level: 12 
+Riblets       : 9994546
+Ions          : 2727800
+Wearing Armor : Eazy-Armour  Armour Class: 461
+Ready to Combat: NO ONE
+Readied Spell  : Dispell Magic: READY.
+Year A.D.      : 4600
+
+You are carrying the following items:  (Total Weight: 239 LB's)
+Lightning-Rod, Cleric-Rod, Hell-Blade.
+>
+cas
+***
+...casted!
+>
+last
+***
+The darkness has been lifted from this area.
+***
+...casted!
+>
+look
+***
+Graffiti lines the city walls.
+Compass: (-14E : 2N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+A Mood-Ring, A Sword-Of-Simba, A Bottle-Cap, A Nuclear-Waste, A Skull, An Opal
+Knife. 
+>
+w
+
+***
+You're blocked!
+>n
+***
+You're in a wrecked building.
+Compass: (-14E : 3N)
+south - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Gas-Grenade, A Gas-Grenade (1), A Skull, A Broken-Weapon
+(1), A Demon-Plate. 
+>
+w
+***
+The street is cracked here.
+Compass: (-15E : 3N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+Stag-Horns, A Skull, A Gold-Chunck, A Skull (1), A Skull (2), A Broken-Weapon. 
+>
+hea
+
+***
+Nothing happens!
+>w
+***
+You're in a wrecked building.
+Compass: (-16E : 3N)
+south - area continues.
+east  - area continues.
+***
+On the ground lies:
+A Monster-Bait, A Cheese, A Skull, A Thor-Hammer, A Skull (1). 
+***
+You see shadows to the south.
+>
+get mon
+***
+You pick up the Monster-Bait.
+>***
+Giant-Centipede-28 just appeared through a time portal!
+***
+Giant-Centipede-28 yells: Gimmie that monster bait, Vindeiatrix, or you die!!!
+>
+
+com g
+***
+You're ready to combat Giant-Centipede-28!
+***
+Giant-Centipede-28 picked up the Cheese.
+>
+wie he
+***
+You've hit Giant-Centipede-28 with your Hell-Blade!
+***
+Giant-Centipede-28 has hit you with his Bronze-Horn!
+***
+Giant-Centipede-28's Bronze-Horn has just cracked in half!
+>
+look g
+***
+Standing before you is a level 24 Giant-Centipede!
+***
+Giant-Centipede-28 looks in good shape, but has some cuts!
+***
+You notice Giant-Centipede-28 is carrying a Broken-Weapon!
+***
+Giant-Centipede-28's body is glowing!
+>
+wie he
+***
+You've hit Giant-Centipede-28 with your Hell-Blade!
+***
+Giant-Centipede-28's armour has just cracked down the center!
+***
+Giant-Centipede-28 has hit you with his Giant-Sword!
+***
+Giant-Centipede-28's Giant-Sword has just cracked in half!
+>
+look g
+***
+Standing before you is a level 24 Giant-Centipede!
+***
+Giant-Centipede-28 looks in good shape, but has some cuts!
+***
+You notice Giant-Centipede-28 is carrying a Broken-Weapon!
+***
+Giant-Centipede-28 has hit you with his Cheese!
+>***
+Kraken-108 just appeared through a time portal!
+***
+Kraken-108 yells: Gimmie that monster bait, Vindeiatrix, or you die!!!
+>
+wie he
+***
+You've hit Giant-Centipede-28 with your Hell-Blade!
+***
+Giant-Centipede-28's body is glowing!
+***
+Kraken-108 has hit you with his Godly-Dagger!
+>
+look g
+***
+Standing before you is a level 24 Giant-Centipede!
+***
+Giant-Centipede-28 looks worn out from battle, and is bleeding all over!
+***
+You notice Giant-Centipede-28 is carrying a Broken-Weapon!
+***
+Giant-Centipede-28's body is glowing!
+***
+Kraken-108 has hit you with his Godly-Dagger!
+>
+wie he
+***
+You've hit Giant-Centipede-28 with your Hell-Blade!
+***
+Giant-Centipede-28 has hit you with his Cheese!
+***
+Kraken-108 picked up the Skull.
+>
+look g
+***
+Standing before you is a level 24 Giant-Centipede!
+***
+Giant-Centipede-28 looks worn out from battle, and is bleeding all over!
+***
+You notice Giant-Centipede-28 is carrying a Broken-Weapon!
+***
+Giant-Centipede-28 has hit you with his Cheese!
+***
+You see a blinding white flash illuminate from Kraken-108's body!
+>
+wie he
+***
+You've hit Giant-Centipede-28 with your Hell-Blade!
+***
+Giant-Centipede-28's body is glowing!
+>
+look g
+***
+Glabrezu-Demon-188 just appeared through a time portal!
+***
+Glabrezu-Demon-188 yells: Gimmie that monster bait, Vindeiatrix, or you die!!!
+>***
+Standing before you is a level 24 Giant-Centipede!
+***
+Giant-Centipede-28 looks in pain, walks with a limp, and is bleeding profusely!
+***
+You notice Giant-Centipede-28 is carrying a Broken-Weapon!
+***
+The Giant-Centipede-28 Bites poison into you!
+***
+You suffer 6 hit points of damage!
+***
+Giant-Centipede-28 dropped his Broken-Weapon.
+***
+Glabrezu-Demon-188 has hit you with his Demon-Sword!
+***
+Glabrezu-Demon-188's Demon-Sword has just cracked in half!
+>
+wie he
+***
+You've hit Giant-Centipede-28 with your Hell-Blade!
+***
+Giant-Centipede-28 has hit you with his Cheese!
+***
+Kraken-108 has hit you with his Godly-Dagger!
+***
+Glabrezu-Demon-188 picked up the Skull.
+>
+wie he
+***
+You've hit Giant-Centipede-28 with your Hell-Blade!
+***
+The Giant-Centipede-28 Bites poison into you!
+***
+You suffer 6 hit points of damage!
+***
+Giant-Centipede-28 dropped his Broken-Weapon.
+***
+Kraken-108 has hit you with his Godly-Dagger!
+***
+Glabrezu-Demon-188 has hit you with his Skull!
+***
+You see a blinding white flash illuminate from Glabrezu-Demon-188's body!
+>
+look g
+***
+Standing before you is a level 24 Giant-Centipede!
+***
+Giant-Centipede-28 is gashed, bleeding, and looks almost dead!
+***
+Giant-Centipede-28's body is glowing!
+***
+Glabrezu-Demon-188 dropped his Broken-Weapon.
+>
+wie he
+***
+You've hit Giant-Centipede-28 with your Hell-Blade!
+***
+Giant-Centipede-28 has hit you with his Cheese!
+***
+The Kraken-108 stings you!
+***
+You suffer 6 hit points of damage!
+***
+Kraken-108 picked up the Thor-Hammer.
+***
+The Glabrezu-Demon-188 claws gouge at you!
+***
+You suffer 6 hit points of damage!
+>
+wie he
+***
+You've hit Giant-Centipede-28 with your Hell-Blade!
+***
+Giant-Centipede-28's body is glowing!
+***
+The Kraken-108 stings you!
+***
+You suffer 6 hit points of damage!
+>
+hea
+***
+Your body glows at it heals 17 points!
+***
+Giant-Centipede-28's body is glowing!
+***
+Kraken-108 has hit you with his Thor-Hammer!
+***
+Kraken-108's Thor-Hammer has just cracked in half!
+>***
+Evil-Pegasus-268 just appeared through a time portal!
+***
+Evil-Pegasus-268 yells: Gimmie that monster bait, Vindeiatrix, or you die!!!
+>
+wie he
+***
+You've hit Giant-Centipede-28 with your Hell-Blade!
+***
+Giant-Centipede-28's body is glowing!
+***
+Kraken-108 dropped his Broken-Weapon.
+>
+hea
+
+***
+Your body glows at it heals 17 points!
+***
+You're healed to the maximum!
+***
+Giant-Centipede-28's body is glowing!
+***
+Kraken-108 has hit you with his Godly-Dagger!
+***
+Evil-Pegasus-268 points his Glowing-Horn west!
+***
+This area suddenly lights up with a white, blinding flash!
+***
+You've been hit by a lightning bolt!
+***
+You suffer 6 hit points of damage!
+>wie he
+***
+You've hit Giant-Centipede-28 with your Hell-Blade!
+***
+Giant-Centipede-28's body is glowing!
+***
+Kraken-108 has hit you with his Godly-Dagger!
+***
+The Evil-Pegasus-268 horse kicks you!
+***
+You suffer 6 hit points of damage!
+>
+wie he
+***
+You've hit Giant-Centipede-28 with your Hell-Blade!
+***
+Giant-Centipede-28's body is glowing!
+***
+Kraken-108 has hit you with his Godly-Dagger!
+>
+hea
+***
+Your body glows at it heals 17 points!
+***
+You're healed to the maximum!
+***
+Giant-Centipede-28's body is glowing!
+***
+Evil-Pegasus-268 points his Glowing-Horn west!
+***
+This area suddenly lights up with a white, blinding flash!
+***
+You've been hit by a lightning bolt!
+***
+You suffer 6 hit points of damage!
+>
+hea
+
+***
+Your body glows at it heals 17 points!
+***
+You're healed to the maximum!
+***
+Giant-Centipede-28's body is glowing!
+>wie he
+***
+You've hit Giant-Centipede-28 with your Hell-Blade!
+***
+The Giant-Centipede-28 Bites poison into you!
+***
+You suffer 6 hit points of damage!
+>
+wie he
+***
+You've hit Giant-Centipede-28 with your Hell-Blade!
+***
+Giant-Centipede-28 has hit you with his Cheese!
+***
+Glabrezu-Demon-188 waves his arms in the air frantically, and begins to chant!
+***
+Darkness suddenly overcomes this area.
+>
+cas
+***
+...casted!
+>***
+Leucrotta-348 just appeared through a time portal!
+***
+Leucrotta-348 yells: Gimmie that monster bait, Vindeiatrix, or you die!!!
+>
+last
+***
+...casted!
+***
+Giant-Centipede-28 screams: Get away from me, Vindeiatrix!!!
+***
+You hear loud sounds of footsteps to the east.
+***
+Evil-Pegasus-268 points his Glowing-Horn west!
+***
+This area suddenly lights up with a white, blinding flash!
+***
+You've been hit by a lightning bolt!
+***
+You suffer 6 hit points of damage!
+>
+hea
+***
+Your body glows at it heals 17 points!
+***
+You're healed to the maximum!
+>
+hea
+
+***
+Nothing happens!
+***
+Evil-Pegasus-268 points his Glowing-Horn west!
+***
+This area suddenly lights up with a white, blinding flash!
+***
+You've been hit by a lightning bolt!
+***
+You suffer 6 hit points of damage!
+>e
+***
+The street is cracked here.
+Compass: (-15E : 3N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+Stag-Horns, A Skull, A Gold-Chunck, A Skull (1), A Skull (2), A Broken-Weapon. 
+***
+Giant-Centipede-28 is here.
+***
+You see shadows to the west.
+***
+Giant-Centipede-28 has hit you with his Cheese!
+***
+You hear loud sounds of yelling and screaming to the west.
+***
+Kraken-108 has just arrived from the west.
+***
+You hear loud sounds of yelling and screaming to the west.
+***
+Glabrezu-Demon-188 has just arrived from the west.
+***
+This area suddenly lights up with a white, blinding flash!
+***
+You've been hit by a lightning bolt!
+***
+You suffer 6 hit points of damage!
+***
+Leucrotta-348 has just arrived from the west.
+>
+
+com k
+***
+You're ready to combat Kraken-108!
+***
+Giant-Centipede-28 screams: Get away from me, Vindeiatrix!!!
+***
+Giant-Centipede-28 has just left east
+***
+You hear loud sounds of footsteps to the east.
+***
+Kraken-108 has hit you with his Godly-Dagger!
+***
+Glabrezu-Demon-188 picked up the Skull.
+***
+This area suddenly lights up with a white, blinding flash!
+***
+You've been hit by a lightning bolt!
+***
+You suffer 6 hit points of damage!
+***
+Leucrotta-348 has hit you with his Stag-Horns!
+***
+Leucrotta-348's Stag-Horns has just cracked in half!
+>
+wie he
+***
+You've hit Kraken-108 with your Hell-Blade!
+***
+Kraken-108 has hit you with his Godly-Dagger!
+***
+Glabrezu-Demon-188 has hit you with his Skull!
+***
+You see a blinding white flash illuminate from Glabrezu-Demon-188's body!
+***
+This area suddenly lights up with a white, blinding flash!
+***
+You've been hit by a lightning bolt!
+***
+You suffer 6 hit points of damage!
+***
+Leucrotta-348 picked up the Stag-Horns.
+>
+
+wie he
+
+hea
+***
+You've hit Kraken-108 with your Hell-Blade!
+***
+Kraken-108's armour has just cracked down the center!
+***
+The Kraken-108 stings you!
+***
+You suffer 6 hit points of damage!
+***
+Kraken-108 picked up the Gold-Chunck.
+***
+Glabrezu-Demon-188 picked up the Skull.
+***
+This area suddenly lights up with a white, blinding flash!
+***
+You've been hit by a lightning bolt!
+***
+You suffer 6 hit points of damage!
+***
+Leucrotta-348 has hit you with his Stag-Horns!
+***
+Leucrotta-348's Stag-Horns has just cracked in half!
+>***
+Your body glows at it heals 17 points!
+***
+Kraken-108's body is glowing!
+***
+You see a blinding white flash illuminate from Glabrezu-Demon-188's body!
+***
+This area suddenly lights up with a white, blinding flash!
+***
+You've been hit by a lightning bolt!
+***
+You suffer 6 hit points of damage!
+***
+Leucrotta-348 has hit you with his Broken-Weapon!
+>wie he
+***
+You've hit Kraken-108 with your Hell-Blade!
+***
+Kraken-108 has hit you with his Godly-Dagger!
+***
+The Glabrezu-Demon-188 claws gouge at you!
+***
+You suffer 6 hit points of damage!
+***
+Glabrezu-Demon-188 is gasping in amazement!
+***
+This area suddenly lights up with a white, blinding flash!
+***
+You've been hit by a lightning bolt!
+***
+You suffer 6 hit points of damage!
+***
+Leucrotta-348 dropped his Broken-Weapon.
+>
+hea
+***
+Your body glows at it heals 17 points!
+***
+Kraken-108's body is glowing!
+***
+This area suddenly lights up with a white, blinding flash!
+***
+You've been hit by a lightning bolt!
+***
+You suffer 6 hit points of damage!
+***
+Leucrotta-348 picked up the Skull.
+>
+hea
+
+***
+Your body glows at it heals 17 points!
+***
+Kraken-108's body is glowing!
+***
+This area suddenly lights up with a white, blinding flash!
+***
+You've been hit by a lightning bolt!
+***
+You suffer 6 hit points of damage!
+***
+You see a blinding white flash illuminate from Leucrotta-348's body!
+>
+wie he
+***
+You've hit Kraken-108 with your Hell-Blade!
+***
+Kraken-108's body is glowing!
+***
+This area suddenly lights up with a white, blinding flash!
+***
+You've been hit by a lightning bolt!
+***
+You suffer 6 hit points of damage!
+***
+Leucrotta-348 has hit you with his Broken-Weapon!
+>hea
+***
+Your body glows at it heals 17 points!
+***
+Kraken-108 has hit you with his Godly-Dagger!
+***
+This area suddenly lights up with a white, blinding flash!
+***
+You've been hit by a lightning bolt!
+***
+You suffer 6 hit points of damage!
+***
+The Leucrotta-348 smacks it's body into you!
+***
+You suffer 6 hit points of damage!
+***
+Leucrotta-348 dropped his Broken-Weapon.
+>
+***
+Dragon-Turtle-428 just appeared through a time portal!
+***
+Dragon-Turtle-428 yells: Gimmie that monster bait, Vindeiatrix, or you die!!!
+>wie he
+
+***
+You've hit Kraken-108 with your Hell-Blade!
+***
+Kraken-108 has hit you with his Godly-Dagger!
+***
+Evil-Pegasus-268 has just arrived from the west.
+***
+The Leucrotta-348 smacks it's body into you!
+***
+You suffer 6 hit points of damage!
+>
+hea
+***
+Your body glows at it heals 17 points!
+***
+Evil-Pegasus-268 has hit you with his Glowing-Horn!
+***
+The Leucrotta-348 smacks it's body into you!
+***
+You suffer 6 hit points of damage!
+>hea
+***
+Your body glows at it heals 17 points!
+***
+You're healed to the maximum!
+***
+The Glabrezu-Demon-188 claws gouge at you!
+***
+You suffer 6 hit points of damage!
+***
+Evil-Pegasus-268 has hit you with his Glowing-Horn!
+>
+wie he
+***
+You've hit Kraken-108 with your Hell-Blade!
+***
+Kraken-108 has hit you with his Godly-Dagger!
+***
+The Leucrotta-348 smacks it's body into you!
+***
+You suffer 6 hit points of damage!
+>
+
+com ev
+
+
+***
+You're ready to combat Evil-Pegasus-268!
+***
+Evil-Pegasus-268 has hit you with his Glowing-Horn!
+***
+Dragon-Turtle-428 has hit you with his Bastard-Sword!
+***
+Dragon-Turtle-428's Bastard-Sword has just cracked in half!
+>
+
+hea
+wie he
+***
+Your body glows at it heals 17 points!
+***
+You're healed to the maximum!
+***
+The Glabrezu-Demon-188 claws gouge at you!
+***
+You suffer 6 hit points of damage!
+***
+The Evil-Pegasus-268 horse kicks you!
+***
+You suffer 6 hit points of damage!
+***
+Dragon-Turtle-428 dropped his Broken-Weapon.
+>***
+You've hit Evil-Pegasus-268 with your Hell-Blade!
+***
+The Kraken-108 stings you!
+***
+You suffer 6 hit points of damage!
+***
+Evil-Pegasus-268's body is glowing!
+>
+
+hea
+wie he
+***
+Your body glows at it heals 17 points!
+***
+Kraken-108 has hit you with his Godly-Dagger!
+***
+Evil-Pegasus-268's body is glowing!
+>***
+You've hit Evil-Pegasus-268 with your Hell-Blade!
+***
+Evil-Pegasus-268's armour has just cracked down the center!
+***
+Kraken-108 has hit you with his Godly-Dagger!
+***
+Glabrezu-Demon-188 waves his arms in the air frantically, and begins to chant!
+***
+Darkness suddenly overcomes this area.
+>hea
+wie he
+***
+Your body glows at it heals 17 points!
+***
+You're healed to the maximum!
+***
+Evil-Pegasus-268's body is glowing!
+>***
+It's too dark to see anything!
+***
+Evil-Pegasus-268's body is glowing!
+>
+
+hea
+wie he
+***
+Nothing happens!
+>***
+It's too dark to see anything!
+>
+e
+***
+You're in a wrecked building.
+Compass: (-14E : 3N)
+south - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Gas-Grenade, A Gas-Grenade (1), A Skull, A Broken-Weapon
+(1), A Demon-Plate. 
+***
+Giant-Centipede-28 is here.
+***
+You see shadows to the west.
+***
+Giant-Centipede-28 screams: Get away from me, Vindeiatrix!!!
+***
+Glabrezu-Demon-188 has just arrived from the west.
+***
+You hear loud sounds of yelling and screaming to the west.
+***
+Evil-Pegasus-268 has just arrived from the west.
+***
+You hear loud sounds of yelling and screaming to the west.
+***
+Leucrotta-348 has just arrived from the west.
+***
+Dragon-Turtle-428 has just arrived from the west.
+>
+hea
+***
+Nothing happens!
+***
+Giant-Centipede-28 screams: Get away from me, Vindeiatrix!!!
+***
+Giant-Centipede-28 has just left south
+***
+You hear loud sounds of footsteps to the south.
+***
+Glabrezu-Demon-188 picked up the Gas-Grenade.
+***
+Evil-Pegasus-268 has hit you with his Glowing-Horn!
+>
+con mon
+***
+The Monster-Bait vanishes with a flash!
+You convert the Monster-Bait into 10000 ions.
+***
+Glabrezu-Demon-188 has hit you with his Gas-Grenade!
+***
+The Evil-Pegasus-268 horse kicks you!
+***
+You suffer 6 hit points of damage!
+***
+Evil-Pegasus-268 picked up the Skull.
+***
+Leucrotta-348 picked up the Gas-Grenade.
+***
+Dragon-Turtle-428 picked up the Demon-Plate.
+>
+hea
+***
+Your body glows at it heals 17 points!
+***
+You're healed to the maximum!
+***
+Evil-Pegasus-268's body is glowing!
+***
+You see a blinding white flash illuminate from Evil-Pegasus-268's body!
+***
+Leucrotta-348 has hit you with his Gas-Grenade!
+***
+Dragon-Turtle-428 has hit you with his Demon-Plate!
+>
+
+com ev
+
+***
+You're ready to combat Evil-Pegasus-268!
+***
+Evil-Pegasus-268 has hit you with his Glowing-Horn!
+***
+Leucrotta-348 has hit you with his Gas-Grenade!
+***
+Dragon-Turtle-428 is removing his Turtle-Shell.
+>
+wie he
+***
+You've hit Evil-Pegasus-268 with your Hell-Blade!
+***
+You hear faint sounds of footsteps far to the south.
+***
+Glabrezu-Demon-188 has hit you with his Gas-Grenade!
+***
+Evil-Pegasus-268's body is glowing!
+***
+Dragon-Turtle-428 has hit you with his Demon-Plate!
+>
+
+wie he
+***
+You've hit Evil-Pegasus-268 with your Hell-Blade!
+***
+You hear faint sounds of footsteps far to the south.
+***
+Glabrezu-Demon-188 has hit you with his Gas-Grenade!
+***
+Evil-Pegasus-268's body is glowing!
+***
+Dragon-Turtle-428 has hit you with his Demon-Plate!
+>hea
+wie he
+***
+Nothing happens!
+***
+Glabrezu-Demon-188 has hit you with his Gas-Grenade!
+***
+Evil-Pegasus-268's body is glowing!
+***
+The Leucrotta-348 smacks it's body into you!
+***
+You suffer 6 hit points of damage!
+***
+Dragon-Turtle-428 has hit you with his Demon-Plate!
+>***
+You've hit Evil-Pegasus-268 with your Hell-Blade!
+***
+Evil-Pegasus-268's body is glowing!
+***
+The Leucrotta-348 smacks it's body into you!
+***
+You suffer 6 hit points of damage!
+***
+Dragon-Turtle-428 has hit you with his Demon-Plate!
+>
+wie he
+***
+You've hit Evil-Pegasus-268 with your Hell-Blade!
+***
+Evil-Pegasus-268 has hit you with his Glowing-Horn!
+***
+Dragon-Turtle-428 has just put on his Demon-Plate.
+>
+wie he
+***
+You've hit Evil-Pegasus-268 with your Hell-Blade!
+***
+Evil-Pegasus-268's body is glowing!
+>
+wie he
+***
+You've hit Evil-Pegasus-268 with your Hell-Blade!
+***
+Evil-Pegasus-268's body is glowing!
+***
+The Leucrotta-348 smacks it's body into you!
+***
+You suffer 6 hit points of damage!
+>
+hea
+
+***
+Your body glows at it heals 17 points!
+***
+Glabrezu-Demon-188 has hit you with his Gas-Grenade!
+***
+Evil-Pegasus-268's body is glowing!
+***
+Leucrotta-348 has hit you with his Gas-Grenade!
+>
+
+wie he
+***
+You've hit Evil-Pegasus-268 with your Hell-Blade!
+***
+The Glabrezu-Demon-188 claws gouge at you!
+***
+You suffer 6 hit points of damage!
+***
+Evil-Pegasus-268's body is glowing!
+***
+The Leucrotta-348 smacks it's body into you!
+***
+You suffer 6 hit points of damage!
+***
+Dragon-Turtle-428 has hit you with his Turtle-Shell!
+>hea
+wie he
+***
+Your body glows at it heals 17 points!
+***
+You're healed to the maximum!
+***
+Evil-Pegasus-268 has hit you with his Glowing-Horn!
+***
+Dragon-Turtle-428 has hit you with his Turtle-Shell!
+>***
+You've hit Evil-Pegasus-268 with your Hell-Blade!
+***
+Glabrezu-Demon-188 has hit you with his Gas-Grenade!
+***
+The Evil-Pegasus-268 horse kicks you!
+***
+You suffer 6 hit points of damage!
+***
+Dragon-Turtle-428 has hit you with his Turtle-Shell!
+>
+
+hea
+wie he
+***
+Your body glows at it heals 17 points!
+***
+You're healed to the maximum!
+***
+Glabrezu-Demon-188 waves his arms in the air frantically, and begins to chant!
+***
+Darkness suddenly overcomes this area.
+>***
+It's too dark to see anything!
+***
+You hear some mumbling.
+>
+
+hea
+wie he
+***
+Nothing happens!
+***
+You hear faint sounds of footsteps far to the south.
+***
+Evil-Pegasus-268 screams: Get away from me, Vindeiatrix!!!
+>***
+It's too dark to see anything!
+>
+ca
+***
+You're cing!
+>
+cas
+***
+...casted!
+>
+ca
+***
+You're cing!
+>
+cas
+***
+...casted!
+***
+You hear some mumbling.
+>
+
+last
+last
+***
+The darkness has been lifted from this area.
+***
+...casted!
+***
+Glabrezu-Demon-188 has hit you with his Gas-Grenade!
+***
+Evil-Pegasus-268 has hit you with his Glowing-Horn!
+***
+Leucrotta-348 has hit you with his Gas-Grenade!
+>***
+...casted!
+***
+Glabrezu-Demon-188 has hit you with his Gas-Grenade!
+***
+Evil-Pegasus-268 screams: Get away from me, Vindeiatrix!!!
+***
+Evil-Pegasus-268 has just left west
+***
+The Leucrotta-348 smacks it's body into you!
+***
+You suffer 6 hit points of damage!
+***
+Leucrotta-348 is sniffing around.
+>
+hea
+***
+Your body glows at it heals 17 points!
+***
+You're healed to the maximum!
+>
+look
+***
+You're in a wrecked building.
+Compass: (-14E : 3N)
+south - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1). 
+***
+Glabrezu-Demon-188, Leucrotta-348, and Dragon-Turtle-428 are here with you.
+***
+You see shadows to the west.
+***
+Glabrezu-Demon-188 has hit you with his Gas-Grenade!
+***
+Dragon-Turtle-428 has hit you with his Turtle-Shell!
+>
+
+com g
+
+***
+You're ready to combat Glabrezu-Demon-188!
+>wie he
+***
+You've hit Glabrezu-Demon-188 with your Hell-Blade!
+***
+Glabrezu-Demon-188's body is glowing!
+>
+wie he
+***
+You've hit Glabrezu-Demon-188 with your Hell-Blade!
+***
+Glabrezu-Demon-188 has hit you with his Gas-Grenade!
+***
+Dragon-Turtle-428 is laughing.
+>
+wie he
+***
+You've hit Glabrezu-Demon-188 with your Hell-Blade!
+***
+Glabrezu-Demon-188 has hit you with his Gas-Grenade!
+>
+wie he
+***
+You've hit Glabrezu-Demon-188 with your Hell-Blade!
+>
+wie he
+***
+You've hit Glabrezu-Demon-188 with your Hell-Blade!
+***
+You have slain Glabrezu-Demon-188!
+Your experience points are increased by 18000!
+You collect 2680 Riblets and 25581 ions from the slain body.
+***
+
+A Gas-Grenade is falling from Glabrezu-Demon-188's body!
+***
+A Skull is falling from Glabrezu-Demon-188's body!
+***
+A Demon-Plate is falling from Glabrezu-Demon-188's body!
+***
+Glabrezu-Demon-188 is crumbling to dust!
+***
+Leucrotta-348 has hit you with his Gas-Grenade!
+***
+Dragon-Turtle-428 has hit you with his Turtle-Shell!
+>
+
+com d
+
+***
+You're ready to combat Dragon-Turtle-428!
+***
+The Leucrotta-348 smacks it's body into you!
+***
+You suffer 6 hit points of damage!
+***
+Leucrotta-348 picked up the Skull.
+***
+Dragon-Turtle-428 has hit you with his Turtle-Shell!
+>wie he
+***
+You've hit Dragon-Turtle-428 with your Hell-Blade!
+***
+Leucrotta-348 has hit you with his Skull!
+***
+You see a blinding white flash illuminate from Leucrotta-348's body!
+***
+Dragon-Turtle-428's body is glowing!
+>
+look d
+***
+Standing before you is a level 28 Dragon-Turtle!
+***
+Dragon-Turtle-428 looks in good shape, but has some cuts!
+***
+Leucrotta-348 picked up the Gas-Grenade.
+***
+Dragon-Turtle-428 has hit you with his Turtle-Shell!
+>
+hea
+
+***
+Your body glows at it heals 17 points!
+***
+You're healed to the maximum!
+***
+Leucrotta-348 has hit you with his Gas-Grenade!
+***
+Dragon-Turtle-428 has hit you with his Turtle-Shell!
+>wie he
+***
+You've hit Dragon-Turtle-428 with your Hell-Blade!
+***
+Leucrotta-348 has hit you with his Gas-Grenade!
+***
+Dragon-Turtle-428 has hit you with his Turtle-Shell!
+>
+wie he
+***
+You've hit Dragon-Turtle-428 with your Hell-Blade!
+***
+Leucrotta-348 picked up the Demon-Plate.
+***
+Dragon-Turtle-428's body is glowing!
+>
+wie he
+***
+You've hit Dragon-Turtle-428 with your Hell-Blade!
+***
+Leucrotta-348 is removing his Tough-Hide.
+>
+wie he
+***
+You've hit Dragon-Turtle-428 with your Hell-Blade!
+***
+Leucrotta-348 has just put on his Demon-Plate.
+>
+wie he
+***
+You've hit Dragon-Turtle-428 with your Hell-Blade!
+***
+The Leucrotta-348 smacks it's body into you!
+***
+You suffer 6 hit points of damage!
+***
+Dragon-Turtle-428 has hit you with his Turtle-Shell!
+>
+look d
+***
+Standing before you is a level 28 Dragon-Turtle!
+***
+Dragon-Turtle-428 looks in pain, walks with a limp, and is bleeding profusely!
+***
+Leucrotta-348 has hit you with his Tough-Hide!
+>
+
+hea
+wie he
+***
+Your body glows at it heals 17 points!
+***
+You're healed to the maximum!
+***
+Dragon-Turtle-428 has hit you with his Turtle-Shell!
+>***
+You've hit Dragon-Turtle-428 with your Hell-Blade!
+***
+Dragon-Turtle-428 has hit you with his Turtle-Shell!
+>
+wie he
+***
+You've hit Dragon-Turtle-428 with your Hell-Blade!
+>
+wie he
+***
+You've hit Dragon-Turtle-428 with your Hell-Blade!
+***
+Dragon-Turtle-428 has hit you with his Turtle-Shell!
+>
+wie he
+***
+You've hit Dragon-Turtle-428 with your Hell-Blade!
+***
+Leucrotta-348 has hit you with his Tough-Hide!
+>
+wie he
+***
+You've hit Dragon-Turtle-428 with your Hell-Blade!
+***
+Dragon-Turtle-428 has hit you with his Turtle-Shell!
+>
+wie he
+
+***
+You've hit Dragon-Turtle-428 with your Hell-Blade!
+***
+The Dragon-Turtle-428 breathes fire at you!
+***
+You suffer 6 hit points of damage!
+>wie he
+***
+You've hit Dragon-Turtle-428 with your Hell-Blade!
+***
+The Leucrotta-348 smacks it's body into you!
+***
+You suffer 6 hit points of damage!
+>
+hea
+***
+Your body glows at it heals 17 points!
+***
+You're healed to the maximum!
+***
+Leucrotta-348 has hit you with his Tough-Hide!
+***
+Dragon-Turtle-428 has hit you with his Turtle-Shell!
+>
+look d
+***
+Standing before you is a level 28 Dragon-Turtle!
+***
+Dragon-Turtle-428 is gashed, bleeding, and looks almost dead!
+***
+Dragon-Turtle-428 screams: Get away from me, Vindeiatrix!!!
+>
+wie he
+***
+You've hit Dragon-Turtle-428 with your Hell-Blade!
+***
+You have slain Dragon-Turtle-428!
+Your experience points are increased by 19333!
+You collect 25480 Riblets and 658 ions from the slain body.
+***
+
+A Turtle-Shell is falling from Dragon-Turtle-428's body!
+***
+A Skull is falling from Dragon-Turtle-428's body!
+***
+A Demon-Plate is falling from Dragon-Turtle-428's body!
+***
+Dragon-Turtle-428 is crumbling to dust!
+***
+Leucrotta-348 picked up the Demon-Plate.
+>
+hea
+
+***
+Nothing happens!
+***
+The Leucrotta-348 smacks it's body into you!
+***
+You suffer 6 hit points of damage!
+***
+Leucrotta-348 picked up the Skull.
+>
+com l
+
+***
+You're ready to combat Leucrotta-348!
+***
+Leucrotta-348 has hit you with his Demon-Plate!
+***
+You see a blinding white flash illuminate from Leucrotta-348's body!
+>
+wie he
+***
+You've hit Leucrotta-348 with your Hell-Blade!
+***
+Leucrotta-348's body is glowing!
+>wie he
+***
+You've hit Leucrotta-348 with your Hell-Blade!
+***
+Leucrotta-348 has hit you with his Demon-Plate!
+>
+wie he
+
+***
+You've hit Leucrotta-348 with your Hell-Blade!
+***
+Leucrotta-348's body is glowing!
+>
+wie he
+***
+You've hit Leucrotta-348 with your Hell-Blade!
+***
+Leucrotta-348 has hit you with his Demon-Plate!
+>wie he
+***
+You've hit Leucrotta-348 with your Hell-Blade!
+***
+Leucrotta-348's body is glowing!
+>
+wie he
+
+***
+You've hit Leucrotta-348 with your Hell-Blade!
+***
+Leucrotta-348's body is glowing!
+>wie he
+***
+You've hit Leucrotta-348 with your Hell-Blade!
+***
+Leucrotta-348 has hit you with his Demon-Plate!
+>
+wie he
+
+***
+You've hit Leucrotta-348 with your Hell-Blade!
+***
+Leucrotta-348's body is glowing!
+>wie he
+***
+You've hit Leucrotta-348 with your Hell-Blade!
+***
+Leucrotta-348 has hit you with his Demon-Plate!
+>
+wie he
+
+***
+You've hit Leucrotta-348 with your Hell-Blade!
+***
+Leucrotta-348 has hit you with his Demon-Plate!
+>wie he
+***
+You've hit Leucrotta-348 with your Hell-Blade!
+***
+Leucrotta-348's body is glowing!
+>
+wie he
+
+***
+You've hit Leucrotta-348 with your Hell-Blade!
+>wie he
+***
+You've hit Leucrotta-348 with your Hell-Blade!
+***
+You have slain Leucrotta-348!
+Your experience points are increased by 18666!
+You collect 7480 Riblets and 21724 ions from the slain body.
+***
+
+A Gas-Grenade is falling from Leucrotta-348's body!
+***
+A Gas-Grenade is falling from Leucrotta-348's body!
+***
+A Demon-Plate is falling from Leucrotta-348's body!
+***
+Leucrotta-348 is crumbling to dust!
+>
+hea
+
+***
+Your body glows at it heals 17 points!
+***
+You're healed to the maximum!
+>hea
+***
+Nothing happens!
+>
+look
+***
+You're in a wrecked building.
+Compass: (-14E : 3N)
+south - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Turtle-Shell, A Gas-Grenade, A Gas-Grenade (1), A
+Broken-Weapon (1), A Demon-Plate. 
+>
+

@@ -1,0 +1,1344 @@
+Here I am my level 12 mage and have the meteor swarm spell memorized.  (I'm wearing a very overpowered armor because my goal is really to show you these years and monsters and how their AI typically works in battle and that would be difficult if I'm always taking damage and dying).  I'm grinding in year 3500 where meteor swarm (without adding ions) will kill most monsters with a couple of casts.  Also, meteor swarm doesn't degrade armor, so monsters armor will not crack as you kill them, so it will drop when they die.  I begin killing monsters and then picking up and inspecting their gear that drops.  I'm looking for new useful gear.  I try on some armors to see their armor class.  I kill a troll wizard.  I find a troll staff and discover that it's a passage clearing rod.  What a find!!  I find a troll skin armor which is enchanted, but it has a relatively low armor class.  An armor called rock shell drops and it has a 35 armor class which is decent-ish for this year, I could potentially enchant it and use it.  I inspect more gear that drops and convert a lot of it to ions.  The meteor swarm spell costs 100,000 ions per cast which is kind of expensive!!  I encounter a Geryon Devil.  It shoots me with a poison bolt from a ranged item and then everything goes to hell.  Poison at this year will quickly drop your HP to 1.  And I happen to run out of ions at this exact moment because the spell casting was so ion-expensive.  I being starving for ions, and since my HP was already at 1 due to the poison, the very first tick of starvation is all it takes to bring my HP to zero and I die.  Because I was carrying so much stuff and the ground already had something on it, my skull and the armor I was wearing vaporizes.  I lost my armor forever.  I enter the game with another character, cast the hide spell, and go to recover my gear that dropped.  Luckily the Geryon did not pick any of it up (this should happen from time to time and makes the game challenging.  A monster will pick up a piece of you gear that drops if you die in their room).  
+
+# Log file open.
+
+stat
+***
+
+Name: Vindeiatrix / Mutant Mage
+Exhaustion    : 0  
+Str: 68     Int: 109   Wis: 105
+Dex: 58     Con: 64    Cha: 99 
+Hit Points    : 87  / 87 
+Exp. Points   : 17153707 Level: 12 
+Riblets       : 10234546
+Ions          : 857107 
+Wearing Armor : Eazy-Armour  Armour Class: 461
+Ready to Combat: NO ONE
+Readied Spell  : Meteor Swarm: READY.
+Year A.D.      : 3500
+
+You are carrying the following items:  (Total Weight: 219 LB's)
+Lightning-Rod, Cleric-Rod, Hell-Blade.
+>
+s
+***
+The street is cracked here.
+Compass: (0E : -2N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon. 
+***
+You see shadows to the west, east.
+>
+look west
+***
+You're looking west...
+***
+The two moons are rising above.
+Compass: (-1E : -2N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear-thong. 
+***
+Brown-Dragon-1057 is here.
+>
+w
+***
+The two moons are rising above.
+Compass: (-1E : -2N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear-thong. 
+***
+Brown-Dragon-1057 is here.
+***
+You see shadows to the south.
+>
+cast
+***
+A swarm of meteors are suddenly released with tremendous power!
+***
+Brown-Dragon-1057 has been hit by a giant meteor!
+***
+Brown-Dragon-1057 roars I'll gas you, Vindeiatrix!
+***
+Brown-Dragon-1057 has hit you with his Bastard-Sword!
+>
+cast
+***
+A swarm of meteors are suddenly released with tremendous power!
+***
+Brown-Dragon-1057 has been hit by a giant meteor!
+***
+You have slain Brown-Dragon-1057!
+Your experience points are increased by 10666!
+You collect 8680 Riblets and 40822 ions from the slain body.
+***
+
+A Bastard-Sword is falling from Brown-Dragon-1057's body!
+***
+A Trophy is falling from Brown-Dragon-1057's body!
+***
+A Skull is falling from Brown-Dragon-1057's body!
+***
+A Dragon Skin is falling from Brown-Dragon-1057's body!
+***
+Brown-Dragon-1057 is crumbling to dust!
+>
+get dra
+***
+You pick up the Dragon Skin.
+>
+look dra
+***
+The armour is in excellent shape. By its looks, it has rarely been used.
+>
+con dra
+***
+The Dragon Skin vanishes with a flash!
+You convert the Dragon Skin into 55000 ions.
+>
+hea
+
+***
+Nothing happens!
+>look
+***
+The two moons are rising above.
+Compass: (-1E : -2N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear-thong, A Bastard-Sword, A Trophy, A Skull. 
+***
+You see shadows to the south.
+>
+s
+***
+Broken lamp posts line the streets.
+Compass: (-1E : -3N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+A Gold-Chunck, A Broken-Weapon. 
+***
+Wizard-Troll-2097 is here.
+***
+You see shadows to the south.
+>
+look w
+***
+Standing before you is a level 14 Wizard-Troll!
+***
+Wizard-Troll-2097 looks in great shape and ready for battle!
+***
+You notice Wizard-Troll-2097 is carrying a Troll-Staff!
+>
+cast
+***
+A swarm of meteors are suddenly released with tremendous power!
+***
+Wizard-Troll-2097 has been hit by a giant meteor!
+***
+Wizard-Troll-2097 grunts You're no match for me, Vindeiatrix!
+***
+The Wizard-Troll-2097 casts an ice storm at you!
+***
+You suffer 6 hit points of damage!
+>
+cast
+***
+A swarm of meteors are suddenly released with tremendous power!
+***
+Wizard-Troll-2097 has been hit by a giant meteor!
+***
+You have slain Wizard-Troll-2097!
+Your experience points are increased by 10000!
+You collect 9880 Riblets and 5593 ions from the slain body.
+***
+
+A Troll-Staff is falling from Wizard-Troll-2097's body!
+***
+A Troll-Sword is falling from Wizard-Troll-2097's body!
+***
+A Skull is falling from Wizard-Troll-2097's body!
+***
+A Troll-Skin is falling from Wizard-Troll-2097's body!
+***
+Wizard-Troll-2097 is crumbling to dust!
+>
+get tr
+***
+You pick up the Troll-Staff.
+>
+look tr
+***
+The Troll-Staff has 6 blasts left.
+>
+get tr
+***
+You pick up the Troll-Sword.
+>
+get tr
+***
+You pick up the Troll-Skin.
+>
+look troll-sw
+***
+The Troll-Sword is in excellent shape. A fine weapon!
+>
+con troll-sw
+***
+The Troll-Sword vanishes with a flash!
+You convert the Troll-Sword into 24000 ions.
+>
+look troll
+
+***
+The Troll-Staff has 6 blasts left.
+>sk
+***
+You're sking!
+>
+inv
+***
+You are carrying the following items:  (Total Weight: 549 LB's)
+Lightning-Rod, Cleric-Rod, Hell-Blade, Troll-Staff, Troll-Skin.
+>
+look troll-sk
+***
+The Troll-Skin possesses a magical aura. Concentrating stronger, you realize
+this is a +4 Troll-Skin!
+>
+stat
+***
+
+Name: Vindeiatrix / Mutant Mage
+Exhaustion    : 0  
+Str: 68     Int: 109   Wis: 105
+Dex: 58     Con: 64    Cha: 99 
+Hit Points    : 81  / 87 
+Exp. Points   : 17174373 Level: 12 
+Riblets       : 10253106
+Ions          : 573522 
+Wearing Armor : Eazy-Armour  Armour Class: 461
+Ready to Combat: NO ONE
+Readied Spell  : Meteor Swarm: READY.
+Year A.D.      : 3500
+
+You are carrying the following items:  (Total Weight: 549 LB's)
+Lightning-Rod, Cleric-Rod, Hell-Blade, Troll-Staff, Troll-Skin.
+>
+wea troll-sk
+***
+You've removed the Eazy-Armour.
+***
+You've just put on the Troll-Skin.
+>
+stat
+***
+
+Name: Vindeiatrix / Mutant Mage
+Exhaustion    : 0  
+Str: 68     Int: 109   Wis: 105
+Dex: 58     Con: 64    Cha: 99 
+Hit Points    : 81  / 87 
+Exp. Points   : 17174373 Level: 12 
+Riblets       : 10253106
+Ions          : 573522 
+Wearing Armor : Troll-Skin  Armour Class: 19 
+Ready to Combat: NO ONE
+Readied Spell  : Meteor Swarm: READY.
+Year A.D.      : 3500
+
+You are carrying the following items:  (Total Weight: 569 LB's)
+Lightning-Rod, Cleric-Rod, Hell-Blade, Troll-Staff, Eazy-Armour.
+>
+wea ea
+***
+You've removed the Troll-Skin.
+***
+You've just put on the Eazy-Armour.
+>
+stat
+***
+
+Name: Vindeiatrix / Mutant Mage
+Exhaustion    : 0  
+Str: 68     Int: 109   Wis: 105
+Dex: 58     Con: 64    Cha: 99 
+Hit Points    : 81  / 87 
+Exp. Points   : 17174373 Level: 12 
+Riblets       : 10253106
+Ions          : 572022 
+Wearing Armor : Eazy-Armour  Armour Class: 461
+Ready to Combat: NO ONE
+Readied Spell  : Meteor Swarm: READY.
+Year A.D.      : 3500
+
+You are carrying the following items:  (Total Weight: 549 LB's)
+Lightning-Rod, Cleric-Rod, Hell-Blade, Troll-Staff, Troll-Skin.
+>
+
+hea
+look
+***
+Your body glows at it heals 17 points!
+***
+You're healed to the maximum!
+>***
+Broken lamp posts line the streets.
+Compass: (-1E : -3N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+A Gold-Chunck, A Broken-Weapon, A Skull. 
+***
+You see shadows to the south.
+>
+s
+***
+You're in a maintenance shop.
+Compass: (-1E : -4N)
+north - area continues.
+south - area continues.
+west  - area continues.
+***
+Frost-Gator-977 is here.
+***
+You see shadows to the west.
+>
+cast
+***
+A swarm of meteors are suddenly released with tremendous power!
+***
+Frost-Gator-977 has been hit by a giant meteor!
+***
+You have slain Frost-Gator-977!
+Your experience points are increased by 10000!
+You collect 15880 Riblets and 26803 ions from the slain body.
+***
+
+An Ice-Knife is falling from Frost-Gator-977's body!
+***
+A Nuclear-Decay is falling from Frost-Gator-977's body!
+***
+A Skull is falling from Frost-Gator-977's body!
+***
+A Frost-Vest is falling from Frost-Gator-977's body!
+***
+Frost-Gator-977 is crumbling to dust!
+>
+get ic
+***
+You pick up the Ice-Knife.
+>
+look ic
+***
+The Ice-Knife is in excellent shape. A fine weapon!
+>
+con ic
+***
+The Ice-Knife vanishes with a flash!
+You convert the Ice-Knife into 40000 ions.
+>
+get fros
+***
+You pick up the Frost-Vest.
+>
+look fros
+***
+The Frost-Vest possesses a magical aura. Concentrating stronger, you realize
+this is a +1 Frost-Vest!
+>
+hea
+
+***
+Nothing happens!
+>look
+***
+You're in a maintenance shop.
+Compass: (-1E : -4N)
+north - area continues.
+south - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear-Decay, A Skull. 
+***
+You see shadows to the west.
+>
+wear fros
+***
+You've removed the Eazy-Armour.
+***
+You've just put on the Frost-Vest.
+>
+stat
+***
+
+Name: Vindeiatrix / Mutant Mage
+Exhaustion    : 0  
+Str: 68     Int: 109   Wis: 105
+Dex: 58     Con: 64    Cha: 99 
+Hit Points    : 87  / 87 
+Exp. Points   : 17184373 Level: 12 
+Riblets       : 10268986
+Ions          : 521425 
+Wearing Armor : Frost-Vest  Armour Class: 18 
+Ready to Combat: NO ONE
+Readied Spell  : Meteor Swarm: READY.
+Year A.D.      : 3500
+
+You are carrying the following items:  (Total Weight: 749 LB's)
+Lightning-Rod, Cleric-Rod, Hell-Blade, Troll-Staff, Eazy-Armour, Troll-Skin.
+>
+wear eaz
+***
+You've removed the Frost-Vest.
+***
+You've just put on the Eazy-Armour.
+>
+
+hea
+look
+***
+Nothing happens!
+>***
+You're in a maintenance shop.
+Compass: (-1E : -4N)
+north - area continues.
+south - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear-Decay, A Skull. 
+***
+You see shadows to the west.
+>
+w
+***
+You're in a wrecked building.
+Compass: (-2E : -4N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cigarette-Butt. 
+***
+Metamorph-1857 is here.
+***
+You see shadows to the west.
+***
+Metamorph-1857 gasps: You're human, Vindeiatrix!
+***
+Metamorph-1857 has hit you with his Morph-Blade!
+***
+Metamorph-1857's Morph-Blade has just cracked in half!
+>
+cast
+***
+A swarm of meteors are suddenly released with tremendous power!
+***
+Metamorph-1857 has been hit by a giant meteor!
+***
+Metamorph-1857 has hit you with his Broken-Weapon!
+>
+cast
+***
+A swarm of meteors are suddenly released with tremendous power!
+***
+Metamorph-1857 has been hit by a giant meteor!
+***
+You have slain Metamorph-1857!
+Your experience points are increased by 9333!
+You collect 7480 Riblets and 22295 ions from the slain body.
+***
+
+A Skull is falling from Metamorph-1857's body!
+***
+A Morph Mail is falling from Metamorph-1857's body!
+***
+Metamorph-1857 is crumbling to dust!
+>
+
+hea
+look
+***
+Nothing happens!
+>***
+You're in a wrecked building.
+Compass: (-2E : -4N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cigarette-Butt, A Skull, A Morph Mail. 
+***
+You see shadows to the west.
+>
+stat
+***
+
+Name: Vindeiatrix / Mutant Mage
+Exhaustion    : 0  
+Str: 68     Int: 109   Wis: 105
+Dex: 58     Con: 64    Cha: 99 
+Hit Points    : 87  / 87 
+Exp. Points   : 17193706 Level: 12 
+Riblets       : 10276466
+Ions          : 340720 
+Wearing Armor : Eazy-Armour  Armour Class: 461
+Ready to Combat: NO ONE
+Readied Spell  : Meteor Swarm: READY.
+Year A.D.      : 3500
+
+You are carrying the following items:  (Total Weight: 679 LB's)
+Lightning-Rod, Cleric-Rod, Hell-Blade, Troll-Staff, Frost-Vest, Troll-Skin.
+>
+w
+***
+You're in a wrecked building.
+Compass: (-3E : -4N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Bottle-Cap. 
+***
+Wizard-Troll-497, and Gargoyle-2737 are here with you.
+***
+Wizard-Troll-497 grunts: You're no match for me, Vindeiatrix!
+***
+Wizard-Troll-497 is laughing.
+>
+cast
+***
+A swarm of meteors are suddenly released with tremendous power!
+***
+Wizard-Troll-497 has been hit by a giant meteor!
+***
+Gargoyle-2737 has been hit by a giant meteor!
+***
+You have slain Gargoyle-2737!
+Your experience points are increased by 12000!
+You collect 11080 Riblets and 29044 ions from the slain body.
+***
+
+A Stone-Sword is falling from Gargoyle-2737's body!
+***
+A Skull is falling from Gargoyle-2737's body!
+***
+A Rock-Shell is falling from Gargoyle-2737's body!
+***
+Gargoyle-2737 is crumbling to dust!
+***
+Wizard-Troll-497's body is glowing!
+>
+cast
+***
+A swarm of meteors are suddenly released with tremendous power!
+***
+Wizard-Troll-497 has been hit by a giant meteor!
+***
+Wizard-Troll-497's body is glowing!
+>
+cast
+***
+A swarm of meteors are suddenly released with tremendous power!
+***
+Wizard-Troll-497 has been hit by a giant meteor!
+***
+You have slain Wizard-Troll-497!
+Your experience points are increased by 10000!
+You collect 11080 Riblets and 15358 ions from the slain body.
+***
+
+A Troll-Staff is falling from Wizard-Troll-497's body!
+***
+A Troll-Sword is falling from Wizard-Troll-497's body!
+***
+Wizard-Troll-497 is crumbling to dust!
+>
+look
+***
+You're in a wrecked building.
+Compass: (-3E : -4N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Bottle-Cap, A Stone-Sword, A Skull, A Rock-Shell, A Troll-Staff, A
+Troll-Sword. 
+>
+hea
+***
+Nothing happens!
+>
+get rock
+***
+You pick up the Rock-Shell.
+>
+look rcok
+***
+You can't see rcok.
+>
+look rcok
+***
+You can't see rcok.
+>
+look rock
+***
+The armour is in excellent shape. By its looks, it has rarely been used.
+>
+wea rock
+***
+You've removed the Eazy-Armour.
+***
+You've just put on the Rock-Shell.
+>
+stat
+***
+
+Name: Vindeiatrix / Mutant Mage
+Exhaustion    : 0  
+Str: 68     Int: 109   Wis: 105
+Dex: 58     Con: 64    Cha: 99 
+Hit Points    : 87  / 87 
+Exp. Points   : 17215706 Level: 12 
+Riblets       : 10298626
+Ions          : 80622  
+Wearing Armor : Rock-Shell  Armour Class: 35 
+Ready to Combat: NO ONE
+Readied Spell  : Meteor Swarm: READY.
+Year A.D.      : 3500
+
+You are carrying the following items:  (Total Weight: 879 LB's)
+Lightning-Rod, Cleric-Rod, Hell-Blade, Troll-Staff, Frost-Vest, Troll-Skin,
+Eazy-Armour.
+>
+rem rock
+***
+You've removed the Rock-Shell.
+>
+con rock
+***
+The Rock-Shell vanishes with a flash!
+You convert the Rock-Shell into 40000 ions.
+>
+wear ea
+***
+You've just put on the Eazy-Armour.
+>
+hea
+
+***
+Nothing happens!
+>look
+***
+You're in a wrecked building.
+Compass: (-3E : -4N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Bottle-Cap, A Stone-Sword, A Skull, A Troll-Staff, A Troll-Sword. 
+>
+w
+***
+The wind is whistling through open windows.
+Compass: (-4E : -4N)
+north - area continues.
+east  - area continues.
+west  - open gate.
+***
+On the ground lies:
+A Nuclear-Waste. 
+***
+You see shadows to the west.
+>
+e
+***
+You're in a wrecked building.
+Compass: (-3E : -4N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Bottle-Cap, A Stone-Sword, A Skull, A Troll-Staff, A Troll-Sword. 
+>
+look so
+***
+You can't see that way.
+>
+s
+***
+You're blocked!
+>
+point south troll
+***
+A white flash reveals an exit to the south!
+>
+look
+***
+You're in a wrecked building.
+Compass: (-3E : -4N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Bottle-Cap, A Stone-Sword, A Skull, A Troll-Staff, A Troll-Sword. 
+>
+s
+***
+Relics of the war line the streets.
+Compass: (-3E : -5N)
+north - area continues.
+south - area continues.
+>
+s
+***
+You feel a cold breeze.
+Compass: (-3E : -6N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1). 
+>
+w
+***
+The street is cracked here.
+Compass: (-4E : -6N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear-Waste. 
+>
+w
+***
+A sign reads: FOR SALE $ 400000
+Compass: (-5E : -6N)
+east  - area continues.
+west  - open gate.
+***
+On the ground lies:
+A Nuclear-Rock. 
+***
+You see shadows to the west.
+>
+w
+***
+An eerie calm settles in the distance.
+Compass: (-6E : -6N)
+east  - open gate.
+west  - area continues.
+***
+Metamorph-2417 is here.
+***
+You see shadows to the west.
+***
+Metamorph-2417 gasps: You're human, Vindeiatrix!
+***
+Metamorph-2417's body is glowing!
+>
+cast
+***
+A swarm of meteors are suddenly released with tremendous power!
+***
+Metamorph-2417 has been hit by a giant meteor!
+***
+You have slain Metamorph-2417!
+Your experience points are increased by 9333!
+You collect 6280 Riblets and 24157 ions from the slain body.
+***
+
+A Morph-Blade is falling from Metamorph-2417's body!
+***
+A Skull is falling from Metamorph-2417's body!
+***
+A Morph Mail is falling from Metamorph-2417's body!
+***
+Metamorph-2417 is crumbling to dust!
+>
+get mo
+***
+You pick up the Morph-Blade.
+>
+look mo
+***
+The Morph-Blade is in excellent shape. A fine weapon!
+>
+con mo
+***
+The Morph-Blade vanishes with a flash!
+You convert the Morph-Blade into 45000 ions.
+>
+get mo
+***
+You pick up the Morph Mail.
+>
+look mo
+***
+The armour is in excellent shape. By its looks, it has rarely been used.
+>
+wea mo
+***
+You've removed the Eazy-Armour.
+***
+You've just put on the Morph Mail.
+>
+stat
+***
+
+Name: Vindeiatrix / Mutant Mage
+Exhaustion    : 0  
+Str: 68     Int: 109   Wis: 105
+Dex: 58     Con: 64    Cha: 99 
+Hit Points    : 87  / 87 
+Exp. Points   : 17225039 Level: 12 
+Riblets       : 10304906
+Ions          : 82279  
+Wearing Armor : Morph Mail  Armour Class: 16 
+Ready to Combat: NO ONE
+Readied Spell  : Meteor Swarm: READY.
+Year A.D.      : 3500
+
+You are carrying the following items:  (Total Weight: 879 LB's)
+Lightning-Rod, Cleric-Rod, Hell-Blade, Troll-Staff, Frost-Vest, Troll-Skin,
+Eazy-Armour.
+>
+con morph
+***
+You're not carrying a morph.
+>
+wea ea
+***
+You've removed the Morph Mail.
+***
+You've just put on the Eazy-Armour.
+>
+con mor
+***
+The Morph Mail vanishes with a flash!
+You convert the Morph Mail into 21000 ions.
+>
+hea
+
+***
+Nothing happens!
+>look
+***
+An eerie calm settles in the distance.
+Compass: (-6E : -6N)
+east  - open gate.
+west  - area continues.
+***
+On the ground lies:
+A Skull. 
+***
+You see shadows to the west.
+>
+w
+***
+Crumbling buildings surround you.
+Compass: (-7E : -6N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cigarette-Butt. 
+***
+Geryon-Devil-1137 is here.
+***
+You see shadows to the north.
+>
+cast
+***
+A swarm of meteors are suddenly released with tremendous power!
+***
+Geryon-Devil-1137 has been hit by a giant meteor!
+***
+Geryon-Devil-1137 talks I am the devil of poison, Vindeiatrix!
+***
+Geryon-Devil-1137's body is glowing!
+>
+cast
+***
+You don't have enough ions to cast that spell!
+***
+Geryon-Devil-1137 points his Geryon-Wand west!
+***
+Geryon-Devil-1137 has fired a poison bolt west!
+***
+Something just flew right by you!
+***
+You've been hit by a poison bolt!
+***
+You suffer 6 hit points of damage!
+>
+cast
+***
+You don't have enough ions to cast that spell!
+***
+Geryon-Devil-1137 points his Geryon-Wand west!
+***
+Geryon-Devil-1137 has fired a poison bolt west!
+***
+Something just flew right by you!
+***
+You've been hit by a poison bolt!
+***
+You suffer 6 hit points of damage!
+>
+cast
+***
+You don't have enough ions to cast that spell!
+***
+Geryon-Devil-1137 points his Geryon-Wand west!
+***
+Geryon-Devil-1137 has fired a poison bolt west!
+***
+Something just flew right by you!
+***
+You've been hit by a poison bolt!
+***
+You suffer 6 hit points of damage!
+>
+cast
+***
+You don't have enough ions to cast that spell!
+***
+Geryon-Devil-1137 points his Geryon-Wand west!
+***
+Geryon-Devil-1137 has fired a poison bolt west!
+***
+Something just flew right by you!
+***
+You've been hit by a poison bolt!
+***
+You suffer 6 hit points of damage!
+>***
+You are poisoned!
+***
+You feel very ill, and very weak!
+>***
+You are poisoned!
+***
+You feel very ill, and very weak!
+***
+You're starving for IONS!
+***
+You have just DIED of ion starvation!
+***
+
+A Lightning-Rod is falling from Vindeiatrix's body!
+***
+A Cleric-Rod is falling from Vindeiatrix's body!
+***
+A Hell-Blade is falling from Vindeiatrix's body!
+***
+A Troll-Staff is falling from Vindeiatrix's body!
+***
+A Frost-Vest is falling from Vindeiatrix's body!
+***
+Vindeiatrix is crumbling to dust!
+>
+
+
+1. Mutant Thief       Level: 10  Year: 2000  (-3  -7)
+2. Mutant Priest      Level: 10  Year: 2200  (-2   0)
+3. Mutant Wizard      Level: 8   Year: 2000  (0    0)
+4. Mutant Warrior     Level: 11  Year: 4600  (9    0)
+5. Mutant Mage        Level: 12  Year: 3500  (-7  -6) DEAD: 12 day(s) left.
+
+Type BURY [class number] to reset a player.
+***
+Select (Bury, 1-5, ?) >
+1
+
+Prepare to walk a thousand years!
+***
+
+!!!
+Type RIP ON to enter RIP GRAPHICS MODE! (RIPTERM REQUIRED)
+
+You're in an abandoned building.
+Compass: (-3E : -7N)
+north - area continues.
+south - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cigarette-Butt, A Skull. 
+>
+stat
+***
+
+Name: Vindeiatrix / Mutant Thief
+Exhaustion    : 0  
+Str: 48     Int: 40    Wis: 30 
+Dex: 68     Con: 65    Cha: 39 
+Hit Points    : 70  / 70 
+Exp. Points   : 3294936 Level: 10 
+Riblets       : 0      
+Ions          : 78350  
+Wearing Armor : Platinum-Scale  Armour Class: 62 
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D.      : 2000
+
+You are carrying the following items:  (Total Weight: 50 LB's)
+Nuclear-Decay.
+>
+tra 3500
+***
+ZAAAAPPPPP!! You've been sent to the year 3500 A.D.
+>
+mem hid
+cas hid
+***
+You have finished memorizing the Hide Spell!
+>***
+You begin to fade away.
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Skull. 
+>
+s
+
+***
+You're in a maintenance shop.
+Compass: (0E : -1N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Skull. 
+>s
+***
+The street is cracked here.
+Compass: (0E : -2N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon. 
+>
+s
+
+
+
+
+***
+You're blocked!
+>s
+s
+***
+You're blocked!
+>***
+You're blocked!
+>s
+***
+You're blocked!
+>s
+***
+You're blocked!
+>
+w
+
+***
+The two moons are rising above.
+Compass: (-1E : -2N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear-thong, A Bastard-Sword, A Trophy, A Skull. 
+>
+w
+***
+City Trading Centre
+Compass: (-2E : -2N)
+north - area continues.
+east  - area continues.
+west  - open gate.
+***
+On the ground lies:
+An Ion-Decay, A Broken-Weapon. 
+***
+You see shadows to the west, north.
+>
+w
+***
+You're in a maintenance shop.
+Compass: (-3E : -2N)
+east  - open gate.
+west  - area continues.
+***
+Brown-Dragon-417, and Mutant-Hyena-1057 are here with you.
+>
+w
+***
+An eerie calm settles in the distance.
+Compass: (-4E : -2N)
+north - area continues.
+south - open gate.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cigarette-Butt. 
+***
+You see shadows to the east, west.
+>
+
+w
+***
+An old hydro line has fallen here.
+Compass: (-5E : -2N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Bottle-Cap. 
+***
+Mutant-Jackal-2017 is here.
+>
+
+s
+w
+***
+You're blocked!
+>***
+A sign reads: FOR SALE $ 400000
+Compass: (-6E : -2N)
+east  - area continues.
+west  - open gate.
+***
+On the ground lies:
+An Ion-Decay. 
+***
+You see shadows to the east.
+>
+
+s
+w
+***
+You're blocked!
+>***
+You're in a wrecked building.
+Compass: (-7E : -2N)
+north - area continues.
+south - area continues.
+east  - open gate.
+west  - area continues.
+***
+On the ground lies:
+A Monster-Bait, An Elf-Staff. 
+>s
+w
+***
+An eerie calm settles in the distance.
+Compass: (-7E : -3N)
+north - area continues.
+south - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Skull. 
+>***
+An old hydro line has fallen here.
+Compass: (-8E : -3N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+An Ion-Pack, Bandages, A Skull. 
+***
+You see shadows to the west.
+>
+e
+***
+An eerie calm settles in the distance.
+Compass: (-7E : -3N)
+north - area continues.
+south - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Skull. 
+>
+
+s
+s
+***
+You're in a maintenance shop.
+Compass: (-7E : -4N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Bottle-Cap. 
+***
+You see shadows to the south.
+>***
+You hear volcanoes erupt in the distance.
+Compass: (-7E : -5N)
+north - area continues.
+south - area continues.
+west  - area continues.
+***
+Mutant-Hyena-737 is here.
+***
+You see shadows to the south.
+>
+s
+***
+Crumbling buildings surround you.
+Compass: (-7E : -6N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cigarette-Butt, A Lightning-Rod, A Cleric-Rod, A Hell-Blade, A Troll-Staff, A
+Frost-Vest. 
+***
+Geryon-Devil-1137 is here.
+***
+You see shadows to the north.
+>
+get he
+***
+You pick up the Hell-Blade.
+>
+get cle
+***
+You pick up the Cleric-Rod.
+>***
+You have just run out of ions!
+***
+You reappear!
+***
+You're starving for IONS!
+>
+get fros
+***
+You pick up the Frost-Vest.
+>
+con fros
+***
+The Frost-Vest vanishes with a flash!
+You convert the Frost-Vest into 32100 ions.
+>
+inv
+***
+You are carrying the following items:  (Total Weight: 169 LB's)
+Nuclear-Decay, Hell-Blade, Cleric-Rod.
+>
+itms
+***
+You're itmssing!
+>
+items
+***
+On the ground lies:
+A Cigarette-Butt, A Lightning-Rod, A Troll-Staff. 
+>
+get tr
+***
+You pick up the Troll-Staff.
+>
+get l
+***
+You pick up the Lightning-Rod.
+>
+con n
+***
+The Nuclear-Decay vanishes with a flash!
+You convert the Nuclear-Decay into 85000 ions.
+>
+stat
+***
+
+Name: Vindeiatrix / Mutant Thief
+Exhaustion    : 0  
+Str: 48     Int: 40    Wis: 30 
+Dex: 68     Con: 65    Cha: 39 
+Hit Points    : 60  / 70 
+Exp. Points   : 3294936 Level: 10 
+Riblets       : 0      
+Ions          : 115850 
+Wearing Armor : Platinum-Scale  Armour Class: 62 
+Ready to Combat: NO ONE
+Readied Spell  : Hide: READY.
+Year A.D.      : 3500
+
+You are carrying the following items:  (Total Weight: 389 LB's)
+Hell-Blade, Cleric-Rod, Troll-Staff, Lightning-Rod.
+>
+who
+***
+Geryon-Devil-1137 is here.
+***
+You see shadows to the north.
+***
+Geryon-Devil-1137 talks: I am the devil of poison, Vindeiatrix!
+***
+Geryon-Devil-1137 has hit you with his Blasting-Horn!
+***
+You suffer 21 hit points of damage!
+>
+tra 3600
+***
+ZAAAAPPPPP!! You've been sent to the year 3600 A.D.
+>
+hea
+
+***
+Your body glows at it heals 15 points!
+>hea
+***
+Your body glows at it heals 15 points!
+>
+hea
+***
+Your body glows at it heals 15 points!
+***
+You're healed to the maximum!
+>
+
