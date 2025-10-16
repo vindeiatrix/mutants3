@@ -13,6 +13,7 @@ _STATE_BACKEND_ENV: Final[str] = "MUTANTS_STATE_BACKEND"
 _VALID_STATE_BACKENDS: Final[frozenset[str]] = frozenset({"sqlite"})
 _DB_FILENAME: Final[str] = "mutants.db"
 _CONFIG_LOGGED = False
+_COMBAT_CONFIG_FILENAME: Final[tuple[str, str]] = ("config", "combat.json")
 
 
 def get_state_backend() -> str:
@@ -40,11 +41,22 @@ def get_state_database_path() -> Path:
     return state_path(_DB_FILENAME)
 
 
+def get_combat_config_path() -> Path:
+    """Return the resolved path to the combat configuration override file."""
+
+    return state_path(*_COMBAT_CONFIG_FILENAME)
+
+
 def _log_configuration_once(backend: str) -> None:
     global _CONFIG_LOGGED
 
     if _CONFIG_LOGGED:
         return
 
-    _LOG.info("state backend=%s db_path=%s", backend, get_state_database_path())
+    _LOG.info(
+        "state backend=%s db_path=%s combat_config=%s",
+        backend,
+        get_state_database_path(),
+        get_combat_config_path(),
+    )
     _CONFIG_LOGGED = True
