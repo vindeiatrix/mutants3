@@ -3,9 +3,10 @@ from __future__ import annotations
 import logging
 import os
 from pathlib import Path
-from typing import Final
+from typing import Final, Optional
 
 from mutants.state import state_path
+from mutants.util import parse_int
 
 _LOG = logging.getLogger(__name__)
 
@@ -14,6 +15,7 @@ _VALID_STATE_BACKENDS: Final[frozenset[str]] = frozenset({"sqlite"})
 _DB_FILENAME: Final[str] = "mutants.db"
 _CONFIG_LOGGED = False
 _COMBAT_CONFIG_FILENAME: Final[tuple[str, str]] = ("config", "combat.json")
+_RNG_SEED_ENV: Final[str] = "MUTANTS_RNG_SEED"
 
 
 def get_state_backend() -> str:
@@ -47,6 +49,24 @@ def get_combat_config_path() -> Path:
     return state_path(*_COMBAT_CONFIG_FILENAME)
 
 
+def get_runtime_seed() -> Optional[str]:
+    """Return the configured runtime RNG seed, if provided."""
+
+    raw = os.getenv(_RNG_SEED_ENV)
+    if raw is None:
+        return None
+
+    candidate = raw.strip()
+    if not candidate:
+        return None
+
+    try:
+        # Normalise numeric seeds so ``42`` and ``0x2A`` resolve identically.
+        return str(parse_int(candidate))
+    except ValueError:
+        return candidate
+
+
 def _log_configuration_once(backend: str) -> None:
     global _CONFIG_LOGGED
 
@@ -54,9 +74,10 @@ def _log_configuration_once(backend: str) -> None:
         return
 
     _LOG.info(
-        "state backend=%s db_path=%s combat_config=%s",
+        "state backend=%s db_path=%s combat_config=%s rng_seed=%s",
         backend,
         get_state_database_path(),
         get_combat_config_path(),
+        get_runtime_seed(),
     )
     _CONFIG_LOGGED = True
