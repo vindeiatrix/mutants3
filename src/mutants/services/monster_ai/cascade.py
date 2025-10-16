@@ -448,7 +448,10 @@ def evaluate_cascade(monster: Any, ctx: Any) -> ActionResult:
         )
 
     # ATTACK gate (always available when reached)
-    attack_threshold = _clamp_pct(config.attack_pct)
+    attack_threshold_value = config.attack_pct
+    if cracked:
+        attack_threshold_value = math.floor(attack_threshold_value * 0.5)
+    attack_threshold = _clamp_pct(attack_threshold_value)
     if attack_threshold > 0:
         roll = int(rng.randrange(100))
         reason = f"roll={roll} threshold={attack_threshold}"
