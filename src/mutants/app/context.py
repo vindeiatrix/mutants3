@@ -19,6 +19,7 @@ from mutants.ui.themes import Theme, load_theme
 from mutants.ui import styles as st
 from ..registries import items_instances as itemsreg
 from mutants.services import monster_leveling, monsters_state, player_state as pstate
+from mutants.services.turn_scheduler import TurnScheduler
 from mutants.engine import session
 
 LOG = logging.getLogger(__name__)
@@ -100,6 +101,9 @@ def build_context() -> Dict[str, Any]:
         "peek_vm": None,
         "session": {"active_class": active_class} if active_class else {},
     }
+    scheduler = TurnScheduler(ctx)
+    ctx["turn_scheduler"] = scheduler
+    session.set_turn_scheduler(scheduler)
     global _CURRENT_CTX
     _CURRENT_CTX = ctx
     return ctx
