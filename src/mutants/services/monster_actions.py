@@ -690,6 +690,8 @@ def _convert_item(
     if not bag:
         return False
     tracked = set(_picked_up_iids(monster))
+    if not tracked:
+        return False
     catalog = _load_catalog()
     best_entry: Optional[MutableMapping[str, Any]] = None
     best_value = 0
@@ -700,7 +702,7 @@ def _convert_item(
         origin = entry.get("origin")
         if not isinstance(origin, str) or origin.strip().lower() != ORIGIN_WORLD:
             continue
-        if tracked and iid not in tracked:
+        if iid not in tracked:
             continue
         item_id = entry.get("item_id")
         if not isinstance(item_id, str) or not item_id:
