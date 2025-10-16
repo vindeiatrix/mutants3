@@ -2115,6 +2115,19 @@ def set_ions_for_active(state: Dict[str, Any], amount: int) -> int:
     return new_total
 
 
+def spend_ions_for_active(state: Dict[str, Any], amount: int) -> Tuple[bool, int]:
+    """Attempt to spend ``amount`` ions for the active class."""
+
+    required = max(0, _coerce_int(amount, 0))
+    current = get_ions_for_active(state)
+    if required <= 0:
+        return True, current
+    if current < required:
+        return False, current
+    remaining = set_ions_for_active(state, current - required)
+    return True, remaining
+
+
 def get_riblets_for_active(state: Dict[str, Any]) -> int:
     """Return the riblet balance for the active class in ``state``."""
 
@@ -2620,6 +2633,25 @@ def set_hp_for_active(
 
     save_state(normalized)
     return dict(sanitized)
+
+
+def heal_active(state: Dict[str, Any], amount: int) -> Tuple[int, Dict[str, int]]:
+    """Increase the active class HP by up to ``amount`` points."""
+
+    heal_amount = max(0, _coerce_int(amount, 0))
+    if heal_amount <= 0:
+        return 0, get_hp_for_active(state)
+
+    hp_block = get_hp_for_active(state)
+    current = _coerce_int(hp_block.get("current"), 0)
+    maximum = max(current, _coerce_int(hp_block.get("max"), current))
+    missing = max(0, maximum - current)
+    if missing <= 0:
+        return 0, hp_block
+
+    applied = min(heal_amount, missing)
+    updated = set_hp_for_active(state, {"current": current + applied, "max": maximum})
+    return applied, updated
 
 
 def get_stats_for_active(state: Dict[str, Any]) -> Dict[str, int]:
