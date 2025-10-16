@@ -10,6 +10,7 @@ from ..services.equip_debug import _edbg_enabled, _edbg_log
 from ..services.items_weight import get_effective_weight
 from ..util.textnorm import normalize_item_query
 from .convert import _choose_inventory_item, _display_name
+from .strike import strike_cmd
 from .wear import _bag_count, _catalog_template, _pos_repr
 
 
@@ -90,6 +91,11 @@ def wield_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
     stats_state = pstate.load_state()
     cls_name = pstate.get_active_class(stats_state)
     current_iid = pstate.get_wielded_weapon_id(stats_state)
+    ready_target_id = (
+        pstate.get_ready_target_for_active(stats_state)
+        if isinstance(stats_state, dict)
+        else None
+    )
     if _edbg_enabled():
         _edbg_log(
             "[ equip ] enter",
@@ -190,6 +196,51 @@ def wield_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
         "weight": weight,
         "required": required,
     }
+
+    strike_summary: Optional[Dict[str, object]] = None
+    if ready_target_id and not monster_actor:
+        refreshed_state: Optional[Dict[str, object]]
+        try:
+            refreshed_state = pstate.load_state()
+        except Exception:
+            refreshed_state = None
+        active_target = (
+            pstate.get_ready_target_for_active(refreshed_state)
+            if isinstance(refreshed_state, dict)
+            else ready_target_id
+        )
+        if active_target:
+            try:
+                strike_result = strike_cmd("", ctx)
+            except Exception as exc:  # pragma: no cover - defensive guard
+                strike_summary = {
+                    "ok": False,
+                    "reason": "auto_strike_failed",
+                    "error": str(exc),
+                }
+                if _edbg_enabled():
+                    _edbg_log(
+                        "[ equip ] auto_strike failure",
+                        cmd="wield",
+                        prefix=repr(prefix),
+                        target=active_target,
+                        error=str(exc),
+                    )
+            else:
+                if isinstance(strike_result, dict):
+                    strike_summary = dict(strike_result)
+                else:
+                    strike_summary = {"ok": False, "reason": "auto_strike_invalid"}
+                if _edbg_enabled():
+                    _edbg_log(
+                        "[ equip ] auto_strike",
+                        cmd="wield",
+                        prefix=repr(prefix),
+                        target=active_target,
+                        strike_ok=strike_summary.get("ok"),
+                    )
+    if strike_summary is not None:
+        result["strike"] = strike_summary
 
     if _edbg_enabled():
         try:
