@@ -95,6 +95,53 @@ def _normalize_notes(value: Any) -> Optional[str]:
     return str(value)
 
 
+def _sanitize_status_entry(payload: Any) -> Optional[Dict[str, Any]]:
+    if payload is None:
+        return None
+    if isinstance(payload, Mapping):
+        raw_id = payload.get("status_id") or payload.get("id")
+        if isinstance(raw_id, str):
+            status_id = raw_id.strip()
+        elif raw_id is None:
+            status_id = None
+        else:
+            status_id = str(raw_id).strip()
+        if not status_id:
+            return None
+        try:
+            duration_raw = payload.get("duration")
+            if duration_raw is None:
+                duration_raw = payload.get("turns")
+            duration = int(duration_raw)
+        except (TypeError, ValueError):
+            duration = 0
+        return {"status_id": status_id, "duration": max(0, duration)}
+    if isinstance(payload, str):
+        status_id = payload.strip()
+        if not status_id:
+            return None
+        return {"status_id": status_id, "duration": 0}
+    return None
+
+
+def _sanitize_status_list(payload: Any) -> List[Dict[str, Any]]:
+    if isinstance(payload, list):
+        entries: List[Dict[str, Any]] = []
+        seen: set[tuple[str, int]] = set()
+        for item in payload:
+            sanitized = _sanitize_status_entry(item)
+            if not sanitized:
+                continue
+            key = (sanitized["status_id"], sanitized["duration"])
+            if key in seen:
+                continue
+            seen.add(key)
+            entries.append(sanitized)
+        return entries
+    sanitized = _sanitize_status_entry(payload)
+    return [sanitized] if sanitized else []
+
+
 def _mint_iid(monster_id: str, item_id: str, *, seen: set[str]) -> str:
     return items_instances.mint_iid(seen=seen)
 
@@ -419,6 +466,13 @@ class MonstersState:
 
         payload["hp"] = _sanitize_hp(payload.get("hp"))
 
+        statuses = _sanitize_status_list(payload.get("status_effects"))
+        payload["status_effects"] = [dict(entry) for entry in statuses]
+        if statuses:
+            payload["timers"] = [dict(entry) for entry in statuses]
+        else:
+            payload.pop("timers", None)
+
         return payload
 
     def _persist_monster(self, monster: Mapping[str, Any]) -> None:
@@ -449,6 +503,16 @@ class MonstersState:
             "hp_max": max(hp_cur, hp_max),
             "stats_json": json.dumps(payload, sort_keys=True, separators=(",", ":")),
         }
+
+        timers_payload = payload.get("status_effects") or []
+        if timers_payload:
+            fields["timers_json"] = json.dumps(
+                {"status_effects": timers_payload},
+                sort_keys=True,
+                separators=(",", ":"),
+            )
+        else:
+            fields["timers_json"] = None
 
         try:
             self._instances.update_fields(instance_id, **fields)
@@ -523,6 +587,57 @@ class MonstersState:
         monster = self._by_id.get(monster_id)
         self._last_accessed_id = monster_id if monster else None
         return monster
+
+    def set_status_effects(
+        self, monster_id: str, statuses: Iterable[Mapping[str, Any]]
+    ) -> List[Dict[str, Any]]:
+        monster = self._by_id.get(monster_id)
+        if monster is None:
+            raise KeyError(monster_id)
+
+        raw_entries = list(statuses) if isinstance(statuses, Iterable) else []
+        sanitized = _sanitize_status_list(raw_entries)
+        current = _sanitize_status_list(monster.get("status_effects"))
+        if current == sanitized:
+            return [dict(entry) for entry in current]
+
+        payload = [dict(entry) for entry in sanitized]
+        monster["status_effects"] = payload
+        if payload:
+            monster["timers"] = [dict(entry) for entry in payload]
+        else:
+            monster.pop("timers", None)
+
+        self._track_dirty(monster_id)
+        return payload
+
+    def decrement_status_effects(self, amount: int = 1) -> Dict[str, List[Dict[str, Any]]]:
+        if amount <= 0:
+            return {}
+
+        expired: Dict[str, List[Dict[str, Any]]] = {}
+        changed = False
+
+        for monster_id, monster in list(self._by_id.items()):
+            entries = _sanitize_status_list(monster.get("status_effects"))
+            updated: List[Dict[str, Any]] = []
+            expired_entries: List[Dict[str, Any]] = []
+            for entry in entries:
+                remaining = max(0, int(entry.get("duration", 0)) - amount)
+                if remaining > 0:
+                    updated.append({"status_id": entry["status_id"], "duration": remaining})
+                else:
+                    expired_entries.append({"status_id": entry["status_id"], "duration": 0})
+            if expired_entries:
+                expired[monster_id] = expired_entries
+            if updated != entries:
+                changed = True
+            self.set_status_effects(monster_id, updated)
+
+        if changed:
+            self.save()
+
+        return expired
 
     def mark_dirty(self) -> None:
         self._track_dirty(self._last_accessed_id)
@@ -768,6 +883,31 @@ def _normalize_monsters(monsters: List[Dict[str, Any]], *, catalog: Mapping[str,
             monster["ready_target"] = None
             if "target_monster_id" in monster:
                 monster["target_monster_id"] = None
+
+        timers_payload: Any = monster.get("status_effects")
+        if timers_payload is None:
+            timers_payload = monster.get("timers")
+        if timers_payload is None:
+            timers_payload = monster.get("statuses")
+        if timers_payload is None:
+            timers_raw = monster.get("timers_json")
+            if isinstance(timers_raw, str) and timers_raw.strip():
+                try:
+                    decoded = json.loads(timers_raw)
+                except json.JSONDecodeError:
+                    decoded = None
+                if isinstance(decoded, Mapping):
+                    timers_payload = decoded.get("status_effects") or decoded.get("statuses")
+                elif isinstance(decoded, list):
+                    timers_payload = decoded
+        statuses = _sanitize_status_list(timers_payload)
+        if statuses:
+            monster["status_effects"] = statuses
+            monster["timers"] = statuses
+        else:
+            monster["status_effects"] = []
+            if "timers" in monster:
+                monster.pop("timers", None)
 
         normalized.append(monster)
 

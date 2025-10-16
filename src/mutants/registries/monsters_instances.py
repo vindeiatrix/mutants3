@@ -84,6 +84,16 @@ class MonstersInstances:
             hp_max = self._coerce_int(payload.get("hp_max"), default=hp_cur)
             payload["hp"] = {"current": hp_cur, "max": hp_max}
 
+        timers_payload = payload.get("status_effects") or payload.get("timers") or []
+        if timers_payload:
+            timers_json = json.dumps(
+                {"status_effects": timers_payload},
+                sort_keys=True,
+                separators=(",", ":"),
+            )
+        else:
+            timers_json = None
+
         store.update_fields(
             str(instance_id),
             stats_json=json.dumps(payload, sort_keys=True, separators=(",", ":")),
@@ -92,6 +102,7 @@ class MonstersInstances:
             y=y,
             hp_cur=hp_cur,
             hp_max=hp_max,
+            timers_json=timers_json,
         )
 
     def _mutate_payload(self, instance_id: str, mutator) -> None:

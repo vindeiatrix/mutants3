@@ -289,6 +289,12 @@ def _normalize_class_name(value: Any) -> Optional[str]:
     return None
 
 
+def normalize_class_name(value: Any) -> Optional[str]:
+    """Public wrapper returning a sanitized class token or ``None``."""
+
+    return _normalize_class_name(value)
+
+
 def _evaluate_item_instance_invariants() -> Tuple[bool, Dict[str, Any]]:
     summary: Dict[str, Any] = {}
 
@@ -776,6 +782,87 @@ def _sanitize_ready_target(value: Any) -> Optional[str]:
     return token or None
 
 
+def _sanitize_status_effect_entry(payload: Any) -> Optional[Dict[str, Any]]:
+    if payload is None:
+        return None
+    if isinstance(payload, Mapping):
+        raw_id = payload.get("status_id") or payload.get("id")
+        status_id = _string_key(raw_id)
+        if not status_id:
+            return None
+        duration_raw = payload.get("duration")
+        if duration_raw is None:
+            duration_raw = payload.get("turns")
+        duration = max(0, _sanitize_class_int(duration_raw, 0))
+        entry: Dict[str, Any] = {"status_id": status_id, "duration": duration}
+        return entry
+    if isinstance(payload, str):
+        status_id = payload.strip()
+        if not status_id:
+            return None
+        return {"status_id": status_id, "duration": 0}
+    return None
+
+
+def _sanitize_status_effect_list(payload: Any) -> List[Dict[str, Any]]:
+    if isinstance(payload, list):
+        entries: List[Dict[str, Any]] = []
+        seen: set[tuple[str, int]] = set()
+        for item in payload:
+            sanitized = _sanitize_status_effect_entry(item)
+            if not sanitized:
+                continue
+            key = (sanitized["status_id"], sanitized["duration"])
+            if key in seen:
+                continue
+            seen.add(key)
+            entries.append(sanitized)
+        return entries
+    sanitized = _sanitize_status_effect_entry(payload)
+    return [sanitized] if sanitized else []
+
+
+def _ensure_status_effects_map(
+    state: Dict[str, Any],
+    classes: Iterable[str],
+    class_sources: Dict[str, Dict[str, Any]],
+    active: Dict[str, Any],
+) -> Dict[str, List[Dict[str, Any]]]:
+    raw_map = state.get("status_effects_by_class")
+    normalized: Dict[str, List[Dict[str, Any]]] = {}
+    class_set = {cls for cls in classes if isinstance(cls, str) and cls}
+    if isinstance(raw_map, Mapping):
+        for name, payload in raw_map.items():
+            cls_name = _normalize_class_name(name)
+            if not cls_name or cls_name not in class_set:
+                continue
+            normalized[cls_name] = _sanitize_status_effect_list(payload)
+
+    for cls_name in classes:
+        if not isinstance(cls_name, str) or not cls_name:
+            continue
+        candidates = _source_candidates_for_class(cls_name, class_sources, active, state)
+        fallback: Any = None
+        for src in candidates:
+            if not isinstance(src, Mapping):
+                continue
+            block = src.get("status_effects")
+            if block is None:
+                block = src.get("statuses")
+            if block is not None:
+                fallback = block
+                break
+
+        if cls_name in normalized:
+            normalized[cls_name] = _sanitize_status_effect_list(normalized[cls_name])
+            continue
+
+        normalized[cls_name] = _sanitize_status_effect_list(fallback)
+
+    state["status_effects_by_class"] = normalized
+    return normalized
+
+
 def _ensure_equipment_map(
     state: Dict[str, Any],
     classes: Iterable[str],
@@ -1156,6 +1243,7 @@ def _apply_maps_to_profiles(
     equipment_map: Dict[str, Dict[str, Optional[str]]],
     wield_map: Dict[str, Optional[str]],
     ready_map: Dict[str, Optional[str]],
+    status_map: Dict[str, List[Dict[str, Any]]],
 ) -> None:
     players = state.get("players")
     if isinstance(players, list):
@@ -1207,6 +1295,12 @@ def _apply_maps_to_profiles(
             player["ready_target"] = ready_target
             player["target_monster_id"] = ready_target
 
+            status_entries = [dict(entry) for entry in status_map.get(cls_name, [])]
+            status_map_entry = player.setdefault("status_effects_by_class", {})
+            if isinstance(status_map_entry, dict):
+                status_map_entry[cls_name] = status_entries
+            player["status_effects"] = status_entries
+
     klass_name = klass if isinstance(klass, str) and klass else "Thief"
     active_hp = dict(hp_map.get(klass_name, _empty_hp()))
     active_stats = dict(stats_map.get(klass_name, _empty_stats()))
@@ -1236,6 +1330,12 @@ def _apply_maps_to_profiles(
         active_target_map[klass_name] = ready_target_active
     active["ready_target"] = ready_target_active
     active["target_monster_id"] = ready_target_active
+
+    active_status_entries = [dict(entry) for entry in status_map.get(klass_name, [])]
+    active_status_map = active.setdefault("status_effects_by_class", {})
+    if isinstance(active_status_map, dict):
+        active_status_map[klass_name] = active_status_entries
+    active["status_effects"] = active_status_entries
 
     active_armour_entry = equipment_map.get(klass_name)
     armour_iid = None
@@ -1270,6 +1370,10 @@ def _apply_maps_to_profiles(
     }
     state["ready_target_by_class"] = sanitized_ready_map
     state["target_monster_id_by_class"] = dict(sanitized_ready_map)
+    state["status_effects_by_class"] = {
+        cls_name: [dict(entry) for entry in status_map.get(cls_name, [])]
+        for cls_name in status_map
+    }
 
 
 def _normalize_per_class_structures(
@@ -1338,6 +1442,7 @@ def _normalize_per_class_structures(
     equipment_map = _ensure_equipment_map(state, classes, sources, active)
     wield_map = _ensure_wielded_map(state, classes, sources, active)
     ready_map = _ensure_ready_target_map(state, classes, sources, active)
+    status_map = _ensure_status_effects_map(state, classes, sources, active)
 
     _enforce_wield_invariants(
         state,
@@ -1365,6 +1470,7 @@ def _normalize_per_class_structures(
         equipment_map,
         wield_map,
         ready_map,
+        status_map,
     )
 
     return state
@@ -2749,6 +2855,114 @@ def ensure_active_ready_target_in(
         clear_ready_target_for_active(reason=reason)
         return None
     return current
+
+
+def _copy_status_effects(entries: Iterable[Mapping[str, Any]]) -> List[Dict[str, Any]]:
+    sanitized = _sanitize_status_effect_list(list(entries))
+    return [dict(entry) for entry in sanitized]
+
+
+def get_status_effects_map(
+    state: Optional[Dict[str, Any]] = None,
+) -> Dict[str, List[Dict[str, Any]]]:
+    """Return a map of status effects keyed by normalized class name."""
+
+    source = state if isinstance(state, dict) else load_state()
+    status_map = source.get("status_effects_by_class") if isinstance(source, Mapping) else None
+    result: Dict[str, List[Dict[str, Any]]] = {}
+    if isinstance(status_map, Mapping):
+        for key, payload in status_map.items():
+            cls_name = _normalize_class_name(key)
+            if not cls_name:
+                continue
+            result[cls_name] = _copy_status_effects(
+                _sanitize_status_effect_list(payload)
+            )
+    return result
+
+
+def get_status_effects_for_class(
+    class_name: str, *, state: Optional[Dict[str, Any]] = None
+) -> List[Dict[str, Any]]:
+    """Return the sanitized status list for ``class_name``."""
+
+    base_state = state if isinstance(state, dict) else load_state()
+    target = _normalize_class_name(class_name)
+    if not target:
+        target = get_active_class(base_state)
+    status_map = get_status_effects_map(base_state)
+    return [dict(entry) for entry in status_map.get(target, [])]
+
+
+def set_status_effects_for_class(
+    class_name: str,
+    statuses: Iterable[Mapping[str, Any]],
+    *,
+    state: Optional[Dict[str, Any]] = None,
+) -> List[Dict[str, Any]]:
+    """Persist ``statuses`` for ``class_name`` returning the sanitized list."""
+
+    base_state = state if isinstance(state, dict) else load_state()
+    normalized, _active, fallback_class = _prepare_active_storage(base_state)
+    target = _normalize_class_name(class_name) or fallback_class
+
+    raw_entries = list(statuses) if isinstance(statuses, Iterable) else []
+    sanitized = _sanitize_status_effect_list(raw_entries)
+
+    status_map = normalized.setdefault("status_effects_by_class", {})
+    if not isinstance(status_map, dict):
+        status_map = {}
+        normalized["status_effects_by_class"] = status_map
+
+    current = _sanitize_status_effect_list(status_map.get(target))
+    if current == sanitized:
+        return [dict(entry) for entry in current]
+
+    status_map[target] = sanitized
+    save_state(normalized)
+    return [dict(entry) for entry in sanitized]
+
+
+def decrement_status_effects(amount: int = 1) -> Dict[str, List[Dict[str, Any]]]:
+    """Decrement durations across all classes, returning expired entries."""
+
+    if amount <= 0:
+        return {}
+
+    state = load_state()
+    normalized, _active, _klass = _prepare_active_storage(state)
+    status_map = normalized.setdefault("status_effects_by_class", {})
+    if not isinstance(status_map, dict):
+        status_map = {}
+        normalized["status_effects_by_class"] = status_map
+
+    expired: Dict[str, List[Dict[str, Any]]] = {}
+    changed = False
+
+    for key, payload in list(status_map.items()):
+        cls_name = _normalize_class_name(key)
+        if not cls_name:
+            continue
+        entries = _sanitize_status_effect_list(payload)
+        updated: List[Dict[str, Any]] = []
+        expired_entries: List[Dict[str, Any]] = []
+        for entry in entries:
+            remaining = max(0, int(entry.get("duration", 0)) - amount)
+            if remaining > 0:
+                updated.append({"status_id": entry["status_id"], "duration": remaining})
+            else:
+                expired_entries.append({"status_id": entry["status_id"], "duration": 0})
+        if expired_entries:
+            expired[cls_name] = expired_entries
+        if updated != entries:
+            changed = True
+        status_map[cls_name] = updated
+
+    if changed:
+        normalized["status_effects_by_class"] = status_map
+        save_state(normalized)
+
+    return expired
 
 
 def get_active_pair(

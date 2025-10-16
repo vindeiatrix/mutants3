@@ -65,7 +65,7 @@ def test_turn_scheduler_advances_tick_for_each_command(monkeypatch: pytest.Monke
         if kind == "TURN/TICK":
             tick_logs.append(int(meta.get("tick", 0)))
 
-    monkeypatch.setattr("mutants.services.turn_scheduler.monster_ai.on_player_command", fake_on_player_command)
+    monkeypatch.setattr("mutants.services.monster_ai.on_player_command", fake_on_player_command)
     monkeypatch.setattr("mutants.services.turn_scheduler.turnlog.emit", fake_emit)
 
     dispatch.register("ping", lambda arg: None)
