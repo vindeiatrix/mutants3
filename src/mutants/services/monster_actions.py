@@ -12,6 +12,7 @@ from mutants.registries import items_catalog, items_instances as itemsreg
 from mutants.services import combat_loot
 from mutants.services import damage_engine, items_wear, monsters_state, player_state as pstate
 from mutants.services.combat_config import CombatConfig
+from mutants.services.monster_ai.attack_selection import select_attack
 from mutants.services.monster_ai.cascade import evaluate_cascade
 from mutants.debug import turnlog
 from mutants.ui import item_display
@@ -485,13 +486,14 @@ def _apply_player_damage(
     current, maximum = _sanitize_hp_block(hp_block)
     if maximum <= 0:
         maximum = max(current, 1)
-    weapon_iid = monster.get("wielded")
+    plan = select_attack(monster, ctx)
+    weapon_iid = plan.item_iid
     damage_item: Any
     if weapon_iid:
-        damage_item = weapon_iid
+        damage_item = str(weapon_iid)
     else:
         damage_item = {}
-    attack = damage_engine.resolve_attack(damage_item, monster, active)
+    attack = damage_engine.resolve_attack(damage_item, monster, active, source=plan.source)
     try:
         final_damage = max(0, int(attack.damage))
     except (TypeError, ValueError):
@@ -505,15 +507,16 @@ def _apply_player_damage(
         wear_amount = items_wear.wear_from_event({"kind": "monster-attack", "damage": final_damage})
         catalog = _load_catalog()
         bus_obj = bus if hasattr(bus, "push") else None
+        resolved_iid = str(weapon_iid) if weapon_iid else None
         _apply_weapon_wear(
             monster,
-            str(weapon_iid) if weapon_iid else None,
+            resolved_iid,
             wear_amount,
             catalog,
             bus_obj,
             ctx if isinstance(ctx, MutableMapping) else None,
         )
-        if weapon_iid:
+        if resolved_iid:
             _mark_monsters_dirty(ctx)
     new_hp = max(0, current - final_damage)
     try:
@@ -533,6 +536,7 @@ def _apply_player_damage(
             hp_after=new_hp,
             killed=killed_flag,
             weapon=str(weapon_iid) if weapon_iid else None,
+            source=attack.source,
         )
     if killed_flag:
         if isinstance(state, MutableMapping) and isinstance(active, MutableMapping):
