@@ -8,6 +8,7 @@ from mutants.util.directions import resolve_dir
 from mutants.engine import session as session_state
 from mutants.services import monster_ai
 from mutants.debug import turnlog
+from mutants.commands._helpers import advance_invalid_command_turn
 
 
 class Dispatch:
@@ -133,44 +134,48 @@ class Dispatch:
         observer = turnlog.get_observer(self._ctx) if self._ctx is not None else None
         scheduler = self._resolve_scheduler()
 
-        def player_action() -> tuple[str, Optional[str]]:
-            nonlocal resolved, result_token
-
-            dir_name = resolve_dir(token)
-            if dir_name and dir_name in self._cmds:
-                result_token = dir_name
-                resolved = dir_name
-                fn = self._cmds.get(dir_name)
-                if fn:
-                    if observer:
-                        observer.begin_turn(self._ctx, token, resolved)
-                    self._inject_session_context()
-                    fn(arg)
-                return token, resolved
-
-            name = self._resolve_prefix(token)
-            if not name:
-                return token, resolved
+        def _dispatch_command(name: str) -> None:
+            nonlocal resolved, result_token, skip_ai
 
             fn = self._cmds.get(name)
             if not fn:
                 self._warn(f'Command handler missing for "{name}".')
-                return token, resolved
+                handled = advance_invalid_command_turn(self._ctx, token, resolved=name)
+                if handled:
+                    skip_ai = True
+                return
 
             resolved = name
             result_token = name
-            if observer:
-                observer.begin_turn(self._ctx, token, resolved)
-            self._inject_session_context()
-            fn(arg)
-            return token, resolved
+
+            def _player_action() -> tuple[str, Optional[str]]:
+                if observer:
+                    observer.begin_turn(self._ctx, token, resolved)
+                self._inject_session_context()
+                fn(arg)
+                return token, resolved
+
+            if scheduler is not None:
+                scheduler.tick(_player_action)
+            else:
+                _player_action()
 
         skip_ai = scheduler is not None
         try:
-            if scheduler is not None:
-                scheduler.tick(player_action)
-            else:
-                player_action()
+            dir_name = resolve_dir(token)
+            if dir_name and dir_name in self._cmds:
+                _dispatch_command(dir_name)
+                return result_token
+
+            name = self._resolve_prefix(token)
+            if not name:
+                handled = advance_invalid_command_turn(self._ctx, token)
+                if handled:
+                    skip_ai = True
+                return result_token
+
+            _dispatch_command(name)
+            return result_token
         finally:
             self._post_command(token, resolved, skip_ai=skip_ai)
 

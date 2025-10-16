@@ -21,6 +21,18 @@ class TurnScheduler:
         self._ctx = ctx
         self._rng_name = rng_name
 
+    def advance_invalid(
+        self, token: str | None = None, resolved: Optional[str] = None
+    ) -> None:
+        """Advance the scheduler for an invalid/unknown player command."""
+
+        raw_token = "" if token is None else str(token)
+
+        def _noop_action() -> tuple[str, Optional[str]]:
+            return raw_token, resolved
+
+        self.tick(_noop_action)
+
     def tick(self, player_action: Callable[[], Any]) -> None:
         """Advance the shared tick counter and resolve a full turn."""
 
