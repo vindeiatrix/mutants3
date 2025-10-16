@@ -71,6 +71,7 @@ def _reset_fields_from_template(
     equipment_map[cls_name] = {"armour": None}
     player.setdefault("wielded_by_class", {})[cls_name] = None
     player.setdefault("ready_target_by_class", {})[cls_name] = None
+    player.setdefault("target_monster_id_by_class", {})[cls_name] = None
     player["wielded"] = None
     player["readied_spell"] = template.get("readied_spell_start", None)
     player["ready_target"] = None

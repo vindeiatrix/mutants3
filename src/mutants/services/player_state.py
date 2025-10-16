@@ -583,6 +583,9 @@ def _capture_legacy_payload(
         ready_map = payload.get("ready_target_by_class")
         if isinstance(ready_map, Mapping):
             candidate = ready_map.get(cls_name)
+        target_map = payload.get("target_monster_id_by_class")
+        if candidate is None and isinstance(target_map, Mapping):
+            candidate = target_map.get(cls_name)
         if candidate is None and "ready_target" in payload:
             candidate = payload.get("ready_target")
         if candidate is None and "target_monster_id" in payload:
@@ -924,6 +927,16 @@ def _ensure_ready_target_map(
                 continue
             normalized[cls_name] = _sanitize_ready_target(value)
 
+    target_map_raw = state.get("target_monster_id_by_class")
+    if isinstance(target_map_raw, Mapping):
+        for name, value in target_map_raw.items():
+            cls_name = _normalize_class_name(name)
+            if not cls_name:
+                continue
+            sanitized = _sanitize_ready_target(value)
+            if cls_name not in normalized or normalized.get(cls_name) is None:
+                normalized[cls_name] = sanitized
+
     for cls_name in classes:
         key = cls_name if isinstance(cls_name, str) and cls_name else None
         if not key:
@@ -942,6 +955,11 @@ def _ensure_ready_target_map(
                 fallback = _sanitize_ready_target(ready_map.get(key))
                 if fallback:
                     break
+            target_map = source.get("target_monster_id_by_class")
+            if isinstance(target_map, Mapping):
+                fallback = _sanitize_ready_target(target_map.get(key))
+                if fallback:
+                    break
             candidate = source.get("ready_target")
             if candidate is not None:
                 fallback = _sanitize_ready_target(candidate)
@@ -954,8 +972,12 @@ def _ensure_ready_target_map(
                     break
         normalized[key] = fallback
 
-    state["ready_target_by_class"] = normalized
-    return normalized
+    sanitized_map = {
+        cls_name: _sanitize_ready_target(value) for cls_name, value in normalized.items()
+    }
+    state["ready_target_by_class"] = sanitized_map
+    state["target_monster_id_by_class"] = dict(sanitized_map)
+    return sanitized_map
 
 
 def _log_wield_invariants(status: str, summary: str, healed: Iterable[str]) -> None:
@@ -1179,6 +1201,9 @@ def _apply_maps_to_profiles(
             ready_map_entry = player.setdefault("ready_target_by_class", {})
             if isinstance(ready_map_entry, dict):
                 ready_map_entry[cls_name] = ready_target
+            target_map_entry = player.setdefault("target_monster_id_by_class", {})
+            if isinstance(target_map_entry, dict):
+                target_map_entry[cls_name] = ready_target
             player["ready_target"] = ready_target
             player["target_monster_id"] = ready_target
 
@@ -1206,6 +1231,9 @@ def _apply_maps_to_profiles(
     active_ready_map = active.setdefault("ready_target_by_class", {})
     if isinstance(active_ready_map, dict):
         active_ready_map[klass_name] = ready_target_active
+    active_target_map = active.setdefault("target_monster_id_by_class", {})
+    if isinstance(active_target_map, dict):
+        active_target_map[klass_name] = ready_target_active
     active["ready_target"] = ready_target_active
     active["target_monster_id"] = ready_target_active
 
@@ -1237,6 +1265,11 @@ def _apply_maps_to_profiles(
     state["level"] = active_level
     state["hp"] = dict(active_hp)
     state["stats"] = dict(active_stats)
+    sanitized_ready_map = {
+        cls_name: _sanitize_ready_target(value) for cls_name, value in ready_map.items()
+    }
+    state["ready_target_by_class"] = sanitized_ready_map
+    state["target_monster_id_by_class"] = dict(sanitized_ready_map)
 
 
 def _normalize_per_class_structures(
@@ -1447,6 +1480,30 @@ def _evaluate_invariants_with_details(state: Dict[str, Any]) -> Tuple[bool, Dict
         if details.get("missing_pair") is None:
             details["missing_pair"] = ("ready_target_by_class", "<missing-map>")
         ok = False
+
+    target_payload = state.get("target_monster_id_by_class")
+    if isinstance(target_payload, dict):
+        details["map_counts"]["target_monster_id_by_class"] = len(target_payload)
+        for cls_name in class_set:
+            if cls_name not in target_payload:
+                if details.get("missing_pair") is None:
+                    details["missing_pair"] = ("target_monster_id_by_class", cls_name)
+                ok = False
+    else:
+        target_payload = {}
+        details["map_counts"]["target_monster_id_by_class"] = 0
+        if details.get("missing_pair") is None:
+            details["missing_pair"] = ("target_monster_id_by_class", "<missing-map>")
+        ok = False
+
+    if isinstance(ready_payload, dict) and isinstance(target_payload, dict):
+        for cls_name in class_set:
+            ready_val = _sanitize_ready_target(ready_payload.get(cls_name))
+            target_val = _sanitize_ready_target(target_payload.get(cls_name))
+            if ready_val != target_val:
+                if details.get("target_mismatch") is None:
+                    details["target_mismatch"] = (cls_name, ready_val, target_val)
+                ok = False
 
     hp_map: Dict[str, Dict[str, int]] = {}
     hp_violation: Optional[Tuple[str, int, int]] = None
@@ -1702,6 +1759,7 @@ def migrate_per_class_fields(state: Dict[str, Any]) -> Dict[str, Any]:
     hp_map = normalized.setdefault("hp_by_class", {})
     stats_map = normalized.setdefault("stats_by_class", {})
     ready_map = normalized.setdefault("ready_target_by_class", {})
+    target_map = normalized.setdefault("target_monster_id_by_class", {})
 
     for cls_name, payload in legacy_values.items():
         if not isinstance(cls_name, str) or not cls_name:
@@ -1751,11 +1809,20 @@ def migrate_per_class_fields(state: Dict[str, Any]) -> Dict[str, Any]:
                 wield_map[cls_name] = sanitized_wield
 
         target_value = payload.get("ready_target")
-        if target_value is not None:
+        sanitized_ready = _sanitize_ready_target(target_value)
+        if sanitized_ready is None:
+            target_map_payload = payload.get("target_monster_id_by_class")
+            if isinstance(target_map_payload, Mapping):
+                sanitized_ready = _sanitize_ready_target(target_map_payload.get(cls_name))
+        if sanitized_ready is None and "target_monster_id" in payload:
+            sanitized_ready = _sanitize_ready_target(payload.get("target_monster_id"))
+        if sanitized_ready is not None:
             current_ready = _sanitize_ready_target(ready_map.get(cls_name))
-            sanitized_ready = _sanitize_ready_target(target_value)
-            if sanitized_ready and not current_ready:
+            current_target = _sanitize_ready_target(target_map.get(cls_name))
+            if not current_ready:
                 ready_map[cls_name] = sanitized_ready
+            if not current_target:
+                target_map[cls_name] = sanitized_ready
 
     _normalize_per_class_structures(normalized, klass, active, sparse_ions=sparse_ions)
 
@@ -2496,14 +2563,26 @@ def get_ready_target_map(state: Dict[str, Any]) -> Dict[str, Optional[str]]:
     """Return a mapping of class name to sanitized ready-target ids."""
 
     normalized = _normalize_player_state(state)
-    payload = normalized.get("ready_target_by_class")
+    ready_payload = normalized.get("ready_target_by_class")
+    target_payload = normalized.get("target_monster_id_by_class")
+    if not isinstance(ready_payload, Mapping) and not isinstance(target_payload, Mapping):
+        return {}
+
     result: Dict[str, Optional[str]] = {}
-    if isinstance(payload, Mapping):
-        for name, value in payload.items():
+    if isinstance(ready_payload, Mapping):
+        for name, value in ready_payload.items():
             cls_name = _normalize_class_name(name)
             if not cls_name:
                 continue
             result[cls_name] = _sanitize_ready_target(value)
+    if isinstance(target_payload, Mapping):
+        for name, value in target_payload.items():
+            cls_name = _normalize_class_name(name)
+            if not cls_name:
+                continue
+            sanitized = _sanitize_ready_target(value)
+            if cls_name not in result or result[cls_name] is None:
+                result[cls_name] = sanitized
     return result
 
 
@@ -2512,9 +2591,15 @@ def get_ready_target_for_active(state: Dict[str, Any]) -> Optional[str]:
 
     normalized = _normalize_player_state(state)
     cls = get_active_class(normalized)
-    payload = normalized.get("ready_target_by_class")
-    if isinstance(payload, Mapping):
-        candidate = payload.get(cls)
+    ready_payload = normalized.get("ready_target_by_class")
+    target_payload = normalized.get("target_monster_id_by_class")
+    if isinstance(ready_payload, Mapping):
+        candidate = ready_payload.get(cls)
+        sanitized = _sanitize_ready_target(candidate)
+        if sanitized:
+            return sanitized
+    if isinstance(target_payload, Mapping):
+        candidate = target_payload.get(cls)
         sanitized = _sanitize_ready_target(candidate)
         if sanitized:
             return sanitized
@@ -2537,17 +2622,28 @@ def _update_ready_target_for_active(
         ready_map = {}
         normalized["ready_target_by_class"] = ready_map
 
-    current = _sanitize_ready_target(ready_map.get(cls))
+    target_map = normalized.setdefault("target_monster_id_by_class", {})
+    if not isinstance(target_map, dict):
+        target_map = {}
+        normalized["target_monster_id_by_class"] = target_map
+
+    current_ready = _sanitize_ready_target(ready_map.get(cls))
+    current_target = _sanitize_ready_target(target_map.get(cls))
+    current = current_ready if current_ready is not None else current_target
     sanitized = _sanitize_ready_target(monster_id)
     if current == sanitized:
         return current, sanitized
 
     ready_map[cls] = sanitized
+    target_map[cls] = sanitized
     active = normalized.get("active")
     if isinstance(active, Mapping):
         active_ready = active.setdefault("ready_target_by_class", {})
         if isinstance(active_ready, dict):
             active_ready[cls] = sanitized
+        active_target = active.setdefault("target_monster_id_by_class", {})
+        if isinstance(active_target, dict):
+            active_target[cls] = sanitized
         active["ready_target"] = sanitized
         active["target_monster_id"] = sanitized
 
@@ -2565,9 +2661,14 @@ def _update_ready_target_for_active(
             ready_entry = player.setdefault("ready_target_by_class", {})
             if isinstance(ready_entry, dict):
                 ready_entry[cls] = sanitized
+            target_entry = player.setdefault("target_monster_id_by_class", {})
+            if isinstance(target_entry, dict):
+                target_entry[cls] = sanitized
             player["ready_target"] = sanitized
             player["target_monster_id"] = sanitized
             break
+    normalized["ready_target_by_class"] = dict(ready_map)
+    normalized["target_monster_id_by_class"] = dict(target_map)
     save_state(normalized)
 
     if sanitized:
@@ -2605,16 +2706,26 @@ def clear_ready_target_for(monster_id: str, *, reason: Optional[str] = None) -> 
         ready_map = {}
         normalized["ready_target_by_class"] = ready_map
 
+    target_map = normalized.setdefault("target_monster_id_by_class", {})
+    if not isinstance(target_map, dict):
+        target_map = {}
+        normalized["target_monster_id_by_class"] = target_map
+
     changed = False
     for key, value in list(ready_map.items()):
         if _sanitize_ready_target(value) == sanitized:
             ready_map[key] = None
+            changed = True
+    for key, value in list(target_map.items()):
+        if _sanitize_ready_target(value) == sanitized:
+            target_map[key] = None
             changed = True
 
     if not changed:
         return normalized
 
     normalized["ready_target_by_class"] = dict(ready_map)
+    normalized["target_monster_id_by_class"] = dict(target_map)
     save_state(normalized)
     _combat_log_clear(reason or f"match:{sanitized}")
     return normalized
