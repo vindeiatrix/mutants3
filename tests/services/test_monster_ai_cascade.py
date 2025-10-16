@@ -159,3 +159,40 @@ def test_cracked_weapon_halves_attack_weight_only_when_equipped() -> None:
     assert cracked_result.gate == "ATTACK"
     assert cracked_result.threshold == config.attack_pct // 2
     assert cracked_result.data.get("cracked_weapon") is True
+
+
+def test_convert_gate_requires_tracked_pickup() -> None:
+    config = CombatConfig(
+        flee_hp_pct=0,
+        flee_pct=0,
+        heal_pct=0,
+        convert_pct=100,
+        cast_pct=0,
+        attack_pct=0,
+        pickup_pct=0,
+        emote_pct=0,
+    )
+
+    monster = _base_monster()
+    monster["hp"] = {"current": 20, "max": 20}
+    monster["ions"] = 0
+    monster["ions_max"] = 100
+    monster["bag"] = [
+        {"iid": "loot1", "item_id": "ion-stick", "origin": "world", "enchant_level": 0}
+    ]
+
+    ctx = _context(DummyRNG([0]), config)
+
+    result_without_tracking = cascade.evaluate_cascade(monster, ctx)
+
+    assert result_without_tracking.gate == "IDLE"
+    assert result_without_tracking.data.get("convertible_loot") is False
+
+    monster["_ai_state"] = {"picked_up": ["loot1"]}
+    ctx_tracked = _context(DummyRNG([0]), config)
+
+    result_with_tracking = cascade.evaluate_cascade(monster, ctx_tracked)
+
+    assert result_with_tracking.gate == "CONVERT"
+    assert result_with_tracking.action == "convert"
+    assert result_with_tracking.data.get("convertible_loot") is True

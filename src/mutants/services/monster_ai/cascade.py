@@ -6,7 +6,7 @@ import logging
 import math
 import random
 from dataclasses import dataclass, field
-from typing import Any, Iterable, Mapping, Sequence
+from typing import Any, Iterable, Mapping, Sequence, Collection
 
 from mutants.debug import turnlog
 from mutants.registries import items_instances as itemsreg
@@ -155,9 +155,42 @@ def _is_wielded_cracked(monster: Mapping[str, Any], bag: Sequence[Mapping[str, A
     return False
 
 
-def _has_convertible_loot(bag: Sequence[Mapping[str, Any]]) -> bool:
+def _tracked_pickups(monster: Mapping[str, Any]) -> set[str]:
+    state = monster.get("_ai_state")
+    if not isinstance(state, Mapping):
+        return set()
+    pickups = state.get("picked_up")
+    if isinstance(pickups, Iterable) and not isinstance(pickups, (str, bytes)):
+        tokens: set[str] = set()
+        for iid in pickups:
+            if iid is None:
+                continue
+            token = str(iid).strip()
+            if token:
+                tokens.add(token)
+        return tokens
+    return set()
+
+
+def _has_convertible_loot(
+    bag: Sequence[Mapping[str, Any]], tracked: Collection[str]
+) -> bool:
+    if not tracked:
+        return False
+    tracked_tokens: set[str] = set()
+    for token in tracked:
+        token_str = str(token).strip()
+        if token_str:
+            tracked_tokens.add(token_str)
+    if not tracked_tokens:
+        return False
     for entry in bag:
         if not _is_world_item(entry):
+            continue
+        iid = entry.get("iid")
+        if iid is None:
+            continue
+        if str(iid).strip() not in tracked_tokens:
             continue
         item_id = str(entry.get("item_id") or "").strip()
         if not item_id:
@@ -310,12 +343,13 @@ def evaluate_cascade(monster: Any, ctx: Any) -> ActionResult:
     rng = _resolve_rng(ctx)
 
     bag = _bag_entries(monster)
+    tracked_pickups = _tracked_pickups(monster)
     hp_pct = _hp_pct(monster)
     ions, ions_max = _ions(monster)
     ions_pct = _ions_pct(ions, ions_max)
     low_ions = ions_max > 0 and ions_pct < config.low_ion_pct
     cracked = _is_wielded_cracked(monster, bag)
-    convertible = _has_convertible_loot(bag)
+    convertible = _has_convertible_loot(bag, tracked_pickups)
     pickup_ready = _has_pickup_candidate(monster, ctx)
 
     flee_threshold = _clamp_pct(config.flee_pct + (config.cracked_flee_bonus if cracked else 0))
@@ -338,6 +372,7 @@ def evaluate_cascade(monster: Any, ctx: Any) -> ActionResult:
         "cracked_weapon": cracked,
         "pickup_ready": pickup_ready,
         "convertible_loot": convertible,
+        "tracked_pickups": tuple(sorted(tracked_pickups)) if tracked_pickups else tuple(),
     }
 
     failures: list[Mapping[str, Any]] = []
