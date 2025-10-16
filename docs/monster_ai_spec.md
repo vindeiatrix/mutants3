@@ -52,7 +52,7 @@ an attack source using integer weights.
 | Melee only                        | Melee 95%, Innate 5%                 | |
 | Ranged only                       | Ranged 90%, Innate 10%               | Applies when the ready item has `catalog[ranged] = true` and no melee alternative is
                                                                               available. |
-| No item                           | Innate 100%                          | Uses the per-monster message from `innate_attack.message`. |
+| No item                           | Innate 100%                          | Uses the per-monster line from `innate_attack.line`. |
 
 * `prefers_ranged` nudges ranged weight to 70% (melee+ranged) or 95% (ranged-only). Set it
   for catalog entries like Djinni or Evil Pegasus when their ranged starter is the marquee
@@ -195,7 +195,7 @@ item label, `{spell}` to the spell title, `{item}` to ground loot, `{dir}` to ex
 * **Melee attack:** `{monster} has hit you with his {weapon}!`
 * **Ranged projectile:** `{monster} shoots a bolt from his {weapon}!`
 * **Ranged other:** `{monster} fires his {weapon} at you!`
-* **Innate attack:** Pull per-monster text from `innate_attack.message` in the monster
+* **Innate attack:** Pull per-monster text from `innate_attack.line` in the monster
   catalog. Every species should define its own line (no shared pool).
 * **Cast attempt:** `{monster} waves his arms in the air frantically, and begins to chant!`
 * **Cast success:** `The {monster} uses {spell} on you!`
@@ -247,7 +247,7 @@ Existing state already tracks everything required:
 
 * `bag[].origin` distinguishes native vs world loot.
 * `_ai_state.picked_up` exists for pickup tracking.
-* `innate_attack.message` is per-monster.
+* `innate_attack.line` is per-monster.
 
 Optional runtime hints (no persistence changes) may live on the monster instance:
 

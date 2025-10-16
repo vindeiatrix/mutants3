@@ -28,12 +28,12 @@
       "exp_bonus": {"type":"integer"},
       "innate_attack": {
         "type":"object",
-        "required":["name","power_base","power_per_level"],
+        "required":["name","power_base","power_per_level","line"],
         "properties":{
           "name":{"type":"string"},
           "power_base":{"type":"integer"},
           "power_per_level":{"type":"integer"},
-          "message":{"type":"string"}
+          "line":{"type":"string"}
         }
       },
       "spells": {"type":"array", "items":{"type":"string"}},

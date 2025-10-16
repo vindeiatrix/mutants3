@@ -11,7 +11,6 @@ import sys
 import time
 import uuid
 from collections.abc import Iterable
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, Iterable as TypingIterable, List, Sequence, Tuple
 
@@ -21,29 +20,8 @@ if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
 from mutants.registries.items_instances import mint_iid
+from mutants.services.monster_entities import DEFAULT_INNATE_ATTACK_LINE, MonsterTemplate
 from mutants.world import get_world_years, set_cli_years_override
-
-
-@dataclass(frozen=True)
-class MonsterTemplate:
-    monster_id: str
-    name: str
-    level: int
-    hp_max: int
-    armour_class: int
-    spawn_years: Sequence[int]
-    spawnable: bool
-    taunt: str
-    stats: Dict[str, Any]
-    innate_attack: Dict[str, Any]
-    exp_bonus: int | None
-    ions_min: int | None
-    ions_max: int | None
-    riblets_min: int | None
-    riblets_max: int | None
-    spells: Sequence[str]
-    starter_armour: Sequence[str]
-    starter_items: Sequence[str]
 
 
 def _ensure_tables(conn: sqlite3.Connection) -> None:
@@ -284,7 +262,7 @@ def _build_monster_payload(
 ) -> dict[str, Any]:
     spells = list(template.spells)
     innate = dict(template.innate_attack)
-    innate.setdefault("message", "{monster} strikes {target} for {damage} damage!")
+    innate.setdefault("line", DEFAULT_INNATE_ATTACK_LINE)
 
     items_payload = [
         {"item_id": item_id, "iid": iid, "origin": "monster_spawn"}
