@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any, Dict
 
 from mutants.services import player_state as pstate
+from mutants.debug import turnlog
 
 
 _ION_MULTIPLIERS: Dict[str, int] = {
@@ -85,7 +86,14 @@ def heal_cmd(arg: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
 
     bus.push(
         "SYSTEM/OK",
-        f"You spend {cost:,} ions to restore {healed} HP.",
+        f"You restore {healed} hit points ({cost:,} ions).",
+    )
+    turnlog.emit(
+        ctx,
+        "COMBAT/HEAL",
+        actor="player",
+        hp_restored=healed,
+        ions_spent=cost,
     )
     return {
         "ok": True,

@@ -107,8 +107,38 @@ def test_heal_recovers_hp_and_consumes_ions(
 
     assert ctx["feedback_bus"].messages[-1] == (
         "SYSTEM/OK",
-        f"You spend {cost:,} ions to restore {expected_heal} HP.",
+        f"You restore {expected_heal} hit points ({cost:,} ions).",
     )
+
+
+def test_heal_emits_turnlog_event(configure_state_root: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    klass = "Wizard"
+    level = 7
+    multiplier = 1_000
+    cost = level * multiplier
+    base_hp = 10
+    max_hp = 50
+    starting_ions = cost + 100
+
+    initial_state = _write_state(klass, level, base_hp, max_hp, starting_ions)
+    ctx = {"feedback_bus": FakeBus(), "player_state": dict(initial_state)}
+
+    captured: list[tuple[str, dict[str, int | str]]] = []
+
+    def fake_emit(local_ctx, kind: str, **meta):
+        captured.append((kind, dict(meta)))
+
+    monkeypatch.setattr(heal.turnlog, "emit", fake_emit)
+
+    result = heal.heal_cmd("", ctx)
+
+    assert result["ok"] is True
+    assert captured
+    kind, payload = captured[-1]
+    assert kind == "COMBAT/HEAL"
+    assert payload["actor"] == "player"
+    assert payload["hp_restored"] == result["healed"]
+    assert payload["ions_spent"] == cost
 
 
 def test_heal_rejects_when_ions_insufficient(configure_state_root: Path) -> None:
