@@ -4,6 +4,8 @@ from pathlib import Path
 import sys
 from typing import Any, List
 
+import math
+
 sys.path.append(str(Path(__file__).resolve().parents[2] / "src"))
 
 from mutants.registries import items_instances as itemsreg
@@ -202,3 +204,57 @@ def test_convert_gate_requires_tracked_pickup() -> None:
     assert result_with_tracking.gate == "CONVERT"
     assert result_with_tracking.action == "convert"
     assert result_with_tracking.data.get("convertible_loot") is True
+
+
+def test_low_ion_convert_bonus_enables_gate() -> None:
+    config = CombatConfig(
+        flee_hp_pct=0,
+        flee_pct=0,
+        heal_pct=0,
+        convert_pct=0,
+        cast_pct=0,
+        attack_pct=0,
+        pickup_pct=0,
+        emote_pct=0,
+    )
+
+    monster = _base_monster()
+    monster["ions"] = 10
+    monster["ions_max"] = 100
+    monster["bag"] = [
+        {"iid": "loot1", "item_id": "ion-stick", "origin": "world", "enchant_level": 0}
+    ]
+    monster["_ai_state"] = {"picked_up": ["loot1"]}
+
+    ctx = _context(DummyRNG([0]), config)
+
+    result = cascade.evaluate_cascade(monster, ctx)
+
+    assert result.gate == "CONVERT"
+    assert result.threshold == 10
+    assert result.data.get("low_ions") is True
+
+
+def test_low_ion_cast_threshold_reduction() -> None:
+    config = CombatConfig(
+        flee_hp_pct=0,
+        flee_pct=0,
+        heal_pct=0,
+        convert_pct=0,
+        cast_pct=50,
+        attack_pct=0,
+        pickup_pct=0,
+        emote_pct=0,
+    )
+
+    monster = _base_monster()
+    monster["ions"] = config.spell_cost
+    monster["ions_max"] = config.spell_cost * 10
+
+    ctx = _context(DummyRNG([0]), config)
+
+    result = cascade.evaluate_cascade(monster, ctx)
+
+    expected_threshold = math.floor(config.cast_pct * 0.6)
+    assert result.gate == "CAST"
+    assert result.threshold == expected_threshold
