@@ -12,6 +12,7 @@ from mutants.registries import items_catalog, items_instances as itemsreg
 from mutants.services import combat_loot
 from mutants.services import damage_engine, items_wear, monsters_state, player_state as pstate
 from mutants.services.combat_config import CombatConfig
+from mutants.services.monster_ai.cascade import evaluate_cascade
 from mutants.debug import turnlog
 from mutants.ui import item_display
 
@@ -786,86 +787,119 @@ def _heal_stub(
     return {"ok": True}
 
 
+_EMOTE_LINES: tuple[str, ...] = (
+    "{monster} is looking awfully sad.",
+    "{monster} is singing a strange song.",
+    "{monster} is making strange noises.",
+    "{monster} looks at you.",
+    "{monster} pleads with you.",
+    "{monster} is trying to make friends with you.",
+    "{monster} is wondering what you're doing.",
+)
+
+
+def _flee_stub(
+    monster: MutableMapping[str, Any],
+    ctx: MutableMapping[str, Any],
+    rng: random.Random,
+) -> Any:
+    turnlog.emit(
+        ctx,
+        "AI/ACT/FLEE",
+        monster=_monster_id(monster),
+        reason="stub",
+    )
+    return {"ok": True, "fled": False}
+
+
+def _cast_stub(
+    monster: MutableMapping[str, Any],
+    ctx: MutableMapping[str, Any],
+    rng: random.Random,
+) -> Any:
+    turnlog.emit(
+        ctx,
+        "AI/ACT/CAST",
+        monster=_monster_id(monster),
+        success=False,
+        reason="stub",
+    )
+    return {"ok": False, "cast": False}
+
+
+def _emote_stub(
+    monster: MutableMapping[str, Any],
+    ctx: MutableMapping[str, Any],
+    rng: random.Random,
+) -> Any:
+    if not _EMOTE_LINES:
+        return {"ok": False}
+    if hasattr(rng, "randrange"):
+        try:
+            index = int(rng.randrange(len(_EMOTE_LINES)))
+        except (TypeError, ValueError):  # pragma: no cover - defensive
+            index = 0
+    else:  # pragma: no cover - defensive
+        index = 0
+    index = max(0, min(len(_EMOTE_LINES) - 1, index))
+    template = _EMOTE_LINES[index]
+    message = template.format(monster=_monster_display_name(monster))
+    bus = _feedback_bus(ctx)
+    if hasattr(bus, "push"):
+        bus.push("COMBAT/INFO", message)
+    turnlog.emit(
+        ctx,
+        "AI/ACT/EMOTE",
+        monster=_monster_id(monster),
+        index=index,
+        message=message,
+    )
+    return {"ok": True, "message": message, "index": index}
+
+
+def _idle_stub(
+    monster: MutableMapping[str, Any],
+    ctx: MutableMapping[str, Any],
+    rng: random.Random,
+) -> Any:
+    turnlog.emit(
+        ctx,
+        "AI/ACT/IDLE",
+        monster=_monster_id(monster),
+        reason="cascade-idle",
+    )
+    return {"ok": True}
+
+
 _ACTION_TABLE: dict[str, ActionFn] = {
     "attack": _apply_player_damage,
     "pickup": _pickup_from_ground,
     "convert": _convert_item,
     "remove_armour": _remove_broken_armour,
     "heal": _heal_stub,
+    "flee": _flee_stub,
+    "cast": _cast_stub,
+    "emote": _emote_stub,
+    "idle": _idle_stub,
 }
-
-
-def _action_weights(
-    monster: MutableMapping[str, Any],
-    ctx: MutableMapping[str, Any],
-) -> list[tuple[str, float]]:
-    current, maximum = _sanitize_hp_block(monster.get("hp"))
-    hp_ratio = 1.0
-    if maximum > 0:
-        hp_ratio = current / maximum if maximum else 1.0
-    bag = _bag_list(monster)
-    world_items = [
-        entry
-        for entry in bag
-        if isinstance(entry, Mapping) and str(entry.get("origin", "")).lower() == ORIGIN_WORLD
-    ]
-    weights: list[tuple[str, float]] = [("attack", 6.0)]
-    pickup_weight = 1.5 if hp_ratio < 0.5 else 1.0
-    convert_weight = 1.0 if world_items else 0.0
-    if hp_ratio < 0.5 and convert_weight:
-        convert_weight *= 1.5
-    armour = monster.get("armour_slot")
-    remove_weight = 1.0 if isinstance(armour, Mapping) and str(armour.get("item_id")) == itemsreg.BROKEN_ARMOUR_ID else 0.0
-    if itemsreg.BROKEN_ARMOUR_ID in {str(entry.get("item_id")) for entry in bag}:
-        pickup_weight *= 1.1
-    heal_enabled = bool(ctx.get("monster_ai_allow_heal"))
-    heal_weight = 0.0
-    if heal_enabled and hp_ratio < 0.9:
-        ions = 0
-        try:
-            ions = int(monster.get("ions", 0))
-        except (TypeError, ValueError):
-            ions = 0
-        if ions > 0:
-            heal_weight = 0.5
-    weights.append(("pickup", pickup_weight if pickup_weight > 0 and ctx.get("allow_pickup", True) else 0.0))
-    weights.append(("convert", convert_weight))
-    weights.append(("remove_armour", remove_weight))
-    weights.append(("heal", heal_weight))
-    return weights
-
-
-def _select_action(
-    monster: MutableMapping[str, Any],
-    ctx: MutableMapping[str, Any],
-    rng: random.Random,
-) -> Optional[str]:
-    weighted = [(name, weight) for name, weight in _action_weights(monster, ctx) if weight > 0]
-    if not weighted:
-        return None
-    total = sum(weight for _, weight in weighted)
-    if total <= 0:
-        return None
-    roll = rng.random() * total
-    cumulative = 0.0
-    for name, weight in weighted:
-        cumulative += weight
-        if roll < cumulative:
-            return name
-    return weighted[-1][0]
-
 
 def execute_random_action(monster: Any, ctx: Any, *, rng: Any | None = None) -> None:
     if not isinstance(monster, MutableMapping):
         return None
     if not isinstance(ctx, MutableMapping):
         return None
-    random_obj = rng if isinstance(rng, random.Random) else random.Random()
-    action_name = _select_action(monster, ctx, random_obj)
+    if rng is not None and hasattr(rng, "randrange"):
+        random_obj = rng  # type: ignore[assignment]
+    else:
+        random_obj = random.Random()
+    ctx["monster_ai_rng"] = random_obj
+    cascade_result = evaluate_cascade(monster, ctx)
+    action_name = cascade_result.action
     if not action_name:
         return None
     action = _ACTION_TABLE.get(action_name)
     if not action:
+        LOG.debug("No action handler for gate %s", cascade_result.gate)
         return None
     try:
         result = action(monster, ctx, random_obj)
