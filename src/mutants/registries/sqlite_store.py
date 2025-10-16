@@ -381,6 +381,7 @@ class SQLiteConnectionManager:
                 (3, self._migrate_to_v3),
                 (4, self._migrate_to_v4),
                 (5, self._migrate_to_v5),
+                (6, self._migrate_to_v6),
             )
 
             for target_version, migration in migrations:
@@ -766,6 +767,28 @@ class SQLiteConnectionManager:
             conn.execute(insert_sql, normalized)
 
         conn.execute("DROP TABLE IF EXISTS monsters_catalog_legacy")
+
+    def _migrate_to_v6(self, conn: sqlite3.Connection) -> None:
+        cur = conn.execute("PRAGMA table_info(monsters_instances)")
+        existing = {row[1] for row in cur.fetchall() if len(row) > 1}
+
+        columns: Sequence[tuple[str, str]] = (
+            ("target_player_id", "TEXT"),
+            ("ai_state_json", "TEXT"),
+            ("bag_json", "TEXT"),
+            ("timers_json", "TEXT"),
+        )
+
+        for column, ddl in columns:
+            if column not in existing:
+                conn.execute(f"ALTER TABLE monsters_instances ADD COLUMN {column} {ddl}")
+
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS monsters_target_idx
+            ON monsters_instances(target_player_id)
+            """
+        )
 
 
 class SQLiteItemsInstanceStore:
