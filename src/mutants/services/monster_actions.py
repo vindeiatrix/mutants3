@@ -122,6 +122,38 @@ def _ai_state(monster: MutableMapping[str, Any]) -> MutableMapping[str, Any]:
     return payload
 
 
+def _ledger_state(monster: MutableMapping[str, Any]) -> MutableMapping[str, int]:
+    state = _ai_state(monster)
+    ledger_raw = state.get("ledger")
+    if isinstance(ledger_raw, MutableMapping):
+        ledger = ledger_raw
+    elif isinstance(ledger_raw, Mapping):
+        ledger = dict(ledger_raw)
+        state["ledger"] = ledger
+    else:
+        ledger = {}
+        state["ledger"] = ledger
+
+    ions = _coerce_int(ledger.get("ions"), 0)
+    riblets = _coerce_int(ledger.get("riblets"), 0)
+
+    if "ions" in monster:
+        ions = _coerce_int(monster.get("ions"), 0)
+    else:
+        monster["ions"] = ions
+
+    if "riblets" in monster:
+        riblets = _coerce_int(monster.get("riblets"), 0)
+    else:
+        monster["riblets"] = riblets
+
+    ledger["ions"] = ions
+    ledger["riblets"] = riblets
+    monster["ions"] = ions
+    monster["riblets"] = riblets
+    return ledger
+
+
 def _picked_up_iids(monster: MutableMapping[str, Any]) -> list[str]:
     state = _ai_state(monster)
     pickups = state.get("picked_up")
@@ -429,13 +461,17 @@ def _handle_player_death(
         )
 
     ions = pstate.get_ions_for_active(state)
+    ledger = _ledger_state(monster)
+
     if ions:
-        monster["ions"] = _coerce_int(monster.get("ions"), 0) + ions
+        ledger["ions"] = _coerce_int(ledger.get("ions"), 0) + ions
+        monster["ions"] = ledger["ions"]
         pstate.set_ions_for_active(state, 0)
 
     riblets = pstate.get_riblets_for_active(state)
     if riblets:
-        monster["riblets"] = _coerce_int(monster.get("riblets"), 0) + riblets
+        ledger["riblets"] = _coerce_int(ledger.get("riblets"), 0) + riblets
+        monster["riblets"] = ledger["riblets"]
         pstate.set_riblets_for_active(state, 0)
 
     pos = combat_loot.coerce_pos(active.get("pos")) or combat_loot.coerce_pos(state.get("pos"))
@@ -796,7 +832,8 @@ def _heal_action(
         return {"ok": False, "reason": "full_health"}
 
     heal_cost = heal_mod.heal_cost(monster, config)
-    ions_available = max(0, _coerce_int(monster.get("ions"), 0))
+    ledger = _ledger_state(monster)
+    ions_available = max(0, _coerce_int(ledger.get("ions"), 0))
     if ions_available < heal_cost:
         return {
             "ok": False,
@@ -819,7 +856,8 @@ def _heal_action(
     else:
         monster["hp"] = {"current": new_hp, "max": max_hp}
 
-    monster["ions"] = ions_available - heal_cost
+    ledger["ions"] = max(0, ions_available - heal_cost)
+    monster["ions"] = ledger["ions"]
 
     _refresh_monster(monster)
     _mark_monsters_dirty(ctx)
