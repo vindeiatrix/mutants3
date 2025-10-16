@@ -1,10 +1,15 @@
 from __future__ import annotations
 
+from pathlib import Path
+import sys
 from typing import Any, List
+
+sys.path.append(str(Path(__file__).resolve().parents[2] / "src"))
 
 from mutants.registries import items_instances as itemsreg
 from mutants.services.combat_config import CombatConfig
 from mutants.services.monster_ai import cascade
+from mutants.services.monster_ai import heal as heal_mod
 
 
 class DummyRNG:
@@ -71,7 +76,8 @@ def test_evaluate_cascade_rollover_to_heal() -> None:
     rng = DummyRNG([99, 0])
     monster = _base_monster()
     monster["hp"] = {"current": 4, "max": 20}
-    monster["ions"] = config.heal_cost + 1
+    monster["level"] = 3
+    monster["ions"] = heal_mod.heal_cost(monster, config) + 1
     ctx = _context(rng, config)
     ctx["monster_ai_allow_heal"] = True
 
