@@ -41,7 +41,7 @@ class CombatConfig:
     flee_pct: int = 10
     heal_at_pct: int = 80
     heal_pct: int = 20
-    heal_cost: int = 5
+    heal_cost: int = 200
     convert_pct: int = 20
     low_ion_pct: int = 50
     cast_pct: int = 25

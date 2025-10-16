@@ -14,6 +14,7 @@ from mutants.services import damage_engine, items_wear, monsters_state, player_s
 from mutants.services.combat_config import CombatConfig
 from mutants.services.monster_ai.attack_selection import select_attack
 from mutants.services.monster_ai.cascade import evaluate_cascade
+from mutants.services.monster_ai import heal as heal_mod
 from mutants.debug import turnlog
 from mutants.ui import item_display
 
@@ -777,20 +778,80 @@ def _remove_broken_armour(
     return {"ok": True}
 
 
-def _heal_stub(
+def _heal_action(
     monster: MutableMapping[str, Any],
     ctx: MutableMapping[str, Any],
     rng: random.Random,
 ) -> Any:
+    if not isinstance(monster, MutableMapping):
+        return {"ok": False, "reason": "invalid_monster"}
+
+    config = ctx.get("combat_config") if isinstance(ctx, Mapping) else None
+    if not isinstance(config, CombatConfig):
+        config = CombatConfig()
+
+    current_hp, max_hp = _sanitize_hp_block(monster.get("hp"))
+    missing_hp = max(0, max_hp - current_hp)
+    if missing_hp <= 0:
+        return {"ok": False, "reason": "full_health"}
+
+    heal_cost = heal_mod.heal_cost(monster, config)
+    ions_available = max(0, _coerce_int(monster.get("ions"), 0))
+    if ions_available < heal_cost:
+        return {
+            "ok": False,
+            "reason": "insufficient_ions",
+            "required": heal_cost,
+            "available": ions_available,
+        }
+
+    heal_points = heal_mod.heal_amount(monster)
+    if heal_points <= 0:
+        return {"ok": False, "reason": "no_heal_amount"}
+
+    applied = min(heal_points, missing_hp)
+    new_hp = min(max_hp, current_hp + applied)
+
+    hp_block = monster.get("hp")
+    if isinstance(hp_block, MutableMapping):
+        hp_block["current"] = new_hp
+        hp_block["max"] = max_hp
+    else:
+        monster["hp"] = {"current": new_hp, "max": max_hp}
+
+    monster["ions"] = ions_available - heal_cost
+
+    _refresh_monster(monster)
+    _mark_monsters_dirty(ctx)
+
+    label = _monster_display_name(monster)
     bus = _feedback_bus(ctx)
     if hasattr(bus, "push"):
-        bus.push("COMBAT/INFO", f"{_monster_display_name(monster)}'s body is glowing.")
+        bus.push("COMBAT/INFO", f"{label}'s body is glowing!")
+
     turnlog.emit(
         ctx,
         "AI/ACT/HEAL",
         monster=_monster_id(monster),
+        hp_restored=applied,
+        ions_spent=heal_cost,
     )
-    return {"ok": True}
+    turnlog.emit(
+        ctx,
+        "COMBAT/HEAL",
+        actor="monster",
+        actor_id=_monster_id(monster),
+        hp_restored=applied,
+        ions_spent=heal_cost,
+    )
+
+    return {
+        "ok": True,
+        "healed": applied,
+        "cost": heal_cost,
+        "remaining_ions": monster.get("ions", 0),
+        "hp": {"current": new_hp, "max": max_hp},
+    }
 
 
 _EMOTE_LINES: tuple[str, ...] = (
@@ -882,7 +943,7 @@ _ACTION_TABLE: dict[str, ActionFn] = {
     "pickup": _pickup_from_ground,
     "convert": _convert_item,
     "remove_armour": _remove_broken_armour,
-    "heal": _heal_stub,
+    "heal": _heal_action,
     "flee": _flee_stub,
     "cast": _cast_stub,
     "emote": _emote_stub,

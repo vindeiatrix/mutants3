@@ -11,6 +11,7 @@ from typing import Any, Iterable, Mapping, Sequence, Collection
 from mutants.debug import turnlog
 from mutants.registries import items_instances as itemsreg
 from mutants.services.combat_config import CombatConfig
+from mutants.services.monster_ai import heal as heal_mod
 
 LOG = logging.getLogger(__name__)
 
@@ -363,6 +364,14 @@ def evaluate_cascade(monster: Any, ctx: Any) -> ActionResult:
         heal_threshold = math.floor(heal_threshold * 0.6)
         cast_threshold = math.floor(cast_threshold * 0.6)
 
+    allow_heal = True
+    if isinstance(ctx, Mapping):
+        allow_heal = bool(ctx.get("monster_ai_allow_heal", True))
+    else:
+        allow_heal = bool(getattr(ctx, "monster_ai_allow_heal", True))
+
+    heal_cost = heal_mod.heal_cost(monster, config)
+
     data_common = {
         "hp_pct": hp_pct,
         "ions_pct": ions_pct,
@@ -373,18 +382,13 @@ def evaluate_cascade(monster: Any, ctx: Any) -> ActionResult:
         "pickup_ready": pickup_ready,
         "convertible_loot": convertible,
         "tracked_pickups": tuple(sorted(tracked_pickups)) if tracked_pickups else tuple(),
+        "heal_cost": heal_cost,
     }
 
     failures: list[Mapping[str, Any]] = []
 
     def _record_failure(name: str, reason: str) -> None:
         failures.append({"gate": name, "reason": reason})
-
-    allow_heal = True
-    if isinstance(ctx, Mapping):
-        allow_heal = bool(ctx.get("monster_ai_allow_heal", True))
-    else:
-        allow_heal = bool(getattr(ctx, "monster_ai_allow_heal", True))
 
     # FLEE gate
     if hp_pct < config.flee_hp_pct and flee_threshold > 0:
@@ -407,11 +411,11 @@ def evaluate_cascade(monster: Any, ctx: Any) -> ActionResult:
         _record_failure("FLEE", f"hp_pct={hp_pct} threshold={flee_threshold}")
 
     # HEAL gate
-    ions_sufficient = ions >= config.heal_cost
+    ions_sufficient = ions >= heal_cost
     if allow_heal and hp_pct < config.heal_at_pct and ions_sufficient and heal_threshold > 0:
         roll = int(rng.randrange(100))
         reason = (
-            f"hp_pct={hp_pct} ions={ions} roll={roll} threshold={heal_threshold}"
+            f"hp_pct={hp_pct} ions={ions} cost={heal_cost} roll={roll} threshold={heal_threshold}"
         )
         if roll < heal_threshold:
             return _gate_result(
@@ -429,7 +433,13 @@ def evaluate_cascade(monster: Any, ctx: Any) -> ActionResult:
     else:
         _record_failure(
             "HEAL",
-            f"hp_pct={hp_pct} ions={ions} allow_heal={allow_heal} threshold={heal_threshold}",
+            "hp_pct={hp_pct} ions={ions} cost={cost} allow_heal={allow_heal} threshold={threshold}".format(
+                hp_pct=hp_pct,
+                ions=ions,
+                cost=heal_cost,
+                allow_heal=allow_heal,
+                threshold=heal_threshold,
+            ),
         )
 
     # CONVERT gate
