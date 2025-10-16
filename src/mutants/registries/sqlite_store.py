@@ -1106,6 +1106,10 @@ class SQLiteMonstersInstanceStore:
         "hp_max",
         "stats_json",
         "created_at",
+        "target_player_id",
+        "ai_state_json",
+        "bag_json",
+        "timers_json",
     )
 
     def __init__(self, manager: SQLiteConnectionManager) -> None:
@@ -1165,6 +1169,26 @@ class SQLiteMonstersInstanceStore:
             except (TypeError, ValueError):
                 hp_max = int(record.get("hp_max") or 0)
         payload["hp"] = {"current": hp_cur, "max": hp_max}
+
+        for field in ("target_player_id", "ai_state_json", "bag_json"):
+            value = record.get(field)
+            if value is not None and field not in payload:
+                payload[field] = value
+
+        timers_raw = record.get("timers_json")
+        if isinstance(timers_raw, str) and timers_raw.strip():
+            try:
+                decoded = json.loads(timers_raw)
+            except json.JSONDecodeError:
+                decoded = None
+            if isinstance(decoded, Mapping):
+                timers_payload = decoded.get("status_effects") or decoded.get("statuses")
+            elif isinstance(decoded, list):
+                timers_payload = decoded
+            else:
+                timers_payload = None
+            if timers_payload is not None and "status_effects" not in payload:
+                payload["status_effects"] = timers_payload
 
         return payload
 
@@ -1238,6 +1262,23 @@ class SQLiteMonstersInstanceStore:
 
         payload["stats_json"] = json.dumps(record, sort_keys=True, separators=(",", ":"))
 
+        payload["target_player_id"] = record.get("target_player_id")
+        payload["ai_state_json"] = record.get("ai_state_json")
+        payload["bag_json"] = record.get("bag_json")
+        timers_field = record.get("timers_json")
+        if timers_field is None:
+            timers_payload = record.get("status_effects") or record.get("timers")
+            if isinstance(timers_payload, (list, tuple)):
+                try:
+                    timers_field = json.dumps(
+                        {"status_effects": list(timers_payload)},
+                        sort_keys=True,
+                        separators=(",", ":"),
+                    )
+                except TypeError:
+                    timers_field = None
+        payload["timers_json"] = timers_field
+
         created_at = record.get("created_at")
         default_created = order if order is not None else _epoch_ms()
         payload["created_at"] = _normalize_created_at(
@@ -1249,7 +1290,8 @@ class SQLiteMonstersInstanceStore:
     def get(self, mid: str) -> Optional[Dict[str, Any]]:
         conn = self._connection()
         cur = conn.execute(
-            "SELECT instance_id, monster_id, year, x, y, hp_cur, hp_max, stats_json, created_at "
+            "SELECT instance_id, monster_id, year, x, y, hp_cur, hp_max, stats_json, created_at, "
+            "target_player_id, ai_state_json, bag_json, timers_json "
             "FROM monsters_instances WHERE instance_id = ?",
             (str(mid),),
         )
@@ -1261,7 +1303,8 @@ class SQLiteMonstersInstanceStore:
     def snapshot(self) -> Iterable[Dict[str, Any]]:
         conn = self._connection()
         cur = conn.execute(
-            "SELECT instance_id, monster_id, year, x, y, hp_cur, hp_max, stats_json, created_at "
+            "SELECT instance_id, monster_id, year, x, y, hp_cur, hp_max, stats_json, created_at, "
+            "target_player_id, ai_state_json, bag_json, timers_json "
             "FROM monsters_instances ORDER BY created_at ASC, instance_id ASC"
         )
         return [self._row_to_payload(row) for row in cur.fetchall()]
@@ -1296,7 +1339,8 @@ class SQLiteMonstersInstanceStore:
     def list_at(self, year: int, x: int, y: int) -> Iterable[Dict[str, Any]]:
         conn = self._connection()
         sql = (
-            "SELECT instance_id, monster_id, year, x, y, hp_cur, hp_max, stats_json, created_at "
+            "SELECT instance_id, monster_id, year, x, y, hp_cur, hp_max, stats_json, created_at, "
+            "target_player_id, ai_state_json, bag_json, timers_json "
             "FROM monsters_instances WHERE year = ? AND x = ? AND y = ? "
             "ORDER BY created_at ASC, instance_id ASC"
         )

@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 import logging
-from typing import Any, Callable, Mapping, MutableMapping, Optional
+from typing import TYPE_CHECKING, Any, Callable, Mapping, MutableMapping, Optional
 
 from mutants.debug import turnlog
-from mutants.services import monster_ai
+if TYPE_CHECKING:
+    from mutants.services.status_manager import StatusManager
 from mutants.services import random_pool
 
 LOG = logging.getLogger(__name__)
@@ -17,9 +18,21 @@ _MISSING = object()
 class TurnScheduler:
     """Coordinate deterministic turn ticks between players and monsters."""
 
-    def __init__(self, ctx: Any, *, rng_name: str = "turn") -> None:
+    def __init__(
+        self,
+        ctx: Any,
+        *,
+        rng_name: str = "turn",
+        status_manager: Optional["StatusManager"] = None,
+    ) -> None:
         self._ctx = ctx
         self._rng_name = rng_name
+        if status_manager is None:
+            from mutants.services.status_manager import StatusManager as _StatusManager
+
+            self._status_manager: Optional["StatusManager"] = _StatusManager()
+        else:
+            self._status_manager = status_manager
 
     def advance_invalid(
         self, token: str | None = None, resolved: Optional[str] = None
@@ -46,6 +59,7 @@ class TurnScheduler:
             result = player_action()
             token, resolved = self._normalize_result(result)
             self._run_monster_turns(token, resolved)
+            self._run_status_tick()
         finally:
             self._restore_rng(restore_token)
 
@@ -115,9 +129,20 @@ class TurnScheduler:
 
     def _run_monster_turns(self, token: str, resolved: Optional[str]) -> None:
         try:
+            from mutants.services import monster_ai
+
             monster_ai.on_player_command(self._ctx, token=token, resolved=resolved)
         except Exception:  # pragma: no cover - defensive
             LOG.exception("Monster AI turn tick failed")
+
+    def _run_status_tick(self) -> None:
+        manager = self._status_manager
+        if manager is None:
+            return
+        try:
+            manager.tick()
+        except Exception:  # pragma: no cover - defensive
+            LOG.exception("Status manager tick failed")
 
     def _log_tick(self, tick_id: int) -> None:
         message = f"tick={tick_id}"
