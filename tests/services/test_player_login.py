@@ -118,13 +118,13 @@ def test_login_entry_rolls_target_without_attack(monkeypatch: pytest.MonkeyPatch
     ctx["turn_scheduler"] = scheduler
     session.set_turn_scheduler(scheduler)
 
-    rng = random.Random(1234)
+    rng = random.Random(2)
 
     result = player_login.handle_login_entry(ctx, rng=rng)
 
     assert result == {
         "ticks": 1,
-        "results": [{"ok": True, "target_set": True, "taunt": "Grr"}],
+        "results": [{"ok": True, "target_set": True, "taunt": "Grr", "woke": True}],
     }
 
     assert monsters.mark_dirty_calls == 1

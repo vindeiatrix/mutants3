@@ -8,6 +8,7 @@ from typing import Any, Dict, Iterable, Mapping, MutableMapping, Optional
 
 from mutants.app import get_turn_scheduler
 from mutants.services import combat_loot, monster_actions, player_state as pstate
+from mutants.services.combat_config import CombatConfig
 
 LOG = logging.getLogger(__name__)
 
@@ -124,6 +125,8 @@ def handle_login_entry(
     tick_logged = _advance_scheduler(context)
     rng_obj = _resolve_rng(context, rng)
 
+    config = context.get("combat_config")
+
     results: list[Dict[str, Any]] = []
     for monster in monsters_here:
         target_monster = monster
@@ -136,7 +139,12 @@ def handle_login_entry(
             if isinstance(lookup, MutableMapping):
                 target_monster = lookup
 
-        outcome = monster_actions.roll_entry_target(target_monster, state, rng_obj)
+        outcome = monster_actions.roll_entry_target(
+            target_monster,
+            state,
+            rng_obj,
+            config=config if isinstance(config, CombatConfig) else None,
+        )
         results.append(outcome)
 
         if outcome.get("target_set") and hasattr(monsters, "mark_dirty"):

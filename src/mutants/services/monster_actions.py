@@ -11,6 +11,7 @@ from mutants.commands import strike
 from mutants.registries import items_catalog, items_instances as itemsreg
 from mutants.services import combat_loot
 from mutants.services import damage_engine, items_wear, monsters_state, player_state as pstate
+from mutants.services.combat_config import CombatConfig
 from mutants.debug import turnlog
 from mutants.ui import item_display
 
@@ -538,10 +539,26 @@ def _apply_player_damage(
     return True
 
 
+def _should_wake(
+    monster: Mapping[str, Any] | None,
+    event: str,
+    rng: random.Random,
+    config: CombatConfig,
+) -> bool:
+    from mutants.services.monster_ai import wake as wake_mod
+
+    return wake_mod.should_wake(monster, event, rng, config)
+
+
+_ENTRY_DEFAULT_CONFIG = CombatConfig()
+
+
 def roll_entry_target(
     monster: MutableMapping[str, Any],
     player_state: Mapping[str, Any] | None,
     rng: random.Random,
+    *,
+    config: CombatConfig | None = None,
 ) -> Dict[str, Any]:
     try:
         state, active = pstate.get_active_pair(player_state)
@@ -549,7 +566,7 @@ def roll_entry_target(
         state, active = pstate.get_active_pair()
 
     if not isinstance(monster, MutableMapping):
-        return {"ok": False, "target_set": False, "taunt": None}
+        return {"ok": False, "target_set": False, "taunt": None, "woke": False}
 
     player_id = _sanitize_player_id(
         active.get("id") if isinstance(active, Mapping) else None
@@ -557,13 +574,13 @@ def roll_entry_target(
     if player_id is None and isinstance(state, Mapping):
         player_id = _sanitize_player_id(state.get("active_id"))
     if player_id is None:
-        return {"ok": False, "target_set": False, "taunt": None}
+        return {"ok": False, "target_set": False, "taunt": None, "woke": False}
 
     monster_hp = monster.get("hp")
     if isinstance(monster_hp, Mapping):
         try:
             if int(monster_hp.get("current", 0)) <= 0:
-                return {"ok": True, "target_set": False, "taunt": None}
+                return {"ok": True, "target_set": False, "taunt": None, "woke": False}
         except (TypeError, ValueError):
             pass
 
@@ -573,11 +590,16 @@ def roll_entry_target(
         player_pos = None
     monster_pos = combat_loot.coerce_pos(monster.get("pos"))
     if player_pos is not None and monster_pos is not None and monster_pos != player_pos:
-        return {"ok": True, "target_set": False, "taunt": None}
+        return {"ok": True, "target_set": False, "taunt": None, "woke": False}
 
     previous = _sanitize_player_id(monster.get("target_player_id"))
     if previous == player_id:
-        return {"ok": True, "target_set": False, "taunt": None}
+        return {"ok": True, "target_set": False, "taunt": None, "woke": True}
+
+    config_obj = config if isinstance(config, CombatConfig) else _ENTRY_DEFAULT_CONFIG
+    woke = _should_wake(monster, "ENTRY", rng, config_obj)
+    if not woke:
+        return {"ok": True, "target_set": False, "taunt": None, "woke": False}
 
     monster["target_player_id"] = player_id
 
@@ -585,7 +607,7 @@ def roll_entry_target(
     taunt = raw_taunt.strip() if isinstance(raw_taunt, str) else None
     taunt = taunt or None
 
-    return {"ok": True, "target_set": True, "taunt": taunt}
+    return {"ok": True, "target_set": True, "taunt": taunt, "woke": True}
 
 
 def _pickup_from_ground(
