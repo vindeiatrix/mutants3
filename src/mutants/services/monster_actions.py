@@ -15,6 +15,7 @@ from mutants.services.combat_config import CombatConfig
 from mutants.services.monster_ai.attack_selection import select_attack
 from mutants.services.monster_ai.cascade import evaluate_cascade
 from mutants.services.monster_ai import heal as heal_mod
+from mutants.services.monster_ai import casting as casting_mod
 from mutants.debug import turnlog
 from mutants.ui import item_display
 
@@ -917,19 +918,62 @@ def _flee_stub(
     return {"ok": True, "fled": False}
 
 
-def _cast_stub(
+def _cast_action(
     monster: MutableMapping[str, Any],
     ctx: MutableMapping[str, Any],
     rng: random.Random,
 ) -> Any:
+    if not isinstance(monster, MutableMapping):
+        return {"ok": False, "reason": "invalid_monster"}
+
+    cast_result = casting_mod.try_cast(monster, ctx)
+
+    payload: dict[str, Any] = {
+        "ok": cast_result.success,
+        "cast": cast_result.success,
+        "cost": cast_result.cost,
+        "remaining_ions": cast_result.remaining_ions,
+        "roll": cast_result.roll,
+        "threshold": cast_result.threshold,
+        "effect": cast_result.effect,
+    }
+    if cast_result.reason:
+        payload["reason"] = cast_result.reason
+
+    label = _monster_display_name(monster)
+    bus = _feedback_bus(ctx)
+    if cast_result.reason == "insufficient_ions":
+        return payload
+
+    if hasattr(bus, "push"):
+        if cast_result.success:
+            bus.push("COMBAT/INFO", f"{label} unleashes crackling energy!")
+        else:
+            bus.push("COMBAT/INFO", f"{label}'s spell fizzles out.")
+
+    _refresh_monster(monster)
+    _mark_monsters_dirty(ctx)
+
     turnlog.emit(
         ctx,
         "AI/ACT/CAST",
         monster=_monster_id(monster),
-        success=False,
-        reason="stub",
+        success=cast_result.success,
+        ions_spent=cast_result.cost,
+        roll=cast_result.roll,
+        threshold=cast_result.threshold,
     )
-    return {"ok": False, "cast": False}
+    turnlog.emit(
+        ctx,
+        "COMBAT/CAST",
+        actor="monster",
+        actor_id=_monster_id(monster),
+        success=cast_result.success,
+        ions_spent=cast_result.cost,
+        effect=cast_result.effect,
+    )
+
+    return payload
 
 
 def _emote_stub(
@@ -983,7 +1027,7 @@ _ACTION_TABLE: dict[str, ActionFn] = {
     "remove_armour": _remove_broken_armour,
     "heal": _heal_action,
     "flee": _flee_stub,
-    "cast": _cast_stub,
+    "cast": _cast_action,
     "emote": _emote_stub,
     "idle": _idle_stub,
 }
