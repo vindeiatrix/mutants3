@@ -167,6 +167,79 @@ def _normalize_tags(value: Any) -> List[str]:
     return []
 
 
+def _ensure_ai_state(monster: MutableMapping[str, Any]) -> MutableMapping[str, Any]:
+    state_payload = monster.get("_ai_state")
+    if isinstance(state_payload, MutableMapping):
+        state = state_payload
+    elif isinstance(state_payload, Mapping):
+        state = dict(state_payload)
+        monster["_ai_state"] = state
+    else:
+        state = {}
+        monster["_ai_state"] = state
+
+    json_payload = monster.get("ai_state_json")
+    if isinstance(json_payload, str) and json_payload.strip():
+        try:
+            decoded = json.loads(json_payload)
+        except json.JSONDecodeError:
+            decoded = None
+        if isinstance(decoded, Mapping):
+            for key, value in decoded.items():
+                state.setdefault(key, value)
+
+    ledger_payload = state.get("ledger")
+    if isinstance(ledger_payload, MutableMapping):
+        ledger = ledger_payload
+    elif isinstance(ledger_payload, Mapping):
+        ledger = dict(ledger_payload)
+        state["ledger"] = ledger
+    else:
+        ledger = {}
+        state["ledger"] = ledger
+
+    top_ions_present = "ions" in monster
+    top_riblets_present = "riblets" in monster
+    top_ions = _sanitize_int(monster.get("ions"), minimum=0, fallback=0)
+    top_riblets = _sanitize_int(monster.get("riblets"), minimum=0, fallback=0)
+    ledger_ions = _sanitize_int(ledger.get("ions"), minimum=0, fallback=0)
+    ledger_riblets = _sanitize_int(ledger.get("riblets"), minimum=0, fallback=0)
+
+    if top_ions_present:
+        ledger_ions = top_ions
+    else:
+        top_ions = ledger_ions
+    if top_riblets_present:
+        ledger_riblets = top_riblets
+    else:
+        top_riblets = ledger_riblets
+
+    ledger["ions"] = ledger_ions
+    ledger["riblets"] = ledger_riblets
+    monster["ions"] = top_ions
+    monster["riblets"] = top_riblets
+    monster["_ai_state"] = state
+    return state
+
+
+def _encode_ai_state(state: Mapping[str, Any]) -> Optional[str]:
+    if not isinstance(state, Mapping) or not state:
+        return None
+    try:
+        return json.dumps(state, sort_keys=True, separators=(",", ":"))
+    except (TypeError, ValueError):
+        fallback: Dict[str, Any] = {}
+        ledger_payload = state.get("ledger") if isinstance(state, Mapping) else None
+        if isinstance(ledger_payload, Mapping):
+            fallback["ledger"] = {
+                "ions": _sanitize_int(ledger_payload.get("ions"), minimum=0, fallback=0),
+                "riblets": _sanitize_int(ledger_payload.get("riblets"), minimum=0, fallback=0),
+            }
+        if not fallback:
+            return None
+        return json.dumps(fallback, sort_keys=True, separators=(",", ":"))
+
+
 def _normalize_item(
     item: MutableMapping[str, Any] | None,
     *,
@@ -466,6 +539,13 @@ class MonstersState:
 
         payload["hp"] = _sanitize_hp(payload.get("hp"))
 
+        state = _ensure_ai_state(payload)
+        ai_state_json = _encode_ai_state(state)
+        if ai_state_json is not None:
+            payload["ai_state_json"] = ai_state_json
+        else:
+            payload.pop("ai_state_json", None)
+
         statuses = _sanitize_status_list(payload.get("status_effects"))
         payload["status_effects"] = [dict(entry) for entry in statuses]
         if statuses:
@@ -504,6 +584,8 @@ class MonstersState:
             "stats_json": json.dumps(payload, sort_keys=True, separators=(",", ":")),
         }
 
+        fields["ai_state_json"] = payload.get("ai_state_json")
+
         timers_payload = payload.get("status_effects") or []
         if timers_payload:
             fields["timers_json"] = json.dumps(
@@ -528,6 +610,12 @@ class MonstersState:
             if not isinstance(record, Mapping):
                 continue
             entry = dict(record)
+            state_block = _ensure_ai_state(entry)
+            ai_state_json = _encode_ai_state(state_block)
+            if ai_state_json is not None:
+                entry["ai_state_json"] = ai_state_json
+            else:
+                entry.pop("ai_state_json", None)
             ident_raw = entry.get("id") or entry.get("instance_id") or entry.get("monster_id")
             ident = str(ident_raw) if ident_raw else ""
             if not ident:
@@ -837,6 +925,13 @@ def _normalize_monsters(monsters: List[Dict[str, Any]], *, catalog: Mapping[str,
         monster["level"] = _sanitize_int(monster.get("level"), minimum=1, fallback=1)
         monster["stats"] = _sanitize_stats(monster.get("stats"))
         monster["hp"] = _sanitize_hp(monster.get("hp"))
+
+        state_block = _ensure_ai_state(monster)
+        ai_state_json = _encode_ai_state(state_block)
+        if ai_state_json is not None:
+            monster["ai_state_json"] = ai_state_json
+        else:
+            monster.pop("ai_state_json", None)
 
         bag = _resolve_bag(monster.get("bag"), monster_id=monster_id, seen_iids=seen_iids, catalog=catalog)
         monster["bag"] = bag
