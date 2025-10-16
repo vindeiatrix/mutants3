@@ -85,6 +85,28 @@ def _sanitize_hp_block(payload: Any) -> tuple[int, int]:
     return 0, 0
 
 
+def _sanitize_player_id(value: Any) -> Optional[str]:
+    if value is None:
+        return None
+    if isinstance(value, str):
+        token = value.strip()
+        return token or None
+    try:
+        token = str(value).strip()
+    except Exception:
+        return None
+    return token or None
+
+
+def _normalize_player_pos(
+    state: Mapping[str, Any], active: Mapping[str, Any]
+) -> Optional[tuple[int, int, int]]:
+    pos = combat_loot.coerce_pos(active.get("pos"))
+    if pos is None:
+        pos = combat_loot.coerce_pos(state.get("pos"))
+    return pos
+
+
 def _ai_state(monster: MutableMapping[str, Any]) -> MutableMapping[str, Any]:
     payload = monster.get("_ai_state")
     if not isinstance(payload, MutableMapping):
@@ -514,6 +536,56 @@ def _apply_player_damage(
         if isinstance(state, MutableMapping) and isinstance(active, MutableMapping):
             _handle_player_death(monster, ctx, state, active, bus)
     return True
+
+
+def roll_entry_target(
+    monster: MutableMapping[str, Any],
+    player_state: Mapping[str, Any] | None,
+    rng: random.Random,
+) -> Dict[str, Any]:
+    try:
+        state, active = pstate.get_active_pair(player_state)
+    except Exception:
+        state, active = pstate.get_active_pair()
+
+    if not isinstance(monster, MutableMapping):
+        return {"ok": False, "target_set": False, "taunt": None}
+
+    player_id = _sanitize_player_id(
+        active.get("id") if isinstance(active, Mapping) else None
+    )
+    if player_id is None and isinstance(state, Mapping):
+        player_id = _sanitize_player_id(state.get("active_id"))
+    if player_id is None:
+        return {"ok": False, "target_set": False, "taunt": None}
+
+    monster_hp = monster.get("hp")
+    if isinstance(monster_hp, Mapping):
+        try:
+            if int(monster_hp.get("current", 0)) <= 0:
+                return {"ok": True, "target_set": False, "taunt": None}
+        except (TypeError, ValueError):
+            pass
+
+    if isinstance(state, Mapping) and isinstance(active, Mapping):
+        player_pos = _normalize_player_pos(state, active)
+    else:
+        player_pos = None
+    monster_pos = combat_loot.coerce_pos(monster.get("pos"))
+    if player_pos is not None and monster_pos is not None and monster_pos != player_pos:
+        return {"ok": True, "target_set": False, "taunt": None}
+
+    previous = _sanitize_player_id(monster.get("target_player_id"))
+    if previous == player_id:
+        return {"ok": True, "target_set": False, "taunt": None}
+
+    monster["target_player_id"] = player_id
+
+    raw_taunt = monster.get("taunt")
+    taunt = raw_taunt.strip() if isinstance(raw_taunt, str) else None
+    taunt = taunt or None
+
+    return {"ok": True, "target_set": True, "taunt": taunt}
 
 
 def _pickup_from_ground(
