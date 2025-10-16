@@ -84,11 +84,23 @@ def test_evaluate_cascade_rollover_to_heal() -> None:
 
 def test_evaluate_cascade_cracked_bias_adjusts_threshold() -> None:
     config = CombatConfig()
-    rng = DummyRNG([12])
+
+    # Baseline without a cracked weapon.
     monster = _base_monster()
     monster["hp"] = {"current": 4, "max": 20}
-    monster["wielded"] = "w1"
-    monster["bag"] = [
+    ctx = _context(DummyRNG([0]), config)
+
+    result = cascade.evaluate_cascade(monster, ctx)
+
+    assert result.gate == "FLEE"
+    assert result.threshold == config.flee_pct
+    assert result.data.get("cracked_weapon") is False
+
+    # Cracked weapon biases the flee gate upward.
+    cracked_monster = _base_monster()
+    cracked_monster["hp"] = {"current": 4, "max": 20}
+    cracked_monster["wielded"] = "w1"
+    cracked_monster["bag"] = [
         {
             "iid": "w1",
             "item_id": itemsreg.BROKEN_WEAPON_ID,
@@ -96,10 +108,54 @@ def test_evaluate_cascade_cracked_bias_adjusts_threshold() -> None:
             "enchant_level": 0,
         }
     ]
-    ctx = _context(rng, config)
+    cracked_ctx = _context(DummyRNG([0]), config)
+
+    cracked_result = cascade.evaluate_cascade(cracked_monster, cracked_ctx)
+
+    assert cracked_result.gate == "FLEE"
+    assert cracked_result.threshold == config.flee_pct + config.cracked_flee_bonus
+    assert cracked_result.data.get("cracked_weapon") is True
+
+
+def test_cracked_weapon_halves_attack_weight_only_when_equipped() -> None:
+    config = CombatConfig(
+        flee_hp_pct=0,
+        flee_pct=0,
+        heal_pct=0,
+        convert_pct=0,
+        cast_pct=0,
+        attack_pct=60,
+        pickup_pct=0,
+        emote_pct=0,
+    )
+
+    # No cracked weapon keeps the base attack threshold.
+    monster = _base_monster()
+    monster["hp"] = {"current": 20, "max": 20}
+    ctx = _context(DummyRNG([0]), config)
 
     result = cascade.evaluate_cascade(monster, ctx)
 
-    assert result.gate == "FLEE"
-    assert result.threshold == config.flee_pct + config.cracked_flee_bonus
-    assert result.data.get("cracked_weapon") is True
+    assert result.gate == "ATTACK"
+    assert result.threshold == config.attack_pct
+    assert result.data.get("cracked_weapon") is False
+
+    # Cracked weapon halves the attack chance.
+    cracked_monster = _base_monster()
+    cracked_monster["hp"] = {"current": 20, "max": 20}
+    cracked_monster["wielded"] = "w1"
+    cracked_monster["bag"] = [
+        {
+            "iid": "w1",
+            "item_id": itemsreg.BROKEN_WEAPON_ID,
+            "origin": "native",
+            "enchant_level": 0,
+        }
+    ]
+    cracked_ctx = _context(DummyRNG([0]), config)
+
+    cracked_result = cascade.evaluate_cascade(cracked_monster, cracked_ctx)
+
+    assert cracked_result.gate == "ATTACK"
+    assert cracked_result.threshold == config.attack_pct // 2
+    assert cracked_result.data.get("cracked_weapon") is True
