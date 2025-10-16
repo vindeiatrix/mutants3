@@ -9,7 +9,12 @@
     "spawnable": true,
     "taunt": "Clank-clank... scrap's mine!",
     "stats": { "str": 9, "int": 6, "wis": 7, "dex": 10, "con": 9, "cha": 5 },
-    "innate_attack": { "name": "Rusty Shiv", "power_base": 3, "power_per_level": 1 },
+    "innate_attack": {
+      "name": "Rusty Shiv",
+      "power_base": 3,
+      "power_per_level": 1,
+      "line": "The Junkyard Scrapper slashes you with a rusty shiv!"
+    },
     "exp_bonus": 5,
     "ions_min": 1,
     "ions_max": 8,
@@ -29,7 +34,12 @@
     "spawnable": true,
     "taunt": "The brood must feed.",
     "stats": { "str": 12, "int": 8, "wis": 10, "dex": 13, "con": 14, "cha": 6 },
-    "innate_attack": { "name": "Toxic Bite", "power_base": 8, "power_per_level": 2 },
+    "innate_attack": {
+      "name": "Toxic Bite",
+      "power_base": 8,
+      "power_per_level": 2,
+      "line": "The Rad Swarm Matron sinks toxic fangs into you!"
+    },
     "exp_bonus": 18,
     "ions_min": 6,
     "ions_max": 20,
@@ -49,7 +59,12 @@
     "spawnable": true,
     "taunt": "You are surplus.",
     "stats": { "str": 19, "int": 12, "wis": 12, "dex": 12, "con": 18, "cha": 9 },
-    "innate_attack": { "name": "Hydraulic Slam", "power_base": 16, "power_per_level": 3 },
+    "innate_attack": {
+      "name": "Hydraulic Slam",
+      "power_base": 16,
+      "power_per_level": 3,
+      "line": "The Titan of Chrome crushes you with a hydraulic slam!"
+    },
     "exp_bonus": 50,
     "ions_min": 25,
     "ions_max": 60,
