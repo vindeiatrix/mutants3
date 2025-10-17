@@ -53,11 +53,11 @@ def _mark_monsters_dirty(ctx: Mapping[str, Any]) -> None:
             pass
 
 
-def _refresh_monster(monster: MutableMapping[str, Any]) -> None:
+def _refresh_monster(monster: MutableMapping[str, Any]) -> bool:
     try:
-        monsters_state._refresh_monster_derived(monster)
+        return bool(monsters_state._refresh_monster_derived(monster))
     except Exception:  # pragma: no cover - defensive
-        pass
+        return False
 
 
 def _load_catalog() -> Mapping[str, Mapping[str, Any]]:
