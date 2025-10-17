@@ -14,6 +14,7 @@ TEMPLATE_MONSTER_MELEE_HIT = "combat.monster.melee_hit"
 TEMPLATE_MONSTER_RANGED_HIT = "combat.monster.ranged_hit"
 TEMPLATE_MONSTER_CONVERT = "combat.monster.convert"
 TEMPLATE_MONSTER_HEAL = "combat.monster.heal"
+TEMPLATE_MONSTER_HEAL_VISUAL = "combat.monster.heal_visual"
 TEMPLATE_MONSTER_DROP = "combat.monster.drop"
 
 _TEMPLATE_FORMATS: dict[str, str] = {
@@ -21,6 +22,7 @@ _TEMPLATE_FORMATS: dict[str, str] = {
     TEMPLATE_MONSTER_RANGED_HIT: "{monster} has shot you with his {weapon}!",
     TEMPLATE_MONSTER_CONVERT: "{monster} converts loot worth {ions} ions.",
     TEMPLATE_MONSTER_HEAL: "{monster} restores {hp} HP ({ions} ions).",
+    TEMPLATE_MONSTER_HEAL_VISUAL: "{monster}'s body is glowing!",
     TEMPLATE_MONSTER_DROP: "{monster} has dropped {item}.",
 }
 
@@ -84,6 +86,7 @@ __all__ = [
     "TEMPLATE_MONSTER_RANGED_HIT",
     "TEMPLATE_MONSTER_CONVERT",
     "TEMPLATE_MONSTER_HEAL",
+    "TEMPLATE_MONSTER_HEAL_VISUAL",
     "TEMPLATE_MONSTER_DROP",
     "harden_final_display",
     "render_feedback_template",
