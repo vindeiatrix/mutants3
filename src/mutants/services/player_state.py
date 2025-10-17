@@ -19,6 +19,8 @@ LOG_P = logging.getLogger("mutants.playersdbg")
 _PDBG_CONFIGURED = False
 
 
+DEFAULT_PLAYER_DISPLAY_NAME = "Vindeiatrix"
+
 def _combat_log_set(target: Optional[str], actor: Optional[str]) -> None:
     if not _pdbg_enabled() or not target:
         return
@@ -157,6 +159,23 @@ def _sanitize_player_id(value: Any) -> Optional[str]:
     return token or None
 
 
+def _coerce_display_name(value: Any) -> Optional[str]:
+    if isinstance(value, str):
+        token = value.strip()
+        return token or None
+    return None
+
+
+def _extract_display_name(payload: Mapping[str, Any] | None) -> Optional[str]:
+    if not isinstance(payload, Mapping):
+        return None
+    for key in ("display_name", "name"):
+        candidate = _coerce_display_name(payload.get(key))
+        if candidate:
+            return candidate
+    return None
+
+
 def _persist_canonical(state: Dict[str, Any]) -> None:
     """Write ``state`` to disk without mutating logging state."""
 
@@ -190,6 +209,58 @@ def _sanitize_class_int(value: Any, default: int) -> int:
     if default == 1:
         return max(1, sanitized)
     return sanitized
+
+
+def get_player_display_name(
+    state: Optional[Mapping[str, Any]] = None,
+) -> str:
+    """Return a best-effort display name for the active player."""
+
+    state_mapping: Mapping[str, Any] | None
+    if isinstance(state, Mapping):
+        state_mapping = state
+    else:
+        try:
+            state_mapping = load_state()
+        except Exception:
+            state_mapping = None
+
+    if not isinstance(state_mapping, Mapping):
+        return DEFAULT_PLAYER_DISPLAY_NAME
+
+    players = state_mapping.get("players")
+    active_id = state_mapping.get("active_id")
+    if isinstance(players, list):
+        active_entry: Optional[Mapping[str, Any]] = None
+        if active_id is not None:
+            for entry in players:
+                if not isinstance(entry, Mapping):
+                    continue
+                if entry.get("id") == active_id:
+                    active_entry = entry
+                    break
+        if active_entry is None and players:
+            first = players[0]
+            active_entry = first if isinstance(first, Mapping) else None
+        if active_entry:
+            name = _extract_display_name(active_entry)
+            if name:
+                return name
+        for entry in players:
+            name = _extract_display_name(entry if isinstance(entry, Mapping) else None)
+            if name:
+                return name
+
+    active_block = state_mapping.get("active")
+    name = _extract_display_name(active_block if isinstance(active_block, Mapping) else None)
+    if name:
+        return name
+
+    name = _extract_display_name(state_mapping)
+    if name:
+        return name
+
+    return DEFAULT_PLAYER_DISPLAY_NAME
 
 
 def _snapshot_currency_map(payload: Any) -> Dict[str, int]:

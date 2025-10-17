@@ -1,7 +1,7 @@
 """Renderer turning room view-models into tokenized/ANSI lines."""
 from __future__ import annotations
 
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Mapping, Optional
 
 from . import constants as c
 from . import formatters as fmt
@@ -16,10 +16,31 @@ import logging
 import json
 from ..engine import edge_resolver as ER
 from ..registries import dynamics as dyn
+from ..services import player_state as pstate
 from ..app import context as appctx
 from ..app.trace import is_ui_trace_enabled
 
 SegmentLine = List[st.Segment]
+
+
+def _normalize_player_name(value: Any) -> Optional[str]:
+    if isinstance(value, str):
+        candidate = value.strip()
+        return candidate or None
+    return None
+
+
+def _with_player_display_name(
+    event: Mapping[str, Any] | None, fallback: str
+) -> Mapping[str, Any] | Any:
+    if not isinstance(event, Mapping):
+        return event  # type: ignore[return-value]
+    payload = dict(event)
+    name = _normalize_player_name(payload.get("player_name")) or fallback
+    payload["player_name"] = name
+    player_label = _normalize_player_name(payload.get("player")) or name
+    payload["player"] = player_label
+    return payload
 
 
 def _feedback_token(kind: str) -> str:
@@ -76,9 +97,10 @@ def render_token_lines(
     # - base==0 (open): drop if resolver blocks.
     # - base==3 (gate): never drop; render open/closed/locked via resolver outcome.
     ctx = appctx.current_context() if hasattr(appctx, "current_context") else None
-    player = ctx.get("player_state") if ctx else None
+    player_state_hint = ctx.get("player_state") if ctx else None
     world = ctx.get("world") if ctx else None
     dyn_mod = ctx.get("dynamics") if ctx and ctx.get("dynamics") else dyn
+    player_display_name = pstate.get_player_display_name(player_state_hint)
 
     for d in c.DIR_ORDER:
         edge = dirs_open.get(d)
@@ -86,10 +108,10 @@ def render_token_lines(
             continue
         base = edge.get("base", 0)
         try:
-            if player is not None and world is not None:
-                year = getattr(player, "year")
-                x = getattr(player, "x")
-                y = getattr(player, "y")
+            if player_state_hint is not None and world is not None:
+                year = getattr(player_state_hint, "year")
+                x = getattr(player_state_hint, "x")
+                y = getattr(player_state_hint, "y")
                 dec = ER.resolve(world, dyn_mod, year, x, y, d, actor={})
                 if base == 0:
                     if not dec.passable:
@@ -229,8 +251,13 @@ def render_token_lines(
 
     if feedback_events:
         for ev in feedback_events:
-            token = _feedback_token(ev.get("kind", ""))
-            text = resolve_feedback_text(ev)
+            enriched = _with_player_display_name(ev, player_display_name)
+            if isinstance(enriched, Mapping):
+                token = _feedback_token(str(enriched.get("kind", "")))
+                text = resolve_feedback_text(enriched)
+            else:
+                token = _feedback_token("")
+                text = resolve_feedback_text(ev)
             lines.append([(token, text)])
 
     return lines
@@ -256,6 +283,12 @@ def render(
     palette: Dict[str, str] | None = None,
 ) -> List[str]:
     """Render *vm* to ANSI strings using group-based colors."""
+    ctx = appctx.current_context() if hasattr(appctx, "current_context") else None
+    player_state_hint = ctx.get("player_state") if ctx else None
+    world = ctx.get("world") if ctx else None
+    dyn_mod = ctx.get("dynamics") if ctx and ctx.get("dynamics") else dyn
+    player_display_name = pstate.get_player_display_name(player_state_hint)
+
     lines: List[str] = []
     header = vm.get("header")
     if header:
@@ -280,21 +313,16 @@ def render(
     # Validate with the passability engine.
     # - base==0 (open): drop if resolver blocks.
     # - base==3 (gate): never drop; show open/closed/locked via resolver.
-    ctx = appctx.current_context() if hasattr(appctx, "current_context") else None
-    player = ctx.get("player_state") if ctx else None
-    world = ctx.get("world") if ctx else None
-    dyn_mod = ctx.get("dynamics") if ctx and ctx.get("dynamics") else dyn
-
     for d in c.DIR_ORDER:
         edge = dirs_open.get(d)
         if not edge:
             continue
         base = edge.get("base", 0)
         try:
-            if player is not None and world is not None:
-                year = getattr(player, "year")
-                x = getattr(player, "x")
-                y = getattr(player, "y")
+            if player_state_hint is not None and world is not None:
+                year = getattr(player_state_hint, "year")
+                x = getattr(player_state_hint, "x")
+                y = getattr(player_state_hint, "y")
                 dec = ER.resolve(world, dyn_mod, year, x, y, d, actor={})
                 if base == 0:
                     if not dec.passable:
@@ -402,7 +430,11 @@ def render(
 
     if feedback_events:
         for ev in feedback_events:
-            lines.append(resolve_feedback_text(ev))
+            enriched = _with_player_display_name(ev, player_display_name)
+            if isinstance(enriched, Mapping):
+                lines.append(resolve_feedback_text(enriched))
+            else:
+                lines.append(resolve_feedback_text(ev))
 
     return lines
 
