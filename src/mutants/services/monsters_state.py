@@ -309,6 +309,9 @@ def _normalize_item(
         base_ac = _sanitize_int(template.get("armour_class"), minimum=0, fallback=0)
         derived["armour_class"] = base_ac + enchant_level
 
+    if template.get("ranged"):
+        derived["is_ranged"] = True
+
     for key in ("base_power_melee", "base_power"):
         if key in template:
             base_power = _sanitize_int(template.get(key), minimum=0, fallback=0)
@@ -439,6 +442,138 @@ def _compute_derived(
     return derived
 
 
+def _resolve_prefers_ranged_flag(monster: Mapping[str, Any]) -> bool:
+    if not isinstance(monster, Mapping):
+        return False
+    raw = monster.get("prefers_ranged")
+    if raw is not None:
+        return bool(raw)
+    state = monster.get("_ai_state") if isinstance(monster.get("_ai_state"), Mapping) else None
+    if isinstance(state, Mapping):
+        state_value = state.get("prefers_ranged")
+        if state_value is not None:
+            return bool(state_value)
+    return False
+
+
+def _armour_score(entry: Mapping[str, Any] | None) -> int:
+    if not isinstance(entry, Mapping):
+        return 0
+    derived = entry.get("derived") if isinstance(entry.get("derived"), Mapping) else {}
+    return _sanitize_int(derived.get("armour_class"), minimum=0, fallback=0)
+
+
+def _weapon_candidate(
+    entry: Mapping[str, Any],
+    *,
+    stats: Mapping[str, int],
+) -> tuple[str, Dict[str, Any], bool] | None:
+    if not isinstance(entry, Mapping):
+        return None
+    iid_raw = entry.get("iid")
+    iid = str(iid_raw) if iid_raw else ""
+    if not iid:
+        return None
+    payload = _derive_weapon_payload(entry, stats=stats)
+    if not payload:
+        return None
+    derived = entry.get("derived") if isinstance(entry.get("derived"), Mapping) else {}
+    is_ranged = bool(derived.get("is_ranged"))
+    return iid, payload, is_ranged
+
+
+def _auto_equip_armour(monster: MutableMapping[str, Any], bag: list[MutableMapping[str, Any]]) -> bool:
+    if not isinstance(bag, list):
+        return False
+    current = monster.get("armour_slot") if isinstance(monster.get("armour_slot"), MutableMapping) else None
+    current_score = _armour_score(current)
+
+    best_index: int | None = None
+    best_score = current_score
+
+    for idx, entry in enumerate(bag):
+        if not isinstance(entry, MutableMapping):
+            continue
+        score = _armour_score(entry)
+        if score > best_score:
+            best_score = score
+            best_index = idx
+
+    if best_index is None:
+        return False
+
+    best_entry = bag.pop(best_index)
+    if isinstance(current, MutableMapping):
+        bag.append(current)
+    monster["armour_slot"] = best_entry
+    return True
+
+
+def _auto_equip_weapon(
+    monster: MutableMapping[str, Any],
+    bag: list[MutableMapping[str, Any]],
+    *,
+    stats: Mapping[str, int],
+) -> bool:
+    if not isinstance(bag, list):
+        return False
+
+    prefer_ranged = _resolve_prefers_ranged_flag(monster)
+    current_iid = str(monster.get("wielded") or "")
+    current_damage = 0
+    current_is_ranged = False
+
+    candidates: list[tuple[str, Dict[str, Any], bool]] = []
+
+    for entry in bag:
+        if not isinstance(entry, MutableMapping):
+            continue
+        candidate = _weapon_candidate(entry, stats=stats)
+        if not candidate:
+            continue
+        iid, payload, is_ranged = candidate
+        candidates.append(candidate)
+        if iid == current_iid:
+            current_damage = payload.get("damage", 0)
+            current_is_ranged = is_ranged
+
+    if prefer_ranged:
+        ranged_candidates = [candidate for candidate in candidates if candidate[2]]
+        if ranged_candidates:
+            candidates = ranged_candidates
+        elif current_is_ranged:
+            # Current weapon is ranged but no other ranged candidates found.
+            candidates = [candidate for candidate in candidates if candidate[0] == current_iid]
+
+    if not candidates:
+        return False
+
+    best_iid = current_iid
+    best_damage = current_damage
+
+    for iid, payload, _ in candidates:
+        damage = payload.get("damage", 0)
+        if damage > best_damage:
+            best_damage = damage
+            best_iid = iid
+
+    if not best_iid or best_iid == current_iid:
+        return False
+
+    monster["wielded"] = best_iid
+    return True
+
+
+def _auto_equip_upgrades(monster: MutableMapping[str, Any], *, stats: Mapping[str, int]) -> bool:
+    bag_payload = monster.get("bag")
+    if not isinstance(bag_payload, list):
+        return False
+    changed = False
+    changed |= _auto_equip_armour(monster, bag_payload)
+    changed |= _auto_equip_weapon(monster, bag_payload, stats=stats)
+    return changed
+
+
 def _refresh_monster_derived(monster: MutableMapping[str, Any]) -> None:
     stats = _sanitize_stats(monster.get("stats"))
     monster["stats"] = stats
@@ -447,6 +582,8 @@ def _refresh_monster_derived(monster: MutableMapping[str, Any]) -> None:
     if not isinstance(bag, list):
         bag = []
         monster["bag"] = bag
+
+    equipment_changed = _auto_equip_upgrades(monster, stats=stats)
 
     armour = monster.get("armour_slot")
     armour_payload = _derive_armour_payload(armour)
@@ -464,6 +601,8 @@ def _refresh_monster_derived(monster: MutableMapping[str, Any]) -> None:
         armour_payload=armour_payload,
         weapon_payload=weapon_payload,
     )
+
+    return equipment_changed
 
 
 def _level_up_stats(stats: MutableMapping[str, int]) -> None:
