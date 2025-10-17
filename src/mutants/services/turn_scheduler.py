@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 import random
-from typing import TYPE_CHECKING, Any, Callable, Mapping, MutableMapping, Optional
+from typing import TYPE_CHECKING, Any, Callable, Mapping, MutableMapping, Optional, Sequence
 
 from mutants.debug import turnlog
 if TYPE_CHECKING:
@@ -275,5 +275,32 @@ class TurnScheduler:
                 LOG.exception("Bonus monster action failed")
             finally:
                 self._restore_bonus_action(token)
+
+        self._free_actions.append(_action)
+
+    def queue_player_respawn(
+        self,
+        player_id: str | None,
+        killer_monster: Mapping[str, Any] | None,
+        *,
+        state: MutableMapping[str, Any] | None = None,
+        active: MutableMapping[str, Any] | None = None,
+        respawn_pos: Sequence[Any] | None = None,
+    ) -> None:
+        """Schedule the player-death handler to run after the current tick."""
+
+        if killer_monster is None and state is None and active is None and player_id is None:
+            return
+
+        def _action(rng: Any) -> None:
+            from mutants.services import player_death as _player_death
+
+            _player_death.handle_player_death(
+                player_id,
+                killer_monster,
+                state=state,
+                active=active,
+                respawn_pos=respawn_pos,
+            )
 
         self._free_actions.append(_action)
