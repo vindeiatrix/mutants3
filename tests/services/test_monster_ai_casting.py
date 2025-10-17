@@ -14,10 +14,10 @@ from mutants.services.combat_config import CombatConfig
 
 class DummyBus:
     def __init__(self) -> None:
-        self.messages: list[tuple[str, str]] = []
+        self.messages: list[tuple[str, str, Dict[str, Any]]] = []
 
-    def push(self, kind: str, message: str) -> None:
-        self.messages.append((kind, message))
+    def push(self, kind: str, message: str, **meta: Any) -> None:
+        self.messages.append((kind, message, dict(meta)))
 
 
 class DummyMonsters:

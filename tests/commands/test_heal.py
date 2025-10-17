@@ -14,10 +14,10 @@ from mutants.services import player_state  # noqa: E402
 
 class FakeBus:
     def __init__(self) -> None:
-        self.messages: list[tuple[str, str]] = []
+        self.messages: list[tuple[str, str, dict[str, object]]] = []
 
-    def push(self, kind: str, message: str) -> None:
-        self.messages.append((kind, message))
+    def push(self, kind: str, message: str, **meta: object) -> None:
+        self.messages.append((kind, message, dict(meta)))
 
 
 @pytest.fixture()
@@ -108,6 +108,7 @@ def test_heal_recovers_hp_and_consumes_ions(
     assert ctx["feedback_bus"].messages[-1] == (
         "SYSTEM/OK",
         f"You restore {expected_heal} hit points ({cost:,} ions).",
+        {},
     )
 
 

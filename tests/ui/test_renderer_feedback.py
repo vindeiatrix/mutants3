@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from mutants.ui import renderer, styles as st
+from mutants.ui import renderer, styles as st, textutils
 
 
 def _base_vm() -> dict:
@@ -18,9 +18,23 @@ def _base_vm() -> dict:
 
 def test_feedback_heal_message_rendering() -> None:
     vm = _base_vm()
-    message = "You restore 12 hit points (1,200 ions)."
-    events = [{"kind": "COMBAT/HEAL", "text": message}]
+    events = [
+        {
+            "kind": "COMBAT/HEAL",
+            "template": textutils.TEMPLATE_MONSTER_HEAL,
+            "monster": "Goblin",
+            "hp": 12,
+            "ions": 1200,
+        }
+    ]
 
     lines = renderer.render_token_lines(vm, feedback_events=events)
 
-    assert lines[-1] == [(st.FEED_COMBAT, message)]
+    expected_message = textutils.render_feedback_template(
+        textutils.TEMPLATE_MONSTER_HEAL,
+        monster="Goblin",
+        hp=12,
+        ions=1200,
+    )
+
+    assert lines[-1] == [(st.FEED_COMBAT, expected_message)]

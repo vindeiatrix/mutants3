@@ -14,10 +14,10 @@ from mutants.commands._util import items as items_util
 
 class FakeBus:
     def __init__(self) -> None:
-        self.messages: list[tuple[str, str]] = []
+        self.messages: list[tuple[str, str, dict[str, object]]] = []
 
-    def push(self, kind: str, message: str) -> None:
-        self.messages.append((kind, message))
+    def push(self, kind: str, message: str, **meta: object) -> None:
+        self.messages.append((kind, message, dict(meta)))
 
 
 @dataclass
@@ -93,7 +93,11 @@ def test_lock_requires_key_argument_shows_usage(monkeypatch: pytest.MonkeyPatch)
     bus = FakeBus()
     lock.lock_cmd("w", {"feedback_bus": bus})
     assert bus.messages == [
-        ("SYSTEM/WARN", "Usage: lock <direction> <key name>\nExamples: lock west devil-key | loc w d")
+        (
+            "SYSTEM/WARN",
+            "Usage: lock <direction> <key name>\nExamples: lock west devil-key | loc w d",
+            {},
+        )
     ]
 
 
@@ -117,6 +121,7 @@ def test_lock_west_with_exact_key(monkeypatch: pytest.MonkeyPatch) -> None:
     assert ctx["feedback_bus"].messages[-1] == (
         "SYSTEM/OK",
         "You lock the gate west.",
+        {},
     )
     assert dyn.set_calls == [(1000, 0, 0, "W", "devil")]
 
@@ -148,6 +153,7 @@ def test_lock_alias_uses_prefix_inventory_order(monkeypatch: pytest.MonkeyPatch)
     assert ctx["feedback_bus"].messages[-1] == (
         "SYSTEM/OK",
         "You lock the gate west.",
+        {},
     )
     assert dyn.set_calls == [(1000, 0, 0, "W", "devil")]
 
@@ -161,5 +167,6 @@ def test_lock_warns_when_key_missing(monkeypatch: pytest.MonkeyPatch) -> None:
     assert ctx["feedback_bus"].messages[-1] == (
         "SYSTEM/WARN",
         "You're not carrying a d.",
+        {},
     )
     assert dyn.set_calls == []

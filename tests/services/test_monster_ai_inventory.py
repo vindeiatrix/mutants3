@@ -14,10 +14,10 @@ from mutants.services.monster_ai import inventory  # noqa: E402
 
 class DummyBus:
     def __init__(self) -> None:
-        self.messages: list[tuple[str, str]] = []
+        self.messages: list[tuple[str, str, Dict[str, Any]]] = []
 
     def push(self, channel: str, message: str, **_kwargs: object) -> None:
-        self.messages.append((channel, message))
+        self.messages.append((channel, message, dict(_kwargs)))
 
 
 class DummyMonstersState:

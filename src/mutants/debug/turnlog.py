@@ -150,6 +150,19 @@ def _summarize_events(events: Iterable[tuple[str, Mapping[str, Any]]]) -> list[s
             if ions:
                 piece += f" ions=-{ions}"
             summary.append(piece)
+        elif kind == "COMBAT/HIT":
+            monster = meta.get("monster") or meta.get("actor") or "?"
+            weapon = meta.get("weapon") or meta.get("weapon_id") or meta.get("weapon_iid")
+            damage = _coerce_int(meta.get("damage"), 0)
+            source = meta.get("source")
+            piece = f"hit {monster}"
+            if weapon:
+                piece += f" {weapon}"
+            if source:
+                piece += f" src={source}"
+            if damage:
+                piece += f" dmg={damage}"
+            summary.append(piece)
     return summary
 
 

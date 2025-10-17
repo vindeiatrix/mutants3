@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import random
-from typing import Any, List
+from typing import Any, Dict, List
 
 import pytest
 
@@ -33,10 +33,10 @@ class DummyMonsters:
 
 class DummyBus:
     def __init__(self) -> None:
-        self.events: list[tuple[str, str]] = []
+        self.events: list[tuple[str, str, Dict[str, Any]]] = []
 
-    def push(self, kind: str, text: str) -> None:
-        self.events.append((kind, text))
+    def push(self, kind: str, text: str, **meta: Any) -> None:
+        self.events.append((kind, text, dict(meta)))
 
 
 def _player_state_stub() -> dict[str, Any]:

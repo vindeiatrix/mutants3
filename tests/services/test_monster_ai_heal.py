@@ -12,14 +12,15 @@ import pytest
 from mutants.services import monster_actions
 from mutants.services.combat_config import CombatConfig
 from mutants.services.monster_ai import heal as heal_mod
+from mutants.ui import textutils
 
 
 class DummyBus:
     def __init__(self) -> None:
-        self.messages: list[tuple[str, str]] = []
+        self.messages: list[tuple[str, str, Dict[str, Any]]] = []
 
-    def push(self, kind: str, message: str) -> None:
-        self.messages.append((kind, message))
+    def push(self, kind: str, message: str, **meta: Any) -> None:
+        self.messages.append((kind, message, dict(meta)))
 
 
 class DummyMonsters:
@@ -73,7 +74,18 @@ def test_monster_heal_restores_hp_and_spends_ions(monkeypatch: pytest.MonkeyPatc
     assert monster["ions"] == cost_before + 1_000 - expected_cost
 
     bus = ctx["feedback_bus"]
-    assert bus.messages[-1] == ("COMBAT/INFO", "Goblin's body is glowing!")
+    last_kind, last_message, last_meta = bus.messages[-1]
+    expected_feedback = textutils.render_feedback_template(
+        textutils.TEMPLATE_MONSTER_HEAL,
+        monster="Goblin",
+        hp=expected_heal,
+        ions=expected_cost,
+    )
+    assert last_kind == "COMBAT/HEAL"
+    assert last_message == expected_feedback
+    assert last_meta.get("template") == textutils.TEMPLATE_MONSTER_HEAL
+    assert last_meta.get("hp") == expected_heal
+    assert last_meta.get("ions") == expected_cost
 
     monsters_state = ctx["monsters"]
     assert monsters_state.mark_dirty_calls == 1

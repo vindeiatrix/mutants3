@@ -54,10 +54,10 @@ class DummyInstances:
 
 class DummyBus:
     def __init__(self) -> None:
-        self.messages: list[tuple[str, str]] = []
+        self.messages: list[tuple[str, str, dict[str, object]]] = []
 
     def push(self, channel: str, message: str, **_kwargs: object) -> None:
-        self.messages.append((channel, message))
+        self.messages.append((channel, message, dict(_kwargs)))
 
 
 @pytest.fixture(autouse=True)
@@ -115,7 +115,7 @@ def test_player_hits_crack_weapon_on_twentieth(dummy_instances: DummyInstances) 
     assert results[18]["cracked"] is False
     cracked_payload = results[-1]
     assert cracked_payload["cracked"] is True
-    assert any("cracks" in message for _, message in bus.messages)
+    assert any("cracks" in message for _, message, _ in bus.messages)
     inst = tracker.get_instance(tracker.iid)
     assert inst is not None
     assert inst.get("item_id") == itemsreg.BROKEN_WEAPON_ID
@@ -146,7 +146,7 @@ def test_monster_hits_crack_weapon_on_twentieth(dummy_instances: DummyInstances)
     assert results[18]["cracked"] is False
     cracked_payload = results[-1]
     assert cracked_payload["cracked"] is True
-    assert any("cracks" in message for _, message in bus.messages)
+    assert any("cracks" in message for _, message, _ in bus.messages)
     inst = tracker.get_instance(tracker.iid)
     assert inst is not None
     assert inst.get("item_id") == itemsreg.BROKEN_WEAPON_ID

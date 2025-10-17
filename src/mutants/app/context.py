@@ -11,6 +11,7 @@ from mutants.data.room_headers import ROOM_HEADERS, STORE_FOR_SALE_IDX
 from mutants.registries.world import load_nearest_year
 from mutants.state import state_path
 from mutants.ui import renderer
+from mutants.ui.textutils import resolve_feedback_text
 from mutants.debug.turnlog import TurnObserver
 from mutants.debug import items_probe
 from mutants.ui.feedback import FeedbackBus
@@ -245,5 +246,5 @@ def flush_feedback(ctx: Dict[str, Any]) -> None:
     palette = ctx["theme"].palette
     for ev in events:
         token = renderer._feedback_token(ev.get("kind", ""))
-        line = st.resolve_segments([(token, ev.get("text", ""))], palette)
+        line = st.resolve_segments([(token, resolve_feedback_text(ev))], palette)
         print(line)
