@@ -1,13 +1,17 @@
 from __future__ import annotations
 
 import json
+import logging
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Iterable, List, Mapping, Optional
 
 from mutants.services.monster_entities import DEFAULT_INNATE_ATTACK_LINE
 from mutants.state import state_path
 
 from .sqlite_store import SQLiteConnectionManager
+
+
+logger = logging.getLogger(__name__)
 
 
 def _optional_int(value: Any) -> Optional[int]:
@@ -103,6 +107,71 @@ def _validate_base_monster(m: Dict[str, Any]) -> None:
         raise ValueError("innate_attack line must be a non-empty string")
     # ok
 
+def _load_catalog_overrides(path: Path | str | None) -> Dict[str, Dict[str, Any]]:
+    """Return optional metadata/AI overrides from the JSON catalog file."""
+
+    if path is None:
+        return {}
+
+    try:
+        candidate = Path(path)
+    except TypeError:
+        return {}
+
+    try:
+        if not candidate.exists():
+            return {}
+    except OSError as exc:
+        logger.warning("Failed to stat catalog overrides at %s: %s", candidate, exc)
+        return {}
+
+    try:
+        payload = json.loads(candidate.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        return {}
+    except OSError as exc:
+        logger.warning("Failed to read catalog overrides at %s: %s", candidate, exc)
+        return {}
+    except json.JSONDecodeError as exc:
+        logger.warning("Invalid JSON in catalog overrides at %s: %s", candidate, exc)
+        return {}
+
+    def _iter_entries(data: Any) -> Iterable[Mapping[str, Any]]:
+        if isinstance(data, Mapping):
+            for key, value in data.items():
+                if isinstance(value, Mapping):
+                    augmented = dict(value)
+                    augmented.setdefault("monster_id", key)
+                    yield augmented
+            return
+        if isinstance(data, list | tuple):
+            for entry in data:
+                if isinstance(entry, Mapping):
+                    yield entry
+            return
+
+    overrides: Dict[str, Dict[str, Any]] = {}
+    for entry in _iter_entries(payload):
+        monster_id = str(entry.get("monster_id") or "").strip()
+        if not monster_id:
+            continue
+
+        data: Dict[str, Any] = {}
+
+        metadata = entry.get("metadata")
+        if isinstance(metadata, Mapping):
+            data["metadata"] = dict(metadata)
+
+        ai_overrides = entry.get("ai_overrides")
+        if isinstance(ai_overrides, Mapping):
+            data["ai_overrides"] = dict(ai_overrides)
+
+        if data:
+            overrides[monster_id] = data
+
+    return overrides
+
+
 def _load_monsters_from_store(manager: SQLiteConnectionManager) -> List[Dict[str, Any]]:
     conn = manager.connect()
     columns = (
@@ -129,9 +198,12 @@ def _load_monsters_from_store(manager: SQLiteConnectionManager) -> List[Dict[str
                 return value
         return default
 
+    overrides = _load_catalog_overrides(DEFAULT_CATALOG_PATH)
     monsters: List[Dict[str, Any]] = []
     for row in rows:
-        spawn_years_raw = _json_or([], row.get("spawn_years"))
+        row_data = dict(row)
+
+        spawn_years_raw = _json_or([], row_data.get("spawn_years"))
         spawn_years = []
         for value in spawn_years_raw:
             try:
@@ -139,31 +211,31 @@ def _load_monsters_from_store(manager: SQLiteConnectionManager) -> List[Dict[str
             except (TypeError, ValueError):
                 continue
 
-        stats = _json_or({}, row.get("stats_json"))
-        innate = _json_or({}, row.get("innate_attack_json"))
-        spells = _json_or([], row.get("spells_json"))
+        stats = _json_or({}, row_data.get("stats_json"))
+        innate = _json_or({}, row_data.get("innate_attack_json"))
+        spells = _json_or([], row_data.get("spells_json"))
         spells = [str(item) for item in spells if item not in (None, "")]
-        starter_armour = _json_or([], row.get("starter_armour_json"))
+        starter_armour = _json_or([], row_data.get("starter_armour_json"))
         starter_armour = [str(item) for item in starter_armour if item not in (None, "")]
-        starter_items = _json_or([], row.get("starter_items_json"))
+        starter_items = _json_or([], row_data.get("starter_items_json"))
         starter_items = [str(item) for item in starter_items if item not in (None, "")]
 
         monster = {
-            "monster_id": row.get("monster_id"),
-            "name": row.get("name") or "",
-            "level": int(row.get("level") or 0),
-            "hp_max": int(row.get("hp_max") or 0),
-            "armour_class": int(row.get("armour_class") or 0),
+            "monster_id": row_data.get("monster_id"),
+            "name": row_data.get("name") or "",
+            "level": int(row_data.get("level") or 0),
+            "hp_max": int(row_data.get("hp_max") or 0),
+            "armour_class": int(row_data.get("armour_class") or 0),
             "spawn_years": spawn_years,
-            "spawnable": bool(int(row.get("spawnable") or 0)),
-            "taunt": row.get("taunt") or "",
+            "spawnable": bool(int(row_data.get("spawnable") or 0)),
+            "taunt": row_data.get("taunt") or "",
             "stats": stats if isinstance(stats, dict) else {},
             "innate_attack": innate if isinstance(innate, dict) else {},
-            "exp_bonus": _optional_int(row.get("exp_bonus")),
-            "ions_min": _optional_int(row.get("ions_min")),
-            "ions_max": _optional_int(row.get("ions_max")),
-            "riblets_min": _optional_int(row.get("riblets_min")),
-            "riblets_max": _optional_int(row.get("riblets_max")),
+            "exp_bonus": _optional_int(row_data.get("exp_bonus")),
+            "ions_min": _optional_int(row_data.get("ions_min")),
+            "ions_max": _optional_int(row_data.get("ions_max")),
+            "riblets_min": _optional_int(row_data.get("riblets_min")),
+            "riblets_max": _optional_int(row_data.get("riblets_max")),
             "spells": spells,
             "starter_armour": starter_armour,
             "starter_items": starter_items,
@@ -174,6 +246,17 @@ def _load_monsters_from_store(manager: SQLiteConnectionManager) -> List[Dict[str
             line_value = innate_payload.get("line")
             if not isinstance(line_value, str) or not line_value.strip():
                 innate_payload["line"] = DEFAULT_INNATE_ATTACK_LINE
+
+        override_payload = overrides.get(str(monster.get("monster_id") or ""))
+        if override_payload is None:
+            monster["metadata"] = {}
+            monster["ai_overrides"] = None
+        else:
+            metadata = override_payload.get("metadata")
+            monster["metadata"] = dict(metadata) if isinstance(metadata, Mapping) else {}
+
+            ai_overrides = override_payload.get("ai_overrides")
+            monster["ai_overrides"] = dict(ai_overrides) if isinstance(ai_overrides, Mapping) else None
 
         monsters.append(monster)
     return monsters
