@@ -1,17 +1,17 @@
 from __future__ import annotations
 
 import random
-from typing import List, Tuple
+from typing import Any, Dict, List, Tuple
 
 from mutants.services.monster_ai import taunt
 
 
 class DummyBus:
     def __init__(self) -> None:
-        self.events: List[Tuple[str, str]] = []
+        self.events: List[Tuple[str, str, Dict[str, Any]]] = []
 
-    def push(self, kind: str, text: str) -> None:
-        self.events.append((kind, text))
+    def push(self, kind: str, text: str, **meta: Any) -> None:
+        self.events.append((kind, text, dict(meta)))
 
 
 def test_emit_taunt_probability_with_seed() -> None:

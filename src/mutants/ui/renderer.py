@@ -10,7 +10,7 @@ from . import styles as st
 from .viewmodels import RoomVM
 from .wrap import wrap_list, WRAP_DEBUG_OPTS
 from . import item_display as idisp
-from .textutils import harden_final_display
+from .textutils import harden_final_display, resolve_feedback_text
 import os
 import logging
 import json
@@ -165,7 +165,8 @@ def render_token_lines(
     if feedback_events:
         for ev in feedback_events:
             token = _feedback_token(ev.get("kind", ""))
-            lines.append([(token, ev.get("text", ""))])
+            text = resolve_feedback_text(ev)
+            lines.append([(token, text)])
 
     return lines
 
@@ -336,7 +337,7 @@ def render(
 
     if feedback_events:
         for ev in feedback_events:
-            lines.append(ev.get("text", ""))
+            lines.append(resolve_feedback_text(ev))
 
     return lines
 

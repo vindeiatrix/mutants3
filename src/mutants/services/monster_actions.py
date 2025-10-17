@@ -24,7 +24,7 @@ from mutants.services.monster_ai import taunt as taunt_mod
 from mutants.services.monster_ai import tracking as tracking_mod
 from mutants.services.monster_ai.pursuit import attempt_pursuit
 from mutants.debug import turnlog
-from mutants.ui import item_display
+from mutants.ui import item_display, textutils
 
 LOG = logging.getLogger(__name__)
 
@@ -61,6 +61,37 @@ def _monster_id(monster: Mapping[str, Any]) -> str:
     if isinstance(ident, str) and ident:
         return ident
     return "?"
+
+
+def _attack_weapon_payload(
+    monster: Mapping[str, Any],
+    weapon_iid: str | None,
+    source: str,
+    catalog: Mapping[str, Mapping[str, Any]] | None,
+) -> tuple[str, str | None]:
+    if weapon_iid:
+        inst = itemsreg.get_instance(weapon_iid)
+        if not isinstance(inst, Mapping):
+            inst = {"item_id": weapon_iid}
+        tpl = {}
+        if isinstance(catalog, Mapping):
+            item_id = inst.get("item_id") or inst.get("catalog_id") or inst.get("id")
+            if item_id is not None:
+                tpl = catalog.get(str(item_id)) or {}
+        label = item_display.item_label(inst, tpl or {}, show_charges=False)
+        resolved_id = inst.get("item_id") or inst.get("catalog_id") or inst.get("id")
+        weapon_id = str(resolved_id) if resolved_id else None
+        return label, weapon_id
+    if source == "innate":
+        innate = monster.get("innate_attack")
+        if isinstance(innate, Mapping):
+            raw_name = innate.get("name")
+            if isinstance(raw_name, str) and raw_name.strip():
+                return raw_name.strip(), None
+        return "innate attack", None
+    if source == "bolt":
+        return "bolt", None
+    return "attack", None
 
 
 def _drop_entry_label(
@@ -634,11 +665,8 @@ def _apply_player_damage(
         maximum = max(current, 1)
     plan = select_attack(monster, ctx)
     weapon_iid = plan.item_iid
-    damage_item: Any
-    if weapon_iid:
-        damage_item = str(weapon_iid)
-    else:
-        damage_item = {}
+    resolved_iid = str(weapon_iid) if weapon_iid else None
+    damage_item: Any = str(weapon_iid) if weapon_iid else {}
     attack = damage_engine.resolve_attack(damage_item, monster, active, source=plan.source)
     try:
         final_damage = max(0, int(attack.damage))
@@ -649,12 +677,22 @@ def _apply_player_damage(
     if attack.source == "bolt":
         final_damage = max(MIN_BOLT_DAMAGE, final_damage)
     final_damage = strike._clamp_melee_damage(active, final_damage)
+    catalog = _load_catalog()
+    bus_obj = bus if hasattr(bus, "push") else None
+    weapon_label, weapon_item_id = _attack_weapon_payload(
+        monster,
+        resolved_iid,
+        attack.source,
+        catalog,
+    )
+    template_key = (
+        textutils.TEMPLATE_MONSTER_RANGED_HIT
+        if attack.source == "bolt"
+        else textutils.TEMPLATE_MONSTER_MELEE_HIT
+    )
     if final_damage > 0:
         wear_event = items_wear.build_wear_event(actor="monster", source=str(attack.source), damage=final_damage)
         wear_amount = items_wear.wear_from_event(wear_event)
-        catalog = _load_catalog()
-        bus_obj = bus if hasattr(bus, "push") else None
-        resolved_iid = str(weapon_iid) if weapon_iid else None
         _apply_weapon_wear(
             monster,
             resolved_iid,
@@ -671,8 +709,23 @@ def _apply_player_damage(
     except Exception:  # pragma: no cover - defensive
         LOG.exception("Failed to persist player HP after monster attack")
     label = _monster_display_name(monster)
-    if hasattr(bus, "push"):
-        bus.push("COMBAT/INFO", f"{label} strikes you for {final_damage} damage.")
+    if bus_obj is not None:
+        message = textutils.render_feedback_template(
+            template_key,
+            monster=label,
+            weapon=weapon_label,
+        )
+        bus_obj.push(
+            "COMBAT/HIT",
+            message,
+            template=template_key,
+            monster=label,
+            weapon=weapon_label,
+            weapon_id=weapon_item_id,
+            weapon_iid=resolved_iid,
+            damage=final_damage,
+            source=attack.source,
+        )
     killed_flag = final_damage > 0 and new_hp <= 0
     if final_damage > 0:
         turnlog.emit(
@@ -685,6 +738,18 @@ def _apply_player_damage(
             weapon=str(weapon_iid) if weapon_iid else None,
             source=attack.source,
         )
+    turnlog.emit(
+        ctx,
+        "COMBAT/HIT",
+        monster=label,
+        actor=_monster_id(monster),
+        weapon=weapon_label,
+        weapon_id=weapon_item_id,
+        weapon_iid=resolved_iid,
+        damage=final_damage,
+        source=attack.source,
+        template=template_key,
+    )
     if killed_flag:
         if isinstance(state, MutableMapping) and isinstance(active, MutableMapping):
             _handle_player_death(monster, ctx, state, active, bus)
@@ -892,9 +957,17 @@ def _convert_item(
     if hasattr(bus, "push"):
         label = _monster_display_name(monster)
         bus.push("COMBAT/INFO", f"A blinding white flash erupts around {label}!")
+        convert_message = textutils.render_feedback_template(
+            textutils.TEMPLATE_MONSTER_CONVERT,
+            monster=label,
+            ions=best_value,
+        )
         bus.push(
             "COMBAT/INFO",
-            f"{label} converts loot worth {best_value} ions.",
+            convert_message,
+            template=textutils.TEMPLATE_MONSTER_CONVERT,
+            monster=label,
+            ions=best_value,
         )
     turnlog.emit(
         ctx,
@@ -993,7 +1066,20 @@ def _heal_action(
     label = _monster_display_name(monster)
     bus = _feedback_bus(ctx)
     if hasattr(bus, "push"):
-        bus.push("COMBAT/INFO", f"{label}'s body is glowing!")
+        heal_message = textutils.render_feedback_template(
+            textutils.TEMPLATE_MONSTER_HEAL,
+            monster=label,
+            hp=applied,
+            ions=heal_cost,
+        )
+        bus.push(
+            "COMBAT/HEAL",
+            heal_message,
+            template=textutils.TEMPLATE_MONSTER_HEAL,
+            monster=label,
+            hp=applied,
+            ions=heal_cost,
+        )
 
     turnlog.emit(
         ctx,
@@ -1007,8 +1093,10 @@ def _heal_action(
         "COMBAT/HEAL",
         actor="monster",
         actor_id=_monster_id(monster),
+        monster=label,
         hp_restored=applied,
         ions_spent=heal_cost,
+        template=textutils.TEMPLATE_MONSTER_HEAL,
     )
 
     return {

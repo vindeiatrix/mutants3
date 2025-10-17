@@ -8,7 +8,7 @@ from typing import Any, Mapping, MutableMapping, Optional
 from mutants.debug import turnlog
 from mutants.registries import items_catalog, items_instances as itemsreg
 from mutants.services import combat_loot, monsters_state
-from mutants.ui import item_display
+from mutants.ui import item_display, textutils
 
 DROP_KIND_WEAPON = "weapon"
 WEAPON_DROP_CHANCE = 80
@@ -165,7 +165,19 @@ def _drop_armour(monster: MutableMapping[str, Any], ctx: MutableMapping[str, Any
     label = item_display.item_label(inst, catalog.get(str(inst.get("item_id"))) or {}, show_charges=False)
     bus = ctx.get("feedback_bus") if isinstance(ctx, Mapping) else None
     if hasattr(bus, "push"):
-        bus.push("COMBAT/INFO", f"{_monster_display_name(monster)} drops {label}.")
+        monster_label = _monster_display_name(monster)
+        message = textutils.render_feedback_template(
+            textutils.TEMPLATE_MONSTER_DROP,
+            monster=monster_label,
+            item=label,
+        )
+        bus.push(
+            "COMBAT/INFO",
+            message,
+            template=textutils.TEMPLATE_MONSTER_DROP,
+            monster=monster_label,
+            item=label,
+        )
     turnlog.emit(
         ctx,
         "AI/INVENTORY/DROP_ARMOUR",
@@ -213,7 +225,19 @@ def _drop_weapon(monster: MutableMapping[str, Any], ctx: MutableMapping[str, Any
     name = item_display.item_label(inst, tpl, show_charges=False)
     bus = ctx.get("feedback_bus") if isinstance(ctx, Mapping) else None
     if hasattr(bus, "push"):
-        bus.push("COMBAT/INFO", f"{_monster_display_name(monster)} drops {name}.")
+        monster_label = _monster_display_name(monster)
+        message = textutils.render_feedback_template(
+            textutils.TEMPLATE_MONSTER_DROP,
+            monster=monster_label,
+            item=name,
+        )
+        bus.push(
+            "COMBAT/INFO",
+            message,
+            template=textutils.TEMPLATE_MONSTER_DROP,
+            monster=monster_label,
+            item=name,
+        )
     turnlog.emit(
         ctx,
         "AI/INVENTORY/DROP_WEAPON",
