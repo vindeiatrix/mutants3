@@ -12,6 +12,7 @@ from mutants.debug import turnlog
 from mutants.registries import items_instances as itemsreg
 from mutants.services.combat_config import CombatConfig
 from mutants.services.monster_ai import heal as heal_mod
+from mutants.services import monster_entities
 
 LOG = logging.getLogger(__name__)
 
@@ -327,6 +328,28 @@ def _clamp_pct(value: int) -> int:
     return max(0, min(100, value))
 
 
+def _apply_cascade_modifier(base: int, modifier: Any) -> int:
+    if modifier is None:
+        return base
+    if isinstance(modifier, Mapping):
+        value = base
+        if "set" in modifier:
+            try:
+                value = int(modifier["set"])
+            except (TypeError, ValueError):
+                pass
+        if "add" in modifier:
+            try:
+                value += int(modifier["add"])
+            except (TypeError, ValueError):
+                pass
+        return value
+    try:
+        return base + int(modifier)
+    except (TypeError, ValueError):
+        return base
+
+
 def _log_gate(
     ctx: Any,
     monster: Mapping[str, Any],
@@ -403,6 +426,12 @@ def evaluate_cascade(monster: Any, ctx: Any) -> ActionResult:
     rng = _resolve_rng(ctx)
     bonus = _resolve_bonus_action(ctx, monster)
 
+    template = monster.get("template") if isinstance(monster, Mapping) else None
+    overrides = monster_entities.resolve_monster_ai_overrides(monster, template)
+    cascade_overrides = overrides.get("cascade") if isinstance(overrides.get("cascade"), Mapping) else {}
+    prefers_ranged_override = overrides.get("prefers_ranged") if overrides else None
+    species_tags = tuple(overrides.get("tags", ())) if overrides else tuple()
+
     bag = _bag_entries(monster)
     tracked_pickups = _tracked_pickups(monster)
     hp_pct = _hp_pct(monster)
@@ -416,15 +445,17 @@ def evaluate_cascade(monster: Any, ctx: Any) -> ActionResult:
     convertible = _has_convertible_loot(bag, tracked_pickups)
     pickup_ready = _has_pickup_candidate(monster, ctx)
 
-    flee_threshold = _clamp_pct(config.flee_pct + (config.cracked_flee_bonus if cracked else 0))
+    base_flee_pct = _apply_cascade_modifier(config.flee_pct, cascade_overrides.get("flee_pct"))
+    flee_threshold = _clamp_pct(base_flee_pct + (config.cracked_flee_bonus if cracked else 0))
     if level_delta >= 5:
         flee_threshold = _clamp_pct(flee_threshold + 5)
     elif level_delta <= -5:
         flee_threshold = _clamp_pct(flee_threshold - 5)
-    heal_threshold = config.heal_pct
-    cast_threshold = config.cast_pct
-    convert_threshold = config.convert_pct
-    pickup_threshold = _clamp_pct(config.pickup_pct + (config.cracked_pickup_bonus if cracked else 0))
+    heal_threshold = _apply_cascade_modifier(config.heal_pct, cascade_overrides.get("heal_pct"))
+    cast_threshold = _apply_cascade_modifier(config.cast_pct, cascade_overrides.get("cast_pct"))
+    convert_threshold = _apply_cascade_modifier(config.convert_pct, cascade_overrides.get("convert_pct"))
+    base_pickup_pct = _apply_cascade_modifier(config.pickup_pct, cascade_overrides.get("pickup_pct"))
+    pickup_threshold = _clamp_pct(base_pickup_pct + (config.cracked_pickup_bonus if cracked else 0))
 
     if low_ions:
         convert_threshold = _clamp_pct(convert_threshold + 10)
@@ -456,6 +487,12 @@ def evaluate_cascade(monster: Any, ctx: Any) -> ActionResult:
         "bonus_action": bonus.active,
         "bonus_force_pickup": bonus.active and bonus.force_pickup,
     }
+    if overrides:
+        data_common["species_overrides"] = overrides
+    if prefers_ranged_override is not None:
+        data_common["prefers_ranged_override"] = bool(prefers_ranged_override)
+    if species_tags:
+        data_common["species_tags"] = species_tags
 
     failures: list[Mapping[str, Any]] = []
 
@@ -576,7 +613,8 @@ def evaluate_cascade(monster: Any, ctx: Any) -> ActionResult:
         )
 
     # ATTACK gate (always available when reached)
-    attack_threshold_value = config.attack_pct
+    base_attack_pct = _apply_cascade_modifier(config.attack_pct, cascade_overrides.get("attack_pct"))
+    attack_threshold_value = base_attack_pct
     if cracked:
         attack_threshold_value = math.floor(attack_threshold_value * 0.5)
     attack_threshold = _clamp_pct(attack_threshold_value)
@@ -639,7 +677,7 @@ def evaluate_cascade(monster: Any, ctx: Any) -> ActionResult:
         )
 
     # EMOTE gate
-    emote_threshold = _clamp_pct(config.emote_pct)
+    emote_threshold = _clamp_pct(_apply_cascade_modifier(config.emote_pct, cascade_overrides.get("emote_pct")))
     if emote_threshold > 0:
         roll = int(rng.randrange(100))
         reason = f"roll={roll} threshold={emote_threshold}"

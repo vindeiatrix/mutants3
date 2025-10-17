@@ -1,10 +1,10 @@
 from __future__ import annotations
 
+import json
+import math
 from pathlib import Path
 import sys
 from typing import Any, List
-
-import math
 
 sys.path.append(str(Path(__file__).resolve().parents[2] / "src"))
 
@@ -44,6 +44,15 @@ def _base_monster() -> dict[str, Any]:
         "pos": (2000, 1, 1),
         "level": 3,
     }
+
+
+def _catalog_entry(monster_id: str) -> dict[str, Any]:
+    path = Path("state/monsters/catalog.json")
+    catalog = json.loads(path.read_text(encoding="utf-8"))
+    for entry in catalog:
+        if entry.get("monster_id") == monster_id:
+            return entry
+    raise KeyError(monster_id)
 
 
 def _context(rng: DummyRNG, config: CombatConfig | None = None) -> dict[str, Any]:
@@ -224,6 +233,88 @@ def test_cracked_weapon_halves_attack_weight_only_when_equipped() -> None:
     assert cracked_result.gate == "ATTACK"
     assert cracked_result.threshold == config.attack_pct // 2
     assert cracked_result.data.get("cracked_weapon") is True
+
+
+def test_species_overrides_from_catalog_adjust_flee_threshold() -> None:
+    template = _catalog_entry("junkyard_scrapper")
+    config = CombatConfig()
+    monster = _base_monster()
+    monster.update(
+        {
+            "monster_id": template["monster_id"],
+            "hp": {"current": 2, "max": template["hp_max"]},
+            "level": template["level"],
+            "template": template,
+        }
+    )
+
+    result = cascade.evaluate_cascade(monster, _context(DummyRNG([0]), config))
+
+    assert result.gate == "FLEE"
+    assert result.threshold == config.flee_pct + 5
+    overrides = result.data.get("species_overrides")
+    assert overrides and overrides.get("cascade", {}).get("flee_pct") == {"add": 5}
+
+
+def test_species_overrides_apply_attack_bias_and_prefers_ranged() -> None:
+    template = _catalog_entry("rad_swarm_matron")
+    config = CombatConfig(
+        flee_hp_pct=0,
+        flee_pct=0,
+        heal_pct=0,
+        convert_pct=0,
+        cast_pct=0,
+        attack_pct=40,
+        pickup_pct=0,
+        emote_pct=0,
+    )
+    monster = _base_monster()
+    monster.update(
+        {
+            "monster_id": template["monster_id"],
+            "hp": {"current": template["hp_max"], "max": template["hp_max"]},
+            "level": template["level"],
+            "template": template,
+        }
+    )
+
+    result = cascade.evaluate_cascade(monster, _context(DummyRNG([0]), config))
+
+    assert result.gate == "ATTACK"
+    assert result.threshold == 35
+    overrides = result.data.get("species_overrides")
+    assert overrides and overrides.get("prefers_ranged") is True
+    assert result.data.get("prefers_ranged_override") is True
+
+
+def test_species_overrides_increase_attack_for_titan() -> None:
+    template = _catalog_entry("titan_of_chrome")
+    config = CombatConfig(
+        flee_hp_pct=0,
+        flee_pct=0,
+        heal_pct=0,
+        convert_pct=0,
+        cast_pct=0,
+        attack_pct=30,
+        pickup_pct=0,
+        emote_pct=0,
+    )
+    monster = _base_monster()
+    monster.update(
+        {
+            "monster_id": template["monster_id"],
+            "hp": {"current": template["hp_max"], "max": template["hp_max"]},
+            "level": template["level"],
+            "template": template,
+        }
+    )
+
+    result = cascade.evaluate_cascade(monster, _context(DummyRNG([0]), config))
+
+    assert result.gate == "ATTACK"
+    assert result.threshold == 40
+    overrides = result.data.get("species_overrides")
+    assert overrides and overrides.get("cascade", {}).get("attack_pct") == {"add": 10}
 
 
 def test_convert_gate_requires_tracked_pickup() -> None:
