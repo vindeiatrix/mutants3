@@ -169,6 +169,10 @@ def _clone_entry(entry: Mapping[str, object] | None, *, source: str) -> dict[str
     return payload
 
 
+def _ground_full_message(label: str) -> str:
+    return f"Ground is full; {label} dissipates."
+
+
 def describe_vaporized_entries(
     entries: Sequence[Mapping[str, object]] | None,
     *,
@@ -184,7 +188,7 @@ def describe_vaporized_entries(
         if not isinstance(entry, Mapping):
             continue
         label = _entry_label(entry, catalog)
-        messages.append(f"There is no room for {label}; it vaporizes.")
+        messages.append(_ground_full_message(label))
     return messages
 
 
@@ -329,7 +333,7 @@ def enforce_capacity(
             removed.append(iid)
             overflow -= 1
             if hasattr(bus, "push"):
-                bus.push("COMBAT/INFO", f"There is no room for {label}; it vaporizes.")
+                bus.push("COMBAT/INFO", _ground_full_message(label))
         idx -= 1
     return removed
 

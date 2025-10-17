@@ -178,7 +178,7 @@ def test_drop_monster_loot_vaporizes_when_ground_full(
     assert len(drop_summary["messages"]) == 4
     assert drop_summary["attempt_order"] == ["bag", "bag", "skull", "armour"]
     assert drop_summary["pos"] == {"year": 2000, "x": 1, "y": 1}
-    assert all(message.endswith("it vaporizes.") for message in drop_summary["messages"])
+    assert all(message.startswith("Ground is full;") for message in drop_summary["messages"])
     assert len(bus.events) == 4
     assert [event[1] for event in bus.events] == drop_summary["messages"]
 
@@ -186,3 +186,53 @@ def test_drop_monster_loot_vaporizes_when_ground_full(
     vapor_summary = monster_actions.drop_summary(summary_payload, catalog=catalog)
     assert vapor_summary["count"] == 4
     assert vapor_summary["messages"] == drop_summary["messages"]
+
+
+def test_enforce_capacity_removes_overflow(monkeypatch: pytest.MonkeyPatch, _patch_registry: _FakeRegistry) -> None:
+    monkeypatch.setattr(combat_loot, "GROUND_CAP", 2)
+    catalog = _catalog()
+    bus = _Bus()
+    pos = (2005, 3, 4)
+
+    iid_a = combat_loot.itemsreg.mint_instance("a_item", "ground")
+    combat_loot.itemsreg.update_instance(
+        iid_a,
+        item_id="a_item",
+        pos={"year": pos[0], "x": pos[1], "y": pos[2]},
+        year=pos[0],
+        x=pos[1],
+        y=pos[2],
+    )
+    iid_b = combat_loot.itemsreg.mint_instance("z_item", "ground")
+    combat_loot.itemsreg.update_instance(
+        iid_b,
+        item_id="z_item",
+        pos={"year": pos[0], "x": pos[1], "y": pos[2]},
+        year=pos[0],
+        x=pos[1],
+        y=pos[2],
+    )
+    overflow_iid = combat_loot.itemsreg.mint_instance("armour_plate", "ground")
+    combat_loot.itemsreg.update_instance(
+        overflow_iid,
+        item_id="armour_plate",
+        pos={"year": pos[0], "x": pos[1], "y": pos[2]},
+        year=pos[0],
+        x=pos[1],
+        y=pos[2],
+    )
+
+    removed = combat_loot.enforce_capacity(pos, [overflow_iid], bus=bus, catalog=catalog)
+
+    assert removed == [overflow_iid]
+    assert combat_loot.itemsreg.get_instance(overflow_iid) is None
+    assert combat_loot.itemsreg.get_instance(iid_a) is not None
+    assert combat_loot.itemsreg.get_instance(iid_b) is not None
+    expected_message = combat_loot._ground_full_message(
+        combat_loot.item_label(
+            {"item_id": "armour_plate"},
+            catalog.get("armour_plate", {}),
+            show_charges=False,
+        )
+    )
+    assert bus.events == [("COMBAT/INFO", expected_message, {})]
