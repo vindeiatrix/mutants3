@@ -20,6 +20,7 @@ from mutants.services.monster_ai import inventory as inventory_mod
 from mutants.services.monster_ai import heal as heal_mod
 from mutants.services.monster_ai import casting as casting_mod
 from mutants.services.monster_ai import emote as emote_mod
+from mutants.services.monster_ai import taunt as taunt_mod
 from mutants.services.monster_ai import tracking as tracking_mod
 from mutants.services.monster_ai.pursuit import attempt_pursuit
 from mutants.debug import turnlog
@@ -717,6 +718,7 @@ def roll_entry_target(
     rng: random.Random,
     *,
     config: CombatConfig | None = None,
+    bus: Any | None = None,
 ) -> Dict[str, Any]:
     try:
         state, active = pstate.get_active_pair(player_state)
@@ -768,6 +770,9 @@ def roll_entry_target(
     raw_taunt = monster.get("taunt")
     taunt = raw_taunt.strip() if isinstance(raw_taunt, str) else None
     taunt = taunt or None
+
+    if taunt is not None:
+        taunt_mod.emit_taunt(monster, bus, rng)
 
     return {"ok": True, "target_set": True, "taunt": taunt, "woke": True}
 
