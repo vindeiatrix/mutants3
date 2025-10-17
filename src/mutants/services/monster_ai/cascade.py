@@ -74,6 +74,38 @@ def _resolve_config(ctx: Any) -> CombatConfig:
     return CombatConfig()
 
 
+def _player_level(ctx: Any) -> int:
+    """Return the opposing player level with a floor of ``1``."""
+
+    keys = (
+        "monster_ai_player_level",
+        "player_level",
+        "level",
+    )
+
+    candidate: Any = None
+    if isinstance(ctx, Mapping):
+        for key in keys:
+            if key in ctx:
+                candidate = ctx.get(key)
+                break
+        if candidate is None:
+            player = ctx.get("player")
+            if isinstance(player, Mapping):
+                candidate = player.get("level")
+    else:
+        for key in keys:
+            candidate = getattr(ctx, key, None)
+            if candidate is not None:
+                break
+        if candidate is None:
+            player = getattr(ctx, "player", None)
+            if isinstance(player, Mapping):
+                candidate = player.get("level")
+
+    return max(1, _coerce_int(candidate, default=1))
+
+
 def _hp_pct(monster: Mapping[str, Any]) -> int:
     hp_block = monster.get("hp")
     if isinstance(hp_block, Mapping):
@@ -346,6 +378,9 @@ def evaluate_cascade(monster: Any, ctx: Any) -> ActionResult:
     bag = _bag_entries(monster)
     tracked_pickups = _tracked_pickups(monster)
     hp_pct = _hp_pct(monster)
+    monster_level = heal_mod.monster_level(monster)
+    player_level = _player_level(ctx)
+    level_delta = player_level - monster_level
     ions, ions_max = _ions(monster)
     ions_pct = _ions_pct(ions, ions_max)
     low_ions = ions_max > 0 and ions_pct < config.low_ion_pct
@@ -354,6 +389,10 @@ def evaluate_cascade(monster: Any, ctx: Any) -> ActionResult:
     pickup_ready = _has_pickup_candidate(monster, ctx)
 
     flee_threshold = _clamp_pct(config.flee_pct + (config.cracked_flee_bonus if cracked else 0))
+    if level_delta >= 5:
+        flee_threshold = _clamp_pct(flee_threshold + 5)
+    elif level_delta <= -5:
+        flee_threshold = _clamp_pct(flee_threshold - 5)
     heal_threshold = config.heal_pct
     cast_threshold = config.cast_pct
     convert_threshold = config.convert_pct
@@ -383,6 +422,9 @@ def evaluate_cascade(monster: Any, ctx: Any) -> ActionResult:
         "convertible_loot": convertible,
         "tracked_pickups": tuple(sorted(tracked_pickups)) if tracked_pickups else tuple(),
         "heal_cost": heal_cost,
+        "monster_level": monster_level,
+        "player_level": player_level,
+        "level_delta": level_delta,
     }
 
     failures: list[Mapping[str, Any]] = []
@@ -391,9 +433,22 @@ def evaluate_cascade(monster: Any, ctx: Any) -> ActionResult:
         failures.append({"gate": name, "reason": reason})
 
     # FLEE gate
-    if hp_pct < config.flee_hp_pct and flee_threshold > 0:
+    flee_checks: list[str] = []
+    if flee_threshold > 0:
+        if hp_pct < config.flee_hp_pct:
+            flee_checks.append("hp")
+        else:
+            _record_failure("FLEE", f"hp_pct={hp_pct} threshold={flee_threshold}")
+        if cracked and level_delta >= 5:
+            flee_checks.append("panic")
+    else:
+        _record_failure("FLEE", f"hp_pct={hp_pct} threshold={flee_threshold}")
+
+    for mode in flee_checks:
         roll = int(rng.randrange(100))
-        reason = f"hp_pct={hp_pct} roll={roll} threshold={flee_threshold}"
+        reason = (
+            f"mode={mode} hp_pct={hp_pct} delta={level_delta} roll={roll} threshold={flee_threshold}"
+        )
         if roll < flee_threshold:
             return _gate_result(
                 monster,
@@ -404,11 +459,9 @@ def evaluate_cascade(monster: Any, ctx: Any) -> ActionResult:
                 threshold=flee_threshold,
                 reason=reason,
                 triggered=True,
-                data={**data_common, "failures": failures},
+                data={**data_common, "failures": failures, "flee_mode": mode},
             )
         _record_failure("FLEE", reason)
-    else:
-        _record_failure("FLEE", f"hp_pct={hp_pct} threshold={flee_threshold}")
 
     # HEAL gate
     ions_sufficient = ions >= heal_cost
