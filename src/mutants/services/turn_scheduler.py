@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import random
 from typing import TYPE_CHECKING, Any, Callable, Mapping, MutableMapping, Optional
 
 from mutants.debug import turnlog
@@ -34,6 +35,19 @@ class TurnScheduler:
         else:
             self._status_manager = status_manager
         self._free_actions: list[Callable[[Any], None]] = []
+
+    # Internal state helpers --------------------------------------------
+    def _monster_id(self, monster: Mapping[str, Any] | None) -> str:
+        if not isinstance(monster, Mapping):
+            return ""
+        for key in ("id", "instance_id", "monster_id"):
+            raw = monster.get(key)
+            if raw is None:
+                continue
+            token = str(raw).strip()
+            if token:
+                return token
+        return ""
 
     def advance_invalid(
         self, token: str | None = None, resolved: Optional[str] = None
@@ -129,6 +143,44 @@ class TurnScheduler:
         else:  # "none" or unknown token; nothing to restore.
             return
 
+    def _inject_bonus_action(self, payload: Mapping[str, Any]) -> tuple[str, object]:
+        ctx = self._ctx
+        if isinstance(ctx, MutableMapping):
+            previous = ctx.get("monster_ai_bonus_action", _MISSING)
+            ctx["monster_ai_bonus_action"] = dict(payload)
+            return ("mapping", previous)
+        try:
+            previous = getattr(ctx, "monster_ai_bonus_action", _MISSING)
+            setattr(ctx, "monster_ai_bonus_action", dict(payload))
+        except Exception:  # pragma: no cover - defensive
+            return ("none", _MISSING)
+        return ("attr", previous)
+
+    def _restore_bonus_action(self, token: tuple[str, object]) -> None:
+        kind, previous = token
+        ctx = self._ctx
+        if kind == "mapping":
+            mapping = ctx if isinstance(ctx, MutableMapping) else None
+            if mapping is None:
+                return
+            if previous is _MISSING:
+                mapping.pop("monster_ai_bonus_action", None)
+            else:
+                mapping["monster_ai_bonus_action"] = previous
+        elif kind == "attr":
+            if previous is _MISSING:
+                try:
+                    delattr(ctx, "monster_ai_bonus_action")
+                except Exception:  # pragma: no cover - defensive
+                    pass
+            else:
+                try:
+                    setattr(ctx, "monster_ai_bonus_action", previous)
+                except Exception:  # pragma: no cover - defensive
+                    pass
+        else:
+            return
+
     def _run_monster_turns(self, token: str, resolved: Optional[str]) -> None:
         try:
             from mutants.services import monster_ai
@@ -173,5 +225,55 @@ class TurnScheduler:
             from mutants.services.monster_ai import emote as emote_mod
 
             emote_mod.execute_free_emote(monster, self._ctx, rng, gate=gate)
+
+        self._free_actions.append(_action)
+
+    def queue_bonus_action(
+        self,
+        monster: Mapping[str, Any] | None,
+        *,
+        pickup_bias: float = 0.25,
+    ) -> None:
+        """Schedule an immediate bonus cascade for *monster*.
+
+        A random roll using ``pickup_bias`` (default ``25%``) may force the
+        ``PICKUP`` gate when loot is available.
+        """
+
+        if not isinstance(monster, Mapping):
+            return
+
+        monster_id = self._monster_id(monster)
+        if not monster_id:
+            monster_id = "?"
+
+        clamped_bias = max(0.0, min(1.0, float(pickup_bias)))
+        cutoff = int(round(clamped_bias * 100))
+
+        def _action(rng: Any) -> None:
+            local_rng = rng
+            roll: int
+            try:
+                if hasattr(local_rng, "randrange"):
+                    roll = int(local_rng.randrange(100))
+                else:
+                    raise AttributeError
+            except Exception:
+                roll = int(random.randrange(100))
+            force_pickup = roll < cutoff
+            payload = {
+                "monster_id": monster_id,
+                "force_pickup": force_pickup,
+                "bonus": True,
+            }
+            token = self._inject_bonus_action(payload)
+            try:
+                from mutants.services import monster_actions
+
+                monster_actions.execute_random_action(monster, self._ctx, rng=rng)
+            except Exception:  # pragma: no cover - defensive
+                LOG.exception("Bonus monster action failed")
+            finally:
+                self._restore_bonus_action(token)
 
         self._free_actions.append(_action)
