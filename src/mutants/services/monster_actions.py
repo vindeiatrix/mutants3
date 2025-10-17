@@ -10,7 +10,9 @@ from mutants.commands import convert as convert_cmd
 from mutants.commands import strike
 from mutants.registries import items_catalog, items_instances as itemsreg
 from mutants.services import combat_loot
-from mutants.services import damage_engine, items_wear, monsters_state, player_state as pstate
+from mutants.services import damage_engine, items_wear, monsters_state
+from mutants.services import player_death
+from mutants.services import player_state as pstate
 from mutants.services.combat_config import CombatConfig
 from mutants.services.monster_ai.attack_selection import select_attack
 from mutants.services.monster_ai.cascade import evaluate_cascade
@@ -540,38 +542,6 @@ def _collect_player_items(state: Mapping[str, Any], active: Mapping[str, Any], c
     return collected
 
 
-def _clear_player_inventory(state: MutableMapping[str, Any], active: MutableMapping[str, Any], cls: str) -> None:
-    scopes: list[MutableMapping[str, Any]] = []
-    scopes.append(state)
-    if isinstance(active, MutableMapping):
-        scopes.append(active)
-    players = state.get("players")
-    if isinstance(players, list):
-        for player in players:
-            if isinstance(player, MutableMapping):
-                scopes.append(player)
-
-    for scope in scopes:
-        bags = scope.setdefault("bags", {})
-        if isinstance(bags, MutableMapping):
-            bags[cls] = []
-        if isinstance(scope.get("bags_by_class"), MutableMapping):
-            scope["bags_by_class"][cls] = []  # type: ignore[index]
-        scope["inventory"] = []
-        equip_map = scope.get("equipment_by_class")
-        if isinstance(equip_map, MutableMapping):
-            equip_map[cls] = {"armour": None}
-        wield_map = scope.get("wielded_by_class")
-        if isinstance(wield_map, MutableMapping):
-            wield_map[cls] = None
-        scope["wielded"] = None
-        armour = scope.get("armour")
-        if isinstance(armour, MutableMapping):
-            armour["wearing"] = None
-        elif armour is not None:
-            scope["armour"] = {"wearing": None}
-
-
 def _handle_player_death(
     monster: MutableMapping[str, Any],
     ctx: MutableMapping[str, Any],
@@ -593,20 +563,6 @@ def _handle_player_death(
             victim_id=victim_id,
             victim_class=victim_class,
         )
-
-    ions = pstate.get_ions_for_active(state)
-    ledger = _ledger_state(monster)
-
-    if ions:
-        ledger["ions"] = _coerce_int(ledger.get("ions"), 0) + ions
-        monster["ions"] = ledger["ions"]
-        pstate.set_ions_for_active(state, 0)
-
-    riblets = pstate.get_riblets_for_active(state)
-    if riblets:
-        ledger["riblets"] = _coerce_int(ledger.get("riblets"), 0) + riblets
-        monster["riblets"] = ledger["riblets"]
-        pstate.set_riblets_for_active(state, 0)
 
     pos = combat_loot.coerce_pos(active.get("pos")) or combat_loot.coerce_pos(state.get("pos"))
     if pos is None:
@@ -633,9 +589,21 @@ def _handle_player_death(
         source="monster",
     )
 
-    _clear_player_inventory(state, active, victim_class)
-    pstate.clear_ready_target_for_active(reason="player-dead")
-    pstate.save_state(state)
+    scheduler = ctx.get("turn_scheduler") if isinstance(ctx, MutableMapping) else None
+    player_id = str(active.get("id") or state.get("active_id") or "")
+    queued = False
+    if hasattr(scheduler, "queue_player_respawn"):
+        queue_respawn = getattr(scheduler, "queue_player_respawn", None)
+        if callable(queue_respawn):
+            try:
+                queue_respawn(player_id, monster, state=state, active=active)
+                queued = True
+            except Exception:  # pragma: no cover - defensive guard
+                LOG.exception("Failed to queue player respawn handler")
+
+    if not queued:
+        player_death.handle_player_death(player_id, monster, state=state, active=active)
+
     _mark_monsters_dirty(ctx)
 
 

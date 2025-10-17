@@ -10,9 +10,12 @@ import pytest
 
 sys.path.append(str(Path(__file__).resolve().parents[2] / "src"))
 
+from mutants import state
 from mutants.bootstrap import lazyinit
-from mutants.services import monster_actions, monsters_state
+from mutants.players import startup as player_startup
+from mutants.services import monster_actions, monsters_state, player_state
 from mutants.services.combat_config import CombatConfig
+from mutants.services.turn_scheduler import TurnScheduler
 
 
 class _StubMonstersStore:
@@ -130,35 +133,45 @@ def test_monster_state_save_persists_ai_state(monsters_state_with_store: tuple[m
     assert json.loads(encoded) == {"ledger": {"ions": 9, "riblets": 2}}
 
 
-def test_handle_player_death_updates_ledger(monkeypatch: pytest.MonkeyPatch) -> None:
-    monster: MutableMapping[str, Any] = {
-        "id": "monster-3",
-        "instance_id": "monster-3",
-        "monster_id": "ogre",
-        "name": "Ogre",
-        "hp": {"current": 8, "max": 8},
-        "level": 1,
-        "stats": {key: 5 for key in ("str", "dex", "con", "int", "wis", "cha")},
-        "bag": [],
-        "armour_slot": None,
-    }
+def test_handle_player_death_updates_ledger(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    monkeypatch.setenv("GAME_STATE_ROOT", str(tmp_path))
+    monkeypatch.setattr(state, "STATE_ROOT", tmp_path)
 
-    calls: list[tuple[str, int]] = []
+    lazyinit.ensure_player_state(state_dir=str(tmp_path), out_name="playerlivestate.json")
 
-    monkeypatch.setattr(monster_actions, "_load_catalog", lambda: {})
-    monkeypatch.setattr(monster_actions.turnlog, "emit", lambda *args, **kwargs: None)
-    monkeypatch.setattr(monster_actions.combat_loot, "coerce_pos", lambda value: (2000, 0, 0) if value else None)
-    monkeypatch.setattr(monster_actions.combat_loot, "drop_existing_iids", lambda items, pos: [])
-    monkeypatch.setattr(monster_actions.combat_loot, "enforce_capacity", lambda pos, drops, bus=None, catalog=None: None)
+    base_state = player_state.load_state()
 
-    monkeypatch.setattr(monster_actions.pstate, "get_active_class", lambda state: "Thief")
-    monkeypatch.setattr(monster_actions.pstate, "get_ions_for_active", lambda state: 12)
-    monkeypatch.setattr(monster_actions.pstate, "set_ions_for_active", lambda state, value: calls.append(("ions", value)))
-    monkeypatch.setattr(monster_actions.pstate, "get_riblets_for_active", lambda state: 7)
-    monkeypatch.setattr(monster_actions.pstate, "set_riblets_for_active", lambda state, value: calls.append(("riblets", value)))
-    monkeypatch.setattr(monster_actions.pstate, "get_equipped_armour_id", lambda state: None)
-    monkeypatch.setattr(monster_actions.pstate, "clear_ready_target_for_active", lambda **kwargs: None)
-    monkeypatch.setattr(monster_actions.pstate, "save_state", lambda state: None)
+    # Prime the profile with currency, inventory, and a ready target.
+    player_state.set_ions_for_active(base_state, 123)
+    current_state = player_state.load_state()
+    player_state.set_riblets_for_active(current_state, 45)
+    current_state = player_state.load_state()
+    player_state.set_ready_target_for_active("monster-99")
+    current_state = player_state.load_state()
+
+    active = next(
+        entry
+        for entry in current_state.get("players", [])
+        if isinstance(entry, MutableMapping) and entry.get("id") == current_state.get("active_id")
+    )
+
+    for scope in (current_state, active):
+        scope["inventory"] = ["iid-weapon", "iid-trinket"]
+        scope.setdefault("bags", {})["Thief"] = ["iid-weapon", "iid-trinket"]
+        scope.setdefault("bags_by_class", {})["Thief"] = ["iid-weapon", "iid-trinket"]
+        scope.setdefault("equipment_by_class", {})["Thief"] = {"armour": "iid-armour"}
+        scope.setdefault("wielded_by_class", {})["Thief"] = "iid-weapon"
+        scope["wielded"] = "iid-weapon"
+
+    current_state.setdefault("ready_target_by_class", {})["Thief"] = "monster-99"
+    current_state.setdefault("target_monster_id_by_class", {})["Thief"] = "monster-99"
+    active["ready_target"] = "monster-99"
+    active["target_monster_id"] = "monster-99"
+
+    player_state.save_state(current_state)
+    state_obj, active_obj = player_state.get_active_pair()
 
     class DummyBus:
         def __init__(self) -> None:
@@ -178,28 +191,62 @@ def test_handle_player_death_updates_ledger(monkeypatch: pytest.MonkeyPatch) -> 
         "feedback_bus": DummyBus(),
         "monsters": DummyMonsters(),
     }
-    state: MutableMapping[str, Any] = {
-        "inventory": [],
-        "bags": {},
-        "bags_by_class": {},
-        "players": [],
-        "equipment_by_class": {},
-        "wielded_by_class": {},
-        "armour": {},
-    }
-    active: MutableMapping[str, Any] = {
-        "id": "player-1",
-        "pos": [2000, 0, 0],
-        "inventory": [],
+
+    scheduler = TurnScheduler(ctx)
+    ctx["turn_scheduler"] = scheduler
+
+    monster: MutableMapping[str, Any] = {
+        "id": "monster-3",
+        "instance_id": "monster-3",
+        "monster_id": "ogre",
+        "name": "Ogre",
+        "hp": {"current": 8, "max": 8},
+        "level": 1,
+        "stats": {key: 5 for key in ("str", "dex", "con", "int", "wis", "cha")},
+        "bag": [],
+        "armour_slot": None,
+        "ions": 0,
+        "riblets": 0,
     }
 
-    monster_actions._handle_player_death(monster, ctx, state, active, ctx["feedback_bus"])
+    monkeypatch.setattr(monster_actions, "_load_catalog", lambda: {})
+    monkeypatch.setattr(monster_actions.turnlog, "emit", lambda *args, **kwargs: None)
+    monkeypatch.setattr(monster_actions.combat_loot, "coerce_pos", lambda value: (2000, 0, 0))
+    monkeypatch.setattr(monster_actions.combat_loot, "drop_existing_iids", lambda items, pos: [])
+    monkeypatch.setattr(monster_actions.combat_loot, "enforce_capacity", lambda pos, drops, bus=None, catalog=None: None)
 
+    monster_actions._handle_player_death(monster, ctx, state_obj, active_obj, ctx["feedback_bus"])
+
+    scheduler._run_free_actions(random.Random())
+
+    updated_state = player_state.load_state()
     ledger = monster.get("_ai_state", {}).get("ledger", {})
-    assert monster["ions"] == 12
-    assert monster["riblets"] == 7
-    assert ledger == {"ions": 12, "riblets": 7}
-    assert ("ions", 0) in calls and ("riblets", 0) in calls
+
+    assert ledger == {"ions": 123, "riblets": 45}
+    assert monster["ions"] == 123
+    assert monster["riblets"] == 45
+
+    assert player_state.get_ions_for_active(updated_state) == player_startup.START_IONS["fresh"]
+    assert player_state.get_riblets_for_active(updated_state) == 0
+    assert player_state.get_ready_target_for_active(updated_state) is None
+
+    refreshed_active = next(
+        entry
+        for entry in updated_state.get("players", [])
+        if isinstance(entry, MutableMapping) and entry.get("id") == updated_state.get("active_id")
+    )
+
+    assert refreshed_active.get("inventory") == []
+    assert refreshed_active.get("bags", {}).get("Thief") == []
+    assert refreshed_active.get("bags_by_class", {}).get("Thief") == []
+    assert refreshed_active.get("equipment_by_class", {}).get("Thief") == {"armour": None}
+    assert refreshed_active.get("wielded_by_class", {}).get("Thief") is None
+    assert refreshed_active.get("wielded") is None
+    assert refreshed_active.get("pos") == [2000, 0, 0]
+    hp_block = refreshed_active.get("hp")
+    assert isinstance(hp_block, dict)
+    assert hp_block["current"] == hp_block["max"]
+    assert ctx["monsters"].marked == 1
 
 
 def test_heal_action_spends_from_ledger(monkeypatch: pytest.MonkeyPatch) -> None:
