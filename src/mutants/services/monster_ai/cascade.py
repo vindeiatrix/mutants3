@@ -31,6 +31,13 @@ class ActionResult:
     data: Mapping[str, Any] = field(default_factory=dict)
 
 
+@dataclass(frozen=True)
+class BonusActionState:
+    active: bool = False
+    monster_id: str | None = None
+    force_pickup: bool = False
+
+
 def _coerce_int(value: Any, default: int = 0) -> int:
     try:
         return int(value)
@@ -47,6 +54,26 @@ def _monster_id(monster: Mapping[str, Any]) -> str:
         if token:
             return token
     return "?"
+
+
+def _resolve_bonus_action(ctx: Any, monster: Mapping[str, Any]) -> BonusActionState:
+    payload: Any
+    if isinstance(ctx, Mapping):
+        payload = ctx.get("monster_ai_bonus_action")
+    else:
+        payload = getattr(ctx, "monster_ai_bonus_action", None)
+
+    if not isinstance(payload, Mapping):
+        return BonusActionState()
+
+    target = payload.get("monster_id")
+    target_id = str(target).strip() if target is not None else ""
+    current_id = _monster_id(monster)
+    if target_id and target_id != current_id:
+        return BonusActionState(active=False, monster_id=target_id, force_pickup=False)
+
+    force_pickup = bool(payload.get("force_pickup"))
+    return BonusActionState(active=True, monster_id=current_id or None, force_pickup=force_pickup)
 
 
 def _resolve_rng(ctx: Any) -> Any:
@@ -374,6 +401,7 @@ def evaluate_cascade(monster: Any, ctx: Any) -> ActionResult:
 
     config = _resolve_config(ctx)
     rng = _resolve_rng(ctx)
+    bonus = _resolve_bonus_action(ctx, monster)
 
     bag = _bag_entries(monster)
     tracked_pickups = _tracked_pickups(monster)
@@ -425,6 +453,8 @@ def evaluate_cascade(monster: Any, ctx: Any) -> ActionResult:
         "monster_level": monster_level,
         "player_level": player_level,
         "level_delta": level_delta,
+        "bonus_action": bonus.active,
+        "bonus_force_pickup": bonus.active and bonus.force_pickup,
     }
 
     failures: list[Mapping[str, Any]] = []
@@ -570,6 +600,22 @@ def evaluate_cascade(monster: Any, ctx: Any) -> ActionResult:
         _record_failure("ATTACK", f"threshold={attack_threshold}")
 
     # PICKUP gate
+    if bonus.active and bonus.force_pickup and pickup_ready:
+        reason = (
+            f"bonus-force pickup_ready={pickup_ready} threshold={pickup_threshold}"
+        )
+        return _gate_result(
+            monster,
+            ctx,
+            gate="PICKUP",
+            action="pickup",
+            roll=0,
+            threshold=pickup_threshold,
+            reason=reason,
+            triggered=True,
+            data={**data_common, "failures": failures, "bonus_forced_gate": "PICKUP"},
+        )
+
     if pickup_ready and pickup_threshold > 0:
         roll = int(rng.randrange(100))
         reason = f"pickup_ready={pickup_ready} roll={roll} threshold={pickup_threshold}"

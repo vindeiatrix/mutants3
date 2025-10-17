@@ -315,3 +315,38 @@ def test_low_ion_cast_threshold_reduction() -> None:
     expected_threshold = math.floor(config.cast_pct * 0.6)
     assert result.gate == "CAST"
     assert result.threshold == expected_threshold
+
+
+def test_bonus_action_forces_pickup_gate() -> None:
+    config = CombatConfig(
+        flee_hp_pct=0,
+        flee_pct=0,
+        heal_pct=0,
+        convert_pct=0,
+        cast_pct=0,
+        attack_pct=0,
+        pickup_pct=10,
+        emote_pct=0,
+    )
+
+    monster = _base_monster()
+    monster["hp"] = {"current": 20, "max": 20}
+
+    ctx = _context(DummyRNG([90]), config)
+    ctx["monster_ai_ground_items"] = [{"item_id": "shiny-rock", "iid": "loot1"}]
+
+    baseline = cascade.evaluate_cascade(monster, ctx)
+
+    assert baseline.gate == "IDLE"
+    assert baseline.data.get("bonus_force_pickup") is False
+
+    forced_ctx = _context(DummyRNG([90]), config)
+    forced_ctx["monster_ai_ground_items"] = [{"item_id": "shiny-rock", "iid": "loot1"}]
+    forced_ctx["monster_ai_bonus_action"] = {"monster_id": "m1", "force_pickup": True}
+
+    forced = cascade.evaluate_cascade(monster, forced_ctx)
+
+    assert forced.gate == "PICKUP"
+    assert forced.action == "pickup"
+    assert forced.data.get("bonus_force_pickup") is True
+    assert forced.reason.startswith("bonus-force")

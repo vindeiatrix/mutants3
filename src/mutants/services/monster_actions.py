@@ -644,6 +644,13 @@ def _apply_player_damage(
     if killed_flag:
         if isinstance(state, MutableMapping) and isinstance(active, MutableMapping):
             _handle_player_death(monster, ctx, state, active, bus)
+        scheduler = ctx.get("turn_scheduler") if isinstance(ctx, MutableMapping) else None
+        queue_bonus = getattr(scheduler, "queue_bonus_action", None)
+        if callable(queue_bonus):
+            try:
+                queue_bonus(monster)
+            except Exception:  # pragma: no cover - defensive guard
+                LOG.exception("Failed to queue monster bonus action")
     return True
 
 

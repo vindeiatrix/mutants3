@@ -33,6 +33,19 @@ class InMemoryRuntimeKV:
         self._data.pop(key, None)
 
 
+class DummyRNG:
+    def __init__(self, rolls: List[int]) -> None:
+        self._rolls = list(rolls)
+
+    def randrange(self, stop: int) -> int:
+        if not self._rolls:
+            raise RuntimeError("no rolls left")
+        value = self._rolls.pop(0)
+        if stop <= 0:
+            return 0
+        return value % stop
+
+
 def test_turn_scheduler_advances_tick_for_each_command(monkeypatch: pytest.MonkeyPatch) -> None:
     store = InMemoryRuntimeKV()
     pool = RandomPool(store)
@@ -127,3 +140,32 @@ def test_free_emote_does_not_advance_tick(monkeypatch: pytest.MonkeyPatch) -> No
     assert tick_logs == [1]
     assert len(emote_logs) == 1
     assert emote_logs[0].get("origin") == "free"
+
+
+def test_bonus_action_pickup_bias(monkeypatch: pytest.MonkeyPatch) -> None:
+    ctx: dict[str, Any] = {}
+    scheduler = TurnScheduler(ctx)
+    ctx["turn_scheduler"] = scheduler
+
+    monster = {"id": "mon-1"}
+    payloads: list[dict[str, Any] | None] = []
+
+    def fake_execute(mon: Any, context: Any, rng: Any | None = None) -> None:
+        entry = context.get("monster_ai_bonus_action")
+        payloads.append(dict(entry) if isinstance(entry, dict) else entry)
+
+    monkeypatch.setattr("mutants.services.monster_actions.execute_random_action", fake_execute)
+
+    scheduler.queue_bonus_action(monster)
+    scheduler._run_free_actions(DummyRNG([10]))
+
+    assert len(payloads) == 1
+    assert payloads[0] == {"monster_id": "mon-1", "force_pickup": True, "bonus": True}
+    assert "monster_ai_bonus_action" not in ctx
+
+    scheduler.queue_bonus_action(monster)
+    scheduler._run_free_actions(DummyRNG([75]))
+
+    assert len(payloads) == 2
+    assert payloads[1] == {"monster_id": "mon-1", "force_pickup": False, "bonus": True}
+    assert "monster_ai_bonus_action" not in ctx
