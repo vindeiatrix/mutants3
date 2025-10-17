@@ -22,7 +22,14 @@
     "riblets_max": 2,
     "spells": [],
     "starter_armour": ["Torn Overalls"],
-    "starter_items": ["Rusty Shiv", "Bolt Pouch"]
+    "starter_items": ["Rusty Shiv", "Bolt Pouch"],
+    "ai_overrides": {
+      "cascade": {
+        "flee_pct": {"add": 5},
+        "attack_pct": {"add": -5}
+      },
+      "tags": ["scavenger"]
+    }
   },
   {
     "monster_id": "rad_swarm_matron",
@@ -47,7 +54,15 @@
     "riblets_max": 4,
     "spells": ["Acid Spit"],
     "starter_armour": ["Chitin Plating"],
-    "starter_items": ["Acid Gland", "Brood Tags"]
+    "starter_items": ["Acid Gland", "Brood Tags"],
+    "ai_overrides": {
+      "prefers_ranged": true,
+      "cascade": {
+        "attack_pct": {"add": -5},
+        "pickup_pct": {"add": 10}
+      },
+      "tags": ["brood", "radiant"]
+    }
   },
   {
     "monster_id": "titan_of_chrome",
@@ -72,6 +87,13 @@
     "riblets_max": 10,
     "spells": ["Shockwave", "Overclock"],
     "starter_armour": ["Chrome Plating"],
-    "starter_items": ["Hydraulic Fist", "Power Core"]
+    "starter_items": ["Hydraulic Fist", "Power Core"],
+    "ai_overrides": {
+      "cascade": {
+        "attack_pct": {"add": 10},
+        "convert_pct": {"add": 5}
+      },
+      "tags": ["undead", "titan"]
+    }
   }
 ]

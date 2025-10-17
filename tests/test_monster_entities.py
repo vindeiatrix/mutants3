@@ -2,6 +2,7 @@ from mutants.services.monster_entities import (
     DEFAULT_INNATE_ATTACK_LINE,
     MonsterInstance,
     MonsterTemplate,
+    resolve_monster_ai_overrides,
 )
 
 
@@ -124,3 +125,47 @@ def test_instance_innate_attack_line_uses_default_without_template():
         template=None,
     )
     assert instance.innate_attack_line == DEFAULT_INNATE_ATTACK_LINE
+
+
+def test_resolve_monster_ai_overrides_merges_metadata_sources():
+    template = MonsterTemplate(
+        monster_id="omega",
+        name="Omega",
+        level=5,
+        hp_max=12,
+        armour_class=10,
+        spawn_years=[2000],
+        spawnable=True,
+        taunt="boo",
+        stats={},
+        innate_attack={"name": "Swipe", "line": "{monster} swipes!"},
+        exp_bonus=None,
+        ions_min=None,
+        ions_max=None,
+        riblets_min=None,
+        riblets_max=None,
+        spells=(),
+        starter_armour=(),
+        starter_items=(),
+        metadata={
+            "monster_ai": {
+                "prefers_ranged": True,
+                "cascade": {"attack_pct": {"add": -5}},
+                "tags": ["brood"],
+            }
+        },
+        ai_overrides={"cascade": {"pickup_pct": {"set": 20}}},
+    )
+
+    monster = {
+        "monster_id": "omega",
+        "ai_overrides": {"prefers_ranged": False, "tags": ["undead"]},
+        "metadata": {"monster_ai_overrides": {"cascade": {"attack_pct": {"add": -10}}}},
+    }
+
+    overrides = resolve_monster_ai_overrides(monster, template)
+
+    assert overrides["prefers_ranged"] is False
+    assert overrides["cascade"]["pickup_pct"] == {"set": 20}
+    assert overrides["cascade"]["attack_pct"] == {"add": -10}
+    assert set(overrides["tags"]) == {"brood", "undead"}
