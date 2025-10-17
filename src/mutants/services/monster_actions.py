@@ -549,6 +549,11 @@ def _handle_player_death(
     active: MutableMapping[str, Any],
     bus: Any,
 ) -> None:
+    try:
+        pstate.clear_target(reason="player-death")
+    except Exception:  # pragma: no cover - defensive guard
+        LOG.exception("Failed to clear player target after death")
+
     label = _monster_display_name(monster)
     killer_id = str(monster.get("id") or monster.get("instance_id") or "monster")
     victim_id = str(active.get("id") or state.get("active_id") or "player")

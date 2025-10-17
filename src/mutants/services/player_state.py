@@ -4,11 +4,12 @@ import json
 import logging
 import os
 from pathlib import Path
-from typing import Any, Callable, Dict, Iterable, List, Mapping, Optional, Tuple
+from typing import Any, Callable, Dict, Iterable, List, Mapping, MutableMapping, Optional, Tuple
 
 from mutants.io.atomic import atomic_write_json
 from mutants.registries import items_instances as itemsreg
 from mutants.state import state_path
+from mutants.services import monsters_state
 from .equip_debug import _edbg_enabled, _edbg_log
 
 
@@ -141,6 +142,19 @@ def _playersdbg_log(action: str, state: Dict[str, Any]) -> None:
 
 def _player_path() -> Path:
     return state_path("playerlivestate.json")
+
+
+def _sanitize_player_id(value: Any) -> Optional[str]:
+    if value is None:
+        return None
+    if isinstance(value, str):
+        token = value.strip()
+        return token or None
+    try:
+        token = str(value).strip()
+    except Exception:
+        return None
+    return token or None
 
 
 def _persist_canonical(state: Dict[str, Any]) -> None:
@@ -2827,6 +2841,68 @@ def clear_ready_target_for_active(*, reason: Optional[str] = None) -> Optional[s
     """Clear the ready target for the active class if set."""
 
     previous, _ = _update_ready_target_for_active(None, reason=reason or "clear")
+    return previous
+
+
+def clear_target(*, reason: Optional[str] = None) -> Optional[str]:
+    """Clear the active ready target and monster aggro references."""
+
+    try:
+        state, active = get_active_pair()
+    except Exception:
+        state, active = get_active_pair()
+
+    reason_token = reason or "clear-target"
+    previous = clear_ready_target_for_active(reason=reason_token)
+
+    player_id = _sanitize_player_id(active.get("id") if isinstance(active, Mapping) else None)
+    if player_id is None and isinstance(state, Mapping):
+        player_id = _sanitize_player_id(state.get("active_id"))
+
+    if player_id is None:
+        return previous
+
+    try:
+        monsters = monsters_state.load_state()
+    except Exception:
+        return previous
+
+    cleared = False
+    for record in monsters.list_all():
+        if not isinstance(record, Mapping):
+            continue
+        target_token = _sanitize_player_id(record.get("target_player_id"))
+        if target_token != player_id:
+            continue
+        monster_id = (
+            record.get("id")
+            or record.get("instance_id")
+            or record.get("monster_id")
+        )
+        if not monster_id:
+            continue
+        monster = monsters.get(str(monster_id))
+        if not isinstance(monster, MutableMapping):
+            continue
+        if _sanitize_player_id(monster.get("target_player_id")) != player_id:
+            continue
+        monster["target_player_id"] = None
+        try:
+            monsters.mark_dirty()
+        except Exception:
+            # Fall back to saving via global dirty flag if marking fails.
+            try:
+                monsters._track_dirty(str(monster_id))  # type: ignore[attr-defined]
+            except Exception:
+                pass
+        cleared = True
+
+    if cleared:
+        try:
+            monsters.save()
+        except Exception:
+            pass
+
     return previous
 
 

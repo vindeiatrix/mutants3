@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -76,3 +77,61 @@ def test_ready_target_round_trip(configure_state_root: Path) -> None:
             break
     else:  # pragma: no cover - defensive guard should not trigger
         pytest.fail("active player not found in state after clear")
+
+
+class _DummyMonsters:
+    def __init__(self, player_id: str) -> None:
+        self._records = [
+            {"id": "monster-alpha", "target_player_id": player_id},
+            {"id": "monster-bravo", "target_player_id": None},
+        ]
+        self._current: str | None = None
+        self.marked: list[str] = []
+        self.saved = False
+
+    def list_all(self) -> list[dict[str, Any]]:
+        return self._records
+
+    def get(self, monster_id: str) -> dict[str, Any] | None:
+        for entry in self._records:
+            if entry.get("id") == monster_id:
+                self._current = monster_id
+                return entry
+        self._current = None
+        return None
+
+    def mark_dirty(self) -> None:
+        if self._current:
+            self.marked.append(self._current)
+
+    def save(self) -> None:
+        self.saved = True
+
+
+def test_clear_target_resets_monster_refs(
+    configure_state_root: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    lazyinit.ensure_player_state(
+        state_dir=str(configure_state_root),
+        out_name="playerlivestate.json",
+    )
+
+    monster_id = "monster-target"
+    player_state.set_ready_target_for_active(monster_id)
+
+    state = player_state.load_state()
+    player_id = state.get("active_id")
+    dummy = _DummyMonsters(str(player_id))
+
+    monkeypatch.setattr(player_state.monsters_state, "load_state", lambda: dummy)
+
+    previous = player_state.clear_target(reason="unit-test")
+
+    assert previous == monster_id
+
+    updated = player_state.load_state()
+    klass = player_state.get_active_class(updated)
+    assert updated["ready_target_by_class"][klass] is None
+    assert dummy._records[0]["target_player_id"] is None
+    assert dummy.marked == ["monster-alpha"]
+    assert dummy.saved
