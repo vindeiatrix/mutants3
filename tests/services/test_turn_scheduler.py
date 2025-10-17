@@ -83,3 +83,47 @@ def test_turn_scheduler_advances_tick_for_each_command(monkeypatch: pytest.Monke
 
     assert monster_calls == [("ping", "ping"), ("zzz", None), ("ping", "ping")]
     assert tick_logs == [1, 2, 3]
+
+
+def test_free_emote_does_not_advance_tick(monkeypatch: pytest.MonkeyPatch) -> None:
+    store = InMemoryRuntimeKV()
+    pool = RandomPool(store)
+    monkeypatch.setattr(random_pool, "_POOL", pool, raising=False)
+    monkeypatch.setattr(session, "_TURN_SCHEDULER", None, raising=False)
+
+    ctx: dict[str, Any] = {
+        "feedback_bus": DummyBus(),
+        "logsink": None,
+        "turn_observer": None,
+        "session": {},
+    }
+
+    scheduler = TurnScheduler(ctx)
+    ctx["turn_scheduler"] = scheduler
+    session.set_turn_scheduler(scheduler)
+
+    monster = {"id": "mon-1", "name": "Grue"}
+
+    emote_logs: list[dict[str, Any]] = []
+    tick_logs: list[int] = []
+
+    def fake_emit(context: Any, kind: str, *, message: str | None = None, **meta: Any) -> None:
+        if kind == "AI/ACT/EMOTE":
+            emote_logs.append(dict(meta))
+        elif kind == "TURN/TICK":
+            tick_logs.append(int(meta.get("tick", 0)))
+
+    def fake_on_player_command(context: Any, *, token: str, resolved: Optional[str]) -> None:
+        scheduler.queue_free_emote(monster, gate="IDLE")
+
+    monkeypatch.setattr("mutants.debug.turnlog.emit", fake_emit)
+    monkeypatch.setattr("mutants.services.monster_ai.on_player_command", fake_on_player_command)
+
+    assert random_pool.get_rng_tick("turn") == 0
+
+    scheduler.tick(lambda: ("wait", "wait"))
+
+    assert random_pool.get_rng_tick("turn") == 1
+    assert tick_logs == [1]
+    assert len(emote_logs) == 1
+    assert emote_logs[0].get("origin") == "free"

@@ -17,6 +17,7 @@ from mutants.services.monster_ai.cascade import evaluate_cascade
 from mutants.services.monster_ai import inventory as inventory_mod
 from mutants.services.monster_ai import heal as heal_mod
 from mutants.services.monster_ai import casting as casting_mod
+from mutants.services.monster_ai import emote as emote_mod
 from mutants.services.monster_ai.pursuit import attempt_pursuit
 from mutants.debug import turnlog
 from mutants.ui import item_display
@@ -960,17 +961,6 @@ def _heal_action(
     }
 
 
-_EMOTE_LINES: tuple[str, ...] = (
-    "{monster} is looking awfully sad.",
-    "{monster} is singing a strange song.",
-    "{monster} is making strange noises.",
-    "{monster} looks at you.",
-    "{monster} pleads with you.",
-    "{monster} is trying to make friends with you.",
-    "{monster} is wondering what you're doing.",
-)
-
-
 def _flee_stub(
     monster: MutableMapping[str, Any],
     ctx: MutableMapping[str, Any],
@@ -1043,36 +1033,6 @@ def _cast_action(
     return payload
 
 
-def _emote_stub(
-    monster: MutableMapping[str, Any],
-    ctx: MutableMapping[str, Any],
-    rng: random.Random,
-) -> Any:
-    if not _EMOTE_LINES:
-        return {"ok": False}
-    if hasattr(rng, "randrange"):
-        try:
-            index = int(rng.randrange(len(_EMOTE_LINES)))
-        except (TypeError, ValueError):  # pragma: no cover - defensive
-            index = 0
-    else:  # pragma: no cover - defensive
-        index = 0
-    index = max(0, min(len(_EMOTE_LINES) - 1, index))
-    template = _EMOTE_LINES[index]
-    message = template.format(monster=_monster_display_name(monster))
-    bus = _feedback_bus(ctx)
-    if hasattr(bus, "push"):
-        bus.push("COMBAT/INFO", message)
-    turnlog.emit(
-        ctx,
-        "AI/ACT/EMOTE",
-        monster=_monster_id(monster),
-        index=index,
-        message=message,
-    )
-    return {"ok": True, "message": message, "index": index}
-
-
 def _idle_stub(
     monster: MutableMapping[str, Any],
     ctx: MutableMapping[str, Any],
@@ -1095,7 +1055,7 @@ _ACTION_TABLE: dict[str, ActionFn] = {
     "heal": _heal_action,
     "flee": _flee_stub,
     "cast": _cast_action,
-    "emote": _emote_stub,
+    "emote": emote_mod.cascade_emote_action,
     "idle": _idle_stub,
 }
 
@@ -1118,6 +1078,10 @@ def execute_random_action(monster: Any, ctx: Any, *, rng: Any | None = None) -> 
             return None
     cascade_result = evaluate_cascade(monster, ctx)
     action_name = cascade_result.action
+    if cascade_result.gate in {"EMOTE", "IDLE"}:
+        emote_mod.schedule_free_emote(monster, ctx, gate=cascade_result.gate)
+        if action_name == "emote":
+            action_name = None
     if not action_name:
         return None
     action = _ACTION_TABLE.get(action_name)

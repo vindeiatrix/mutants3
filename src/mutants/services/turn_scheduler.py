@@ -33,6 +33,7 @@ class TurnScheduler:
             self._status_manager: Optional["StatusManager"] = _StatusManager()
         else:
             self._status_manager = status_manager
+        self._free_actions: list[Callable[[Any], None]] = []
 
     def advance_invalid(
         self, token: str | None = None, resolved: Optional[str] = None
@@ -60,6 +61,7 @@ class TurnScheduler:
             token, resolved = self._normalize_result(result)
             self._run_monster_turns(token, resolved)
             self._run_status_tick()
+            self._run_free_actions(rng)
         finally:
             self._restore_rng(restore_token)
 
@@ -144,7 +146,32 @@ class TurnScheduler:
         except Exception:  # pragma: no cover - defensive
             LOG.exception("Status manager tick failed")
 
+    def _run_free_actions(self, rng: Any) -> None:
+        if not self._free_actions:
+            return
+        pending = self._free_actions
+        self._free_actions = []
+        for action in pending:
+            try:
+                action(rng)
+            except Exception:  # pragma: no cover - defensive
+                LOG.exception("Free action dispatch failed")
+
     def _log_tick(self, tick_id: int) -> None:
         message = f"tick={tick_id}"
         turnlog.emit(self._ctx, "TURN/TICK", message=message, tick=tick_id)
         LOG.info("TURN/TICK %s", message)
+
+    # Public hooks -----------------------------------------------------
+    def queue_free_emote(self, monster: Mapping[str, Any] | None, *, gate: str) -> None:
+        """Schedule a free emote roll for *monster* after the current tick."""
+
+        if monster is None:
+            return
+
+        def _action(rng: Any) -> None:
+            from mutants.services.monster_ai import emote as emote_mod
+
+            emote_mod.execute_free_emote(monster, self._ctx, rng, gate=gate)
+
+        self._free_actions.append(_action)
