@@ -42,6 +42,7 @@ def _base_monster() -> dict[str, Any]:
         "bag": [],
         "ions": 0,
         "pos": (2000, 1, 1),
+        "level": 3,
     }
 
 
@@ -50,6 +51,7 @@ def _context(rng: DummyRNG, config: CombatConfig | None = None) -> dict[str, Any
         "monster_ai_rng": rng,
         "logsink": DummySink(),
         "monster_ai_ground_items": [],
+        "monster_ai_player_level": 3,
     }
     if config is not None:
         ctx["combat_config"] = config
@@ -123,6 +125,61 @@ def test_evaluate_cascade_cracked_bias_adjusts_threshold() -> None:
     assert cracked_result.gate == "FLEE"
     assert cracked_result.threshold == config.flee_pct + config.cracked_flee_bonus
     assert cracked_result.data.get("cracked_weapon") is True
+
+
+def test_flee_threshold_adjusts_with_level_delta() -> None:
+    config = CombatConfig()
+    underleveled_monster = _base_monster()
+    underleveled_monster["hp"] = {"current": 4, "max": 20}
+
+    # Outlevelled monster gains courage penalty (+5 flee chance).
+    ctx_high_player = _context(DummyRNG([0]), config)
+    ctx_high_player["monster_ai_player_level"] = underleveled_monster["level"] + 5
+    result_high_player = cascade.evaluate_cascade(underleveled_monster, ctx_high_player)
+
+    assert result_high_player.gate == "FLEE"
+    assert result_high_player.threshold == config.flee_pct + 5
+    assert result_high_player.data.get("level_delta") == 5
+    assert result_high_player.data.get("flee_mode") == "hp"
+
+    # Monster significantly higher level loses a bit of flee chance.
+    confident_monster = _base_monster()
+    confident_monster["hp"] = {"current": 4, "max": 20}
+    confident_monster["level"] = 10
+
+    ctx_low_player = _context(DummyRNG([0]), config)
+    ctx_low_player["monster_ai_player_level"] = 4
+    result_low_player = cascade.evaluate_cascade(confident_monster, ctx_low_player)
+
+    expected_threshold = max(0, config.flee_pct - 5)
+    assert result_low_player.threshold == expected_threshold
+    assert result_low_player.data.get("level_delta") == -6
+    assert result_low_player.data.get("flee_mode") == "hp"
+
+
+def test_cracked_panic_triggers_extra_flee_check() -> None:
+    config = CombatConfig()
+    monster = _base_monster()
+    monster["hp"] = {"current": 18, "max": 20}
+    monster["wielded"] = "w1"
+    monster["bag"] = [
+        {
+            "iid": "w1",
+            "item_id": itemsreg.BROKEN_WEAPON_ID,
+            "origin": "native",
+            "enchant_level": 0,
+        }
+    ]
+
+    ctx = _context(DummyRNG([0]), config)
+    ctx["monster_ai_player_level"] = monster["level"] + 5
+
+    result = cascade.evaluate_cascade(monster, ctx)
+
+    assert result.gate == "FLEE"
+    assert result.data.get("flee_mode") == "panic"
+    assert result.data.get("hp_pct") == 90
+    assert result.threshold == config.flee_pct + config.cracked_flee_bonus + 5
 
 
 def test_cracked_weapon_halves_attack_weight_only_when_equipped() -> None:
