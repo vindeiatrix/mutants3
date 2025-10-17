@@ -403,7 +403,8 @@ def strike_cmd(arg: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
 
     final_damage = _clamp_melee_damage(target, final_damage)
 
-    wear_amount = items_wear.wear_from_event({"kind": "strike", "damage": final_damage})
+    wear_event = items_wear.build_wear_event(actor="player", source=str(attack.source), damage=final_damage)
+    wear_amount = items_wear.wear_from_event(wear_event)
 
     weapon_wear: Mapping[str, Any] | None = None
     armour_wear: Mapping[str, Any] | None = None
