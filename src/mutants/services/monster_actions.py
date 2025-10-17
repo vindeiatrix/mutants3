@@ -205,11 +205,48 @@ def _resolve_item_id(inst: Mapping[str, Any]) -> str:
     return str(iid) if iid else ""
 
 
-def _convert_value(catalog: Mapping[str, Any], iid: str, item_id: str) -> int:
+_BROKEN_ITEM_IDS = {itemsreg.BROKEN_WEAPON_ID, itemsreg.BROKEN_ARMOUR_ID}
+
+
+def _convert_value(
+    catalog: Mapping[str, Any], iid: Optional[str], item_id: str
+) -> int:
     try:
         return convert_cmd._convert_value(item_id, catalog, iid)
     except Exception:
         return 0
+
+
+def _is_broken_placeholder(item_id: str) -> bool:
+    return item_id in _BROKEN_ITEM_IDS
+
+
+def _derived_base_damage(inst: Mapping[str, Any]) -> Optional[int]:
+    derived = inst.get("derived")
+    if not isinstance(derived, Mapping):
+        return None
+    base_damage = derived.get("base_damage")
+    try:
+        value = int(base_damage)
+    except (TypeError, ValueError):
+        return None
+    return max(0, value)
+
+
+def _catalogue_base_damage(
+    tpl: Optional[Mapping[str, Any]], enchant: int
+) -> int:
+    if not isinstance(tpl, Mapping):
+        return 0
+    for key in ("base_power_melee", "base_power"):
+        if tpl.get(key) is None:
+            continue
+        try:
+            base_power = int(tpl.get(key, 0))
+        except (TypeError, ValueError):
+            base_power = 0
+        return max(0, base_power) + (4 * max(0, enchant))
+    return 0
 
 
 def _score_pickup_candidate(
@@ -217,25 +254,28 @@ def _score_pickup_candidate(
     catalog: Mapping[str, Mapping[str, Any]],
 ) -> int:
     item_id = _resolve_item_id(inst)
-    tpl = catalog.get(item_id) if item_id else None
-    base_power = 0
-    if isinstance(tpl, Mapping):
-        for key in ("base_power_melee", "base_power"):
-            if tpl.get(key) is None:
-                continue
-            try:
-                base_power = int(tpl.get(key, 0))
-            except (TypeError, ValueError):
-                base_power = 0
-            break
+    if not item_id or _is_broken_placeholder(item_id):
+        return 0
+    tpl = catalog.get(item_id)
     enchant = 0
     try:
         enchant = int(inst.get("enchant_level", 0))
     except (TypeError, ValueError):
         enchant = 0
-    base_damage = max(0, base_power) + (4 * max(0, enchant))
-    convert_val = _convert_value(catalog, str(inst.get("iid")), item_id)
-    return (base_damage * 1000) + max(0, convert_val)
+    base_damage = _derived_base_damage(inst)
+    if base_damage is None:
+        base_damage = _catalogue_base_damage(tpl, enchant)
+    iid = inst.get("iid") or inst.get("instance_id")
+    iid_token = None
+    if iid is not None:
+        token = str(iid)
+        iid_token = token if token else None
+    convert_val = _convert_value(catalog, iid_token, item_id)
+    base_damage = max(0, base_damage)
+    convert_val = max(0, convert_val)
+    if base_damage <= 0 and convert_val <= 0:
+        return 0
+    return (base_damage * 1000) + convert_val
 
 
 def _bag_list(monster: MutableMapping[str, Any]) -> list[MutableMapping[str, Any]]:
@@ -679,6 +719,9 @@ def _pickup_from_ground(
     best_score = -1
     for inst in ground:
         if not isinstance(inst, Mapping):
+            continue
+        item_id = _resolve_item_id(inst)
+        if _is_broken_placeholder(item_id):
             continue
         score = _score_pickup_candidate(inst, catalog)
         if score > best_score:
