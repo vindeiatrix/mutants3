@@ -14,6 +14,7 @@ from mutants.services import damage_engine, items_wear, monsters_state, player_s
 from mutants.services.combat_config import CombatConfig
 from mutants.services.monster_ai.attack_selection import select_attack
 from mutants.services.monster_ai.cascade import evaluate_cascade
+from mutants.services.monster_ai import inventory as inventory_mod
 from mutants.services.monster_ai import heal as heal_mod
 from mutants.services.monster_ai import casting as casting_mod
 from mutants.debug import turnlog
@@ -360,6 +361,7 @@ def _apply_weapon_wear(
             iid=weapon_iid,
             source="weapon",
         )
+        inventory_mod.schedule_weapon_drop(monster, weapon_iid)
     _refresh_monster(monster)
     return payload
 
@@ -1043,6 +1045,7 @@ def execute_random_action(monster: Any, ctx: Any, *, rng: Any | None = None) -> 
     else:
         random_obj = random.Random()
     ctx["monster_ai_rng"] = random_obj
+    inventory_mod.process_pending_drops(monster, ctx, random_obj)
     cascade_result = evaluate_cascade(monster, ctx)
     action_name = cascade_result.action
     if not action_name:
