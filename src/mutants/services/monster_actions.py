@@ -20,6 +20,7 @@ from mutants.services.monster_ai import inventory as inventory_mod
 from mutants.services.monster_ai import heal as heal_mod
 from mutants.services.monster_ai import casting as casting_mod
 from mutants.services.monster_ai import emote as emote_mod
+from mutants.services.monster_ai import tracking as tracking_mod
 from mutants.services.monster_ai.pursuit import attempt_pursuit
 from mutants.debug import turnlog
 from mutants.ui import item_display
@@ -751,6 +752,8 @@ def roll_entry_target(
 
     previous = _sanitize_player_id(monster.get("target_player_id"))
     if previous == player_id:
+        if player_pos is not None:
+            tracking_mod.record_target_position(monster, player_id, player_pos)
         return {"ok": True, "target_set": False, "taunt": None, "woke": True}
 
     config_obj = config if isinstance(config, CombatConfig) else _ENTRY_DEFAULT_CONFIG
@@ -759,6 +762,8 @@ def roll_entry_target(
         return {"ok": True, "target_set": False, "taunt": None, "woke": False}
 
     monster["target_player_id"] = player_id
+    if player_pos is not None:
+        tracking_mod.record_target_position(monster, player_id, player_pos)
 
     raw_taunt = monster.get("taunt")
     taunt = raw_taunt.strip() if isinstance(raw_taunt, str) else None

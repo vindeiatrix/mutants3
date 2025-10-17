@@ -10,6 +10,7 @@ from mutants.debug import turnlog
 from mutants.services.combat_config import CombatConfig
 
 from .wake import should_wake
+from . import tracking as tracking_mod
 
 if TYPE_CHECKING:  # pragma: no cover - typing aid
     from . import monster_actions as monster_actions_module
@@ -244,6 +245,8 @@ def on_player_command(ctx: Any, *, token: str, resolved: str | None) -> None:
     wake_rng = _resolve_wake_rng(ctx, rng)
     wake_events = _resolve_wake_events(token, resolved)
 
+    reentry_ids = tracking_mod.update_target_positions(monsters, player_id, pos)
+
     for monster in _iter_aggro_monsters(monsters, year=year, x=x, y=y):
         if _normalize_id(monster.get("target_player_id")) != player_id:
             continue
@@ -262,7 +265,17 @@ def on_player_command(ctx: Any, *, token: str, resolved: str | None) -> None:
             if not woke:
                 continue
 
+        monster_id = _monster_id(monster)
+        reentry = monster_id in reentry_ids
         credits = _roll_credits(rng, weights)
+        if reentry and credits <= 0:
+            credits = 1
+            turnlog.emit(
+                ctx,
+                "AI/REENTRY",
+                monster=monster_id,
+                player=player_id,
+            )
         _log_tick(ctx, monster, credits)
         if credits <= 0:
             continue
