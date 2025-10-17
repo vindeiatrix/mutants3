@@ -29,4 +29,5 @@ class RoomVM(TypedDict, total=False):
     has_ground: bool
     events: List[str]
     shadows: List[str]
+    cues_lines: List[str]
     flags: Dict[str, Any]

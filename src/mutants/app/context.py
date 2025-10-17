@@ -20,7 +20,12 @@ from mutants.ui.logsink import LogSink
 from mutants.ui.themes import Theme, load_theme
 from mutants.ui import styles as st
 from ..registries import items_instances as itemsreg
-from mutants.services import monster_leveling, monsters_state, player_state as pstate
+from mutants.services import (
+    audio_cues,
+    monster_leveling,
+    monsters_state,
+    player_state as pstate,
+)
 from mutants.services.turn_scheduler import TurnScheduler
 from mutants.engine import session
 
@@ -223,6 +228,13 @@ def render_frame(ctx: Dict[str, Any]) -> None:
             ctx.get("monsters"),
             ctx.get("items"),
         )
+    cues = audio_cues.drain(ctx)
+    if cues:
+        vm = dict(vm)
+        existing = list(vm.get("cues_lines") or [])
+        existing.extend(cues)
+        vm["cues_lines"] = existing
+
     events = ctx["feedback_bus"].drain()
     lines = ctx["renderer"](
         vm,

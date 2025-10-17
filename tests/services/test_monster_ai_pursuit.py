@@ -135,6 +135,17 @@ def test_execute_random_action_pursuit_consumes_turn(monkeypatch, _turnlog_event
 
     monkeypatch.setattr("mutants.services.monster_ai.inventory.process_pending_drops", fake_process)
 
+    recorded: List[Tuple[Any, Any, Any, Any]] = []
+
+    def fake_emit(monster_pos, player_pos, kind, *, ctx=None):
+        recorded.append((monster_pos, player_pos, kind, ctx))
+        return "cue"
+
+    monkeypatch.setattr(
+        "mutants.services.monster_ai.pursuit.audio_cues.emit_sound",
+        fake_emit,
+    )
+
     def fake_cascade(monster, ctx):
         raise AssertionError("Cascade should not run when pursuit succeeds")
 
@@ -161,3 +172,5 @@ def test_execute_random_action_pursuit_consumes_turn(monkeypatch, _turnlog_event
     assert marker.marked is True
     assert monster["pos"] == [2000, 1, 0]
     assert any(kind == "AI/PURSUIT" and meta["success"] for kind, meta in _turnlog_events)
+    assert recorded and recorded[0][2] == "footsteps"
+    assert recorded[0][3] is ctx

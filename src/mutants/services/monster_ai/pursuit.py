@@ -11,7 +11,7 @@ from mutants.engine import edge_resolver
 from mutants.registries import dynamics as dynamics_registry
 from mutants.registries import items_instances as itemsreg
 from mutants.registries import world as world_registry
-from mutants.services import combat_loot
+from mutants.services import audio_cues, combat_loot
 from mutants.services import monsters_state
 from mutants.services.combat_config import CombatConfig
 from mutants.world import years as world_years
@@ -321,6 +321,14 @@ def attempt_pursuit(
     if success:
         meta.update(details)
         _log(ctx, monster, success=True, reason="moved", **meta)
+        try:
+            monster_pos = monster.get("pos")
+        except Exception:  # pragma: no cover - defensive
+            monster_pos = None
+        try:
+            audio_cues.emit_sound(monster_pos, target, "footsteps", ctx=ctx)
+        except Exception:  # pragma: no cover - defensive guard
+            LOG.debug("Failed to emit audio cue for pursuit", exc_info=True)
         return True
 
     meta.update(details)
