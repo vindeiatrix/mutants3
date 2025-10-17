@@ -4,8 +4,14 @@ from __future__ import annotations
 
 import json
 import sqlite3
+from collections import deque
 from pathlib import Path
-from typing import Iterable, List, Sequence
+from typing import Any, Iterable, List, Sequence, Tuple
+
+from mutants.engine import edge_resolver
+from mutants.registries import dynamics as dynamics_registry
+from mutants.registries import world as world_registry
+from mutants.registries.world import DELTA as _WORLD_DELTA
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 _STATE_YEARS_PATH = PROJECT_ROOT / "state" / "world" / "years.json"
@@ -131,6 +137,67 @@ def _load_years_from_catalog(db_path: Path) -> list[int]:
     finally:
         conn.close()
     return _dedupe_sorted(years)
+
+
+def find_path_between(
+    year: int,
+    start: Tuple[int, int],
+    target: Tuple[int, int],
+    *,
+    world: Any | None = None,
+    loader: Any | None = None,
+    dynamics: Any | None = None,
+    limit: int = 128,
+) -> list[Tuple[int, int]]:
+    """Return a simple path between ``start`` and ``target`` for ``year``."""
+
+    start_xy = (int(start[0]), int(start[1]))
+    target_xy = (int(target[0]), int(target[1]))
+    if start_xy == target_xy:
+        return [start_xy]
+
+    loader_fn = loader if callable(loader) else world_registry.load_year
+    dyn = dynamics if dynamics is not None else dynamics_registry
+
+    try:
+        world_obj = world if world is not None else loader_fn(year)
+    except Exception:
+        return []
+
+    queue: deque[Tuple[int, int]] = deque([start_xy])
+    parents: dict[Tuple[int, int], Tuple[int, int] | None] = {start_xy: None}
+
+    while queue:
+        current = queue.popleft()
+        if current == target_xy:
+            break
+        if len(parents) > max(1, int(limit)):
+            return []
+        cx, cy = current
+        for dir_code in ("N", "S", "E", "W"):
+            delta = _WORLD_DELTA[dir_code]
+            try:
+                decision = edge_resolver.resolve(world_obj, dyn, int(year), cx, cy, dir_code, actor=None)
+            except Exception:
+                continue
+            if not getattr(decision, "passable", False):
+                continue
+            neighbor = (cx + delta[0], cy + delta[1])
+            if neighbor in parents:
+                continue
+            parents[neighbor] = current
+            queue.append(neighbor)
+
+    if target_xy not in parents:
+        return []
+
+    path: list[Tuple[int, int]] = []
+    node: Tuple[int, int] | None = target_xy
+    while node is not None:
+        path.append(node)
+        node = parents.get(node)
+    path.reverse()
+    return path
 
 
 def get_world_years(db_path: str | Path) -> List[int]:

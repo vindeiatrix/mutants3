@@ -17,6 +17,7 @@ from mutants.services.monster_ai.cascade import evaluate_cascade
 from mutants.services.monster_ai import inventory as inventory_mod
 from mutants.services.monster_ai import heal as heal_mod
 from mutants.services.monster_ai import casting as casting_mod
+from mutants.services.monster_ai.pursuit import attempt_pursuit
 from mutants.debug import turnlog
 from mutants.ui import item_display
 
@@ -154,6 +155,26 @@ def _ledger_state(monster: MutableMapping[str, Any]) -> MutableMapping[str, int]
     monster["ions"] = ions
     monster["riblets"] = riblets
     return ledger
+
+
+def _pop_pending_pursuit(monster: MutableMapping[str, Any], ctx: MutableMapping[str, Any] | None) -> tuple[int, int, int] | None:
+    state = _ai_state(monster)
+    raw_state = state.pop("pending_pursuit", None)
+    pos = combat_loot.coerce_pos(raw_state)
+    if pos is not None:
+        return pos
+    raw_ctx = None
+    if isinstance(ctx, MutableMapping):
+        raw_ctx = ctx.pop("monster_ai_pursuit_target", None)
+    elif ctx is not None:
+        raw_ctx = getattr(ctx, "monster_ai_pursuit_target", None)
+        if raw_ctx is not None:
+            try:
+                setattr(ctx, "monster_ai_pursuit_target", None)
+            except Exception:
+                pass
+    pos = combat_loot.coerce_pos(raw_ctx)
+    return pos
 
 
 def _picked_up_iids(monster: MutableMapping[str, Any]) -> list[str]:
@@ -1089,6 +1110,12 @@ def execute_random_action(monster: Any, ctx: Any, *, rng: Any | None = None) -> 
         random_obj = random.Random()
     ctx["monster_ai_rng"] = random_obj
     inventory_mod.process_pending_drops(monster, ctx, random_obj)
+    pursuit_target = _pop_pending_pursuit(monster, ctx)
+    if pursuit_target is not None:
+        success = attempt_pursuit(monster, pursuit_target, random_obj, ctx=ctx)
+        if success:
+            _mark_monsters_dirty(ctx)
+            return None
     cascade_result = evaluate_cascade(monster, ctx)
     action_name = cascade_result.action
     if not action_name:
