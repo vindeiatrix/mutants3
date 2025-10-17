@@ -50,12 +50,18 @@ def _feedback_token(kind: str) -> str:
 def render_token_lines(
     vm: RoomVM, feedback_events: Optional[List[dict]] = None, width: int = c.WIDTH
 ) -> List[SegmentLine]:
-    lines: List[SegmentLine] = []
+    DEV = os.environ.get("MUTANTS_DEV") == "1"
+    logger = logging.getLogger(__name__)
 
-    lines.append(fmt.format_header(vm["header"]))
+    block_core: List[SegmentLine] = []
+    block_ground: List[SegmentLine] = []
+    block_monsters: List[SegmentLine] = []
+    block_cues: List[SegmentLine] = []
+
+    block_core.append(fmt.format_header(vm["header"]))
 
     coords = vm["coords"]
-    lines.append(fmt.format_compass(coords["x"], coords["y"]))
+    block_core.append(fmt.format_compass(coords["x"], coords["y"]))
 
     # Directions list should include plain OPEN (base==0) and GATE (base==3) edges.
     # Prefer vm["dirs_open"] if present; otherwise derive from vm["dirs"].
@@ -65,9 +71,6 @@ def render_token_lines(
         dirs_open = {
             k: v for k, v in raw_dirs.items() if v and v.get("base", 0) in (0, 3)
         }
-
-    DEV = os.environ.get("MUTANTS_DEV") == "1"
-    logger = logging.getLogger(__name__)
 
     # Validate with the passability engine.
     # - base==0 (open): drop if resolver blocks.
@@ -112,46 +115,107 @@ def render_token_lines(
         except Exception:
             if base != 0:
                 continue
-        lines.append(fmt.format_direction_segments(d, edge))
+        block_core.append(fmt.format_direction_segments(d, edge))
 
-    sep_line = [("", UC.SEPARATOR_LINE)]
-    if not lines or lines[-1] != sep_line:
-        lines.append(sep_line)
+    # ---- Ground Block (optional) ----
+    has_ground = bool(vm.get("has_ground", False))
+    ground_ids = vm.get("ground_item_ids") or []
+    if has_ground:
+        if not ground_ids:
+            if DEV:
+                assert False, "ui: has_ground=True but ground_item_ids is empty"
+            else:
+                logger.warning(
+                    "ui: dropping empty ground block (has_ground=True, no items)"
+                )
+        else:
+            block_ground.append(fmt.format_ground_label())
+            names = [
+                idisp.canonical_name(t if isinstance(t, str) else str(t))
+                for t in ground_ids
+            ]
+            numbered = idisp.number_duplicates(names)
+            display = [
+                harden_final_display(idisp.with_article(n))
+                for n in numbered
+            ]
+            if is_ui_trace_enabled():
+                raw = "On the ground lies: " + ", ".join(display) + "."
+            wrapped_lines = wrap_list(display, width)
+            if is_ui_trace_enabled():
+                from ..app.context import current_context
 
-    # Monsters present
-    monsters = vm.get("monsters_here", [])
+                ctx = current_context()
+                fb = ctx.get("feedback_bus") if ctx else None
+                if fb:
+                    fb.push(
+                        "SYSTEM/INFO",
+                        f'UI/GROUND raw={json.dumps(raw, ensure_ascii=False)}',
+                    )
+                    fb.push(
+                        "SYSTEM/INFO",
+                        f'UI/GROUND wrap width={width} '
+                        f'opts={json.dumps(WRAP_DEBUG_OPTS, sort_keys=True)} '
+                        f'lines={json.dumps(wrapped_lines, ensure_ascii=False)}',
+                    )
+            for line in wrapped_lines:
+                block_ground.append(fmt.format_item(line))
+
+    # ---- Monsters block (optional, after Ground) ----
+    monsters = vm.get("monsters_here") or []
     for segs in fmt.format_monsters_here_tokens(monsters):
-        lines.append(segs)
+        block_monsters.append(segs)
 
-    ids = vm.get("ground_item_ids", [])
-    if ids:
-        lines.append(fmt.format_ground_label())
-        names = [idisp.canonical_name(t if isinstance(t, str) else str(t)) for t in ids]
-        numbered = idisp.number_duplicates(names)
-        display = [
-            harden_final_display(idisp.with_article(n))
-            for n in numbered
-        ]
-        if is_ui_trace_enabled():
-            raw = "On the ground lies: " + ", ".join(display) + "."
-        wrapped_lines = wrap_list(display, width)
-        if is_ui_trace_enabled():
-            from ..app.context import current_context
-            ctx = current_context()
-            fb = ctx.get("feedback_bus") if ctx else None
-            if fb:
-                fb.push(
-                    "SYSTEM/INFO",
-                    f'UI/GROUND raw={json.dumps(raw, ensure_ascii=False)}',
-                )
-                fb.push(
-                    "SYSTEM/INFO",
-                    f'UI/GROUND wrap width={width} '
-                    f'opts={json.dumps(WRAP_DEBUG_OPTS, sort_keys=True)} '
-                    f'lines={json.dumps(wrapped_lines, ensure_ascii=False)}',
-                )
-        for line in wrapped_lines:
-            lines.append(fmt.format_item(line))
+    # ---- Cues block (optional, after Monsters) ----
+    sep_line: SegmentLine = [("", UC.SEPARATOR_LINE)]
+    cues = vm.get("cues_lines") or []
+    if cues:
+        for idx, cue in enumerate(cues):
+            text = str(cue).rstrip()
+            block_cues.append([("", text)])
+            if idx < len(cues) - 1:
+                block_cues.append(list(sep_line))
+
+    # ---- Join blocks with separators between non-empty blocks only ----
+    def _join_with_separators(blocks: List[List[SegmentLine]]) -> List[SegmentLine]:
+        out: List[SegmentLine] = []
+        first = True
+        for block in blocks:
+            if not block:
+                continue
+            if not first:
+                out.append(list(sep_line))
+            out.extend(block)
+            first = False
+        return out
+
+    def _is_separator(line: SegmentLine) -> bool:
+        return len(line) == 1 and line[0][0] == "" and line[0][1] == UC.SEPARATOR_LINE
+
+    def _assert_no_sep_violations(out_lines: List[SegmentLine]) -> List[SegmentLine]:
+        if not out_lines:
+            return out_lines
+        while out_lines and _is_separator(out_lines[0]):
+            if DEV:
+                assert False, "ui: separator at frame boundary"
+            out_lines.pop(0)
+        while out_lines and _is_separator(out_lines[-1]):
+            if DEV:
+                assert False, "ui: separator at frame boundary"
+            out_lines.pop()
+        i = 1
+        while i < len(out_lines):
+            if _is_separator(out_lines[i]) and _is_separator(out_lines[i - 1]):
+                if DEV:
+                    assert False, "ui: consecutive separators"
+                out_lines.pop(i)
+            else:
+                i += 1
+        return out_lines
+
+    blocks = [block_core, block_ground, block_monsters, block_cues]
+    lines = _join_with_separators(blocks)
+    lines = _assert_no_sep_violations(lines)
 
     events = vm.get("events", [])
     if events:
