@@ -8,6 +8,7 @@ import pytest
 from mutants.services.combat_config import CombatConfig
 from mutants.services import monster_ai
 from mutants.services.monster_ai import wake as wake_mod
+from mutants.services.monster_ai import taunt as taunt_mod
 from mutants.services import monster_actions
 
 
@@ -28,6 +29,14 @@ class DummyMonsters:
 
     def list_at(self, year: int, x: int, y: int) -> List[dict[str, Any]]:
         return list(self._monsters)
+
+
+class DummyBus:
+    def __init__(self) -> None:
+        self.events: list[tuple[str, str]] = []
+
+    def push(self, kind: str, text: str) -> None:
+        self.events.append((kind, text))
 
 
 def _player_state_stub() -> dict[str, Any]:
@@ -105,10 +114,20 @@ def test_roll_entry_target_sets_target_on_wake(monkeypatch: pytest.MonkeyPatch) 
 
     monkeypatch.setattr(monster_actions, "_should_wake", lambda *args, **kwargs: True)
 
-    outcome = monster_actions.roll_entry_target(monster, state, random.Random(0))
+    bus = DummyBus()
+    calls: list[tuple[Any, Any]] = []
+
+    def fake_emit(mon: Any, bus_obj: Any, rng_obj: Any) -> dict[str, Any]:
+        calls.append((mon, bus_obj))
+        return {"ok": True, "message": "Roar!", "ready": False, "ready_message": None}
+
+    monkeypatch.setattr(taunt_mod, "emit_taunt", fake_emit)
+
+    outcome = monster_actions.roll_entry_target(monster, state, random.Random(0), bus=bus)
 
     assert outcome == {"ok": True, "target_set": True, "taunt": "Roar!", "woke": True}
     assert monster.get("target_player_id") == "p1"
+    assert calls == [(monster, bus)]
 
 
 def test_roll_entry_target_skips_wake_when_already_targeted(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -120,6 +139,13 @@ def test_roll_entry_target_skips_wake_when_already_targeted(monkeypatch: pytest.
         raise AssertionError("wake should not run when target unchanged")
 
     monkeypatch.setattr(monster_actions, "_should_wake", _should_not_run)
+    monkeypatch.setattr(
+        taunt_mod,
+        "emit_taunt",
+        lambda *args, **kwargs: (_ for _ in ()).throw(
+            AssertionError("taunt emit should not run when target unchanged")
+        ),
+    )
 
     outcome = monster_actions.roll_entry_target(monster, state, random.Random(0))
 

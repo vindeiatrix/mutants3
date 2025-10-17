@@ -127,6 +127,8 @@ def handle_login_entry(
 
     config = context.get("combat_config")
 
+    bus = context.get("feedback_bus")
+
     results: list[Dict[str, Any]] = []
     for monster in monsters_here:
         target_monster = monster
@@ -144,6 +146,7 @@ def handle_login_entry(
             state,
             rng_obj,
             config=config if isinstance(config, CombatConfig) else None,
+            bus=bus,
         )
         results.append(outcome)
 

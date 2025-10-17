@@ -131,6 +131,7 @@ def test_login_entry_rolls_target_without_attack(monkeypatch: pytest.MonkeyPatch
     stored_monster = monsters.get("monster-1")
     assert stored_monster and stored_monster["target_player_id"] == "player-1"
     assert player_state["active"]["hp"]["current"] == 20
+    assert ("COMBAT/TAUNT", "Grr") in ctx["feedback_bus"].messages
     assert all("strikes you" not in msg for _, msg in ctx["feedback_bus"].messages)
     assert random_pool.get_rng_tick("turn") == 1
     assert tick_logs == [1]
