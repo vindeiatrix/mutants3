@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 import random
-from typing import Any, Callable, Dict, Iterable, Mapping, MutableMapping, Optional
+from typing import Any, Callable, Dict, Iterable, Mapping, MutableMapping, Optional, Sequence, Tuple
 
 from mutants.commands import convert as convert_cmd
 from mutants.commands import strike
@@ -57,6 +57,75 @@ def _monster_id(monster: Mapping[str, Any]) -> str:
     if isinstance(ident, str) and ident:
         return ident
     return "?"
+
+
+def _drop_entry_label(
+    entry: Mapping[str, Any], catalog: Mapping[str, Mapping[str, Any]] | None
+) -> str:
+    item_id = str(
+        entry.get("item_id")
+        or entry.get("catalog_id")
+        or entry.get("id")
+        or entry.get("iid")
+        or ""
+    )
+    tpl = catalog.get(item_id) if isinstance(catalog, Mapping) else {}
+    return item_display.item_label(entry, tpl or {}, show_charges=False)
+
+
+def _drop_entry_sort_key(
+    entry: Mapping[str, Any], catalog: Mapping[str, Mapping[str, Any]] | None
+) -> Tuple[str, str, str]:
+    label = _drop_entry_label(entry, catalog)
+    iid = str(entry.get("iid") or entry.get("instance_id") or "")
+    item_id = str(
+        entry.get("item_id")
+        or entry.get("catalog_id")
+        or entry.get("id")
+        or iid
+    )
+    return (label.lower(), item_id, iid)
+
+
+def sorted_bag_drops(
+    summary: Mapping[str, Any],
+    *,
+    catalog: Mapping[str, Mapping[str, Any]] | None = None,
+) -> list[Mapping[str, Any]]:
+    """Return the bag drops from ``summary`` sorted deterministically."""
+
+    bag = summary.get("bag_drops")
+    if not isinstance(bag, Sequence):
+        return []
+
+    entries: list[Mapping[str, Any]] = []
+    for entry in bag:
+        if isinstance(entry, Mapping):
+            entries.append(entry)
+    entries.sort(key=lambda value: _drop_entry_sort_key(value, catalog))
+    return entries
+
+
+def drop_summary(
+    summary: Mapping[str, Any],
+    *,
+    catalog: Mapping[str, Mapping[str, Any]] | None = None,
+) -> Dict[str, Any]:
+    """Build a descriptive payload for vaporised drops in ``summary``."""
+
+    raw_vaporized = summary.get("drops_vaporized")
+    vaporized: list[Mapping[str, Any]] = []
+    if isinstance(raw_vaporized, Sequence):
+        for entry in raw_vaporized:
+            if isinstance(entry, Mapping):
+                vaporized.append(entry)
+
+    messages = combat_loot.describe_vaporized_entries(vaporized, catalog=catalog)
+    return {
+        "count": len(vaporized),
+        "vaporized": vaporized,
+        "messages": messages,
+    }
 
 
 def _feedback_bus(ctx: MutableMapping[str, Any]) -> Any:
