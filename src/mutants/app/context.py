@@ -10,6 +10,7 @@ from mutants.bootstrap.runtime import ensure_runtime
 from mutants.data.room_headers import ROOM_HEADERS, STORE_FOR_SALE_IDX
 from mutants.registries.world import load_nearest_year
 from mutants.state import state_path
+from mutants.world import vision
 from mutants.ui import renderer
 from mutants.ui.textutils import resolve_feedback_text
 from mutants.debug.turnlog import TurnObserver
@@ -137,6 +138,8 @@ def build_room_vm(
     p = _active(state)
     pos = p.get("pos") or [0, 0, 0]
     year, x, y = pos[0], pos[1], pos[2]
+    player_pos = (year, x, y)
+
     if WORLD_DEBUG:
         LOG.debug(
             "[room] build_room_vm pos=%s (year=%s,x=%s,y=%s)",
@@ -194,6 +197,8 @@ def build_room_vm(
         except Exception:
             ground_ids = []
 
+    shadows = vision.adjacent_monster_directions(monsters, player_pos)
+
     vm: Dict[str, Any] = {
         "header": header,
         "coords": {"x": x, "y": y},
@@ -202,7 +207,7 @@ def build_room_vm(
         "ground_item_ids": ground_ids,
         "has_ground": bool(ground_ids),
         "events": [],
-        "shadows": [],
+        "shadows": shadows,
         "flags": {"dark": bool(tile.get("dark")) if tile else False},
     }
     return vm
