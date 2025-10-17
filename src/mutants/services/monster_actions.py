@@ -542,7 +542,8 @@ def _apply_player_damage(
         final_damage = max(MIN_BOLT_DAMAGE, final_damage)
     final_damage = strike._clamp_melee_damage(active, final_damage)
     if final_damage > 0:
-        wear_amount = items_wear.wear_from_event({"kind": "monster-attack", "damage": final_damage})
+        wear_event = items_wear.build_wear_event(actor="monster", source=str(attack.source), damage=final_damage)
+        wear_amount = items_wear.wear_from_event(wear_event)
         catalog = _load_catalog()
         bus_obj = bus if hasattr(bus, "push") else None
         resolved_iid = str(weapon_iid) if weapon_iid else None
