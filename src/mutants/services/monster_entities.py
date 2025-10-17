@@ -39,7 +39,7 @@ class MonsterTemplate:
     starter_armour: Sequence[str]
     starter_items: Sequence[str]
     metadata: Mapping[str, Any] = field(default_factory=dict)
-    ai_overrides: Mapping[str, Any] = field(default_factory=dict)
+    ai_overrides: Optional[Mapping[str, Any]] = None
 
     @property
     def innate_attack_line(self) -> str:
