@@ -11,12 +11,13 @@ from mutants.debug import turnlog
 LOG = logging.getLogger(__name__)
 
 __all__ = [
+    "EMOTE_LINES",
     "cascade_emote_action",
     "execute_free_emote",
     "schedule_free_emote",
 ]
 
-_EMOTE_LINES: tuple[str, ...] = (
+EMOTE_LINES: tuple[str, ...] = (
     "{monster} is looking awfully sad.",
     "{monster} is singing a strange song.",
     "{monster} is making strange noises.",
@@ -24,6 +25,19 @@ _EMOTE_LINES: tuple[str, ...] = (
     "{monster} pleads with you.",
     "{monster} is trying to make friends with you.",
     "{monster} is wondering what you're doing.",
+    "{monster} stares into the distance.",
+    "{monster} hums a battle hymn.",
+    "{monster} sharpens their claws.",
+    "{monster} flexes ominously.",
+    "{monster} practices a victory pose.",
+    "{monster} whispers something unintelligible.",
+    "{monster} checks the horizon for danger.",
+    "{monster} mutters about the weather.",
+    "{monster} pats their pockets for supplies.",
+    "{monster} draws a sigil in the dust.",
+    "{monster} takes a deep, steadying breath.",
+    "{monster} adjusts their helmet.",
+    "{monster} bounces on their heels.",
 )
 
 
@@ -71,16 +85,16 @@ def _emit_emote(
 ) -> Mapping[str, Any]:
     if not isinstance(monster, Mapping):
         return {"ok": False, "reason": "invalid_monster"}
-    if not _EMOTE_LINES:
+    if not EMOTE_LINES:
         return {"ok": False, "reason": "no_lines"}
 
     try:
-        index = int(rng.randrange(len(_EMOTE_LINES)))
+        index = int(rng.randrange(len(EMOTE_LINES)))
     except Exception:  # pragma: no cover - defensive guard
         LOG.exception("Failed to roll emote index")
         index = 0
-    index = max(0, min(len(_EMOTE_LINES) - 1, index))
-    template = _EMOTE_LINES[index]
+    index = max(0, min(len(EMOTE_LINES) - 1, index))
+    template = EMOTE_LINES[index]
     message = template.format(monster=_monster_display_name(monster))
 
     bus = _resolve_feedback_bus(ctx)
