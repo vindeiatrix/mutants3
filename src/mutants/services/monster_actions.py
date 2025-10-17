@@ -1080,6 +1080,15 @@ def _heal_action(
             hp=applied,
             ions=heal_cost,
         )
+        bus.push(
+            "COMBAT/HEAL_MONSTER",
+            textutils.render_feedback_template(
+                textutils.TEMPLATE_MONSTER_HEAL_VISUAL,
+                monster=label,
+            ),
+            template=textutils.TEMPLATE_MONSTER_HEAL_VISUAL,
+            monster=label,
+        )
 
     turnlog.emit(
         ctx,

@@ -38,3 +38,23 @@ def test_feedback_heal_message_rendering() -> None:
     )
 
     assert lines[-1] == [(st.FEED_COMBAT, expected_message)]
+
+
+def test_feedback_monster_heal_visual_message_rendering() -> None:
+    vm = _base_vm()
+    events = [
+        {
+            "kind": "COMBAT/HEAL_MONSTER",
+            "template": textutils.TEMPLATE_MONSTER_HEAL_VISUAL,
+            "monster": "Ghoul",
+        }
+    ]
+
+    lines = renderer.render_token_lines(vm, feedback_events=events)
+
+    expected_message = textutils.render_feedback_template(
+        textutils.TEMPLATE_MONSTER_HEAL_VISUAL,
+        monster="Ghoul",
+    )
+
+    assert lines[-1] == [(st.FEED_COMBAT, expected_message)]
