@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Mapping
 from typing import Any, Dict
 
 from mutants.services import player_state as pstate
@@ -12,13 +13,23 @@ _ION_MULTIPLIERS: Dict[str, int] = {
     "mage": 1_200,
     "wizard": 1_000,
     "thief": 200,
+    "default": 200,
 }
-_DEFAULT_MULTIPLIER = 200
+_DEFAULT_MULTIPLIER = _ION_MULTIPLIERS["default"]
 
 
-def _class_multiplier(name: str) -> int:
+def _class_multiplier(name: str, table: Mapping[str, int]) -> int:
     normalized = name.strip().lower() if isinstance(name, str) else ""
-    return _ION_MULTIPLIERS.get(normalized, _DEFAULT_MULTIPLIER)
+    default = table.get("default", _DEFAULT_MULTIPLIER)
+    return table.get(normalized, default)
+
+
+def _heal_cost_multipliers(ctx: Mapping[str, Any]) -> Mapping[str, int]:
+    config = ctx.get("combat_config") if hasattr(ctx, "get") else None
+    table = getattr(config, "heal_cost_multiplier", None)
+    if isinstance(table, Mapping):
+        return table
+    return _ION_MULTIPLIERS
 
 
 def heal_cmd(arg: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
@@ -45,7 +56,8 @@ def heal_cmd(arg: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
         bus.push("SYSTEM/OK", "You're already at full health.")
         return {"ok": False, "reason": "full_health"}
 
-    cost = _class_multiplier(klass) * max(1, level)
+    multipliers = _heal_cost_multipliers(ctx)
+    cost = _class_multiplier(klass, multipliers) * max(1, level)
     available_ions = pstate.get_ions_for_active(state)
     if available_ions < cost:
         bus.push(

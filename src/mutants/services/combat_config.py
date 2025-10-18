@@ -14,12 +14,30 @@ import json
 import logging
 from dataclasses import dataclass, field, fields as dataclass_fields, replace
 from pathlib import Path
+from types import MappingProxyType
 from typing import Any, Dict, Mapping
 
 LOG = logging.getLogger(__name__)
 
 _CONFIG_SUBDIR = "config"
 _CONFIG_FILENAME = "combat.json"
+
+_HEAL_COST_MULTIPLIER_BASE = {
+    "warrior": 750,
+    "priest": 750,
+    "mage": 1_200,
+    "wizard": 1_000,
+    "thief": 200,
+    "default": 200,
+}
+
+
+def _default_heal_cost_multiplier() -> Mapping[str, int]:
+    return MappingProxyType(dict(_HEAL_COST_MULTIPLIER_BASE))
+
+
+def _freeze_heal_cost_multiplier(values: Mapping[str, int]) -> Mapping[str, int]:
+    return MappingProxyType(dict(values))
 
 
 @dataclass(frozen=True)
@@ -52,6 +70,9 @@ class CombatConfig:
     spell_success_pct: int = 75
     cracked_pickup_bonus: int = 10
     cracked_flee_bonus: int = 5
+    heal_cost_multiplier: Mapping[str, int] = field(
+        default_factory=_default_heal_cost_multiplier
+    )
     rng_seeds: CombatRNGSeeds = field(default_factory=CombatRNGSeeds)
     override_path: Path | None = None
 
@@ -62,7 +83,7 @@ _DEFAULT_CONFIG = CombatConfig()
 _INT_FIELDS = {
     f.name
     for f in dataclass_fields(CombatConfig)
-    if f.init and f.name not in {"rng_seeds", "override_path"}
+    if f.init and f.name not in {"rng_seeds", "override_path", "heal_cost_multiplier"}
 }
 
 
@@ -130,11 +151,80 @@ def _load_overrides(path: Path) -> Dict[str, Any]:
         if parsed_seeds is not None:
             overrides["rng_seeds"] = parsed_seeds
 
-    unused = sorted(set(raw) - set(overrides) - {"rng_seeds"})
+    heal_multiplier_overrides = _parse_heal_cost_multiplier_overrides(raw)
+    if heal_multiplier_overrides is not None:
+        overrides["heal_cost_multiplier"] = heal_multiplier_overrides
+
+    recognized_keys = set(overrides)
+    recognized_keys.add("rng_seeds")
+    recognized_keys.update(
+        key
+        for key in raw
+        if isinstance(key, str) and key.startswith("heal_cost_multiplier.")
+    )
+
+    unused = sorted(set(raw) - recognized_keys)
     if unused:
         LOG.debug("combat config override ignored keys: %s", ", ".join(unused))
 
     return overrides
+
+
+def _parse_heal_cost_multiplier_overrides(raw: Mapping[str, Any]) -> Mapping[str, int] | None:
+    overrides: Dict[str, Any] = {}
+
+    direct = raw.get("heal_cost_multiplier")
+    if direct is not None:
+        if isinstance(direct, Mapping):
+            overrides.update(direct.items())
+        else:
+            LOG.warning(
+                "combat config heal_cost_multiplier override must be a mapping: %r",
+                direct,
+            )
+
+    prefix = "heal_cost_multiplier."
+    for key, value in raw.items():
+        if not isinstance(key, str) or not key.startswith(prefix):
+            continue
+        klass = key[len(prefix) :]
+        if not klass:
+            LOG.warning(
+                "combat config heal_cost_multiplier override has empty class key: %r",
+                key,
+            )
+            continue
+        overrides[klass] = value
+
+    if not overrides:
+        return None
+
+    merged: Dict[str, int] = dict(_HEAL_COST_MULTIPLIER_BASE)
+    applied = False
+
+    for klass, value in overrides.items():
+        normalized = str(klass).strip().lower()
+        if not normalized:
+            LOG.warning(
+                "combat config heal_cost_multiplier override has empty class key: %r",
+                klass,
+            )
+            continue
+        try:
+            merged[normalized] = int(value)
+        except (TypeError, ValueError):
+            LOG.warning(
+                "combat config heal_cost_multiplier override for %s is not an int: %r",
+                normalized,
+                value,
+            )
+            continue
+        applied = True
+
+    if not applied:
+        return None
+
+    return _freeze_heal_cost_multiplier(merged)
 
 
 def _parse_rng_seeds(raw: Any) -> CombatRNGSeeds | None:
@@ -162,3 +252,4 @@ def _parse_rng_seeds(raw: Any) -> CombatRNGSeeds | None:
             )
 
     return CombatRNGSeeds(**seeds)
+
