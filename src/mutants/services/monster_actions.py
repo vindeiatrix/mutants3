@@ -1167,20 +1167,63 @@ def _cast_action(
         "roll": cast_result.roll,
         "threshold": cast_result.threshold,
         "effect": cast_result.effect,
+        "spell": cast_result.spell_name,
+        "spell_id": cast_result.spell_id,
     }
     if cast_result.reason:
         payload["reason"] = cast_result.reason
 
     label = _monster_display_name(monster)
+    spell_label = cast_result.spell_name or "a spell"
     bus = _feedback_bus(ctx)
     if cast_result.reason == "insufficient_ions":
         return payload
 
     if hasattr(bus, "push"):
+        attempt_message = textutils.render_feedback_template(
+            textutils.TEMPLATE_MONSTER_SPELL_ATTEMPT,
+            monster=label,
+            spell=spell_label,
+        )
+        bus.push(
+            "COMBAT/SPELL",
+            attempt_message,
+            template=textutils.TEMPLATE_MONSTER_SPELL_ATTEMPT,
+            monster=label,
+            spell=spell_label,
+            phase="attempt",
+        )
+
         if cast_result.success:
-            bus.push("COMBAT/INFO", f"{label} unleashes crackling energy!")
+            success_message = textutils.render_feedback_template(
+                textutils.TEMPLATE_MONSTER_SPELL_SUCCESS,
+                monster=label,
+                spell=spell_label,
+            )
+            bus.push(
+                "COMBAT/SPELL",
+                success_message,
+                template=textutils.TEMPLATE_MONSTER_SPELL_SUCCESS,
+                monster=label,
+                spell=spell_label,
+                phase="success",
+                ions_spent=cast_result.cost,
+            )
         else:
-            bus.push("COMBAT/INFO", f"{label}'s spell fizzles out.")
+            failure_message = textutils.render_feedback_template(
+                textutils.TEMPLATE_MONSTER_SPELL_FAILURE,
+                monster=label,
+                spell=spell_label,
+            )
+            bus.push(
+                "COMBAT/SPELL",
+                failure_message,
+                template=textutils.TEMPLATE_MONSTER_SPELL_FAILURE,
+                monster=label,
+                spell=spell_label,
+                phase="failure",
+                reason=cast_result.reason,
+            )
 
     _refresh_monster(monster)
     _mark_monsters_dirty(ctx)
@@ -1193,6 +1236,7 @@ def _cast_action(
         ions_spent=cast_result.cost,
         roll=cast_result.roll,
         threshold=cast_result.threshold,
+        spell_id=cast_result.spell_id,
     )
     turnlog.emit(
         ctx,
@@ -1202,6 +1246,8 @@ def _cast_action(
         success=cast_result.success,
         ions_spent=cast_result.cost,
         effect=cast_result.effect,
+        spell_id=cast_result.spell_id,
+        spell=spell_label,
     )
 
     return payload
