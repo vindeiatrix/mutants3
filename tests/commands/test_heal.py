@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import replace
 from pathlib import Path
 import sys
 
@@ -9,7 +10,8 @@ sys.path.append(str(Path(__file__).resolve().parents[2] / "src"))
 
 from mutants import state  # noqa: E402
 from mutants.commands import heal  # noqa: E402
-from mutants.services import player_state  # noqa: E402
+from mutants.services import combat_config, player_state  # noqa: E402
+from types import MappingProxyType
 
 
 class FakeBus:
@@ -164,3 +166,35 @@ def test_heal_rejects_when_ions_insufficient(configure_state_root: Path) -> None
     assert remaining_ions == starting_ions
     assert ctx["feedback_bus"].messages[-1][0] == "SYSTEM/WARN"
     assert f"{cost:,}" in ctx["feedback_bus"].messages[-1][1]
+
+
+def test_heal_cost_uses_combat_config_override(configure_state_root: Path) -> None:
+    klass = "Wizard"
+    level = 5
+    override_multiplier = 321
+    base_hp = 50
+    max_hp = 200
+    starting_ions = override_multiplier * level + 1_000
+
+    initial_state = _write_state(klass, level, base_hp, max_hp, starting_ions)
+
+    overrides = dict(combat_config.CombatConfig().heal_cost_multiplier)
+    overrides[klass.lower()] = override_multiplier
+    config = replace(
+        combat_config.CombatConfig(),
+        heal_cost_multiplier=MappingProxyType(overrides),
+    )
+
+    ctx = {
+        "feedback_bus": FakeBus(),
+        "player_state": dict(initial_state),
+        "combat_config": config,
+    }
+
+    result = heal.heal_cmd("", ctx)
+
+    assert result["ok"] is True
+    assert result["cost"] == override_multiplier * level
+    assert ctx["feedback_bus"].messages[-1][1].endswith(
+        f"({override_multiplier * level:,} ions)."
+    )
