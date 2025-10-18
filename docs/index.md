@@ -35,6 +35,8 @@ extend the game safely.
   surface.
 - [Guides](guides/extending-items.md) — practical walkthroughs for extending items,
   commands, and profiling hot paths.
+- [Combat Tuning](combat_tuning.md) — adjust monster gate thresholds and healing
+  economics via the combat config knobs.
 - [Reference](reference/glossary.md) — glossary, CLI utilities, ADR index, and FAQ.
 - [Contributing](contributing.md) — style, review expectations, and docs rules.
 - [Changelog](changelog.md) — high level history of notable changes.
