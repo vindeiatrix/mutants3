@@ -110,8 +110,13 @@ def emit_sound(
     kind: Any,
     *,
     ctx: Any | None = None,
+    movement: tuple[int, int] | None = None,
 ) -> str | None:
-    """Format and store an audio cue for *kind* if the player can hear it."""
+    """Format and store an audio cue for *kind* if the player can hear it.
+
+    When ``monster_pos`` and ``player_pos`` are co-located, ``movement`` may be
+    provided to hint at the direction from which the monster approached.
+    """
 
     monster = _coerce_pos(monster_pos)
     player = _coerce_pos(player_pos)
@@ -121,19 +126,35 @@ def emit_sound(
         return None
 
     dist = _distance(monster, player)
-    if dist == 0 or dist > _MAX_DISTANCE:
+    if dist > _MAX_DISTANCE:
         return None
 
-    dx = monster[1] - player[1]
-    dy = monster[2] - player[2]
-    token = _direction_token(dx, dy)
-    if token is None:
-        return None
-
-    direction = vision.direction_word(token)
     label = _sound_label(kind)
     qualifier = " far" if dist > 1 else ""
-    message = f"You hear {label}{qualifier} to the {direction}."
+
+    if dist == 0:
+        if not movement:
+            return None
+        mx, my = movement
+        if mx == 0 and my == 0:
+            return None
+        prev_x = monster[1] - mx
+        prev_y = monster[2] - my
+        dx = prev_x - player[1]
+        dy = prev_y - player[2]
+        token = _direction_token(dx, dy)
+        if token is None:
+            return None
+        direction = vision.direction_word(token)
+        message = f"You hear {label} right next to you to the {direction}."
+    else:
+        dx = monster[1] - player[1]
+        dy = monster[2] - player[2]
+        token = _direction_token(dx, dy)
+        if token is None:
+            return None
+        direction = vision.direction_word(token)
+        message = f"You hear {label}{qualifier} to the {direction}."
 
     queue = _resolve_store(ctx, create=True)
     if queue is not None:

@@ -317,7 +317,9 @@ def attempt_pursuit(
         _log(ctx, monster, success=False, reason=reason, **meta)
         return False
 
-    success, details = _apply_movement(monster, int(year), (int(sx), int(sy)), (int(tx), int(ty)), ctx)
+    start_pos = (int(sx), int(sy))
+    target_pos = (int(tx), int(ty))
+    success, details = _apply_movement(monster, int(year), start_pos, target_pos, ctx)
     if success:
         meta.update(details)
         _log(ctx, monster, success=True, reason="moved", **meta)
@@ -325,8 +327,18 @@ def attempt_pursuit(
             monster_pos = monster.get("pos")
         except Exception:  # pragma: no cover - defensive
             monster_pos = None
+        movement: tuple[int, int] | None = None
         try:
-            audio_cues.emit_sound(monster_pos, target, "footsteps", ctx=ctx)
+            step = details.get("step")
+            if isinstance(step, Sequence) and len(step) == 2:
+                mx = int(step[0]) - int(start_pos[0])
+                my = int(step[1]) - int(start_pos[1])
+                if mx != 0 or my != 0:
+                    movement = (mx, my)
+        except Exception:  # pragma: no cover - defensive guard
+            movement = None
+        try:
+            audio_cues.emit_sound(monster_pos, target, kind="footsteps", ctx=ctx, movement=movement)
         except Exception:  # pragma: no cover - defensive guard
             LOG.debug("Failed to emit audio cue for pursuit", exc_info=True)
         return True
