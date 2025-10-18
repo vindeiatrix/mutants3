@@ -183,6 +183,33 @@ def _mark_monsters_dirty(ctx: MutableMapping[str, Any]) -> None:
             LOG.exception("Failed to mark monsters state dirty")
 
 
+def notify_monster_death(
+    payload: Mapping[str, Any] | None,
+    *,
+    ctx: Mapping[str, Any] | None = None,
+) -> None:
+    """Forward monster death notifications to the active spawner, if any."""
+
+    spawner: Any | None = None
+    if isinstance(ctx, Mapping):
+        spawner = ctx.get("monster_spawner")
+        if spawner is None:
+            services = ctx.get("services")
+            if isinstance(services, Mapping):
+                spawner = services.get("monster_spawner")
+    if spawner is None:
+        return
+
+    handler = getattr(spawner, "notify_monster_death", None)
+    if not callable(handler):
+        return
+
+    try:
+        handler(payload)
+    except Exception:  # pragma: no cover - defensive
+        LOG.exception("Failed to notify monster spawner about death")
+
+
 def _sanitize_hp_block(payload: Any) -> tuple[int, int]:
     if isinstance(payload, Mapping):
         try:
