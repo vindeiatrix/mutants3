@@ -16,6 +16,9 @@ TEMPLATE_MONSTER_CONVERT = "combat.monster.convert"
 TEMPLATE_MONSTER_HEAL = "combat.monster.heal"
 TEMPLATE_MONSTER_HEAL_VISUAL = "combat.monster.heal_visual"
 TEMPLATE_MONSTER_DROP = "combat.monster.drop"
+TEMPLATE_MONSTER_SPELL_ATTEMPT = "combat.monster.spell.attempt"
+TEMPLATE_MONSTER_SPELL_SUCCESS = "combat.monster.spell.success"
+TEMPLATE_MONSTER_SPELL_FAILURE = "combat.monster.spell.failure"
 
 _TEMPLATE_FORMATS: dict[str, str] = {
     TEMPLATE_MONSTER_MELEE_HIT: "{monster} has hit you with his {weapon}!",
@@ -24,6 +27,9 @@ _TEMPLATE_FORMATS: dict[str, str] = {
     TEMPLATE_MONSTER_HEAL: "{monster} restores {hp} HP ({ions} ions).",
     TEMPLATE_MONSTER_HEAL_VISUAL: "{monster}'s body is glowing!",
     TEMPLATE_MONSTER_DROP: "{monster} has dropped {item}.",
+    TEMPLATE_MONSTER_SPELL_ATTEMPT: "{monster} begins casting {spell}...",
+    TEMPLATE_MONSTER_SPELL_SUCCESS: "{monster} casts {spell}!",
+    TEMPLATE_MONSTER_SPELL_FAILURE: "{monster}'s spell fizzles out.",
 }
 
 
@@ -88,6 +94,9 @@ __all__ = [
     "TEMPLATE_MONSTER_HEAL",
     "TEMPLATE_MONSTER_HEAL_VISUAL",
     "TEMPLATE_MONSTER_DROP",
+    "TEMPLATE_MONSTER_SPELL_ATTEMPT",
+    "TEMPLATE_MONSTER_SPELL_SUCCESS",
+    "TEMPLATE_MONSTER_SPELL_FAILURE",
     "harden_final_display",
     "render_feedback_template",
     "resolve_feedback_text",

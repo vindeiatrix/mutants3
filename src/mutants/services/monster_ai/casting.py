@@ -18,8 +18,17 @@ class CastResult:
     remaining_ions: int
     roll: Optional[int]
     threshold: Optional[int]
-    effect: Optional[str] = None
+    spell_id: Optional[str] = None
+    spell_name: Optional[str] = None
+    effect: Optional[Mapping[str, Any]] = None
     reason: Optional[str] = None
+
+
+_DEFAULT_SPELL: Mapping[str, Any] = {
+    "id": "arcane-burst",
+    "name": "Arcane Burst",
+    "kind": "arcane",
+}
 
 
 def _coerce_int(value: Any, default: int = 0) -> int:
@@ -128,9 +137,12 @@ def try_cast(
         success = roll < success_threshold
 
     failure_reason: Optional[str]
+    spell_payload = dict(_DEFAULT_SPELL)
+    spell_id = spell_payload.get("id")
+    spell_name = spell_payload.get("name")
     if success:
         cost_paid = spell_cost
-        effect = "arcane-burst"
+        effect: Optional[Mapping[str, Any]] = spell_payload
         failure_reason = None
     else:
         cost_paid = spell_cost // 2
@@ -149,6 +161,8 @@ def try_cast(
         remaining_ions=remaining,
         roll=roll,
         threshold=success_threshold,
+        spell_id=str(spell_id) if spell_id is not None else None,
+        spell_name=str(spell_name) if spell_name is not None else None,
         effect=effect,
         reason=failure_reason,
     )

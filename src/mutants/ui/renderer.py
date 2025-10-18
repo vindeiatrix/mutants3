@@ -57,6 +57,7 @@ def _feedback_token(kind: str) -> str:
         "COMBAT/READY": st.FEED_TAUNT,
         "COMBAT/HEAL": st.FEED_COMBAT,
         "COMBAT/HEAL_MONSTER": st.FEED_COMBAT,
+        "COMBAT/SPELL": st.FEED_SPELL,
         "LOOT/PICKUP": st.FEED_LOOT,
         "LOOT/DROP": st.FEED_LOOT,
         "SPELL/CAST": st.FEED_SPELL,
