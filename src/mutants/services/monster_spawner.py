@@ -34,6 +34,7 @@ from mutants.services import player_state as pstate
 from mutants.services.monster_entities import DEFAULT_INNATE_ATTACK_LINE
 
 
+LOG = logging.getLogger(__name__)
 LOG_P = logging.getLogger("mutants.playersdbg")
 
 
@@ -253,6 +254,7 @@ class MonsterSpawnerController:
         self._world_loader = world_loader
 
         self._years: Dict[int, _YearState] = {}
+        self._dirty_years: set[int] = set()
         self._init_years(templates)
 
     # ------------------------------------------------------------------
@@ -312,6 +314,79 @@ class MonsterSpawnerController:
         delta = max(1.0, delta)
         year_state.next_spawn_at = now + delta
 
+    def _resolve_year(
+        self,
+        payload: Mapping[str, Any] | None = None,
+        *,
+        pos: Iterable[Any] | None = None,
+        year: int | None = None,
+    ) -> int | None:
+        if year is not None:
+            try:
+                return int(year)
+            except (TypeError, ValueError):
+                return None
+
+        candidate_pos: Iterable[Any] | None = pos
+        if candidate_pos is None and isinstance(payload, Mapping):
+            raw_pos = payload.get("pos")
+            if raw_pos is None and isinstance(payload.get("monster"), Mapping):
+                raw_pos = payload["monster"].get("pos")
+            if raw_pos is None and isinstance(payload.get("summary"), Mapping):
+                raw_pos = payload["summary"].get("pos")
+            candidate_pos = raw_pos  # type: ignore[assignment]
+
+        if isinstance(candidate_pos, Mapping):
+            candidate_pos = candidate_pos.get("pos")  # type: ignore[assignment]
+
+        if isinstance(candidate_pos, Iterable):
+            parts = list(candidate_pos)
+            if parts:
+                try:
+                    return int(parts[0])
+                except (TypeError, ValueError):
+                    return None
+
+        if isinstance(payload, Mapping):
+            for key in ("year", "world_year"):
+                if payload.get(key) is None:
+                    continue
+                try:
+                    return int(payload.get(key))
+                except (TypeError, ValueError):
+                    continue
+        return None
+
+    def notify_monster_death(
+        self,
+        payload: Mapping[str, Any] | None = None,
+        *,
+        pos: Iterable[Any] | None = None,
+        year: int | None = None,
+    ) -> None:
+        """Record a monster death and mark the owning year dirty."""
+
+        resolved_year = self._resolve_year(payload, pos=pos, year=year)
+        if resolved_year is None:
+            LOG.debug("Monster death notification missing year; ignoring")
+            return
+
+        now = self._time()
+        year_state = self._years.get(resolved_year)
+        if year_state is not None:
+            if year_state.next_spawn_at <= 0 or year_state.next_spawn_at > now:
+                year_state.next_spawn_at = now
+        self._dirty_years.add(resolved_year)
+        LOG.info(
+            "Monster death recorded for year %s; respawn stub queued",
+            resolved_year,
+        )
+
+    def pending_respawn_years(self) -> frozenset[int]:
+        """Return the set of years awaiting a respawn tick."""
+
+        return frozenset(self._dirty_years)
+
     # ------------------------------------------------------------------
     def tick(self) -> None:
         now = self._time()
@@ -319,6 +394,7 @@ class MonsterSpawnerController:
             if self._floor <= 0:
                 continue
             if self._count_live(year) >= self._floor:
+                self._dirty_years.discard(year)
                 continue
             if now < year_state.next_spawn_at:
                 continue
@@ -362,6 +438,7 @@ class MonsterSpawnerController:
                 pass
         self._instances.save()
         self._schedule_next(year_state, now)
+        self._dirty_years.discard(year)
 
 
 def build_controller(
