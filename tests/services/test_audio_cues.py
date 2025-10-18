@@ -44,3 +44,27 @@ def test_drain_clears_queue() -> None:
 
     assert first == [message]
     assert second == []
+
+
+def test_emit_sound_uses_movement_hint_when_overlapping() -> None:
+    ctx: dict[str, object] = {}
+
+    message = audio_cues.emit_sound(
+        (2000, 1, 0),
+        (2000, 1, 0),
+        "footsteps",
+        ctx=ctx,
+        movement=(1, 0),
+    )
+
+    assert message == "You hear footsteps right next to you to the west."
+    assert audio_cues.drain(ctx) == [message]
+
+
+def test_emit_sound_ignores_overlapping_without_movement_hint() -> None:
+    ctx: dict[str, object] = {}
+
+    message = audio_cues.emit_sound((2000, 1, 0), (2000, 1, 0), "footsteps", ctx=ctx)
+
+    assert message is None
+    assert audio_cues.drain(ctx) == []
