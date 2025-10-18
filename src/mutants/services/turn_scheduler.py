@@ -8,6 +8,7 @@ from mutants.debug import turnlog
 if TYPE_CHECKING:
     from mutants.services.status_manager import StatusManager
 from mutants.services import random_pool
+from mutants.services.combat_config import CombatConfig
 
 LOG = logging.getLogger(__name__)
 
@@ -228,16 +229,28 @@ class TurnScheduler:
 
         self._free_actions.append(_action)
 
+    def _combat_config(self) -> CombatConfig | None:
+        ctx = self._ctx
+        if isinstance(ctx, Mapping):
+            candidate = ctx.get("combat_config")
+        else:
+            candidate = getattr(ctx, "combat_config", None)
+        if isinstance(candidate, CombatConfig):
+            return candidate
+        return None
+
     def queue_bonus_action(
         self,
         monster: Mapping[str, Any] | None,
         *,
-        pickup_bias: float = 0.25,
+        pickup_bias: float | None = None,
     ) -> None:
         """Schedule an immediate bonus cascade for *monster*.
 
-        A random roll using ``pickup_bias`` (default ``25%``) may force the
-        ``PICKUP`` gate when loot is available.
+        A random roll using ``pickup_bias`` may force the ``PICKUP`` gate when
+        loot is available.  When *pickup_bias* is ``None`` the value from the
+        active :class:`~mutants.services.combat_config.CombatConfig` is used,
+        falling back to ``25%`` when no config is present.
         """
 
         if not isinstance(monster, Mapping):
@@ -246,6 +259,13 @@ class TurnScheduler:
         monster_id = self._monster_id(monster)
         if not monster_id:
             monster_id = "?"
+
+        if pickup_bias is None:
+            config = self._combat_config()
+            pct = 25
+            if config is not None:
+                pct = int(config.post_kill_force_pickup_pct)
+            pickup_bias = pct / 100.0
 
         clamped_bias = max(0.0, min(1.0, float(pickup_bias)))
         cutoff = int(round(clamped_bias * 100))

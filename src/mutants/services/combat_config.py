@@ -70,6 +70,7 @@ class CombatConfig:
     spell_success_pct: int = 75
     cracked_pickup_bonus: int = 10
     cracked_flee_bonus: int = 5
+    post_kill_force_pickup_pct: int = 25
     heal_cost_multiplier: Mapping[str, int] = field(
         default_factory=_default_heal_cost_multiplier
     )

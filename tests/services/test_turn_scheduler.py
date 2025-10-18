@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import pytest
 
@@ -9,6 +9,7 @@ from mutants.repl.dispatch import Dispatch
 from mutants.services import random_pool
 from mutants.services.random_pool import RandomPool
 from mutants.services.turn_scheduler import TurnScheduler
+from mutants.services.combat_config import CombatConfig
 
 
 class DummyBus:
@@ -165,6 +166,36 @@ def test_bonus_action_pickup_bias(monkeypatch: pytest.MonkeyPatch) -> None:
 
     scheduler.queue_bonus_action(monster)
     scheduler._run_free_actions(DummyRNG([75]))
+
+    assert len(payloads) == 2
+    assert payloads[1] == {"monster_id": "mon-1", "force_pickup": False, "bonus": True}
+    assert "monster_ai_bonus_action" not in ctx
+
+
+def test_bonus_action_pickup_bias_from_config(monkeypatch: pytest.MonkeyPatch) -> None:
+    ctx: dict[str, Any] = {}
+    scheduler = TurnScheduler(ctx)
+    ctx["combat_config"] = CombatConfig(post_kill_force_pickup_pct=80)
+    ctx["turn_scheduler"] = scheduler
+
+    monster = {"id": "mon-1"}
+    payloads: list[dict[str, Any] | None] = []
+
+    def fake_execute(mon: Any, context: Any, rng: Any | None = None) -> None:
+        entry = context.get("monster_ai_bonus_action")
+        payloads.append(dict(entry) if isinstance(entry, dict) else entry)
+
+    monkeypatch.setattr("mutants.services.monster_actions.execute_random_action", fake_execute)
+
+    scheduler.queue_bonus_action(monster)
+    scheduler._run_free_actions(DummyRNG([79]))
+
+    assert len(payloads) == 1
+    assert payloads[0] == {"monster_id": "mon-1", "force_pickup": True, "bonus": True}
+    assert "monster_ai_bonus_action" not in ctx
+
+    scheduler.queue_bonus_action(monster)
+    scheduler._run_free_actions(DummyRNG([80]))
 
     assert len(payloads) == 2
     assert payloads[1] == {"monster_id": "mon-1", "force_pickup": False, "bonus": True}
