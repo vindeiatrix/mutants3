@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Any, Mapping, MutableMapping, Sequence
+from typing import Any, Dict, Mapping, MutableMapping, Sequence
 
 from mutants.players import startup as player_startup
 from mutants.services import player_state as pstate
@@ -12,6 +12,64 @@ from mutants.services import player_state as pstate
 LOG = logging.getLogger(__name__)
 
 _DEFAULT_RESPAWN_POS = (2000, 0, 0)
+
+
+class _MonsterLedger:
+    """Helpers for updating a monster's ion and riblet ledger."""
+
+    @staticmethod
+    def _ensure_container(
+        monster: MutableMapping[str, Any], key: str
+    ) -> MutableMapping[str, Any]:
+        payload = monster.get(key)
+        if isinstance(payload, MutableMapping):
+            return payload
+        if isinstance(payload, Mapping):
+            container = dict(payload)
+        else:
+            container = {}
+        monster[key] = container
+        return container
+
+    def deposit(
+        self,
+        monster: MutableMapping[str, Any] | Mapping[str, Any] | None,
+        *,
+        ions: Any = 0,
+        riblets: Any = 0,
+    ) -> Dict[str, int]:
+        """Deposit currencies into ``monster``'s ledger.
+
+        The ledger is stored under ``monster["_ai_state"]["ledger"]`` and mirrored on the
+        top-level ``monster`` mapping to keep persistence helpers in sync.
+        """
+
+        if not isinstance(monster, MutableMapping):
+            return {"ions": 0, "riblets": 0}
+
+        ai_state = self._ensure_container(monster, "_ai_state")
+        ledger = self._ensure_container(ai_state, "ledger")
+
+        base_ions = _coerce_int(ledger.get("ions"), _coerce_int(monster.get("ions"), 0))
+        base_riblets = _coerce_int(
+            ledger.get("riblets"), _coerce_int(monster.get("riblets"), 0)
+        )
+
+        deposit_ions = max(0, _coerce_int(ions, 0))
+        deposit_riblets = max(0, _coerce_int(riblets, 0))
+
+        total_ions = base_ions + deposit_ions
+        total_riblets = base_riblets + deposit_riblets
+
+        ledger["ions"] = total_ions
+        ledger["riblets"] = total_riblets
+        monster["ions"] = total_ions
+        monster["riblets"] = total_riblets
+
+        return {"ions": total_ions, "riblets": total_riblets}
+
+
+monster_ledger = _MonsterLedger()
 
 
 def _coerce_int(value: Any, default: int = 0) -> int:
@@ -53,48 +111,9 @@ def _transfer_currency_to_monster(
     ions: int,
     riblets: int,
 ) -> None:
-    if not isinstance(monster, MutableMapping):
-        return
+    """Backward-compatible helper routing through :mod:`monster_ledger`."""
 
-    ledger_container: MutableMapping[str, Any]
-    ai_state = monster.get("_ai_state")
-    if isinstance(ai_state, MutableMapping):
-        ledger_container = ai_state
-    elif isinstance(ai_state, Mapping):
-        ledger_container = dict(ai_state)
-        monster["_ai_state"] = ledger_container
-    else:
-        ledger_container = {}
-        monster["_ai_state"] = ledger_container
-
-    ledger_payload = ledger_container.get("ledger")
-    if isinstance(ledger_payload, MutableMapping):
-        ledger = ledger_payload
-    elif isinstance(ledger_payload, Mapping):
-        ledger = dict(ledger_payload)
-        ledger_container["ledger"] = ledger
-    else:
-        ledger = {}
-        ledger_container["ledger"] = ledger
-
-    base_ions = _coerce_int(ledger.get("ions"), _coerce_int(monster.get("ions"), 0))
-    base_riblets = _coerce_int(ledger.get("riblets"), _coerce_int(monster.get("riblets"), 0))
-
-    if ions:
-        total_ions = base_ions + ions
-        ledger["ions"] = total_ions
-        monster["ions"] = total_ions
-    else:
-        ledger.setdefault("ions", base_ions)
-        monster.setdefault("ions", base_ions)
-
-    if riblets:
-        total_riblets = base_riblets + riblets
-        ledger["riblets"] = total_riblets
-        monster["riblets"] = total_riblets
-    else:
-        ledger.setdefault("riblets", base_riblets)
-        monster.setdefault("riblets", base_riblets)
+    monster_ledger.deposit(monster, ions=ions, riblets=riblets)
 
 
 def _clear_player_inventory(
@@ -291,8 +310,6 @@ def handle_player_death(
     previous_ions = pstate.get_ions_for_active(state_obj)
     previous_riblets = pstate.get_riblets_for_active(state_obj)
 
-    _transfer_currency_to_monster(killer_monster, previous_ions, previous_riblets)
-
     _clear_player_inventory(state_obj, active_obj, cls)
     _clear_ready_target(state_obj, active_obj, cls)
     _reset_riblets(state_obj, active_obj, cls)
@@ -324,4 +341,4 @@ def handle_player_death(
     return state_obj
 
 
-__all__ = ["handle_player_death"]
+__all__ = ["handle_player_death", "monster_ledger"]
