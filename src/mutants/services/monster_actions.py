@@ -592,6 +592,24 @@ def _handle_player_death(
     victim_id = str(active.get("id") or state.get("active_id") or "player")
     victim_class = pstate.get_active_class(state)
 
+    player_ions = 0
+    player_riblets = 0
+    try:
+        player_ions = max(0, pstate.get_ions_for_active(state))
+    except Exception:  # pragma: no cover - defensive guard
+        LOG.exception("Failed to resolve player ions for kill reward")
+    try:
+        player_riblets = max(0, pstate.get_riblets_for_active(state))
+    except Exception:  # pragma: no cover - defensive guard
+        LOG.exception("Failed to resolve player riblets for kill reward")
+
+    ledger_helper = getattr(player_death, "monster_ledger", None)
+    if hasattr(ledger_helper, "deposit"):
+        try:
+            ledger_helper.deposit(monster, ions=player_ions, riblets=player_riblets)
+        except Exception:  # pragma: no cover - defensive guard
+            LOG.exception("Failed to deposit kill rewards into monster ledger")
+
     if hasattr(bus, "push"):
         bus.push("COMBAT/INFO", f"{label} slays you!")
         bus.push(
