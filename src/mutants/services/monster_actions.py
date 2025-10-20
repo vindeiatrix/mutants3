@@ -47,7 +47,11 @@ def _coerce_int(value: Any, default: int = 0) -> int:
 
 
 def _monster_display_name(monster: Mapping[str, Any]) -> str:
-    name = monster.get("name") or monster.get("monster_id")
+    name = (
+        monster.get("display_name")
+        or monster.get("name")
+        or monster.get("monster_id")
+    )
     if isinstance(name, str) and name:
         return name
     ident = monster.get("id") or monster.get("instance_id")

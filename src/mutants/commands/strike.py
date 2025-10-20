@@ -31,7 +31,11 @@ def _load_monsters(ctx: Mapping[str, Any]) -> Any:
 
 
 def _monster_display_name(monster: Mapping[str, Any], fallback: str) -> str:
-    name = monster.get("name") or monster.get("monster_id")
+    name = (
+        monster.get("display_name")
+        or monster.get("name")
+        or monster.get("monster_id")
+    )
     return str(name) if name else fallback
 
 
@@ -69,6 +73,12 @@ def _coerce_pos(value: Any, fallback: Optional[Sequence[int]] = None) -> Optiona
     if fallback is None:
         return None
     return combat_loot.coerce_pos(fallback)
+
+
+def _entity_position(entity: Mapping[str, Any] | None) -> Optional[tuple[int, int, int]]:
+    if not isinstance(entity, Mapping):
+        return None
+    return _coerce_pos(entity.get("pos"))
 
 
 def _resolve_target_armour(monster: Mapping[str, Any]) -> Optional[MutableMapping[str, Any]]:
@@ -375,6 +385,11 @@ def strike_cmd(arg: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
         return {"ok": False, "reason": "no_monsters"}
 
     state, active = pstate.get_active_pair()
+    player_pos = None
+    if isinstance(active, Mapping):
+        player_pos = _entity_position(active)
+    if player_pos is None and isinstance(state, Mapping):
+        player_pos = _entity_position(state)
     target_id = pstate.get_ready_target_for_active(state)
     if not target_id and stored_target:
         refreshed = pstate.set_ready_target_for_active(stored_target)
@@ -397,6 +412,17 @@ def strike_cmd(arg: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
     if not isinstance(target, MutableMapping):
         bus.push("SYSTEM/WARN", "You cannot strike that target.")
         return {"ok": False, "reason": "invalid_target"}
+
+    target_pos = _entity_position(target)
+    if (
+        player_pos is not None
+        and target_pos is not None
+        and player_pos != target_pos
+    ):
+        bus.push("SYSTEM/WARN", "Your target is nowhere to be found.")
+        pstate.clear_ready_target_for_active(reason="target-missing")
+        pstate.set_runtime_combat_target(runtime_state, None)
+        return {"ok": False, "reason": "target_missing"}
 
     if not _is_alive(target):
         bus.push("SYSTEM/WARN", "Your target is already dead.")

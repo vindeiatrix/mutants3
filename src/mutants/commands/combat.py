@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List, Mapping, Optional, Tuple
+from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
 from mutants.services import player_state as pstate
 from mutants.util.textnorm import normalize_item_query
@@ -39,9 +39,109 @@ def _is_alive(monster: Mapping[str, Any]) -> bool:
     return True
 
 
-def _display_name(monster: Mapping[str, Any], fallback_id: str) -> str:
-    name = monster.get("name") or monster.get("monster_id")
-    return str(name) if name else fallback_id
+def _monster_id(monster: Mapping[str, Any]) -> str:
+    raw_id = monster.get("id") or monster.get("instance_id") or monster.get("monster_id")
+    return str(raw_id) if raw_id else ""
+
+
+def _monster_display_name(monster: Mapping[str, Any]) -> str:
+    name = monster.get("display_name") or monster.get("name")
+    if isinstance(name, str) and name.strip():
+        return name.strip()
+    ident = _monster_id(monster)
+    return ident or "monster"
+
+
+def _monster_base_name(monster: Mapping[str, Any]) -> str:
+    base = monster.get("base_name")
+    if isinstance(base, str) and base.strip():
+        return base.strip()
+    display = _monster_display_name(monster)
+    suffix = monster.get("instance_suffix")
+    if isinstance(suffix, int) and suffix >= 0:
+        token = f"-{suffix}"
+        if display.endswith(token):
+            return display[: -len(token)]
+    return display
+
+
+def _monster_suffix(monster: Mapping[str, Any]) -> Optional[int]:
+    suffix = monster.get("instance_suffix")
+    if isinstance(suffix, int) and suffix >= 0:
+        return suffix
+    if isinstance(suffix, str) and suffix.isdigit():
+        return int(suffix)
+    display = _monster_display_name(monster)
+    parts = display.rsplit("-", 1)
+    if len(parts) == 2 and parts[1].isdigit():
+        return int(parts[1])
+    return None
+
+
+def _format_example_target(base_name: str, suffix: Optional[int]) -> str:
+    name = base_name.strip() if base_name else "Monster"
+    if suffix is None:
+        return name
+    return f"{name}-{suffix}"
+
+
+def _find_target_monster(
+    token: str,
+    monsters: Sequence[Mapping[str, Any]],
+    bus: Any,
+) -> Tuple[Optional[Mapping[str, Any]], Optional[str], Optional[str], str]:
+    normalized = normalize_item_query(token)
+    lowered = token.strip().lower()
+
+    def _matches_display(monster: Mapping[str, Any]) -> bool:
+        display = _monster_display_name(monster)
+        return bool(normalized and normalize_item_query(display) == normalized)
+
+    display_matches = [mon for mon in monsters if _matches_display(mon)]
+    if len(display_matches) == 1:
+        target = display_matches[0]
+        ident = _monster_id(target)
+        return target, ident, _monster_display_name(target), "ok"
+    if len(display_matches) > 1:
+        base_name = _monster_base_name(display_matches[0])
+        suffix = _monster_suffix(display_matches[0])
+        example = _format_example_target(base_name, suffix)
+        bus.push(
+            "SYSTEM/WARN",
+            f"Multiple {base_name} monsters found. Specify by number (e.g., com {example}).",
+        )
+        return None, None, None, "ambiguous"
+
+    for monster in monsters:
+        monster_id = _monster_id(monster)
+        if monster_id and monster_id.lower() == lowered:
+            return monster, monster_id, _monster_display_name(monster), "ok"
+        if normalized and monster_id and normalize_item_query(monster_id) == normalized:
+            return monster, monster_id, _monster_display_name(monster), "ok"
+
+    base_matches: List[Mapping[str, Any]] = []
+    for monster in monsters:
+        base_name = _monster_base_name(monster)
+        if normalized and normalize_item_query(base_name).startswith(normalized):
+            base_matches.append(monster)
+
+    if len(base_matches) == 1:
+        target = base_matches[0]
+        ident = _monster_id(target)
+        return target, ident, _monster_display_name(target), "ok"
+
+    if len(base_matches) > 1:
+        base_name = _monster_base_name(base_matches[0])
+        suffix = _monster_suffix(base_matches[0])
+        example = _format_example_target(base_name, suffix)
+        bus.push(
+            "SYSTEM/WARN",
+            f"Multiple {base_name} monsters found. Specify by number (e.g., com {example}).",
+        )
+        return None, None, None, "ambiguous"
+
+    bus.push("SYSTEM/WARN", f"No monster here matches '{token}'.")
+    return None, None, None, "not_found"
 
 
 def combat_cmd(arg: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
@@ -79,35 +179,13 @@ def combat_cmd(arg: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
         bus.push("SYSTEM/WARN", "No living monsters here to fight.")
         return {"ok": False, "reason": "no_monsters"}
 
-    matches: List[Tuple[int, int, Mapping[str, Any], str]] = []
-    norm_token = normalized or lowered
-    for index, monster in enumerate(living):
-        raw_id = monster.get("id") or monster.get("instance_id") or monster.get("monster_id")
-        monster_id = str(raw_id) if raw_id else ""
-        norm_id = normalize_item_query(monster_id)
-        display_name = _display_name(monster, monster_id or "monster")
-        norm_name = normalize_item_query(display_name)
-        if not norm_token:
-            continue
-        if norm_id.startswith(norm_token):
-            priority = 0 if norm_id == norm_token else 1
-        elif monster_id and monster_id.lower().startswith(lowered):
-            priority = 0 if monster_id.lower() == lowered else 2
-        elif norm_name.startswith(norm_token):
-            priority = 0 if norm_name == norm_token else 3
-        else:
-            continue
-        matches.append((priority, index, monster, monster_id))
+    target_monster, target_id, target_name, status = _find_target_monster(token, living, bus)
+    if status != "ok" or not target_monster or not target_id:
+        return {"ok": False, "reason": status}
 
-    if not matches:
-        bus.push("SYSTEM/WARN", f"No monster here matches '{token}'.")
-        return {"ok": False, "reason": "not_found"}
-
-    matches.sort(key=lambda entry: (entry[0], entry[1]))
-    _, _, target_monster, target_id = matches[0]
     sanitized = pstate.set_ready_target_for_active(target_id)
     pstate.set_runtime_combat_target(ctx.get("player_state"), (sanitized or target_id) or None)
-    label = _display_name(target_monster, sanitized or target_id)
+    label = target_name if target_name else (sanitized or target_id)
     bus.push("SYSTEM/OK", f"You ready yourself against {label}.")
     return {"ok": True, "target_id": sanitized or target_id, "target_name": label}
 

@@ -35,18 +35,14 @@ def _copy_stats(base: Mapping[str, Any]) -> Dict[str, int]:
     return stats
 
 
-def _generate_instance_name(base: Mapping[str, Any], instance_id: str) -> str:
+def _sanitize_base_name(base: Mapping[str, Any]) -> str:
     raw_name = base.get("name") or base.get("monster_id") or "Monster"
-    parts = re.findall(r"[A-Za-z0-9]+", str(raw_name))
-    if parts:
-        token = "-".join(part.capitalize() for part in parts)
-    else:
-        token = "Monster"
-    try:
-        suffix_source = int(instance_id.split("#")[-1], 16)
-    except ValueError:
-        suffix_source = abs(hash(instance_id))
-    suffix = (suffix_source % 3000) + 1
+    name = str(raw_name).strip()
+    return name or "Monster"
+
+
+def _format_display_name(name: str, suffix: int) -> str:
+    token = name if isinstance(name, str) and name.strip() else "Monster"
     return f"{token}-{suffix}"
 
 class MonstersInstances:
@@ -79,6 +75,7 @@ class MonstersInstances:
         # injected store so we no longer maintain an in-memory snapshot.
         self._path = Path(path)
         self._store = store or get_stores().monsters
+        self._suffix_cache: Dict[str, int] = {}
 
     # ---------- Internal helpers ----------
     @staticmethod
@@ -153,7 +150,74 @@ class MonstersInstances:
             raise KeyError("instance_id")
         store.spawn(payload)
         stored = store.get(str(instance_id))
-        return stored or payload
+        record = stored if isinstance(stored, dict) else payload
+        self._update_suffix_cache(record)
+        return record
+
+    def _merge_stats_payload(self, record: Dict[str, Any]) -> Dict[str, Any]:
+        merged = dict(record)
+        stats_json = merged.get("stats_json")
+        if isinstance(stats_json, str) and stats_json.strip():
+            try:
+                decoded = json.loads(stats_json)
+            except json.JSONDecodeError:
+                decoded = None
+            if isinstance(decoded, Mapping):
+                for key, value in decoded.items():
+                    merged.setdefault(key, value)
+        return merged
+
+    def _extract_suffix(self, record: Mapping[str, Any]) -> Optional[int]:
+        suffix = record.get("instance_suffix")
+        if isinstance(suffix, int) and suffix >= 0:
+            return suffix
+        if isinstance(suffix, str) and suffix.isdigit():
+            return int(suffix)
+        stats_block = record.get("stats")
+        stats_display = None
+        if isinstance(stats_block, Mapping):
+            stats_display = stats_block.get("display_name")
+        name_source = record.get("display_name") or record.get("name") or stats_display
+        if isinstance(name_source, str):
+            token = name_source.strip()
+            match = re.search(r"-(\d+)$", token)
+            if match:
+                try:
+                    return int(match.group(1))
+                except ValueError:
+                    return None
+        return None
+
+    def _update_suffix_cache(self, record: Mapping[str, Any]) -> None:
+        monster_id = record.get("monster_id")
+        if not monster_id:
+            return
+        monster_token = str(monster_id)
+        suffix = self._extract_suffix(record)
+        if suffix is None:
+            return
+        current = self._suffix_cache.get(monster_token, 0)
+        if suffix > current:
+            self._suffix_cache[monster_token] = suffix
+
+    def next_instance_suffix(self, monster_id: str) -> int:
+        token = str(monster_id)
+        if token not in self._suffix_cache:
+            max_suffix = 0
+            try:
+                for record in self.list_all():
+                    if not isinstance(record, Mapping):
+                        continue
+                    if str(record.get("monster_id")) != token:
+                        continue
+                    suffix = self._extract_suffix(record)
+                    if suffix is not None and suffix > max_suffix:
+                        max_suffix = suffix
+            except Exception:
+                max_suffix = 0
+            self._suffix_cache[token] = max_suffix
+        self._suffix_cache[token] += 1
+        return self._suffix_cache[token]
 
     def spawn(self, inst: Dict[str, Any]) -> Dict[str, Any]:
         return self._add(inst)
@@ -185,6 +249,9 @@ class MonstersInstances:
         rr = rng or random.Random()
         year, x, y = map(int, pos)
         instance_id = f"{base['monster_id']}#{uuid.uuid4().hex[:8]}"
+        base_name = _sanitize_base_name(base)
+        suffix = self.next_instance_suffix(str(base["monster_id"]))
+        display_name = _format_display_name(base_name, suffix)
 
         lvl = int(level if level is not None else base.get("level", 1))
         ions_rng = (int(base.get("ions_min", 0)), int(base.get("ions_max", 0)))
@@ -272,7 +339,10 @@ class MonstersInstances:
             },
             "spells": list(base.get("spells", [])),
         }
-        inst["name"] = _generate_instance_name(base, instance_id)
+        inst["base_name"] = base_name
+        inst["instance_suffix"] = suffix
+        inst["display_name"] = display_name
+        inst["name"] = display_name
         return self._add(inst)
 
     def set_target_player(self, instance_id: str, player_id: Optional[str]) -> None:
@@ -306,21 +376,36 @@ class MonstersInstances:
     def get(self, instance_id: str) -> Optional[Dict[str, Any]]:
         store = self._ensure_store()
         record = store.get(str(instance_id))
-        return dict(record) if isinstance(record, dict) else record
+        if isinstance(record, dict):
+            merged = self._merge_stats_payload(record)
+            self._update_suffix_cache(merged)
+            return merged
+        return record
 
     def list_all(self) -> Iterable[Dict[str, Any]]:
         store = self._ensure_store()
-        return list(store.snapshot())
+        payloads = []
+        for record in store.snapshot():
+            if isinstance(record, dict):
+                merged = self._merge_stats_payload(record)
+                self._update_suffix_cache(merged)
+                payloads.append(merged)
+        return payloads
 
     def list_at(self, year: int, x: int, y: int) -> Iterable[Dict[str, Any]]:
         store = self._ensure_store()
-        return list(
-            store.list_at(
-                self._coerce_int(year),
-                self._coerce_int(x),
-                self._coerce_int(y),
-            )
-        )
+        results: List[Dict[str, Any]] = []
+        for raw in store.list_at(
+            self._coerce_int(year),
+            self._coerce_int(x),
+            self._coerce_int(y),
+        ):
+            if not isinstance(raw, dict):
+                continue
+            merged = self._merge_stats_payload(raw)
+            self._update_suffix_cache(merged)
+            results.append(merged)
+        return results
 
     # ---------- Direct store helpers ----------
     def update_fields(self, instance_id: str, **fields: Any) -> None:

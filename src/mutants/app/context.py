@@ -196,7 +196,11 @@ def build_room_vm(
     if monsters:
         try:
             for m in monsters.list_at(year, x, y):  # type: ignore[attr-defined]
-                name = m.get("name") or m.get("monster_id", "?")
+                name = (
+                    m.get("display_name")
+                    or m.get("name")
+                    or m.get("monster_id", "?")
+                )
                 raw_id = m.get("id") or m.get("instance_id") or m.get("monster_id")
                 mid = str(raw_id) if raw_id else ""
                 hp_block = m.get("hp") if isinstance(m, Mapping) else None
