@@ -829,6 +829,7 @@ def roll_entry_target(
     *,
     config: CombatConfig | None = None,
     bus: Any | None = None,
+    event: str = "ENTRY",
 ) -> Dict[str, Any]:
     try:
         state, active = pstate.get_active_pair(player_state)
@@ -868,8 +869,11 @@ def roll_entry_target(
             tracking_mod.record_target_position(monster, player_id, player_pos)
         return {"ok": True, "target_set": False, "taunt": None, "woke": True}
 
+    normalized_event = event.upper() if isinstance(event, str) else "ENTRY"
+    if normalized_event not in {"ENTRY", "LOOK"}:
+        normalized_event = "ENTRY"
     config_obj = config if isinstance(config, CombatConfig) else _ENTRY_DEFAULT_CONFIG
-    woke = _should_wake(monster, "ENTRY", rng, config_obj)
+    woke = _should_wake(monster, normalized_event, rng, config_obj)
     if not woke:
         return {"ok": True, "target_set": False, "taunt": None, "woke": False}
 

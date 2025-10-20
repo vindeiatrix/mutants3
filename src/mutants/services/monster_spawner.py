@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import logging
 import random
+import re
 import time
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, Iterable, List, Mapping, MutableMapping
@@ -105,7 +106,12 @@ def _mint_item_instance_id(template: Mapping[str, Any], item: Mapping[str, Any])
     return itemsreg.mint_iid()
 
 
-def _clone_inventory(template: Mapping[str, Any]) -> tuple[List[Dict[str, Any]], str | None]:
+_STAT_KEYS = ("str", "dex", "con", "int", "wis", "cha")
+
+
+def _clone_inventory(
+    template: Mapping[str, Any]
+) -> tuple[List[Dict[str, Any]], str | None, str | None]:
     bag = template.get("bag")
     inventory: List[Dict[str, Any]] = []
     if not isinstance(bag, Iterable):
@@ -125,6 +131,7 @@ def _clone_inventory(template: Mapping[str, Any]) -> tuple[List[Dict[str, Any]],
             entry["qty"] = qty
         minted = _mint_item_instance_id(template, raw)
         entry["instance_id"] = minted
+        entry["iid"] = minted
         origin_raw = raw.get("origin")
         if isinstance(origin_raw, str) and origin_raw.strip():
             entry["origin"] = origin_raw.strip().lower()
@@ -150,6 +157,7 @@ def _clone_inventory(template: Mapping[str, Any]) -> tuple[List[Dict[str, Any]],
         found = any(entry.get("instance_id") == armour_iid for entry in inventory)
         if not found:
             entry: Dict[str, Any] = {"instance_id": armour_iid}
+            entry["iid"] = armour_iid
             if armour.get("item_id"):
                 entry["item_id"] = str(armour["item_id"])
             origin_raw = armour.get("origin") if isinstance(armour, Mapping) else None
@@ -162,7 +170,55 @@ def _clone_inventory(template: Mapping[str, Any]) -> tuple[List[Dict[str, Any]],
                 inventory.pop(0)
             inventory.append(entry)
 
-    return inventory, armour_iid
+    wielded_raw = template.get("wielded")
+    wielded_iid: str | None = None
+    if isinstance(wielded_raw, str) and wielded_raw:
+        token = wielded_raw.strip()
+        if token:
+            wielded_iid = iid_map.get(token) or iid_map.get(token.lower())
+            if wielded_iid is None:
+                # allow wielded references by item_id when no iid present
+                for original, minted in iid_map.items():
+                    if original == token:
+                        wielded_iid = minted
+                        break
+            if wielded_iid is None:
+                for entry in inventory:
+                    if entry.get("item_id") == token:
+                        wielded_iid = entry.get("iid")
+                        break
+
+    return inventory, armour_iid, wielded_iid
+
+
+def _copy_stats(template: Mapping[str, Any]) -> Dict[str, int]:
+    stats_raw = template.get("stats")
+    stats: Dict[str, int] = {}
+    if isinstance(stats_raw, Mapping):
+        for key in _STAT_KEYS:
+            try:
+                stats[key] = int(stats_raw.get(key, 0))
+            except (TypeError, ValueError):
+                stats[key] = 0
+    else:
+        stats = {key: 0 for key in _STAT_KEYS}
+    return stats
+
+
+def _generate_instance_name(template: Mapping[str, Any], instance_id: str) -> str:
+    raw_name = template.get("name") or template.get("monster_id") or "Monster"
+    base = str(raw_name)
+    parts = re.findall(r"[A-Za-z0-9]+", base)
+    if parts:
+        token = "-".join(part.capitalize() for part in parts)
+    else:
+        token = "Monster"
+    try:
+        suffix_source = int(instance_id[:8], 16)
+    except ValueError:
+        suffix_source = abs(hash(instance_id))
+    suffix = (suffix_source % 3000) + 1
+    return f"{token}-{suffix}"
 
 
 def _copy_hp(template: Mapping[str, Any]) -> Dict[str, int]:
@@ -201,9 +257,11 @@ def _coerce_positive_int(value: Any, *, default: int = 0) -> int:
 
 
 def _clone_template(template: Mapping[str, Any], pos: Pos) -> Dict[str, Any]:
-    inventory, armour_iid = _clone_inventory(template)
-    return {
-        "instance_id": _mint_instance_id(template),
+    inventory, armour_iid, wielded_iid = _clone_inventory(template)
+    instance_id = _mint_instance_id(template)
+    stats = _copy_stats(template)
+    payload = {
+        "instance_id": instance_id,
         "monster_id": str(template.get("id") or template.get("monster_id") or "monster"),
         "pos": [int(pos[0]), int(pos[1]), int(pos[2])],
         "hp": _copy_hp(template),
@@ -212,7 +270,10 @@ def _clone_template(template: Mapping[str, Any], pos: Pos) -> Dict[str, Any]:
         "ions": _coerce_positive_int(template.get("ions"), default=0),
         "riblets": _coerce_positive_int(template.get("riblets"), default=0),
         "inventory": inventory,
+        "bag": [dict(entry) for entry in inventory],
         "armour_wearing": armour_iid,
+        "wielded": wielded_iid,
+        "stats": stats,
         "readied_spell": None,
         "target_player_id": None,
         "target_monster_id": None,
@@ -221,6 +282,8 @@ def _clone_template(template: Mapping[str, Any], pos: Pos) -> Dict[str, Any]:
         "innate_attack": _copy_innate_attack(template),
         "spells": [str(s) for s in template.get("spells", []) if isinstance(s, (str, int))],
     }
+    payload["name"] = _generate_instance_name(template, instance_id)
+    return payload
 
 
 @dataclass

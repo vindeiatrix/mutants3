@@ -8,7 +8,7 @@ from mutants.registries.monsters_catalog import exp_for as monster_exp_for, load
 from mutants.services import combat_loot
 from mutants.services import damage_engine, items_wear, monsters_state, player_state as pstate
 from mutants.debug import turnlog
-from mutants.ui.item_display import item_label
+from mutants.ui.item_display import item_label, with_article
 
 MIN_INNATE_DAMAGE = 6
 MIN_BOLT_DAMAGE = 6
@@ -260,16 +260,19 @@ def _award_player_progress(
     item_catalog: Mapping[str, Mapping[str, Any]],
     summary: Mapping[str, Any] | None,
     bus: Any,
-) -> None:
+) -> Dict[str, int]:
+    gains: Dict[str, int] = {"ions": 0, "riblets": 0, "xp": 0}
     ions_reward = _coerce_int(monster_payload.get("ions"), 0)
     if ions_reward:
         current_ions = pstate.get_ions_for_active(state)
         pstate.set_ions_for_active(state, current_ions + ions_reward)
+        gains["ions"] = ions_reward
 
     riblets_reward = _coerce_int(monster_payload.get("riblets"), 0)
     if riblets_reward:
         current_riblets = pstate.get_riblets_for_active(state)
         pstate.set_riblets_for_active(state, current_riblets + riblets_reward)
+        gains["riblets"] = riblets_reward
 
     level = max(1, _coerce_int(monster_payload.get("level"), 1))
     exp_bonus = _monster_exp_bonus(monster_payload)
@@ -277,6 +280,7 @@ def _award_player_progress(
     if exp_reward:
         current_exp = pstate.get_exp_for_active(state)
         pstate.set_exp_for_active(state, current_exp + exp_reward)
+        gains["xp"] = exp_reward
 
     pos = _coerce_pos(summary.get("pos") if isinstance(summary, Mapping) else None)
     if pos is None:
@@ -289,7 +293,7 @@ def _award_player_progress(
     if pos is None:
         pos = _coerce_pos(state.get("pos")) if isinstance(state, Mapping) else None
     if pos is None:
-        return
+        return gains
 
     drop_entries = _resolve_drop_entries(summary)
     bag_entries: list[Mapping[str, Any]] = []
@@ -315,6 +319,8 @@ def _award_player_progress(
     if isinstance(summary, MutableMapping):
         summary["drops_minted"] = minted
         summary["drops_vaporized"] = vaporized
+
+    return gains
 
 
 def _coerce_iid(value: Any) -> Optional[str]:
@@ -480,19 +486,53 @@ def strike_cmd(arg: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
                 summary = finisher(target_id)
             except Exception:
                 summary = None
-        bus.push("COMBAT/KILL", f"You slay {label}!", **killer_meta)
+        bus.push("COMBAT/KILL", f"You have slain {label}!", **killer_meta)
         try:
             monster_payload = _resolve_monster_payload(summary, target)
-            _award_player_progress(
+            rewards = _award_player_progress(
                 monster_payload=monster_payload,
                 state=state,
                 item_catalog=catalog,
                 summary=summary,
                 bus=bus,
             )
+            xp_gain = rewards.get("xp", 0)
+            if xp_gain:
+                bus.push("COMBAT/INFO", f"Your experience points are increased by {xp_gain}!")
+            riblets_gain = rewards.get("riblets", 0)
+            ions_gain = rewards.get("ions", 0)
+            if riblets_gain or ions_gain:
+                if riblets_gain and ions_gain:
+                    bus.push(
+                        "COMBAT/INFO",
+                        f"You collect {riblets_gain} Riblets and {ions_gain} ions from the slain body.",
+                    )
+                elif riblets_gain:
+                    bus.push(
+                        "COMBAT/INFO",
+                        f"You collect {riblets_gain} Riblets from the slain body.",
+                    )
+                else:
+                    bus.push(
+                        "COMBAT/INFO",
+                        f"You collect {ions_gain} ions from the slain body.",
+                    )
         except Exception:
             pass
         drops = _resolve_drop_entries(summary)
+        if drops:
+            drop_catalog = catalog
+            for entry in drops:
+                item_key = (
+                    entry.get("item_id")
+                    or entry.get("catalog_id")
+                    or entry.get("id")
+                    or ""
+                )
+                template = drop_catalog.get(str(item_key)) if drop_catalog else {}
+                name = item_label(entry, template or {}, show_charges=False)
+                article = with_article(name)
+                bus.push("COMBAT/INFO", f"{article} is falling from {label}'s body!")
         turnlog.emit(
             ctx,
             "COMBAT/KILL",
@@ -502,7 +542,7 @@ def strike_cmd(arg: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
             source="player",
         )
         pstate.clear_ready_target_for_active(reason="monster-dead")
-        bus.push("COMBAT/INFO", f"{label} crumbles to dust.")
+        bus.push("COMBAT/INFO", f"{label} is crumbling to dust!")
         try:
             from mutants.services import monster_actions as monster_actions_mod
 

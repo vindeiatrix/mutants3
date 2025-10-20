@@ -26,6 +26,7 @@ def _active(state: Dict[str, Any]) -> Dict[str, Any]:
 def look_cmd(arg: str, ctx: Dict[str, Any]) -> None:
     token = (arg or "").strip()
     if not token:
+        ctx["room_entry_event"] = "LOOK"
         ctx["render_next"] = True
         return
 

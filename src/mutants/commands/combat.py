@@ -76,9 +76,9 @@ def combat_cmd(arg: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
         bus.push("SYSTEM/WARN", "No living monsters here to fight.")
         return {"ok": False, "reason": "no_monsters"}
 
-    matches: List[Tuple[Mapping[str, Any], str]] = []
+    matches: List[Tuple[int, int, Mapping[str, Any], str]] = []
     norm_token = normalized or lowered
-    for monster in living:
+    for index, monster in enumerate(living):
         raw_id = monster.get("id") or monster.get("instance_id") or monster.get("monster_id")
         monster_id = str(raw_id) if raw_id else ""
         norm_id = normalize_item_query(monster_id)
@@ -86,21 +86,22 @@ def combat_cmd(arg: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
         norm_name = normalize_item_query(display_name)
         if not norm_token:
             continue
-        if norm_name.startswith(norm_token) or norm_id.startswith(norm_token) or (
-            monster_id and monster_id.lower().startswith(lowered)
-        ):
-            matches.append((monster, monster_id))
+        if norm_id.startswith(norm_token):
+            priority = 0 if norm_id == norm_token else 1
+        elif monster_id and monster_id.lower().startswith(lowered):
+            priority = 0 if monster_id.lower() == lowered else 2
+        elif norm_name.startswith(norm_token):
+            priority = 0 if norm_name == norm_token else 3
+        else:
+            continue
+        matches.append((priority, index, monster, monster_id))
 
     if not matches:
         bus.push("SYSTEM/WARN", f"No monster here matches '{token}'.")
         return {"ok": False, "reason": "not_found"}
 
-    if len(matches) > 1:
-        preview = ", ".join(_display_name(mon, mid or "monster") for mon, mid in matches[:3])
-        bus.push("SYSTEM/WARN", f"Ambiguous target '{token}' ({preview}).")
-        return {"ok": False, "reason": "ambiguous", "candidates": [mid for _, mid in matches]}
-
-    target_monster, target_id = matches[0]
+    matches.sort(key=lambda entry: (entry[0], entry[1]))
+    _, _, target_monster, target_id = matches[0]
     sanitized = pstate.set_ready_target_for_active(target_id)
     label = _display_name(target_monster, sanitized or target_id)
     bus.push("SYSTEM/OK", f"You ready yourself against {label}.")

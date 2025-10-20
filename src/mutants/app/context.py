@@ -1,9 +1,10 @@
 from __future__ import annotations
 
-from typing import Any, Dict, Iterable, List, Mapping
+from typing import Any, Dict, Iterable, List, Mapping, MutableMapping
 
 import logging
 import os
+import random
 
 from mutants.bootstrap.lazyinit import ensure_player_state
 from mutants.bootstrap.runtime import ensure_runtime
@@ -26,6 +27,8 @@ from mutants.services import (
     monsters_state,
     player_state as pstate,
 )
+from mutants.services.combat_config import CombatConfig, load_combat_config
+from mutants.services import monster_actions
 from mutants.services.turn_scheduler import TurnScheduler
 from mutants.engine import session
 
@@ -91,6 +94,10 @@ def build_context() -> Dict[str, Any]:
     bus.subscribe(sink.handle)
     turn_observer = TurnObserver()
     monster_leveling.attach(bus, monsters)
+    try:
+        combat_cfg = load_combat_config(state_dir=str(state_path()))
+    except Exception:
+        combat_cfg = CombatConfig()
     ctx: Dict[str, Any] = {
         "player_state": state,
         # Multi-year aware loader: exact year if present, otherwise closest available.
@@ -104,6 +111,9 @@ def build_context() -> Dict[str, Any]:
         "theme": theme,
         "renderer": renderer.render,
         "config": cfg,
+        "combat_config": combat_cfg,
+        "monster_ai_rng": random.Random(),
+        "room_entry_event": "ENTRY",
         "render_next": False,
         "peek_vm": None,
         "session": {"active_class": active_class} if active_class else {},
@@ -130,6 +140,25 @@ def _active(state: Dict[str, Any]) -> Dict[str, Any]:
         if p.get("id") == aid:
             return p
     return state["players"][0]
+
+
+def _player_position(state: Mapping[str, Any] | None) -> tuple[int, int, int] | None:
+    if not isinstance(state, Mapping):
+        return None
+    try:
+        player = _active(state)  # type: ignore[arg-type]
+    except Exception:
+        player = state.get("active") if isinstance(state.get("active"), Mapping) else None
+    if not isinstance(player, Mapping):
+        return None
+    pos = player.get("pos")
+    if isinstance(pos, (list, tuple)) and len(pos) >= 3:
+        try:
+            year, x, y = int(pos[0]), int(pos[1]), int(pos[2])
+            return year, x, y
+        except (TypeError, ValueError):
+            return None
+    return None
 
 
 def build_room_vm(
@@ -218,9 +247,75 @@ def build_room_vm(
     return vm
 
 
+def _process_room_entry(ctx: Dict[str, Any], event: str) -> None:
+    monsters = ctx.get("monsters")
+    if not monsters or not hasattr(monsters, "list_at"):
+        return
+    state = ctx.get("player_state")
+    pos = _player_position(state if isinstance(state, Mapping) else None)
+    if pos is None:
+        return
+    year, x, y = pos
+    try:
+        monsters_here = list(monsters.list_at(year, x, y))  # type: ignore[attr-defined]
+    except Exception:
+        return
+
+    if not monsters_here:
+        return
+
+    rng = ctx.get("monster_ai_rng")
+    if not isinstance(rng, random.Random):
+        rng = random.Random()
+        ctx["monster_ai_rng"] = rng
+
+    config = ctx.get("combat_config")
+    config_obj = config if isinstance(config, CombatConfig) else None
+    bus = ctx.get("feedback_bus")
+    dirty = False
+
+    for monster in monsters_here:
+        target_monster: MutableMapping[str, Any] | None = monster if isinstance(monster, MutableMapping) else None
+        monster_id: str | None = None
+        if isinstance(monster, Mapping):
+            raw_id = monster.get("id") or monster.get("instance_id") or monster.get("monster_id")
+            if raw_id is not None:
+                monster_id = str(raw_id)
+        if monster_id and hasattr(monsters, "get"):
+            try:
+                lookup = monsters.get(monster_id)  # type: ignore[attr-defined]
+            except Exception:
+                lookup = None
+            if isinstance(lookup, MutableMapping):
+                target_monster = lookup
+        if target_monster is None:
+            continue
+        outcome = monster_actions.roll_entry_target(
+            target_monster,
+            state if isinstance(state, Mapping) else None,
+            rng,
+            config=config_obj,
+            bus=bus,
+            event=event,
+        )
+        if outcome.get("target_set"):
+            dirty = True
+
+    if dirty and hasattr(monsters, "mark_dirty"):
+        try:
+            monsters.mark_dirty()  # type: ignore[attr-defined]
+        except Exception:
+            pass
+
+
 def render_frame(ctx: Dict[str, Any]) -> None:
     vm = ctx.pop("peek_vm", None)
     if vm is None:
+        event = ctx.pop("room_entry_event", "ENTRY")
+        try:
+            _process_room_entry(ctx, event)
+        except Exception:
+            pass
         vm = build_room_vm(
             ctx["player_state"],
             ctx["world_loader"],
@@ -228,6 +323,8 @@ def render_frame(ctx: Dict[str, Any]) -> None:
             ctx.get("monsters"),
             ctx.get("items"),
         )
+    else:
+        ctx.pop("room_entry_event", None)
     cues = audio_cues.drain(ctx)
     if cues:
         vm = dict(vm)
