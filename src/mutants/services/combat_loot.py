@@ -337,3 +337,32 @@ def enforce_capacity(
         idx -= 1
     return removed
 
+
+def announce_currency_reward(bus: Any, riblets: int, ions: int) -> None:
+    """Emit a combat feedback message for currency rewards."""
+
+    try:
+        riblets_value = int(riblets)
+    except (TypeError, ValueError):
+        riblets_value = 0
+    try:
+        ions_value = int(ions)
+    except (TypeError, ValueError):
+        ions_value = 0
+
+    if riblets_value <= 0 and ions_value <= 0:
+        return
+
+    message: str
+    if riblets_value and ions_value:
+        message = f"You collect {riblets_value} Riblets and {ions_value} ions from the slain body."
+    elif riblets_value:
+        message = f"You collect {riblets_value} Riblets from the slain body."
+    else:
+        message = f"You collect {ions_value} ions from the slain body."
+
+    if hasattr(bus, "add_message"):
+        bus.add_message(message, kind="COMBAT/INFO")
+    elif hasattr(bus, "push"):
+        bus.push("COMBAT/INFO", message)
+
