@@ -236,3 +236,43 @@ def test_enforce_capacity_removes_overflow(monkeypatch: pytest.MonkeyPatch, _pat
         )
     )
     assert bus.events == [("COMBAT/INFO", expected_message, {})]
+
+
+def test_announce_currency_reward_prefers_add_message() -> None:
+    class _MsgBus:
+        def __init__(self) -> None:
+            self.messages: list[tuple[str, str, dict[str, Any]]] = []
+
+        def add_message(self, text: str, *, kind: str = "SYSTEM/INFO", **meta: Any) -> None:
+            self.messages.append((kind, text, dict(meta)))
+
+    bus = _MsgBus()
+    combat_loot.announce_currency_reward(bus, 4, 7)
+
+    assert bus.messages == [
+        (
+            "COMBAT/INFO",
+            "You collect 4 Riblets and 7 ions from the slain body.",
+            {},
+        )
+    ]
+
+
+def test_announce_currency_reward_uses_push_when_add_missing() -> None:
+    class _PushBus:
+        def __init__(self) -> None:
+            self.events: list[tuple[str, str, dict[str, Any]]] = []
+
+        def push(self, kind: str, text: str, **meta: Any) -> None:
+            self.events.append((kind, text, dict(meta)))
+
+    bus = _PushBus()
+    combat_loot.announce_currency_reward(bus, 0, 9)
+
+    assert bus.events == [
+        (
+            "COMBAT/INFO",
+            "You collect 9 ions from the slain body.",
+            {},
+        )
+    ]

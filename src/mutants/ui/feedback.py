@@ -26,6 +26,11 @@ class FeedbackBus:
             except Exception:
                 pass
 
+    def add_message(self, text: str, *, kind: str = "SYSTEM/INFO", **meta) -> None:
+        """Alias for :meth:`push` defaulting to informational messages."""
+
+        self.push(kind, text, **meta)
+
     def drain(self) -> List[Dict[str, str]]:
         events = list(self._queue)
         self._queue.clear()

@@ -282,6 +282,12 @@ def _award_player_progress(
         pstate.set_exp_for_active(state, current_exp + exp_reward)
         gains["xp"] = exp_reward
 
+    if bus is not None:
+        try:
+            combat_loot.announce_currency_reward(bus, riblets_reward, ions_reward)
+        except Exception:
+            pass
+
     pos = _coerce_pos(summary.get("pos") if isinstance(summary, Mapping) else None)
     if pos is None:
         pos = _coerce_pos(monster_payload.get("pos"))
@@ -516,24 +522,6 @@ def strike_cmd(arg: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
             xp_gain = rewards.get("xp", 0)
             if xp_gain:
                 bus.push("COMBAT/INFO", f"Your experience points are increased by {xp_gain}!")
-            riblets_gain = rewards.get("riblets", 0)
-            ions_gain = rewards.get("ions", 0)
-            if riblets_gain or ions_gain:
-                if riblets_gain and ions_gain:
-                    bus.push(
-                        "COMBAT/INFO",
-                        f"You collect {riblets_gain} Riblets and {ions_gain} ions from the slain body.",
-                    )
-                elif riblets_gain:
-                    bus.push(
-                        "COMBAT/INFO",
-                        f"You collect {riblets_gain} Riblets from the slain body.",
-                    )
-                else:
-                    bus.push(
-                        "COMBAT/INFO",
-                        f"You collect {ions_gain} ions from the slain body.",
-                    )
         except Exception:
             pass
         drops = _resolve_drop_entries(summary)
