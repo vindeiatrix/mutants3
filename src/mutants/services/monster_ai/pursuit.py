@@ -6,6 +6,8 @@ import logging
 import random
 from typing import Any, Iterable, Mapping, MutableMapping, Sequence
 
+import inspect
+
 from mutants.debug import turnlog
 from mutants.engine import edge_resolver
 from mutants.registries import dynamics as dynamics_registry
@@ -338,7 +340,16 @@ def attempt_pursuit(
         except Exception:  # pragma: no cover - defensive guard
             movement = None
         try:
-            audio_cues.emit_sound(monster_pos, target, kind="footsteps", ctx=ctx, movement=movement)
+            emit_fn = audio_cues.emit_sound
+            kwargs: dict[str, Any] = {"ctx": ctx}
+            if movement is not None:
+                try:
+                    params = inspect.signature(emit_fn).parameters
+                except (TypeError, ValueError):
+                    params = {}
+                if "movement" in params:
+                    kwargs["movement"] = movement
+            emit_fn(monster_pos, target, kind="footsteps", **kwargs)
         except Exception:  # pragma: no cover - defensive guard
             LOG.debug("Failed to emit audio cue for pursuit", exc_info=True)
         return True

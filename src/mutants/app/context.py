@@ -67,6 +67,7 @@ def build_context() -> Dict[str, Any]:
     """Build the application context."""
     info = ensure_runtime()
     state = ensure_player_state()
+    runtime_state = pstate.PlayerState(state)
     active = state.get("active") if isinstance(state, dict) else None
     active_class = None
     if isinstance(active, dict):
@@ -99,7 +100,7 @@ def build_context() -> Dict[str, Any]:
     except Exception:
         combat_cfg = CombatConfig()
     ctx: Dict[str, Any] = {
-        "player_state": state,
+        "player_state": runtime_state,
         # Multi-year aware loader: exact year if present, otherwise closest available.
         "world_loader": load_nearest_year,
         "monsters": monsters,

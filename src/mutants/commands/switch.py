@@ -1,6 +1,6 @@
 from __future__ import annotations
 from typing import Any
-from mutants.services import player_active as act
+from mutants.services import player_active as act, player_state as pstate
 
 def do_switch(arg: str, ctx: dict[str, Any]) -> None:
     q = (arg or "").strip()
@@ -15,7 +15,9 @@ def do_switch(arg: str, ctx: dict[str, Any]) -> None:
         ctx["feedback_bus"].push("SYSTEM/ERROR", str(e))
         return
     # Keep runtime context coherent so VM/UI update immediately.
-    ctx["player_state"] = new_state
+    runtime_state = pstate.PlayerState(new_state)
+    pstate.set_runtime_combat_target(runtime_state, None)
+    ctx["player_state"] = runtime_state
     ctx["render_next"] = True
     # Optional: nudge the renderer to show the new room without extra text noise.
     ctx["feedback_bus"].push("SYSTEM/OK", f"Now controlling {target}.")

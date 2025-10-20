@@ -76,7 +76,9 @@ def handle_input(raw: str, ctx: dict) -> None:
             bus.push("SYSTEM/ERROR", f"Choose a number 1–{len(players)}")
             return
         player_reset.bury_by_index(idx_n - 1)
-        ctx["player_state"] = pstate.load_state()
+        new_state = pstate.PlayerState(pstate.load_state())
+        pstate.set_runtime_combat_target(new_state, None)
+        ctx["player_state"] = new_state
         bus.push("SYSTEM/OK", "Player reset.")
         render_menu(ctx)
         return
@@ -128,6 +130,8 @@ def handle_input(raw: str, ctx: dict) -> None:
     if isinstance(session_ctx, dict):
         session_ctx["active_class"] = class_name
     pstate.save_state(state)
-    ctx["player_state"] = pstate.load_state()
+    refreshed_state = pstate.PlayerState(pstate.load_state())
+    pstate.set_runtime_combat_target(refreshed_state, None)
+    ctx["player_state"] = refreshed_state
     ctx["mode"] = None
     ctx["render_next"] = True

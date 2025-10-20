@@ -15,6 +15,29 @@ from ..services import item_transfer as itx
 ION_COST_PER_CENTURY = 3000
 
 
+def _set_runtime_state(
+    ctx: Dict[str, Any],
+    state: Mapping[str, Any] | pstate.PlayerState,
+    *,
+    preserve_target: bool = True,
+) -> None:
+    """Update ``ctx['player_state']`` keeping transient combat metadata."""
+
+    current = ctx.get("player_state")
+    combat_target = None
+    if preserve_target and hasattr(current, "combat_target_id"):
+        combat_target = getattr(current, "combat_target_id")
+    if isinstance(state, pstate.PlayerState):
+        runtime_state = state
+    else:
+        runtime_state = pstate.PlayerState(dict(state), combat_target_id=None)
+    if preserve_target:
+        pstate.set_runtime_combat_target(runtime_state, combat_target)
+    else:
+        pstate.set_runtime_combat_target(runtime_state, None)
+    ctx["player_state"] = runtime_state
+
+
 def _floor_to_century(year: int) -> int:
     """Return the start of the century for ``year`` (e.g., 2314 -> 2300)."""
 
@@ -238,7 +261,7 @@ def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
         player["pos"] = [resolved_year, 0, 0]
         new_state = _persist_pos_only(resolved_year)
         if isinstance(new_state, Mapping):
-            ctx["player_state"] = dict(new_state)
+            _set_runtime_state(ctx, new_state)
             if "render_next" in ctx:
                 ctx["render_next"] = False
         bus.push(
@@ -284,7 +307,7 @@ def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
         _update_ions(new_total)
         maybe_state = _persist_pos_only(resolved_year)
         if isinstance(maybe_state, Mapping):
-            ctx["player_state"] = dict(maybe_state)
+            _set_runtime_state(ctx, maybe_state)
             if "render_next" in ctx:
                 ctx["render_next"] = False
         if pstate._pdbg_enabled():  # pragma: no cover
@@ -310,7 +333,7 @@ def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
         _update_ions(0)
         maybe_state = _persist_pos_only(current_century)
         if isinstance(maybe_state, Mapping):
-            ctx["player_state"] = dict(maybe_state)
+            _set_runtime_state(ctx, maybe_state)
             if "render_next" in ctx:
                 ctx["render_next"] = False
         if pstate._pdbg_enabled():  # pragma: no cover
@@ -334,7 +357,7 @@ def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
     _update_ions(0)
     maybe_state = _persist_pos_only(resolved_year)
     if isinstance(maybe_state, Mapping):
-        ctx["player_state"] = dict(maybe_state)
+        _set_runtime_state(ctx, maybe_state)
         if "render_next" in ctx:
             ctx["render_next"] = False
     bus.push(

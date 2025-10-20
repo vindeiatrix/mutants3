@@ -358,6 +358,11 @@ def strike_cmd(arg: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
     if bus is None:
         raise ValueError("strike command requires feedback_bus in context")
 
+    runtime_state = ctx.get("player_state")
+    stored_target = None
+    if hasattr(runtime_state, "combat_target_id"):
+        stored_target = getattr(runtime_state, "combat_target_id")
+
     monsters = _load_monsters(ctx)
     if monsters is None:
         bus.push("SYSTEM/WARN", "No monsters are available to strike.")
@@ -365,6 +370,10 @@ def strike_cmd(arg: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
 
     state, active = pstate.get_active_pair()
     target_id = pstate.get_ready_target_for_active(state)
+    if not target_id and stored_target:
+        refreshed = pstate.set_ready_target_for_active(stored_target)
+        target_id = refreshed or stored_target
+    pstate.set_runtime_combat_target(runtime_state, target_id or None)
     if not target_id:
         bus.push("SYSTEM/WARN", "You're not ready to combat anyone!")
         return {"ok": False, "reason": "no_target"}
@@ -376,6 +385,7 @@ def strike_cmd(arg: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
     if target is None:
         bus.push("SYSTEM/WARN", "Your target is nowhere to be found.")
         pstate.clear_ready_target_for_active(reason="target-missing")
+        pstate.set_runtime_combat_target(runtime_state, None)
         return {"ok": False, "reason": "target_missing"}
 
     if not isinstance(target, MutableMapping):
@@ -385,6 +395,7 @@ def strike_cmd(arg: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
     if not _is_alive(target):
         bus.push("SYSTEM/WARN", "Your target is already dead.")
         pstate.clear_ready_target_for_active(reason="target-dead")
+        pstate.set_runtime_combat_target(runtime_state, None)
         return {"ok": False, "reason": "target_dead"}
 
     catalog = {}  # type: Dict[str, Mapping[str, Any]]
@@ -548,6 +559,7 @@ def strike_cmd(arg: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
             source="player",
         )
         pstate.clear_ready_target_for_active(reason="monster-dead")
+        pstate.set_runtime_combat_target(runtime_state, None)
         bus.push("COMBAT/INFO", f"{label} is crumbling to dust!")
         try:
             from mutants.services import monster_actions as monster_actions_mod

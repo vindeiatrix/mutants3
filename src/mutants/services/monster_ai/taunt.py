@@ -59,6 +59,14 @@ def emit_taunt(
     if hasattr(bus, "push"):
         try:
             bus.push("COMBAT/TAUNT", taunt)
+            if hasattr(bus, "messages"):
+                try:
+                    kind, message, meta = bus.messages[-1]
+                except (AttributeError, IndexError, ValueError):
+                    pass
+                else:
+                    if kind == "COMBAT/TAUNT" and not meta:
+                        bus.messages[-1] = (kind, message)
         except Exception:  # pragma: no cover - defensive guard
             LOG.exception("Failed to push monster taunt message")
 
