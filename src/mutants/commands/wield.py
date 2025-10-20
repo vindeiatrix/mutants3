@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Mapping, Optional, Tuple
 
 from ..registries import items_catalog as catreg
 from ..registries import items_instances as itemsreg
-from ..services import item_transfer as itx
 from ..services import player_state as pstate
 from ..services.equip_debug import _edbg_enabled, _edbg_log
 from ..services.items_weight import get_effective_weight
@@ -58,6 +57,8 @@ def _resolve_candidate(
 
 
 def wield_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
+    from ..services import item_transfer as itx
+
     bus = ctx["feedback_bus"]
     prefix = (arg or "").strip()
     if not prefix:
@@ -230,6 +231,28 @@ def wield_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
                 )
     if strike_summary is not None:
         result["strike"] = strike_summary
+        if (
+            isinstance(strike_summary, dict)
+            and strike_summary.get("ok")
+            and strike_summary.get("damage", 0) > 0
+        ):
+            target_id = strike_summary.get("target_id") or ready_target_id
+            monsters_obj = ctx.get("monsters") if isinstance(ctx, Mapping) else None
+            target = None
+            if target_id and monsters_obj is not None:
+                getter = getattr(monsters_obj, "get", None)
+                if callable(getter):
+                    try:
+                        target = getter(target_id)
+                    except Exception:
+                        target = None
+            if target is not None:
+                try:
+                    from ..services import damage_engine as _damage_engine
+
+                    _damage_engine.wake_target_if_asleep(ctx, target)
+                except Exception:
+                    pass
 
     if _edbg_enabled():
         try:

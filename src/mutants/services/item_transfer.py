@@ -5,6 +5,10 @@ import os
 import random
 import time
 from typing import Any, Dict, List, Mapping, MutableMapping, Optional, Tuple
+
+GROUND_CAP = 6
+INV_CAP = 10  # worn armor excluded elsewhere
+
 from ..ui import item_display as idisp
 from ..registries import items_catalog as catreg
 from ..registries import items_instances as itemsreg
@@ -26,9 +30,6 @@ WORLD_DEBUG = os.getenv("WORLD_DEBUG") == "1"
 
 def _pdbg_enabled() -> bool:
     return bool(os.environ.get("PLAYERS_DEBUG"))
-
-GROUND_CAP = 6
-INV_CAP = 10  # worn armor excluded elsewhere
 
 
 # --- Value coercion helpers ---
