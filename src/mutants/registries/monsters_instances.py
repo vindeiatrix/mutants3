@@ -2,12 +2,14 @@ from __future__ import annotations
 
 import json
 import random
+import re
 import uuid
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional, Tuple
+from typing import Any, Dict, Iterable, List, Mapping, Optional, Tuple
 
 # NOTE: Imported by ``mutants.registries.json_store`` via :func:`get_stores`.
 
+from mutants.registries import items_instances as itemsreg
 from mutants.registries.monsters_catalog import MonstersCatalog, exp_for
 from mutants.services.monster_entities import DEFAULT_INNATE_ATTACK_LINE
 from mutants.state import state_path
@@ -15,6 +17,37 @@ from .storage import MonstersInstanceStore, get_stores
 
 DEFAULT_INSTANCES_PATH = state_path("monsters", "instances.json")
 FALLBACK_INSTANCES_PATH = state_path("monsters.json")  # optional fallback; rarely used
+
+_STAT_KEYS = ("str", "dex", "con", "int", "wis", "cha")
+
+
+def _copy_stats(base: Mapping[str, Any]) -> Dict[str, int]:
+    stats_raw = base.get("stats") if isinstance(base, Mapping) else None
+    stats: Dict[str, int] = {}
+    if isinstance(stats_raw, Mapping):
+        for key in _STAT_KEYS:
+            try:
+                stats[key] = int(stats_raw.get(key, 0))
+            except (TypeError, ValueError):
+                stats[key] = 0
+    else:
+        stats = {key: 0 for key in _STAT_KEYS}
+    return stats
+
+
+def _generate_instance_name(base: Mapping[str, Any], instance_id: str) -> str:
+    raw_name = base.get("name") or base.get("monster_id") or "Monster"
+    parts = re.findall(r"[A-Za-z0-9]+", str(raw_name))
+    if parts:
+        token = "-".join(part.capitalize() for part in parts)
+    else:
+        token = "Monster"
+    try:
+        suffix_source = int(instance_id.split("#")[-1], 16)
+    except ValueError:
+        suffix_source = abs(hash(instance_id))
+    suffix = (suffix_source % 3000) + 1
+    return f"{token}-{suffix}"
 
 class MonstersInstances:
     """
@@ -159,20 +192,56 @@ class MonstersInstances:
         ions_val = int(ions if ions is not None else rr.randint(*ions_rng))
         rib_val = int(riblets if riblets is not None else rr.randint(*rib_rng))
 
-        inv = list(starter_items or [])
-        if not inv:
+        raw_entries: List[Any] = list(starter_items or [])
+        if not raw_entries:
             # Simple seeding from catalog (<=4)
             for iid in base.get("starter_items", [])[:4]:
-                inv.append({"item_id": iid})
+                raw_entries.append({"item_id": iid})
 
         armour_source = starter_armour if starter_armour is not None else base.get("starter_armour")
+        armour_token: Optional[str]
         if isinstance(armour_source, (list, tuple)):
             armour_choices = [str(a) for a in armour_source if isinstance(a, (str, int))]
-            armour_wearing = armour_choices[0] if armour_choices else None
+            armour_token = armour_choices[0] if armour_choices else None
         elif armour_source is None or isinstance(armour_source, (str, int)):
-            armour_wearing = str(armour_source) if armour_source not in (None, "") else None
+            armour_token = str(armour_source) if armour_source not in (None, "") else None
         else:
-            armour_wearing = None
+            armour_token = None
+
+        bag_entries: List[Dict[str, Any]] = []
+        for raw_entry in raw_entries:
+            if len(bag_entries) >= 4:
+                break
+            entry: Dict[str, Any]
+            if isinstance(raw_entry, Mapping):
+                item_id = (
+                    raw_entry.get("item_id")
+                    or raw_entry.get("catalog_id")
+                    or raw_entry.get("id")
+                )
+                if not item_id:
+                    continue
+                entry = {"item_id": str(item_id)}
+                qty = raw_entry.get("qty")
+                if isinstance(qty, int) and qty > 1:
+                    entry["qty"] = qty
+                origin = raw_entry.get("origin")
+                if isinstance(origin, str) and origin.strip():
+                    entry["origin"] = origin.strip().lower()
+            else:
+                entry = {"item_id": str(raw_entry)}
+            iid = itemsreg.mint_iid()
+            entry["iid"] = iid
+            entry["instance_id"] = iid
+            entry.setdefault("origin", "native")
+            bag_entries.append(entry)
+
+        armour_wearing = None
+        if armour_token:
+            for entry in bag_entries:
+                if entry.get("item_id") == armour_token:
+                    armour_wearing = entry.get("iid")
+                    break
 
         inst: Dict[str, Any] = {
             "instance_id": instance_id,
@@ -183,8 +252,11 @@ class MonstersInstances:
             "level": lvl,
             "ions": ions_val,
             "riblets": rib_val,
-            "inventory": inv[:4],
+            "stats": _copy_stats(base),
+            "inventory": [dict(entry) for entry in bag_entries],
+            "bag": [dict(entry) for entry in bag_entries],
             "armour_wearing": armour_wearing,
+            "wielded": bag_entries[0]["iid"] if bag_entries else None,
             "readied_spell": None,
             "target_player_id": None,
             "target_monster_id": None,
@@ -200,6 +272,7 @@ class MonstersInstances:
             },
             "spells": list(base.get("spells", [])),
         }
+        inst["name"] = _generate_instance_name(base, instance_id)
         return self._add(inst)
 
     def set_target_player(self, instance_id: str, player_id: Optional[str]) -> None:
