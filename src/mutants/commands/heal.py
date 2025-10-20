@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from typing import Any, Dict
+from typing import Any, Dict, Mapping
 
 from mutants.services import player_state as pstate
 from mutants.debug import turnlog
@@ -34,12 +34,17 @@ def _heal_cost_multipliers(ctx: Mapping[str, Any]) -> Mapping[str, int]:
 
 def heal_cmd(arg: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
     bus = ctx["feedback_bus"]
+    combat_target = None
+    existing_state = ctx.get("player_state")
+    if hasattr(existing_state, "combat_target_id"):
+        combat_target = getattr(existing_state, "combat_target_id")
+
     try:
         state = pstate.load_state()
     except Exception:
-        state = ctx.get("player_state")
+        state = existing_state
 
-    if not isinstance(state, dict):
+    if not isinstance(state, Mapping):
         bus.push("SYSTEM/ERROR", "No player state available to heal.")
         return {"ok": False, "reason": "state_unavailable"}
 
@@ -92,9 +97,10 @@ def heal_cmd(arg: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
         }
 
     try:
-        ctx["player_state"] = pstate.load_state()
+        refreshed_state = pstate.load_state()
     except Exception:
-        ctx["player_state"] = state
+        refreshed_state = state
+    ctx["player_state"] = pstate.PlayerState(dict(refreshed_state), combat_target_id=combat_target)
 
     bus.push(
         "SYSTEM/OK",

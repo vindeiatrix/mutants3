@@ -613,6 +613,7 @@ def _handle_player_death(
         pstate.clear_target(reason="player-death")
     except Exception:  # pragma: no cover - defensive guard
         LOG.exception("Failed to clear player target after death")
+    pstate.set_runtime_combat_target(ctx.get("player_state") if isinstance(ctx, Mapping) else None, None)
 
     label = _monster_display_name(monster)
     killer_id = str(monster.get("id") or monster.get("instance_id") or "monster")
@@ -1122,14 +1123,6 @@ def _heal_action(
             ions=heal_cost,
         )
         bus.push(
-            "COMBAT/HEAL",
-            heal_message,
-            template=textutils.TEMPLATE_MONSTER_HEAL,
-            monster=label,
-            hp=applied,
-            ions=heal_cost,
-        )
-        bus.push(
             "COMBAT/HEAL_MONSTER",
             textutils.render_feedback_template(
                 textutils.TEMPLATE_MONSTER_HEAL_VISUAL,
@@ -1137,6 +1130,14 @@ def _heal_action(
             ),
             template=textutils.TEMPLATE_MONSTER_HEAL_VISUAL,
             monster=label,
+        )
+        bus.push(
+            "COMBAT/HEAL",
+            heal_message,
+            template=textutils.TEMPLATE_MONSTER_HEAL,
+            monster=label,
+            hp=applied,
+            ions=heal_cost,
         )
 
     turnlog.emit(

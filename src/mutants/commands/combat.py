@@ -54,6 +54,7 @@ def combat_cmd(arg: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
     lowered = token.lower()
     if lowered in CLEAR_TOKENS:
         previous = pstate.clear_ready_target_for_active(reason="user-clear")
+        pstate.set_runtime_combat_target(ctx.get("player_state"), None)
         message = "You lower your guard." if previous else "You are not ready to fight anyone."
         bus.push("SYSTEM/OK", message)
         return {"ok": True, "cleared": True}
@@ -65,6 +66,7 @@ def combat_cmd(arg: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
     if not pos:
         bus.push("SYSTEM/WARN", "You are nowhere to engage in combat.")
         pstate.clear_ready_target_for_active(reason="invalid-position")
+        pstate.set_runtime_combat_target(ctx.get("player_state"), None)
         return {"ok": False, "reason": "invalid_position"}
 
     year, px, py = pos
@@ -73,6 +75,7 @@ def combat_cmd(arg: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
     living = [mon for mon in monsters_here if _is_alive(mon)]
     if not living:
         pstate.clear_ready_target_for_active(reason="no-monsters")
+        pstate.set_runtime_combat_target(ctx.get("player_state"), None)
         bus.push("SYSTEM/WARN", "No living monsters here to fight.")
         return {"ok": False, "reason": "no_monsters"}
 
@@ -103,6 +106,7 @@ def combat_cmd(arg: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
     matches.sort(key=lambda entry: (entry[0], entry[1]))
     _, _, target_monster, target_id = matches[0]
     sanitized = pstate.set_ready_target_for_active(target_id)
+    pstate.set_runtime_combat_target(ctx.get("player_state"), (sanitized or target_id) or None)
     label = _display_name(target_monster, sanitized or target_id)
     bus.push("SYSTEM/OK", f"You ready yourself against {label}.")
     return {"ok": True, "target_id": sanitized or target_id, "target_name": label}

@@ -3,7 +3,9 @@ import copy
 import json
 import logging
 import os
+from dataclasses import dataclass
 from pathlib import Path
+from collections.abc import MutableMapping as MutableMappingABC
 from typing import Any, Callable, Dict, Iterable, List, Mapping, MutableMapping, Optional, Tuple
 
 from mutants.io.atomic import atomic_write_json
@@ -20,6 +22,77 @@ _PDBG_CONFIGURED = False
 
 
 DEFAULT_PLAYER_DISPLAY_NAME = "Vindeiatrix"
+
+
+@dataclass
+class PlayerState(MutableMappingABC[str, Any]):
+    """Mutable mapping wrapper tracking transient combat metadata."""
+
+    _data: MutableMapping[str, Any]
+    combat_target_id: Optional[str] = None
+
+    def __post_init__(self) -> None:
+        base = self._data
+        if isinstance(base, PlayerState):
+            # Avoid nesting wrappers; reuse underlying mapping and metadata.
+            self.combat_target_id = (
+                base.combat_target_id if self.combat_target_id is None else self.combat_target_id
+            )
+            base = base._data
+        if not isinstance(base, MutableMappingABC):
+            if isinstance(base, Mapping):
+                base = dict(base)
+            else:
+                base = {}
+        self._data = base
+
+    def __getitem__(self, key: Any) -> Any:
+        return self._data[key]
+
+    def __setitem__(self, key: Any, value: Any) -> None:
+        self._data[key] = value
+
+    def __delitem__(self, key: Any) -> None:
+        del self._data[key]
+
+    def __iter__(self):  # type: ignore[override]
+        return iter(self._data)
+
+    def __len__(self) -> int:  # type: ignore[override]
+        return len(self._data)
+
+    def __getattr__(self, name: str) -> Any:
+        try:
+            return self._data[name]
+        except KeyError as exc:  # pragma: no cover - defensive
+            raise AttributeError(name) from exc
+
+    def __deepcopy__(self, memo: Dict[int, Any]) -> "PlayerState":
+        return PlayerState(copy.deepcopy(self._data, memo), combat_target_id=self.combat_target_id)
+
+    @property
+    def data(self) -> MutableMapping[str, Any]:
+        return self._data
+
+    def copy(self) -> "PlayerState":
+        return PlayerState(dict(self._data), combat_target_id=self.combat_target_id)
+
+    def replace(self, mapping: Mapping[str, Any]) -> None:
+        self._data.clear()
+        if isinstance(mapping, Mapping):
+            self._data.update(mapping)
+        else:  # pragma: no cover - defensive
+            self._data.update(dict(mapping))
+
+def set_runtime_combat_target(state: Any, target: Optional[str]) -> None:
+    """Update the transient combat target on ``state`` when available."""
+
+    if hasattr(state, "combat_target_id"):
+        try:
+            setattr(state, "combat_target_id", target)
+        except Exception:  # pragma: no cover - defensive
+            pass
+
 
 def _combat_log_set(target: Optional[str], actor: Optional[str]) -> None:
     if not _pdbg_enabled() or not target:
