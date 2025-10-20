@@ -289,3 +289,22 @@ def compute_base_damage(item: Any, attacker_state: Any, defender_state: Any) -> 
 
     return resolve_attack(item, attacker_state, defender_state).damage
 
+
+def wake_target_if_asleep(ctx: Any, target: Any) -> bool:
+    """Wake ``target`` if it is currently asleep.
+
+    Returns ``True`` when the target was asleep and has been marked awake.
+    """
+
+    from mutants.services.monster_ai import wake as wake_mod
+
+    try:
+        status = wake_mod.monster_status(target)
+    except Exception:
+        return False
+
+    if status != wake_mod.MonsterStatus.ASLEEP:
+        return False
+
+    return wake_mod.wake_monster(ctx, target, reason="damage")
+

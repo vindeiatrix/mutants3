@@ -9,15 +9,15 @@ from mutants.debug import turnlog
 
 from mutants.services.combat_config import CombatConfig
 
-from .wake import should_wake
+from .wake import should_wake, wake_monster
 from . import tracking as tracking_mod
 
 if TYPE_CHECKING:  # pragma: no cover - typing aid
-    from . import monster_actions as monster_actions_module
+    from mutants.services import monster_actions as monster_actions_module
 
 
 def _monster_actions() -> "monster_actions_module":
-    from . import monster_actions as monster_actions_module
+    from mutants.services import monster_actions as monster_actions_module
 
     return monster_actions_module
 
@@ -256,13 +256,14 @@ def on_player_command(ctx: Any, *, token: str, resolved: str | None) -> None:
         if mon_pos != pos:
             continue
 
+        woke_this_tick = False
         if wake_events:
-            woke = False
             for event_name in wake_events:
                 if should_wake(monster, event_name, wake_rng, config):
-                    woke = True
+                    wake_monster(ctx, monster, reason=event_name.lower())
+                    woke_this_tick = True
                     break
-            if not woke:
+            if not woke_this_tick:
                 continue
 
         monster_id = _monster_id(monster)
@@ -278,6 +279,16 @@ def on_player_command(ctx: Any, *, token: str, resolved: str | None) -> None:
             )
         _log_tick(ctx, monster, credits)
         if credits <= 0:
+            continue
+
+        ai_state = monster.get("_ai_state") if isinstance(monster, MutableMapping) else None
+        if isinstance(ai_state, MutableMapping) and ai_state.pop("skip_next_action", False):
+            turnlog.emit(
+                ctx,
+                "AI/SKIP",
+                monster=monster_id,
+                reason="wake",
+            )
             continue
 
         actions_mod = _monster_actions()

@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Any, Callable, Mapping, MutableMapping, Option
 from mutants.debug import turnlog
 if TYPE_CHECKING:
     from mutants.services.status_manager import StatusManager
+from mutants.services import player_state as pstate
 from mutants.services import random_pool
 from mutants.services.combat_config import CombatConfig
 
@@ -184,11 +185,103 @@ class TurnScheduler:
 
     def _run_monster_turns(self, token: str, resolved: Optional[str]) -> None:
         try:
+            self._wake_sleeping_monsters()
+        except Exception:  # pragma: no cover - defensive guard
+            LOG.exception("Failed to wake sleeping monsters before turn")
+
+        try:
             from mutants.services import monster_ai
 
             monster_ai.on_player_command(self._ctx, token=token, resolved=resolved)
         except Exception:  # pragma: no cover - defensive
             LOG.exception("Monster AI turn tick failed")
+
+    def _wake_sleeping_monsters(self) -> None:
+        from mutants.services.monster_ai import wake as wake_mod
+
+        monsters = None
+        ctx = self._ctx
+        if isinstance(ctx, Mapping):
+            monsters = ctx.get("monsters")
+        else:
+            monsters = getattr(ctx, "monsters", None)
+
+        if monsters is None:
+            return
+
+        list_at = getattr(monsters, "list_at", None)
+        if not callable(list_at):
+            return
+
+        player_pos = self._player_location()
+        if player_pos is None:
+            return
+
+        year, x, y = player_pos
+        try:
+            entries = list_at(year, x, y)
+        except Exception:
+            return
+
+        woke_any = False
+        for monster in entries or []:
+            try:
+                status = wake_mod.monster_status(monster)
+            except Exception:
+                continue
+            if status != wake_mod.MonsterStatus.ASLEEP:
+                continue
+            try:
+                if wake_mod.wake_monster(ctx, monster, reason="proximity"):
+                    woke_any = True
+            except Exception:
+                LOG.exception("Failed to wake sleeping monster", extra={"monster": getattr(monster, "id", None)})
+
+        if woke_any:
+            marker = getattr(monsters, "mark_dirty", None)
+            if callable(marker):
+                try:
+                    marker()
+                except Exception:  # pragma: no cover - defensive
+                    LOG.exception("Failed to mark monsters dirty after wake")
+
+    def _player_location(self) -> tuple[int, int, int] | None:
+        ctx = self._ctx
+        payload = None
+        if isinstance(ctx, Mapping):
+            payload = ctx.get("player_state")
+        else:
+            payload = getattr(ctx, "player_state", None)
+
+        try:
+            state, active = pstate.get_active_pair(payload)
+        except Exception:
+            state, active = pstate.get_active_pair()
+
+        for entry in (active, state):
+            if isinstance(entry, Mapping):
+                pos = self._normalize_pos(entry.get("pos"))
+                if pos is not None:
+                    return pos
+        return None
+
+    @staticmethod
+    def _normalize_pos(value: Any) -> tuple[int, int, int] | None:
+        if isinstance(value, Mapping):
+            coords = (value.get("year"), value.get("x"), value.get("y"))
+        elif isinstance(value, Sequence) and not isinstance(value, (str, bytes)):
+            coords = value
+        else:
+            return None
+
+        data = list(coords)
+        if len(data) != 3:
+            return None
+        try:
+            year, x, y = (int(data[0]), int(data[1]), int(data[2]))
+        except (TypeError, ValueError):
+            return None
+        return year, x, y
 
     def _run_status_tick(self) -> None:
         manager = self._status_manager

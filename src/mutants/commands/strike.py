@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+MIN_INNATE_DAMAGE = 6
+MIN_BOLT_DAMAGE = 6
+
 import logging
 from typing import Any, Dict, Mapping, MutableMapping, Optional, Sequence
 
@@ -9,9 +12,6 @@ from mutants.services import combat_loot
 from mutants.services import damage_engine, items_wear, monsters_state, player_state as pstate
 from mutants.debug import turnlog
 from mutants.ui.item_display import item_label, with_article
-
-MIN_INNATE_DAMAGE = 6
-MIN_BOLT_DAMAGE = 6
 
 
 LOG = logging.getLogger(__name__)
@@ -412,6 +412,12 @@ def strike_cmd(arg: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
         final_damage = max(MIN_BOLT_DAMAGE, final_damage)
 
     final_damage = _clamp_melee_damage(target, final_damage)
+
+    if final_damage > 0:
+        try:
+            damage_engine.wake_target_if_asleep(ctx, target)
+        except Exception:  # pragma: no cover - defensive
+            LOG.exception("Failed to wake monster after strike", extra={"target": target_id})
 
     wear_event = items_wear.build_wear_event(actor="player", source=str(attack.source), damage=final_damage)
     wear_amount = items_wear.wear_from_event(wear_event)
