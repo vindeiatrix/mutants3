@@ -19,7 +19,6 @@ from typing import (
 )
 
 from mutants.env import get_state_database_path
-from mutants.services.monster_entities import DEFAULT_INNATE_ATTACK_LINE
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +38,7 @@ _CATALOG_REQUIRED_FIELDS = {
 }
 
 _CATALOG_STAT_FIELDS = {"str", "int", "wis", "dex", "con", "cha"}
-_CATALOG_INNATE_FIELDS = {"name", "power_base", "power_per_level", "line"}
+_CATALOG_INNATE_FIELDS = {"name", "power_base", "power_per_level"}
 
 _MONSTER_CATALOG_COLUMNS: Tuple[str, ...] = (
     "monster_id",
@@ -136,31 +135,6 @@ def _coerce_string_list(value: Any) -> list[str]:
     return [str(value)]
 
 
-def _normalize_innate_attack(
-    payload: Mapping[str, Any], *, monster_id: str
-) -> Dict[str, Any]:
-    name = str(payload.get("name") or "").strip()
-    if not name:
-        raise ValueError(f"monster {monster_id!r} innate_attack name must be provided")
-
-    line_raw = payload.get("line")
-    line = str(line_raw).strip() if isinstance(line_raw, str) else ""
-    if not line:
-        raise ValueError(
-            f"monster {monster_id!r} innate_attack line must be a non-empty string"
-        )
-
-    power_base = _coerce_int(payload.get("power_base"))
-    power_per_level = _coerce_int(payload.get("power_per_level"))
-
-    return {
-        "name": name,
-        "power_base": power_base,
-        "power_per_level": power_per_level,
-        "line": line,
-    }
-
-
 def _normalize_monster_catalog_entry(payload: Mapping[str, Any]) -> Dict[str, Any]:
     present = set(payload)
     missing = sorted(_CATALOG_REQUIRED_FIELDS - present)
@@ -189,11 +163,6 @@ def _normalize_monster_catalog_entry(payload: Mapping[str, Any]) -> Dict[str, An
         raise ValueError(
             f"monster {monster_id!r} innate_attack missing: {', '.join(missing_innate)}"
         )
-    innate_line = innate.get("line")
-    if not isinstance(innate_line, str) or not innate_line.strip():
-        raise ValueError(
-            f"monster {monster_id!r} innate_attack line must be a non-empty string"
-        )
 
     spawn_years = _normalize_spawn_years(payload.get("spawn_years"), monster_id=monster_id)
 
@@ -220,9 +189,7 @@ def _normalize_monster_catalog_entry(payload: Mapping[str, Any]) -> Dict[str, An
         "taunt": str(payload.get("taunt") or ""),
         "stats_json": json.dumps(dict(stats), separators=(",", ":"), sort_keys=True),
         "innate_attack_json": json.dumps(
-            _normalize_innate_attack(innate, monster_id=monster_id),
-            separators=(",", ":"),
-            sort_keys=True,
+            dict(innate), separators=(",", ":"), sort_keys=True
         ),
         "exp_bonus": _coerce_optional_int(payload.get("exp_bonus")),
         "ions_min": _coerce_optional_int(payload.get("ions_min")),
@@ -301,10 +268,8 @@ def _decode_monster_row(row: sqlite3.Row) -> Optional[Dict[str, Any]]:
     }
 
     innate = monster.get("innate_attack")
-    if isinstance(innate, dict):
-        line = innate.get("line")
-        if not isinstance(line, str) or not line.strip():
-            innate["line"] = DEFAULT_INNATE_ATTACK_LINE
+    if isinstance(innate, dict) and "message" not in innate:
+        innate["message"] = "{monster} strikes {target} for {damage} damage!"
 
     return monster
 

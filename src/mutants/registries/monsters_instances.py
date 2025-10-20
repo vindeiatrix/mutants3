@@ -9,7 +9,6 @@ from typing import Any, Dict, Iterable, List, Optional, Tuple
 # NOTE: Imported by ``mutants.registries.json_store`` via :func:`get_stores`.
 
 from mutants.registries.monsters_catalog import MonstersCatalog, exp_for
-from mutants.services.monster_entities import DEFAULT_INNATE_ATTACK_LINE
 from mutants.state import state_path
 from .storage import MonstersInstanceStore, get_stores
 
@@ -184,8 +183,11 @@ class MonstersInstances:
                 "name": base["innate_attack"]["name"],
                 "power_base": int(base["innate_attack"]["power_base"]),
                 "power_per_level": int(base["innate_attack"]["power_per_level"]),
-                # Per-monster attack line template; tokens: {monster}, {attack}, {target}
-                "line": base["innate_attack"].get("line", DEFAULT_INNATE_ATTACK_LINE),
+                # Per-monster message template; tokens: {monster}, {target}, {damage}
+                "message": base["innate_attack"].get(
+                    "message",
+                    "{monster} strikes {target} for {damage} damage!"
+                )
             },
             "spells": list(base.get("spells", [])),
         }

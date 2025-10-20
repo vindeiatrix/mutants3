@@ -25,7 +25,7 @@ CATALOG_REQUIRED_FIELDS = {
 }
 
 STAT_FIELDS = {"str", "int", "wis", "dex", "con", "cha"}
-INNATE_ATTACK_FIELDS = {"name", "power_base", "power_per_level", "line"}
+INNATE_ATTACK_FIELDS = {"name", "power_base", "power_per_level"}
 
 
 def _ensure_database(db_path: Path) -> sqlite3.Connection:
@@ -151,37 +151,6 @@ def _validate_monster(entry: dict[str, Any]) -> None:
             f"monster {entry.get('monster_id')} innate_attack missing: {', '.join(missing_innate)}"
         )
 
-    line = innate.get("line")
-    if not isinstance(line, str) or not line.strip():
-        raise ValueError(
-            f"monster {entry.get('monster_id')} innate_attack line must be a non-empty string"
-        )
-
-
-def _normalize_innate_attack(
-    payload: dict[str, Any], *, monster_id: str
-) -> dict[str, Any]:
-    name = str(payload.get("name") or "").strip()
-    if not name:
-        raise ValueError(f"monster {monster_id!r} innate_attack name must be provided")
-
-    line_raw = payload.get("line")
-    line = str(line_raw).strip() if isinstance(line_raw, str) else ""
-    if not line:
-        raise ValueError(
-            f"monster {monster_id!r} innate_attack line must be a non-empty string"
-        )
-
-    power_base = _coerce_int(payload.get("power_base")) or 0
-    power_per_level = _coerce_int(payload.get("power_per_level")) or 0
-
-    return {
-        "name": name,
-        "power_base": power_base,
-        "power_per_level": power_per_level,
-        "line": line,
-    }
-
 
 def _normalize_monster(entry: dict[str, Any]) -> dict[str, Any]:
     _validate_monster(entry)
@@ -201,7 +170,7 @@ def _normalize_monster(entry: dict[str, Any]) -> dict[str, Any]:
         raise ValueError(f"monster {monster_id!r} spawnable must be boolean")
 
     stats = entry.get("stats") or {}
-    innate = _normalize_innate_attack(entry.get("innate_attack") or {}, monster_id=monster_id)
+    innate = entry.get("innate_attack") or {}
 
     exp_bonus = entry.get("exp_bonus")
     ions_min = entry.get("ions_min")

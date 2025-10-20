@@ -31,7 +31,6 @@ from typing import Any, Callable, Dict, Iterable, List, Mapping, MutableMapping
 from mutants.registries import monsters_instances as mon_instances
 from mutants.registries import items_instances as itemsreg
 from mutants.services import player_state as pstate
-from mutants.services.monster_entities import DEFAULT_INNATE_ATTACK_LINE
 
 
 LOG_P = logging.getLogger("mutants.playersdbg")
@@ -86,13 +85,16 @@ def _copy_innate_attack(template: Mapping[str, Any]) -> Dict[str, Any]:
     default_name = str(template.get("name") or template.get("id") or "Monster")
     if not isinstance(payload, Mapping):
         payload = {}
-    line_raw = payload.get("line") if isinstance(payload, Mapping) else None
-    line = str(line_raw).strip() if isinstance(line_raw, str) and line_raw.strip() else DEFAULT_INNATE_ATTACK_LINE
     return {
         "name": str(payload.get("name", default_name)),
         "power_base": int(payload.get("power_base", 0) or 0),
         "power_per_level": int(payload.get("power_per_level", 0) or 0),
-        "line": line,
+        "message": str(
+            payload.get(
+                "message",
+                f"{{monster}} attacks {{target}}!",
+            )
+        ),
     }
 
 

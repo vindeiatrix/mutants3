@@ -4,7 +4,6 @@ import json
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from mutants.services.monster_entities import DEFAULT_INNATE_ATTACK_LINE
 from mutants.state import state_path
 
 from .sqlite_store import SQLiteConnectionManager
@@ -95,12 +94,9 @@ def _validate_base_monster(m: Dict[str, Any]) -> None:
     elif len(set(coerced)) != len(coerced):
         raise ValueError("spawn_years list must not contain duplicates")
     ia = m["innate_attack"]
-    for f in ("name","power_base","power_per_level","line"):
+    for f in ("name","power_base","power_per_level"):
         if f not in ia:
             raise ValueError(f"innate_attack missing {f}")
-    line_value = ia.get("line")
-    if not isinstance(line_value, str) or not line_value.strip():
-        raise ValueError("innate_attack line must be a non-empty string")
     # ok
 
 def _load_monsters_from_store(manager: SQLiteConnectionManager) -> List[Dict[str, Any]]:
@@ -170,10 +166,8 @@ def _load_monsters_from_store(manager: SQLiteConnectionManager) -> List[Dict[str
         }
 
         innate_payload = monster.get("innate_attack")
-        if isinstance(innate_payload, dict):
-            line_value = innate_payload.get("line")
-            if not isinstance(line_value, str) or not line_value.strip():
-                innate_payload["line"] = DEFAULT_INNATE_ATTACK_LINE
+        if isinstance(innate_payload, dict) and "message" not in innate_payload:
+            innate_payload["message"] = "{monster} strikes {target} for {damage} damage!"
 
         monsters.append(monster)
     return monsters
