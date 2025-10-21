@@ -485,5 +485,71 @@
     "base_power_bolt": 0,
     "poison_melee": false,
     "poison_bolt": false
+  },
+  {
+    "id": "Torn Overalls",
+    "name": "Torn Overalls",
+    "type": "ARMOUR",
+    "weight": 8,
+    "value": 5,
+    "armour_class": 3,
+    "wear_slots": ["BODY"]
+  },
+  {
+    "id": "Rusty Shiv",
+    "name": "Rusty Shiv",
+    "type": "WEAPON",
+    "weight": 2,
+    "value": 5,
+    "damage_base": 2,
+    "damage_dice": "1d4"
+  },
+  {
+    "id": "Bolt Pouch",
+    "name": "Bolt Pouch",
+    "type": "ITEM",
+    "weight": 1,
+    "value": 1
+  },
+  {
+    "id": "Thick Hide",
+    "name": "Thick Hide",
+    "type": "ARMOUR",
+    "weight": 12,
+    "value": 10,
+    "armour_class": 5,
+    "wear_slots": ["BODY"]
+  },
+  {
+    "id": "Radioactive Fang",
+    "name": "Radioactive Fang",
+    "type": "WEAPON",
+    "weight": 1,
+    "value": 15,
+    "damage_base": 3,
+    "damage_dice": "1d6"
+  },
+  {
+    "id": "Tattered Cloths",
+    "name": "Tattered Cloths",
+    "type": "ARMOUR",
+    "weight": 4,
+    "value": 2,
+    "armour_class": 1,
+    "wear_slots": ["BODY"]
+  },
+  {
+    "id": "Ion Beamer",
+    "name": "Ion Beamer",
+    "type": "WEAPON",
+    "weight": 7,
+    "value": 150,
+    "damage_base": 5,
+    "damage_dice": "2d6",
+    "ranged": {
+      "projectile_name": "ion blast",
+      "max_range": 5,
+      "line": "An ion blast shoots from the beamer"
+    }
   }
 ]
