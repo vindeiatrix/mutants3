@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import copy
 import logging
-from typing import Iterable, Mapping, Sequence
+from typing import Any, Iterable, Mapping, MutableMapping, Sequence
 
 from mutants.registries import items_instances as itemsreg
 from mutants.services.item_transfer import GROUND_CAP
@@ -169,6 +169,29 @@ def _clone_entry(entry: Mapping[str, object] | None, *, source: str) -> dict[str
     return payload
 
 
+def _ground_full_message(label: str) -> str:
+    return f"Ground is full; {label} dissipates."
+
+
+def describe_vaporized_entries(
+    entries: Sequence[Mapping[str, object]] | None,
+    *,
+    catalog: Mapping[str, Mapping[str, object]] | None = None,
+) -> list[str]:
+    """Return player-facing messages for ``entries`` that vaporised."""
+
+    if not entries:
+        return []
+
+    messages: list[str] = []
+    for entry in entries:
+        if not isinstance(entry, Mapping):
+            continue
+        label = _entry_label(entry, catalog)
+        messages.append(_ground_full_message(label))
+    return messages
+
+
 def drop_monster_loot(
     *,
     pos: tuple[int, int, int],
@@ -176,6 +199,8 @@ def drop_monster_loot(
     armour_entry: Mapping[str, object] | None,
     bus=None,
     catalog: Mapping[str, Mapping[str, object]] | None = None,
+    sorted_bag_entries: Sequence[Mapping[str, object]] | None = None,
+    drop_summary: MutableMapping[str, Any] | None = None,
 ) -> tuple[list[dict[str, object]], list[dict[str, object]]]:
     """Drop monster loot respecting ground capacity and deterministic order.
 
@@ -185,12 +210,18 @@ def drop_monster_loot(
         Coordinates where drops should appear.
     bag_entries
         Iterable of item payloads sourced from the monster's inventory.
+    sorted_bag_entries
+        Optional pre-sorted sequence of bag entries. When provided it takes
+        precedence over ``bag_entries`` for establishing the drop order.
     armour_entry
         Optional armour payload to drop.
     bus
         Event emitter for logging loot events.
     catalog
         Optional catalog mapping used for labels.
+    drop_summary
+        Optional mapping populated with diagnostic information describing the
+        resolved drop order and any items that vaporised.
 
     Returns
     -------
@@ -199,10 +230,14 @@ def drop_monster_loot(
     """
 
     attempts: list[tuple[str, Mapping[str, object]]] = []
-    if bag_entries:
-        for entry in bag_entries:
-            if isinstance(entry, Mapping):
-                attempts.append(("bag", entry))
+    bag_iterable: Sequence[Mapping[str, object]] | None
+    if sorted_bag_entries:
+        bag_iterable = [entry for entry in sorted_bag_entries if isinstance(entry, Mapping)]
+    else:
+        bag_iterable = [entry for entry in bag_entries or [] if isinstance(entry, Mapping)]
+
+    for entry in bag_iterable:
+        attempts.append(("bag", entry))
     skull_entry: Mapping[str, object] = {"item_id": "skull"}
     attempts.append(("skull", skull_entry))
     if isinstance(armour_entry, Mapping):
@@ -214,6 +249,8 @@ def drop_monster_loot(
 
     minted: list[dict[str, object]] = []
     vaporized: list[dict[str, object]] = []
+    summary_messages: list[str] = []
+    summary_attempt_order: list[str] = []
 
     if free_slots <= 0 and attempts:
         LOG_DEV.info(
@@ -223,14 +260,28 @@ def drop_monster_loot(
         )
         for source, entry in attempts:
             vaporized.append(_clone_entry(entry, source=source))
+            summary_attempt_order.append(source)
+        summary_messages.extend(describe_vaporized_entries(vaporized, catalog=catalog))
+        if summary_messages and hasattr(bus, "push"):
+            for message in summary_messages:
+                bus.push("COMBAT/INFO", message)
+        if isinstance(drop_summary, MutableMapping):
+            drop_summary["pos"] = {"year": year, "x": x, "y": y}
+            drop_summary["attempt_order"] = summary_attempt_order
+            drop_summary["minted"] = minted
+            drop_summary["vaporized"] = vaporized
+            drop_summary["messages"] = summary_messages
         return minted, vaporized
 
     for source, entry in attempts:
+        summary_attempt_order.append(source)
         if free_slots <= 0:
             vaporized.append(_clone_entry(entry, source=source))
-            if hasattr(bus, "push"):
-                label = _entry_label(entry, catalog)
-                bus.push("COMBAT/INFO", f"There is no room for {label}; it vaporizes.")
+            message = describe_vaporized_entries([entry], catalog=catalog)
+            if message:
+                summary_messages.extend(message)
+                if hasattr(bus, "push"):
+                    bus.push("COMBAT/INFO", message[0])
             continue
 
         minted_iids = drop_new_entries([entry], pos)
@@ -246,6 +297,13 @@ def drop_monster_loot(
                 record["item_id"] = str(inst.get("item_id"))
         minted.append(record)
         free_slots -= 1
+
+    if isinstance(drop_summary, MutableMapping):
+        drop_summary["pos"] = {"year": year, "x": x, "y": y}
+        drop_summary["attempt_order"] = summary_attempt_order
+        drop_summary["minted"] = minted
+        drop_summary["vaporized"] = vaporized
+        drop_summary["messages"] = summary_messages
 
     return minted, vaporized
 
@@ -275,7 +333,7 @@ def enforce_capacity(
             removed.append(iid)
             overflow -= 1
             if hasattr(bus, "push"):
-                bus.push("COMBAT/INFO", f"There is no room for {label}; it vaporizes.")
+                bus.push("COMBAT/INFO", _ground_full_message(label))
         idx -= 1
     return removed
 

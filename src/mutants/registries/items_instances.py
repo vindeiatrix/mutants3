@@ -200,6 +200,15 @@ def _normalize_instances(instances: Iterable[Dict[str, Any]]) -> bool:
     return changed
 
 
+def is_ground_full(year: int, x: int, y: int) -> bool:
+    """Return ``True`` when the ground at ``(year, x, y)`` is at capacity."""
+
+    from mutants.services.item_transfer import GROUND_CAP
+
+    ground = list_instances_at(year, x, y)
+    return len(ground) >= GROUND_CAP
+
+
 def _detect_duplicate_iids(instances: Iterable[Dict[str, Any]]) -> List[str]:
     seen: Dict[str, int] = {}
     duplicates: List[str] = []

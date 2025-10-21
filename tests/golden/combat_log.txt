@@ -1,0 +1,90 @@
+=== Mutants Combat Log ===
+seed=20240517
+turns=10
+
+Turn 1: Thief vs Junkyard Scrapper [monster_hit_bolt]
+  kind: COMBAT/HIT
+  meta: {"damage": 2, "monster": "Junkyard Scrapper", "source": "bolt", "target": "Thief", "weapon": "Rusty Shiv"}
+  turnlog: damage=2 monster=Junkyard Scrapper source=bolt target=Thief weapon=Rusty Shiv
+  feedback: Junkyard Scrapper has shot you with his Rusty Shiv!
+  narrative: The Junkyard Scrapper slashes you with a rusty shiv!
+  summary: hit Junkyard Scrapper Rusty Shiv src=bolt dmg=2
+
+Turn 2: Mage vs Rad Swarm Matron [item_crack]
+  kind: ITEM/CRACK
+  meta: {"item_name": "Acid Gland", "owner": "Rad Swarm Matron"}
+  turnlog: item_name=Acid Gland owner=Rad Swarm Matron
+  narrative: Acid Gland splinters in Rad Swarm Matron's grip.
+  summary: crack Rad Swarm Matron Acid Gland
+
+Turn 3: Thief vs Rad Swarm Matron [monster_kill]
+  kind: COMBAT/KILL
+  meta: {"drops": 1, "monster": "Rad Swarm Matron", "source": "monster", "victim": "Thief"}
+  turnlog: drops=1 monster=Rad Swarm Matron source=monster victim=Thief
+  narrative: Thief falls before Rad Swarm Matron!
+  summary: kill Thief drops=1 by=monster
+
+Turn 4: Warrior vs Junkyard Scrapper [monster_heal]
+  kind: COMBAT/HEAL
+  meta: {"actor": "Junkyard Scrapper", "hp_restored": 7, "ions_spent": 3}
+  turnlog: actor=Junkyard Scrapper hp_restored=7 ions_spent=3
+  feedback: Junkyard Scrapper restores 7 HP (3 ions).
+  narrative: Junkyard Scrapper's body is glowing!
+  summary: heal Junkyard Scrapper hp=+7 ions=-3
+
+Turn 5: Thief vs Junkyard Scrapper [item_crack]
+  kind: ITEM/CRACK
+  meta: {"item_name": "Rusty Shiv", "owner": "Junkyard Scrapper"}
+  turnlog: item_name=Rusty Shiv owner=Junkyard Scrapper
+  narrative: Rusty Shiv splinters in Junkyard Scrapper's grip.
+  summary: crack Junkyard Scrapper Rusty Shiv
+
+Turn 6: Wizard vs Junkyard Scrapper [player_strike]
+  kind: COMBAT/STRIKE
+  meta: {"actor": "Wizard", "damage": 9, "killed": false, "remaining_hp": 1, "target_name": "Junkyard Scrapper"}
+  turnlog: actor=Wizard damage=9 killed=false remaining_hp=1 target_name=Junkyard Scrapper
+  narrative: Wizard strikes at Junkyard Scrapper!
+  summary: strike Junkyard Scrapper dmg=9 hp=1
+
+Turn 7: Mage vs Rad Swarm Matron [monster_hit_melee]
+  kind: COMBAT/HIT
+  meta: {"damage": 12, "monster": "Rad Swarm Matron", "source": "melee", "target": "Mage", "weapon": "Toxic Bite"}
+  turnlog: damage=12 monster=Rad Swarm Matron source=melee target=Mage weapon=Toxic Bite
+  feedback: Rad Swarm Matron has hit you with his Toxic Bite!
+  narrative: The Rad Swarm Matron sinks toxic fangs into you!
+  summary: hit Rad Swarm Matron Toxic Bite src=melee dmg=12
+
+Turn 8: Mage vs Rad Swarm Matron [monster_hit_melee]
+  kind: COMBAT/HIT
+  meta: {"damage": 13, "monster": "Rad Swarm Matron", "source": "melee", "target": "Mage", "weapon": "Toxic Bite"}
+  turnlog: damage=13 monster=Rad Swarm Matron source=melee target=Mage weapon=Toxic Bite
+  feedback: Rad Swarm Matron has hit you with his Toxic Bite!
+  narrative: The Rad Swarm Matron sinks toxic fangs into you!
+  summary: hit Rad Swarm Matron Toxic Bite src=melee dmg=13
+
+Turn 9: Priest vs Junkyard Scrapper [monster_kill]
+  kind: COMBAT/KILL
+  meta: {"drops": 0, "monster": "Junkyard Scrapper", "source": "monster", "victim": "Priest"}
+  turnlog: drops=0 monster=Junkyard Scrapper source=monster victim=Priest
+  narrative: Priest falls before Junkyard Scrapper!
+  summary: kill Priest drops=0 by=monster
+
+Turn 10: Wizard vs Titan of Chrome [monster_hit_melee]
+  kind: COMBAT/HIT
+  meta: {"damage": 13, "monster": "Titan of Chrome", "source": "melee", "target": "Wizard", "weapon": "Hydraulic Slam"}
+  turnlog: damage=13 monster=Titan of Chrome source=melee target=Wizard weapon=Hydraulic Slam
+  feedback: Titan of Chrome has hit you with his Hydraulic Slam!
+  narrative: The Titan of Chrome crushes you with a hydraulic slam!
+  summary: hit Titan of Chrome Hydraulic Slam src=melee dmg=13
+
+=== Aggregate Summary ===
+- hit Junkyard Scrapper Rusty Shiv src=bolt dmg=2
+- crack Rad Swarm Matron Acid Gland
+- kill Thief drops=1 by=monster
+- heal Junkyard Scrapper hp=+7 ions=-3
+- crack Junkyard Scrapper Rusty Shiv
+- strike Junkyard Scrapper dmg=9 hp=1
+- hit Rad Swarm Matron Toxic Bite src=melee dmg=12
+- hit Rad Swarm Matron Toxic Bite src=melee dmg=13
+- kill Priest drops=0 by=monster
+- hit Titan of Chrome Hydraulic Slam src=melee dmg=13

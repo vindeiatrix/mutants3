@@ -127,6 +127,15 @@ class _AttackContext:
     strength_bonus: int
 
 
+def apply_ac_mitigation(raw_damage: int, ac: int) -> int:
+    """Return ``raw_damage`` reduced by the AC mitigation curve."""
+
+    base_damage = _coerce_int(raw_damage, 0)
+    armour_class = max(0, _coerce_int(ac, 0))
+    mitigation = round((armour_class / 10) * 3.15)
+    return base_damage - mitigation
+
+
 def _resolve_enchant_level(item: Any, payload: Mapping[str, Any]) -> int:
     if "enchant_level" in payload:
         return max(0, _coerce_int(payload.get("enchant_level"), 0))
@@ -271,12 +280,12 @@ def resolve_attack(
     context = _resolve_attack_context(item, attacker_state, source=source)
     attack_power = context.base_power + (4 * context.enchant_level) + context.strength_bonus
     defender_ac = get_total_ac(defender_state)
-    damage = attack_power - defender_ac
+    damage = apply_ac_mitigation(attack_power, defender_ac)
     return AttackResult(damage=damage, source=context.source)
 
 
 def compute_base_damage(item: Any, attacker_state: Any, defender_state: Any) -> int:
-    """Return the base damage before applying the AC mitigation curve."""
+    """Return the mitigated damage prior to applying damage floors."""
 
     return resolve_attack(item, attacker_state, defender_state).damage
 

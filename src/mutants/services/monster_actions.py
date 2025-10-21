@@ -4,15 +4,27 @@ from __future__ import annotations
 
 import logging
 import random
-from typing import Any, Callable, Dict, Iterable, Mapping, MutableMapping, Optional
+from typing import Any, Callable, Dict, Iterable, Mapping, MutableMapping, Optional, Sequence, Tuple
 
 from mutants.commands import convert as convert_cmd
 from mutants.commands import strike
 from mutants.registries import items_catalog, items_instances as itemsreg
 from mutants.services import combat_loot
-from mutants.services import damage_engine, items_wear, monsters_state, player_state as pstate
+from mutants.services import damage_engine, items_wear, monsters_state
+from mutants.services import player_death
+from mutants.services import player_state as pstate
+from mutants.services.combat_config import CombatConfig
+from mutants.services.monster_ai.attack_selection import select_attack
+from mutants.services.monster_ai.cascade import evaluate_cascade
+from mutants.services.monster_ai import inventory as inventory_mod
+from mutants.services.monster_ai import heal as heal_mod
+from mutants.services.monster_ai import casting as casting_mod
+from mutants.services.monster_ai import emote as emote_mod
+from mutants.services.monster_ai import taunt as taunt_mod
+from mutants.services.monster_ai import tracking as tracking_mod
+from mutants.services.monster_ai.pursuit import attempt_pursuit
 from mutants.debug import turnlog
-from mutants.ui import item_display
+from mutants.ui import item_display, textutils
 
 LOG = logging.getLogger(__name__)
 
@@ -51,6 +63,106 @@ def _monster_id(monster: Mapping[str, Any]) -> str:
     return "?"
 
 
+def _attack_weapon_payload(
+    monster: Mapping[str, Any],
+    weapon_iid: str | None,
+    source: str,
+    catalog: Mapping[str, Mapping[str, Any]] | None,
+) -> tuple[str, str | None]:
+    if weapon_iid:
+        inst = itemsreg.get_instance(weapon_iid)
+        if not isinstance(inst, Mapping):
+            inst = {"item_id": weapon_iid}
+        tpl = {}
+        if isinstance(catalog, Mapping):
+            item_id = inst.get("item_id") or inst.get("catalog_id") or inst.get("id")
+            if item_id is not None:
+                tpl = catalog.get(str(item_id)) or {}
+        label = item_display.item_label(inst, tpl or {}, show_charges=False)
+        resolved_id = inst.get("item_id") or inst.get("catalog_id") or inst.get("id")
+        weapon_id = str(resolved_id) if resolved_id else None
+        return label, weapon_id
+    if source == "innate":
+        innate = monster.get("innate_attack")
+        if isinstance(innate, Mapping):
+            raw_name = innate.get("name")
+            if isinstance(raw_name, str) and raw_name.strip():
+                return raw_name.strip(), None
+        return "innate attack", None
+    if source == "bolt":
+        return "bolt", None
+    return "attack", None
+
+
+def _drop_entry_label(
+    entry: Mapping[str, Any], catalog: Mapping[str, Mapping[str, Any]] | None
+) -> str:
+    item_id = str(
+        entry.get("item_id")
+        or entry.get("catalog_id")
+        or entry.get("id")
+        or entry.get("iid")
+        or ""
+    )
+    tpl = catalog.get(item_id) if isinstance(catalog, Mapping) else {}
+    return item_display.item_label(entry, tpl or {}, show_charges=False)
+
+
+def _drop_entry_sort_key(
+    entry: Mapping[str, Any], catalog: Mapping[str, Mapping[str, Any]] | None
+) -> Tuple[str, str, str]:
+    label = _drop_entry_label(entry, catalog)
+    iid = str(entry.get("iid") or entry.get("instance_id") or "")
+    item_id = str(
+        entry.get("item_id")
+        or entry.get("catalog_id")
+        or entry.get("id")
+        or iid
+    )
+    return (label.lower(), item_id, iid)
+
+
+def sorted_bag_drops(
+    summary: Mapping[str, Any],
+    *,
+    catalog: Mapping[str, Mapping[str, Any]] | None = None,
+) -> list[Mapping[str, Any]]:
+    """Return the bag drops from ``summary`` sorted deterministically."""
+
+    bag = summary.get("bag_drops")
+    if not isinstance(bag, Sequence):
+        return []
+
+    entries: list[Mapping[str, Any]] = []
+    for entry in bag:
+        if isinstance(entry, Mapping):
+            entries.append(entry)
+    entries.sort(key=lambda value: _drop_entry_sort_key(value, catalog))
+    return entries
+
+
+def drop_summary(
+    summary: Mapping[str, Any],
+    *,
+    catalog: Mapping[str, Mapping[str, Any]] | None = None,
+) -> Dict[str, Any]:
+    """Build a descriptive payload for vaporised drops in ``summary``."""
+
+    raw_vaporized = summary.get("drops_vaporized")
+    vaporized: list[Mapping[str, Any]] = []
+    if isinstance(raw_vaporized, Sequence):
+        for entry in raw_vaporized:
+            if isinstance(entry, Mapping):
+                vaporized.append(entry)
+
+    messages = combat_loot.describe_vaporized_entries(vaporized, catalog=catalog)
+    return {
+        "count": len(vaporized),
+        "vaporized": vaporized,
+        "messages": messages,
+    }
+
+
 def _feedback_bus(ctx: MutableMapping[str, Any]) -> Any:
     bus = ctx.get("feedback_bus")
     return bus
@@ -71,6 +183,33 @@ def _mark_monsters_dirty(ctx: MutableMapping[str, Any]) -> None:
             LOG.exception("Failed to mark monsters state dirty")
 
 
+def notify_monster_death(
+    payload: Mapping[str, Any] | None,
+    *,
+    ctx: Mapping[str, Any] | None = None,
+) -> None:
+    """Forward monster death notifications to the active spawner, if any."""
+
+    spawner: Any | None = None
+    if isinstance(ctx, Mapping):
+        spawner = ctx.get("monster_spawner")
+        if spawner is None:
+            services = ctx.get("services")
+            if isinstance(services, Mapping):
+                spawner = services.get("monster_spawner")
+    if spawner is None:
+        return
+
+    handler = getattr(spawner, "notify_monster_death", None)
+    if not callable(handler):
+        return
+
+    try:
+        handler(payload)
+    except Exception:  # pragma: no cover - defensive
+        LOG.exception("Failed to notify monster spawner about death")
+
+
 def _sanitize_hp_block(payload: Any) -> tuple[int, int]:
     if isinstance(payload, Mapping):
         try:
@@ -85,6 +224,28 @@ def _sanitize_hp_block(payload: Any) -> tuple[int, int]:
     return 0, 0
 
 
+def _sanitize_player_id(value: Any) -> Optional[str]:
+    if value is None:
+        return None
+    if isinstance(value, str):
+        token = value.strip()
+        return token or None
+    try:
+        token = str(value).strip()
+    except Exception:
+        return None
+    return token or None
+
+
+def _normalize_player_pos(
+    state: Mapping[str, Any], active: Mapping[str, Any]
+) -> Optional[tuple[int, int, int]]:
+    pos = combat_loot.coerce_pos(active.get("pos"))
+    if pos is None:
+        pos = combat_loot.coerce_pos(state.get("pos"))
+    return pos
+
+
 def _ai_state(monster: MutableMapping[str, Any]) -> MutableMapping[str, Any]:
     payload = monster.get("_ai_state")
     if not isinstance(payload, MutableMapping):
@@ -94,6 +255,58 @@ def _ai_state(monster: MutableMapping[str, Any]) -> MutableMapping[str, Any]:
     if not isinstance(pickups, list):
         payload["picked_up"] = []
     return payload
+
+
+def _ledger_state(monster: MutableMapping[str, Any]) -> MutableMapping[str, int]:
+    state = _ai_state(monster)
+    ledger_raw = state.get("ledger")
+    if isinstance(ledger_raw, MutableMapping):
+        ledger = ledger_raw
+    elif isinstance(ledger_raw, Mapping):
+        ledger = dict(ledger_raw)
+        state["ledger"] = ledger
+    else:
+        ledger = {}
+        state["ledger"] = ledger
+
+    ions = _coerce_int(ledger.get("ions"), 0)
+    riblets = _coerce_int(ledger.get("riblets"), 0)
+
+    if "ions" in monster:
+        ions = _coerce_int(monster.get("ions"), 0)
+    else:
+        monster["ions"] = ions
+
+    if "riblets" in monster:
+        riblets = _coerce_int(monster.get("riblets"), 0)
+    else:
+        monster["riblets"] = riblets
+
+    ledger["ions"] = ions
+    ledger["riblets"] = riblets
+    monster["ions"] = ions
+    monster["riblets"] = riblets
+    return ledger
+
+
+def _pop_pending_pursuit(monster: MutableMapping[str, Any], ctx: MutableMapping[str, Any] | None) -> tuple[int, int, int] | None:
+    state = _ai_state(monster)
+    raw_state = state.pop("pending_pursuit", None)
+    pos = combat_loot.coerce_pos(raw_state)
+    if pos is not None:
+        return pos
+    raw_ctx = None
+    if isinstance(ctx, MutableMapping):
+        raw_ctx = ctx.pop("monster_ai_pursuit_target", None)
+    elif ctx is not None:
+        raw_ctx = getattr(ctx, "monster_ai_pursuit_target", None)
+        if raw_ctx is not None:
+            try:
+                setattr(ctx, "monster_ai_pursuit_target", None)
+            except Exception:
+                pass
+    pos = combat_loot.coerce_pos(raw_ctx)
+    return pos
 
 
 def _picked_up_iids(monster: MutableMapping[str, Any]) -> list[str]:
@@ -145,11 +358,48 @@ def _resolve_item_id(inst: Mapping[str, Any]) -> str:
     return str(iid) if iid else ""
 
 
-def _convert_value(catalog: Mapping[str, Any], iid: str, item_id: str) -> int:
+_BROKEN_ITEM_IDS = {itemsreg.BROKEN_WEAPON_ID, itemsreg.BROKEN_ARMOUR_ID}
+
+
+def _convert_value(
+    catalog: Mapping[str, Any], iid: Optional[str], item_id: str
+) -> int:
     try:
         return convert_cmd._convert_value(item_id, catalog, iid)
     except Exception:
         return 0
+
+
+def _is_broken_placeholder(item_id: str) -> bool:
+    return item_id in _BROKEN_ITEM_IDS
+
+
+def _derived_base_damage(inst: Mapping[str, Any]) -> Optional[int]:
+    derived = inst.get("derived")
+    if not isinstance(derived, Mapping):
+        return None
+    base_damage = derived.get("base_damage")
+    try:
+        value = int(base_damage)
+    except (TypeError, ValueError):
+        return None
+    return max(0, value)
+
+
+def _catalogue_base_damage(
+    tpl: Optional[Mapping[str, Any]], enchant: int
+) -> int:
+    if not isinstance(tpl, Mapping):
+        return 0
+    for key in ("base_power_melee", "base_power"):
+        if tpl.get(key) is None:
+            continue
+        try:
+            base_power = int(tpl.get(key, 0))
+        except (TypeError, ValueError):
+            base_power = 0
+        return max(0, base_power) + (4 * max(0, enchant))
+    return 0
 
 
 def _score_pickup_candidate(
@@ -157,25 +407,28 @@ def _score_pickup_candidate(
     catalog: Mapping[str, Mapping[str, Any]],
 ) -> int:
     item_id = _resolve_item_id(inst)
-    tpl = catalog.get(item_id) if item_id else None
-    base_power = 0
-    if isinstance(tpl, Mapping):
-        for key in ("base_power_melee", "base_power"):
-            if tpl.get(key) is None:
-                continue
-            try:
-                base_power = int(tpl.get(key, 0))
-            except (TypeError, ValueError):
-                base_power = 0
-            break
+    if not item_id or _is_broken_placeholder(item_id):
+        return 0
+    tpl = catalog.get(item_id)
     enchant = 0
     try:
         enchant = int(inst.get("enchant_level", 0))
     except (TypeError, ValueError):
         enchant = 0
-    base_damage = max(0, base_power) + (4 * max(0, enchant))
-    convert_val = _convert_value(catalog, str(inst.get("iid")), item_id)
-    return (base_damage * 1000) + max(0, convert_val)
+    base_damage = _derived_base_damage(inst)
+    if base_damage is None:
+        base_damage = _catalogue_base_damage(tpl, enchant)
+    iid = inst.get("iid") or inst.get("instance_id")
+    iid_token = None
+    if iid is not None:
+        token = str(iid)
+        iid_token = token if token else None
+    convert_val = _convert_value(catalog, iid_token, item_id)
+    base_damage = max(0, base_damage)
+    convert_val = max(0, convert_val)
+    if base_damage <= 0 and convert_val <= 0:
+        return 0
+    return (base_damage * 1000) + convert_val
 
 
 def _bag_list(monster: MutableMapping[str, Any]) -> list[MutableMapping[str, Any]]:
@@ -301,6 +554,7 @@ def _apply_weapon_wear(
             iid=weapon_iid,
             source="weapon",
         )
+        inventory_mod.schedule_weapon_drop(monster, weapon_iid)
     _refresh_monster(monster)
     return payload
 
@@ -348,38 +602,6 @@ def _collect_player_items(state: Mapping[str, Any], active: Mapping[str, Any], c
     return collected
 
 
-def _clear_player_inventory(state: MutableMapping[str, Any], active: MutableMapping[str, Any], cls: str) -> None:
-    scopes: list[MutableMapping[str, Any]] = []
-    scopes.append(state)
-    if isinstance(active, MutableMapping):
-        scopes.append(active)
-    players = state.get("players")
-    if isinstance(players, list):
-        for player in players:
-            if isinstance(player, MutableMapping):
-                scopes.append(player)
-
-    for scope in scopes:
-        bags = scope.setdefault("bags", {})
-        if isinstance(bags, MutableMapping):
-            bags[cls] = []
-        if isinstance(scope.get("bags_by_class"), MutableMapping):
-            scope["bags_by_class"][cls] = []  # type: ignore[index]
-        scope["inventory"] = []
-        equip_map = scope.get("equipment_by_class")
-        if isinstance(equip_map, MutableMapping):
-            equip_map[cls] = {"armour": None}
-        wield_map = scope.get("wielded_by_class")
-        if isinstance(wield_map, MutableMapping):
-            wield_map[cls] = None
-        scope["wielded"] = None
-        armour = scope.get("armour")
-        if isinstance(armour, MutableMapping):
-            armour["wearing"] = None
-        elif armour is not None:
-            scope["armour"] = {"wearing": None}
-
-
 def _handle_player_death(
     monster: MutableMapping[str, Any],
     ctx: MutableMapping[str, Any],
@@ -387,10 +609,33 @@ def _handle_player_death(
     active: MutableMapping[str, Any],
     bus: Any,
 ) -> None:
+    try:
+        pstate.clear_target(reason="player-death")
+    except Exception:  # pragma: no cover - defensive guard
+        LOG.exception("Failed to clear player target after death")
+
     label = _monster_display_name(monster)
     killer_id = str(monster.get("id") or monster.get("instance_id") or "monster")
     victim_id = str(active.get("id") or state.get("active_id") or "player")
     victim_class = pstate.get_active_class(state)
+
+    player_ions = 0
+    player_riblets = 0
+    try:
+        player_ions = max(0, pstate.get_ions_for_active(state))
+    except Exception:  # pragma: no cover - defensive guard
+        LOG.exception("Failed to resolve player ions for kill reward")
+    try:
+        player_riblets = max(0, pstate.get_riblets_for_active(state))
+    except Exception:  # pragma: no cover - defensive guard
+        LOG.exception("Failed to resolve player riblets for kill reward")
+
+    ledger_helper = getattr(player_death, "monster_ledger", None)
+    if hasattr(ledger_helper, "deposit"):
+        try:
+            ledger_helper.deposit(monster, ions=player_ions, riblets=player_riblets)
+        except Exception:  # pragma: no cover - defensive guard
+            LOG.exception("Failed to deposit kill rewards into monster ledger")
 
     if hasattr(bus, "push"):
         bus.push("COMBAT/INFO", f"{label} slays you!")
@@ -401,16 +646,6 @@ def _handle_player_death(
             victim_id=victim_id,
             victim_class=victim_class,
         )
-
-    ions = pstate.get_ions_for_active(state)
-    if ions:
-        monster["ions"] = _coerce_int(monster.get("ions"), 0) + ions
-        pstate.set_ions_for_active(state, 0)
-
-    riblets = pstate.get_riblets_for_active(state)
-    if riblets:
-        monster["riblets"] = _coerce_int(monster.get("riblets"), 0) + riblets
-        pstate.set_riblets_for_active(state, 0)
 
     pos = combat_loot.coerce_pos(active.get("pos")) or combat_loot.coerce_pos(state.get("pos"))
     if pos is None:
@@ -437,9 +672,21 @@ def _handle_player_death(
         source="monster",
     )
 
-    _clear_player_inventory(state, active, victim_class)
-    pstate.clear_ready_target_for_active(reason="player-dead")
-    pstate.save_state(state)
+    scheduler = ctx.get("turn_scheduler") if isinstance(ctx, MutableMapping) else None
+    player_id = str(active.get("id") or state.get("active_id") or "")
+    queued = False
+    if hasattr(scheduler, "queue_player_respawn"):
+        queue_respawn = getattr(scheduler, "queue_player_respawn", None)
+        if callable(queue_respawn):
+            try:
+                queue_respawn(player_id, monster, state=state, active=active)
+                queued = True
+            except Exception:  # pragma: no cover - defensive guard
+                LOG.exception("Failed to queue player respawn handler")
+
+    if not queued:
+        player_death.handle_player_death(player_id, monster, state=state, active=active)
+
     _mark_monsters_dirty(ctx)
 
 
@@ -461,13 +708,11 @@ def _apply_player_damage(
     current, maximum = _sanitize_hp_block(hp_block)
     if maximum <= 0:
         maximum = max(current, 1)
-    weapon_iid = monster.get("wielded")
-    damage_item: Any
-    if weapon_iid:
-        damage_item = weapon_iid
-    else:
-        damage_item = {}
-    attack = damage_engine.resolve_attack(damage_item, monster, active)
+    plan = select_attack(monster, ctx)
+    weapon_iid = plan.item_iid
+    resolved_iid = str(weapon_iid) if weapon_iid else None
+    damage_item: Any = str(weapon_iid) if weapon_iid else {}
+    attack = damage_engine.resolve_attack(damage_item, monster, active, source=plan.source)
     try:
         final_damage = max(0, int(attack.damage))
     except (TypeError, ValueError):
@@ -477,19 +722,31 @@ def _apply_player_damage(
     if attack.source == "bolt":
         final_damage = max(MIN_BOLT_DAMAGE, final_damage)
     final_damage = strike._clamp_melee_damage(active, final_damage)
+    catalog = _load_catalog()
+    bus_obj = bus if hasattr(bus, "push") else None
+    weapon_label, weapon_item_id = _attack_weapon_payload(
+        monster,
+        resolved_iid,
+        attack.source,
+        catalog,
+    )
+    template_key = (
+        textutils.TEMPLATE_MONSTER_RANGED_HIT
+        if attack.source == "bolt"
+        else textutils.TEMPLATE_MONSTER_MELEE_HIT
+    )
     if final_damage > 0:
-        wear_amount = items_wear.wear_from_event({"kind": "monster-attack", "damage": final_damage})
-        catalog = _load_catalog()
-        bus_obj = bus if hasattr(bus, "push") else None
+        wear_event = items_wear.build_wear_event(actor="monster", source=str(attack.source), damage=final_damage)
+        wear_amount = items_wear.wear_from_event(wear_event)
         _apply_weapon_wear(
             monster,
-            str(weapon_iid) if weapon_iid else None,
+            resolved_iid,
             wear_amount,
             catalog,
             bus_obj,
             ctx if isinstance(ctx, MutableMapping) else None,
         )
-        if weapon_iid:
+        if resolved_iid:
             _mark_monsters_dirty(ctx)
     new_hp = max(0, current - final_damage)
     try:
@@ -497,8 +754,23 @@ def _apply_player_damage(
     except Exception:  # pragma: no cover - defensive
         LOG.exception("Failed to persist player HP after monster attack")
     label = _monster_display_name(monster)
-    if hasattr(bus, "push"):
-        bus.push("COMBAT/INFO", f"{label} strikes you for {final_damage} damage.")
+    if bus_obj is not None:
+        message = textutils.render_feedback_template(
+            template_key,
+            monster=label,
+            weapon=weapon_label,
+        )
+        bus_obj.push(
+            "COMBAT/HIT",
+            message,
+            template=template_key,
+            monster=label,
+            weapon=weapon_label,
+            weapon_id=weapon_item_id,
+            weapon_iid=resolved_iid,
+            damage=final_damage,
+            source=attack.source,
+        )
     killed_flag = final_damage > 0 and new_hp <= 0
     if final_damage > 0:
         turnlog.emit(
@@ -509,11 +781,110 @@ def _apply_player_damage(
             hp_after=new_hp,
             killed=killed_flag,
             weapon=str(weapon_iid) if weapon_iid else None,
+            source=attack.source,
         )
+    turnlog.emit(
+        ctx,
+        "COMBAT/HIT",
+        monster=label,
+        actor=_monster_id(monster),
+        weapon=weapon_label,
+        weapon_id=weapon_item_id,
+        weapon_iid=resolved_iid,
+        damage=final_damage,
+        source=attack.source,
+        template=template_key,
+    )
     if killed_flag:
         if isinstance(state, MutableMapping) and isinstance(active, MutableMapping):
             _handle_player_death(monster, ctx, state, active, bus)
+        scheduler = ctx.get("turn_scheduler") if isinstance(ctx, MutableMapping) else None
+        queue_bonus = getattr(scheduler, "queue_bonus_action", None)
+        if callable(queue_bonus):
+            try:
+                queue_bonus(monster)
+            except Exception:  # pragma: no cover - defensive guard
+                LOG.exception("Failed to queue monster bonus action")
     return True
+
+
+def _should_wake(
+    monster: Mapping[str, Any] | None,
+    event: str,
+    rng: random.Random,
+    config: CombatConfig,
+) -> bool:
+    from mutants.services.monster_ai import wake as wake_mod
+
+    return wake_mod.should_wake(monster, event, rng, config)
+
+
+_ENTRY_DEFAULT_CONFIG = CombatConfig()
+
+
+def roll_entry_target(
+    monster: MutableMapping[str, Any],
+    player_state: Mapping[str, Any] | None,
+    rng: random.Random,
+    *,
+    config: CombatConfig | None = None,
+    bus: Any | None = None,
+) -> Dict[str, Any]:
+    try:
+        state, active = pstate.get_active_pair(player_state)
+    except Exception:
+        state, active = pstate.get_active_pair()
+
+    if not isinstance(monster, MutableMapping):
+        return {"ok": False, "target_set": False, "taunt": None, "woke": False}
+
+    player_id = _sanitize_player_id(
+        active.get("id") if isinstance(active, Mapping) else None
+    )
+    if player_id is None and isinstance(state, Mapping):
+        player_id = _sanitize_player_id(state.get("active_id"))
+    if player_id is None:
+        return {"ok": False, "target_set": False, "taunt": None, "woke": False}
+
+    monster_hp = monster.get("hp")
+    if isinstance(monster_hp, Mapping):
+        try:
+            if int(monster_hp.get("current", 0)) <= 0:
+                return {"ok": True, "target_set": False, "taunt": None, "woke": False}
+        except (TypeError, ValueError):
+            pass
+
+    if isinstance(state, Mapping) and isinstance(active, Mapping):
+        player_pos = _normalize_player_pos(state, active)
+    else:
+        player_pos = None
+    monster_pos = combat_loot.coerce_pos(monster.get("pos"))
+    if player_pos is not None and monster_pos is not None and monster_pos != player_pos:
+        return {"ok": True, "target_set": False, "taunt": None, "woke": False}
+
+    previous = _sanitize_player_id(monster.get("target_player_id"))
+    if previous == player_id:
+        if player_pos is not None:
+            tracking_mod.record_target_position(monster, player_id, player_pos)
+        return {"ok": True, "target_set": False, "taunt": None, "woke": True}
+
+    config_obj = config if isinstance(config, CombatConfig) else _ENTRY_DEFAULT_CONFIG
+    woke = _should_wake(monster, "ENTRY", rng, config_obj)
+    if not woke:
+        return {"ok": True, "target_set": False, "taunt": None, "woke": False}
+
+    monster["target_player_id"] = player_id
+    if player_pos is not None:
+        tracking_mod.record_target_position(monster, player_id, player_pos)
+
+    raw_taunt = monster.get("taunt")
+    taunt = raw_taunt.strip() if isinstance(raw_taunt, str) else None
+    taunt = taunt or None
+
+    if taunt is not None:
+        taunt_mod.emit_taunt(monster, bus, rng)
+
+    return {"ok": True, "target_set": True, "taunt": taunt, "woke": True}
 
 
 def _pickup_from_ground(
@@ -539,6 +910,9 @@ def _pickup_from_ground(
     best_score = -1
     for inst in ground:
         if not isinstance(inst, Mapping):
+            continue
+        item_id = _resolve_item_id(inst)
+        if _is_broken_placeholder(item_id):
             continue
         score = _score_pickup_candidate(inst, catalog)
         if score > best_score:
@@ -591,6 +965,8 @@ def _convert_item(
     if not bag:
         return False
     tracked = set(_picked_up_iids(monster))
+    if not tracked:
+        return False
     catalog = _load_catalog()
     best_entry: Optional[MutableMapping[str, Any]] = None
     best_value = 0
@@ -601,7 +977,7 @@ def _convert_item(
         origin = entry.get("origin")
         if not isinstance(origin, str) or origin.strip().lower() != ORIGIN_WORLD:
             continue
-        if tracked and iid not in tracked:
+        if iid not in tracked:
             continue
         item_id = entry.get("item_id")
         if not isinstance(item_id, str) or not item_id:
@@ -626,9 +1002,17 @@ def _convert_item(
     if hasattr(bus, "push"):
         label = _monster_display_name(monster)
         bus.push("COMBAT/INFO", f"A blinding white flash erupts around {label}!")
+        convert_message = textutils.render_feedback_template(
+            textutils.TEMPLATE_MONSTER_CONVERT,
+            monster=label,
+            ions=best_value,
+        )
         bus.push(
             "COMBAT/INFO",
-            f"{label} converts loot worth {best_value} ions.",
+            convert_message,
+            template=textutils.TEMPLATE_MONSTER_CONVERT,
+            monster=label,
+            ions=best_value,
         )
     turnlog.emit(
         ctx,
@@ -676,18 +1060,236 @@ def _remove_broken_armour(
     return {"ok": True}
 
 
-def _heal_stub(
+def _heal_action(
     monster: MutableMapping[str, Any],
     ctx: MutableMapping[str, Any],
     rng: random.Random,
 ) -> Any:
+    if not isinstance(monster, MutableMapping):
+        return {"ok": False, "reason": "invalid_monster"}
+
+    config = ctx.get("combat_config") if isinstance(ctx, Mapping) else None
+    if not isinstance(config, CombatConfig):
+        config = CombatConfig()
+
+    current_hp, max_hp = _sanitize_hp_block(monster.get("hp"))
+    missing_hp = max(0, max_hp - current_hp)
+    if missing_hp <= 0:
+        return {"ok": False, "reason": "full_health"}
+
+    heal_cost = heal_mod.heal_cost(monster, config)
+    ledger = _ledger_state(monster)
+    ions_available = max(0, _coerce_int(ledger.get("ions"), 0))
+    if ions_available < heal_cost:
+        return {
+            "ok": False,
+            "reason": "insufficient_ions",
+            "required": heal_cost,
+            "available": ions_available,
+        }
+
+    heal_points = heal_mod.heal_amount(monster)
+    if heal_points <= 0:
+        return {"ok": False, "reason": "no_heal_amount"}
+
+    applied = min(heal_points, missing_hp)
+    new_hp = min(max_hp, current_hp + applied)
+
+    hp_block = monster.get("hp")
+    if isinstance(hp_block, MutableMapping):
+        hp_block["current"] = new_hp
+        hp_block["max"] = max_hp
+    else:
+        monster["hp"] = {"current": new_hp, "max": max_hp}
+
+    ledger["ions"] = max(0, ions_available - heal_cost)
+    monster["ions"] = ledger["ions"]
+
+    _refresh_monster(monster)
+    _mark_monsters_dirty(ctx)
+
+    label = _monster_display_name(monster)
     bus = _feedback_bus(ctx)
     if hasattr(bus, "push"):
-        bus.push("COMBAT/INFO", f"{_monster_display_name(monster)}'s body is glowing.")
+        heal_message = textutils.render_feedback_template(
+            textutils.TEMPLATE_MONSTER_HEAL,
+            monster=label,
+            hp=applied,
+            ions=heal_cost,
+        )
+        bus.push(
+            "COMBAT/HEAL",
+            heal_message,
+            template=textutils.TEMPLATE_MONSTER_HEAL,
+            monster=label,
+            hp=applied,
+            ions=heal_cost,
+        )
+        bus.push(
+            "COMBAT/HEAL_MONSTER",
+            textutils.render_feedback_template(
+                textutils.TEMPLATE_MONSTER_HEAL_VISUAL,
+                monster=label,
+            ),
+            template=textutils.TEMPLATE_MONSTER_HEAL_VISUAL,
+            monster=label,
+        )
+
     turnlog.emit(
         ctx,
         "AI/ACT/HEAL",
         monster=_monster_id(monster),
+        hp_restored=applied,
+        ions_spent=heal_cost,
+    )
+    turnlog.emit(
+        ctx,
+        "COMBAT/HEAL",
+        actor="monster",
+        actor_id=_monster_id(monster),
+        monster=label,
+        hp_restored=applied,
+        ions_spent=heal_cost,
+        template=textutils.TEMPLATE_MONSTER_HEAL,
+    )
+
+    return {
+        "ok": True,
+        "healed": applied,
+        "cost": heal_cost,
+        "remaining_ions": monster.get("ions", 0),
+        "hp": {"current": new_hp, "max": max_hp},
+    }
+
+
+def _flee_stub(
+    monster: MutableMapping[str, Any],
+    ctx: MutableMapping[str, Any],
+    rng: random.Random,
+) -> Any:
+    turnlog.emit(
+        ctx,
+        "AI/ACT/FLEE",
+        monster=_monster_id(monster),
+        reason="stub",
+    )
+    return {"ok": True, "fled": False}
+
+
+def _cast_action(
+    monster: MutableMapping[str, Any],
+    ctx: MutableMapping[str, Any],
+    rng: random.Random,
+) -> Any:
+    if not isinstance(monster, MutableMapping):
+        return {"ok": False, "reason": "invalid_monster"}
+
+    cast_result = casting_mod.try_cast(monster, ctx)
+
+    payload: dict[str, Any] = {
+        "ok": cast_result.success,
+        "cast": cast_result.success,
+        "cost": cast_result.cost,
+        "remaining_ions": cast_result.remaining_ions,
+        "roll": cast_result.roll,
+        "threshold": cast_result.threshold,
+        "effect": cast_result.effect,
+        "spell": cast_result.spell_name,
+        "spell_id": cast_result.spell_id,
+    }
+    if cast_result.reason:
+        payload["reason"] = cast_result.reason
+
+    label = _monster_display_name(monster)
+    spell_label = cast_result.spell_name or "a spell"
+    bus = _feedback_bus(ctx)
+    if cast_result.reason == "insufficient_ions":
+        return payload
+
+    if hasattr(bus, "push"):
+        attempt_message = textutils.render_feedback_template(
+            textutils.TEMPLATE_MONSTER_SPELL_ATTEMPT,
+            monster=label,
+            spell=spell_label,
+        )
+        bus.push(
+            "COMBAT/SPELL",
+            attempt_message,
+            template=textutils.TEMPLATE_MONSTER_SPELL_ATTEMPT,
+            monster=label,
+            spell=spell_label,
+            phase="attempt",
+        )
+
+        if cast_result.success:
+            success_message = textutils.render_feedback_template(
+                textutils.TEMPLATE_MONSTER_SPELL_SUCCESS,
+                monster=label,
+                spell=spell_label,
+            )
+            bus.push(
+                "COMBAT/SPELL",
+                success_message,
+                template=textutils.TEMPLATE_MONSTER_SPELL_SUCCESS,
+                monster=label,
+                spell=spell_label,
+                phase="success",
+                ions_spent=cast_result.cost,
+            )
+        else:
+            failure_message = textutils.render_feedback_template(
+                textutils.TEMPLATE_MONSTER_SPELL_FAILURE,
+                monster=label,
+                spell=spell_label,
+            )
+            bus.push(
+                "COMBAT/SPELL",
+                failure_message,
+                template=textutils.TEMPLATE_MONSTER_SPELL_FAILURE,
+                monster=label,
+                spell=spell_label,
+                phase="failure",
+                reason=cast_result.reason,
+            )
+
+    _refresh_monster(monster)
+    _mark_monsters_dirty(ctx)
+
+    turnlog.emit(
+        ctx,
+        "AI/ACT/CAST",
+        monster=_monster_id(monster),
+        success=cast_result.success,
+        ions_spent=cast_result.cost,
+        roll=cast_result.roll,
+        threshold=cast_result.threshold,
+        spell_id=cast_result.spell_id,
+    )
+    turnlog.emit(
+        ctx,
+        "COMBAT/CAST",
+        actor="monster",
+        actor_id=_monster_id(monster),
+        success=cast_result.success,
+        ions_spent=cast_result.cost,
+        effect=cast_result.effect,
+        spell_id=cast_result.spell_id,
+        spell=spell_label,
+    )
+
+    return payload
+
+
+def _idle_stub(
+    monster: MutableMapping[str, Any],
+    ctx: MutableMapping[str, Any],
+    rng: random.Random,
+) -> Any:
+    turnlog.emit(
+        ctx,
+        "AI/ACT/IDLE",
+        monster=_monster_id(monster),
+        reason="cascade-idle",
     )
     return {"ok": True}
 
@@ -697,81 +1299,41 @@ _ACTION_TABLE: dict[str, ActionFn] = {
     "pickup": _pickup_from_ground,
     "convert": _convert_item,
     "remove_armour": _remove_broken_armour,
-    "heal": _heal_stub,
+    "heal": _heal_action,
+    "flee": _flee_stub,
+    "cast": _cast_action,
+    "emote": emote_mod.cascade_emote_action,
+    "idle": _idle_stub,
 }
-
-
-def _action_weights(
-    monster: MutableMapping[str, Any],
-    ctx: MutableMapping[str, Any],
-) -> list[tuple[str, float]]:
-    current, maximum = _sanitize_hp_block(monster.get("hp"))
-    hp_ratio = 1.0
-    if maximum > 0:
-        hp_ratio = current / maximum if maximum else 1.0
-    bag = _bag_list(monster)
-    world_items = [
-        entry
-        for entry in bag
-        if isinstance(entry, Mapping) and str(entry.get("origin", "")).lower() == ORIGIN_WORLD
-    ]
-    weights: list[tuple[str, float]] = [("attack", 6.0)]
-    pickup_weight = 1.5 if hp_ratio < 0.5 else 1.0
-    convert_weight = 1.0 if world_items else 0.0
-    if hp_ratio < 0.5 and convert_weight:
-        convert_weight *= 1.5
-    armour = monster.get("armour_slot")
-    remove_weight = 1.0 if isinstance(armour, Mapping) and str(armour.get("item_id")) == itemsreg.BROKEN_ARMOUR_ID else 0.0
-    if itemsreg.BROKEN_ARMOUR_ID in {str(entry.get("item_id")) for entry in bag}:
-        pickup_weight *= 1.1
-    heal_enabled = bool(ctx.get("monster_ai_allow_heal"))
-    heal_weight = 0.0
-    if heal_enabled and hp_ratio < 0.9:
-        ions = 0
-        try:
-            ions = int(monster.get("ions", 0))
-        except (TypeError, ValueError):
-            ions = 0
-        if ions > 0:
-            heal_weight = 0.5
-    weights.append(("pickup", pickup_weight if pickup_weight > 0 and ctx.get("allow_pickup", True) else 0.0))
-    weights.append(("convert", convert_weight))
-    weights.append(("remove_armour", remove_weight))
-    weights.append(("heal", heal_weight))
-    return weights
-
-
-def _select_action(
-    monster: MutableMapping[str, Any],
-    ctx: MutableMapping[str, Any],
-    rng: random.Random,
-) -> Optional[str]:
-    weighted = [(name, weight) for name, weight in _action_weights(monster, ctx) if weight > 0]
-    if not weighted:
-        return None
-    total = sum(weight for _, weight in weighted)
-    if total <= 0:
-        return None
-    roll = rng.random() * total
-    cumulative = 0.0
-    for name, weight in weighted:
-        cumulative += weight
-        if roll < cumulative:
-            return name
-    return weighted[-1][0]
-
 
 def execute_random_action(monster: Any, ctx: Any, *, rng: Any | None = None) -> None:
     if not isinstance(monster, MutableMapping):
         return None
     if not isinstance(ctx, MutableMapping):
         return None
-    random_obj = rng if isinstance(rng, random.Random) else random.Random()
-    action_name = _select_action(monster, ctx, random_obj)
+    if rng is not None and hasattr(rng, "randrange"):
+        random_obj = rng  # type: ignore[assignment]
+    else:
+        random_obj = random.Random()
+    ctx["monster_ai_rng"] = random_obj
+    inventory_mod.process_pending_drops(monster, ctx, random_obj)
+    pursuit_target = _pop_pending_pursuit(monster, ctx)
+    if pursuit_target is not None:
+        success = attempt_pursuit(monster, pursuit_target, random_obj, ctx=ctx)
+        if success:
+            _mark_monsters_dirty(ctx)
+            return None
+    cascade_result = evaluate_cascade(monster, ctx)
+    action_name = cascade_result.action
+    if cascade_result.gate in {"EMOTE", "IDLE"}:
+        emote_mod.schedule_free_emote(monster, ctx, gate=cascade_result.gate)
+        if action_name == "emote":
+            action_name = None
     if not action_name:
         return None
     action = _ACTION_TABLE.get(action_name)
     if not action:
+        LOG.debug("No action handler for gate %s", cascade_result.gate)
         return None
     try:
         result = action(monster, ctx, random_obj)

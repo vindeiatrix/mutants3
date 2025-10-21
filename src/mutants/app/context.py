@@ -10,7 +10,9 @@ from mutants.bootstrap.runtime import ensure_runtime
 from mutants.data.room_headers import ROOM_HEADERS, STORE_FOR_SALE_IDX
 from mutants.registries.world import load_nearest_year
 from mutants.state import state_path
+from mutants.world import vision
 from mutants.ui import renderer
+from mutants.ui.textutils import resolve_feedback_text
 from mutants.debug.turnlog import TurnObserver
 from mutants.debug import items_probe
 from mutants.ui.feedback import FeedbackBus
@@ -18,7 +20,13 @@ from mutants.ui.logsink import LogSink
 from mutants.ui.themes import Theme, load_theme
 from mutants.ui import styles as st
 from ..registries import items_instances as itemsreg
-from mutants.services import monster_leveling, monsters_state, player_state as pstate
+from mutants.services import (
+    audio_cues,
+    monster_leveling,
+    monsters_state,
+    player_state as pstate,
+)
+from mutants.services.turn_scheduler import TurnScheduler
 from mutants.engine import session
 
 LOG = logging.getLogger(__name__)
@@ -100,6 +108,9 @@ def build_context() -> Dict[str, Any]:
         "peek_vm": None,
         "session": {"active_class": active_class} if active_class else {},
     }
+    scheduler = TurnScheduler(ctx)
+    ctx["turn_scheduler"] = scheduler
+    session.set_turn_scheduler(scheduler)
     global _CURRENT_CTX
     _CURRENT_CTX = ctx
     return ctx
@@ -132,6 +143,8 @@ def build_room_vm(
     p = _active(state)
     pos = p.get("pos") or [0, 0, 0]
     year, x, y = pos[0], pos[1], pos[2]
+    player_pos = (year, x, y)
+
     if WORLD_DEBUG:
         LOG.debug(
             "[room] build_room_vm pos=%s (year=%s,x=%s,y=%s)",
@@ -189,6 +202,8 @@ def build_room_vm(
         except Exception:
             ground_ids = []
 
+    shadows = vision.adjacent_monster_directions(monsters, player_pos)
+
     vm: Dict[str, Any] = {
         "header": header,
         "coords": {"x": x, "y": y},
@@ -197,7 +212,7 @@ def build_room_vm(
         "ground_item_ids": ground_ids,
         "has_ground": bool(ground_ids),
         "events": [],
-        "shadows": [],
+        "shadows": shadows,
         "flags": {"dark": bool(tile.get("dark")) if tile else False},
     }
     return vm
@@ -213,6 +228,13 @@ def render_frame(ctx: Dict[str, Any]) -> None:
             ctx.get("monsters"),
             ctx.get("items"),
         )
+    cues = audio_cues.drain(ctx)
+    if cues:
+        vm = dict(vm)
+        existing = list(vm.get("cues_lines") or [])
+        existing.extend(cues)
+        vm["cues_lines"] = existing
+
     events = ctx["feedback_bus"].drain()
     lines = ctx["renderer"](
         vm,
@@ -241,5 +263,5 @@ def flush_feedback(ctx: Dict[str, Any]) -> None:
     palette = ctx["theme"].palette
     for ev in events:
         token = renderer._feedback_token(ev.get("kind", ""))
-        line = st.resolve_segments([(token, ev.get("text", ""))], palette)
+        line = st.resolve_segments([(token, resolve_feedback_text(ev))], palette)
         print(line)

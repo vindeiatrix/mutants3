@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Mapping
 from typing import Any, Dict
 
 from mutants.registries import items_instances
@@ -42,7 +43,35 @@ def apply_wear(iid: str, amount: int) -> Dict[str, Any]:
     return {"cracked": False, "condition": updated}
 
 
+WEAR_EVENT_KIND = "weapon-hit"
+WEAR_PER_HIT = 5
+
+
+def build_wear_event(*, actor: str, source: str, damage: Any) -> Dict[str, Any]:
+    """Return a normalized wear event payload for downstream consumers."""
+
+    try:
+        sanitized_damage = int(damage)
+    except (TypeError, ValueError):
+        sanitized_damage = 0
+    payload: Dict[str, Any] = {
+        "kind": WEAR_EVENT_KIND,
+        "actor": str(actor or "") or "unknown",
+        "source": str(source or "") or "unknown",
+        "damage": max(0, sanitized_damage),
+    }
+    return payload
+
+
 def wear_from_event(event: Any) -> int:
     """Derive a wear value from a combat/event payload."""
 
-    return 5
+    if not isinstance(event, Mapping):
+        return 0
+    try:
+        damage = int(event.get("damage", 0))
+    except (TypeError, ValueError):
+        return 0
+    if damage <= 0:
+        return 0
+    return WEAR_PER_HIT

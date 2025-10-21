@@ -2,12 +2,24 @@ from __future__ import annotations
 
 import logging
 import random
-from typing import Any, Iterable, Mapping, MutableMapping, Sequence
+from typing import TYPE_CHECKING, Any, Iterable, List, Mapping, MutableMapping, Sequence, Tuple
 
 from mutants.services import player_state as pstate
 from mutants.debug import turnlog
 
-from . import monster_actions
+from mutants.services.combat_config import CombatConfig
+
+from .wake import should_wake
+from . import tracking as tracking_mod
+
+if TYPE_CHECKING:  # pragma: no cover - typing aid
+    from . import monster_actions as monster_actions_module
+
+
+def _monster_actions() -> "monster_actions_module":
+    from . import monster_actions as monster_actions_module
+
+    return monster_actions_module
 
 LOG = logging.getLogger(__name__)
 
@@ -20,6 +32,9 @@ DEFAULT_CREDIT_WEIGHTS: tuple[float, float, float, float] = (
     0.15,
     0.05,
 )
+
+_FALLBACK_COMBAT_CONFIG = CombatConfig()
+_WAKE_EVENT_NAMES = ("LOOK", "ENTRY")
 
 
 def _pull(ctx: Any, key: str) -> Any:
@@ -113,6 +128,49 @@ def _resolve_weights(ctx: Any) -> tuple[float, float, float, float]:
     return DEFAULT_CREDIT_WEIGHTS
 
 
+def _resolve_combat_config(ctx: Any) -> CombatConfig:
+    candidate = _pull(ctx, "combat_config")
+    if isinstance(candidate, CombatConfig):
+        return candidate
+    return _FALLBACK_COMBAT_CONFIG
+
+
+def _extract_event_tokens(raw: str | None) -> List[str]:
+    tokens: List[str] = []
+    if raw is None:
+        return tokens
+    cleaned = str(raw).strip().upper()
+    if not cleaned:
+        return tokens
+
+    def _add(token: str) -> None:
+        if token and token not in tokens:
+            tokens.append(token)
+
+    _add(cleaned)
+    for separator in ("/", " ", "-", ":"):
+        if separator in cleaned:
+            for part in cleaned.split(separator):
+                _add(part)
+    return tokens
+
+
+def _resolve_wake_events(token: str, resolved: str | None) -> Tuple[str, ...]:
+    events: List[str] = []
+    for raw in (resolved, token):
+        for candidate in _extract_event_tokens(raw):
+            if candidate in _WAKE_EVENT_NAMES and candidate not in events:
+                events.append(candidate)
+    return tuple(events)
+
+
+def _resolve_wake_rng(ctx: Any, fallback: random.Random) -> random.Random:
+    candidate = _pull(ctx, "monster_wake_rng")
+    if candidate and hasattr(candidate, "random"):
+        return candidate  # type: ignore[return-value]
+    return fallback
+
+
 def _roll_credits(rng: Any, weights: Sequence[float]) -> int:
     total = float(sum(weights))
     if total <= 0:
@@ -183,6 +241,11 @@ def on_player_command(ctx: Any, *, token: str, resolved: str | None) -> None:
 
     rng = _resolve_rng(ctx)
     weights = _resolve_weights(ctx)
+    config = _resolve_combat_config(ctx)
+    wake_rng = _resolve_wake_rng(ctx, rng)
+    wake_events = _resolve_wake_events(token, resolved)
+
+    reentry_ids = tracking_mod.update_target_positions(monsters, player_id, pos)
 
     for monster in _iter_aggro_monsters(monsters, year=year, x=x, y=y):
         if _normalize_id(monster.get("target_player_id")) != player_id:
@@ -193,14 +256,34 @@ def on_player_command(ctx: Any, *, token: str, resolved: str | None) -> None:
         if mon_pos != pos:
             continue
 
+        if wake_events:
+            woke = False
+            for event_name in wake_events:
+                if should_wake(monster, event_name, wake_rng, config):
+                    woke = True
+                    break
+            if not woke:
+                continue
+
+        monster_id = _monster_id(monster)
+        reentry = monster_id in reentry_ids
         credits = _roll_credits(rng, weights)
+        if reentry and credits <= 0:
+            credits = 1
+            turnlog.emit(
+                ctx,
+                "AI/REENTRY",
+                monster=monster_id,
+                player=player_id,
+            )
         _log_tick(ctx, monster, credits)
         if credits <= 0:
             continue
 
+        actions_mod = _monster_actions()
         for _ in range(credits):
             try:
-                monster_actions.execute_random_action(monster, ctx, rng=rng)
+                actions_mod.execute_random_action(monster, ctx, rng=rng)
             except Exception:  # pragma: no cover - defensive
                 LOG.exception("Monster action execution failed", extra={"monster": _monster_id(monster)})
                 break

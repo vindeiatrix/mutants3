@@ -68,6 +68,16 @@ def ensure_item_state(state_dir: str = "state") -> None:
     items_dir.mkdir(parents=True, exist_ok=True)
 
 
+# ---------- Config bootstrap ----------
+
+def ensure_config_dir(state_dir: str = "state") -> Path:
+    """Ensure the combat/config directory exists and return it."""
+
+    config_dir = Path(state_dir) / "config"
+    config_dir.mkdir(parents=True, exist_ok=True)
+    return config_dir
+
+
 # ---------- Template loading ----------
 
 def load_templates(pkg: str = "mutants.data",
@@ -132,6 +142,7 @@ def make_player_from_template(t: Dict[str, Any], make_active: bool = False) -> D
         "equipment_by_class": {cls: {"armour": None}},
         "wielded_by_class": {cls: None},
         "ready_target_by_class": {cls: None},
+        "target_monster_id_by_class": {cls: None},
         "wielded": None,
         "readied_spell": t.get("readied_spell_start", None),
         "ready_target": None,
@@ -162,6 +173,7 @@ def ensure_player_state(state_dir: str = "state",
     Ensure playerlivestate.json exists; create from templates if missing.
     Returns a dict like: {"players": [...], "active_id": "..."}.
     """
+    ensure_config_dir(state_dir)
     out_path = Path(state_dir) / out_name
 
     # Load if present and minimally valid; otherwise rebuild.

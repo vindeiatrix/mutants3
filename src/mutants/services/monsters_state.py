@@ -95,6 +95,53 @@ def _normalize_notes(value: Any) -> Optional[str]:
     return str(value)
 
 
+def _sanitize_status_entry(payload: Any) -> Optional[Dict[str, Any]]:
+    if payload is None:
+        return None
+    if isinstance(payload, Mapping):
+        raw_id = payload.get("status_id") or payload.get("id")
+        if isinstance(raw_id, str):
+            status_id = raw_id.strip()
+        elif raw_id is None:
+            status_id = None
+        else:
+            status_id = str(raw_id).strip()
+        if not status_id:
+            return None
+        try:
+            duration_raw = payload.get("duration")
+            if duration_raw is None:
+                duration_raw = payload.get("turns")
+            duration = int(duration_raw)
+        except (TypeError, ValueError):
+            duration = 0
+        return {"status_id": status_id, "duration": max(0, duration)}
+    if isinstance(payload, str):
+        status_id = payload.strip()
+        if not status_id:
+            return None
+        return {"status_id": status_id, "duration": 0}
+    return None
+
+
+def _sanitize_status_list(payload: Any) -> List[Dict[str, Any]]:
+    if isinstance(payload, list):
+        entries: List[Dict[str, Any]] = []
+        seen: set[tuple[str, int]] = set()
+        for item in payload:
+            sanitized = _sanitize_status_entry(item)
+            if not sanitized:
+                continue
+            key = (sanitized["status_id"], sanitized["duration"])
+            if key in seen:
+                continue
+            seen.add(key)
+            entries.append(sanitized)
+        return entries
+    sanitized = _sanitize_status_entry(payload)
+    return [sanitized] if sanitized else []
+
+
 def _mint_iid(monster_id: str, item_id: str, *, seen: set[str]) -> str:
     return items_instances.mint_iid(seen=seen)
 
@@ -118,6 +165,79 @@ def _normalize_tags(value: Any) -> List[str]:
     if isinstance(value, str) and value:
         return [value]
     return []
+
+
+def _ensure_ai_state(monster: MutableMapping[str, Any]) -> MutableMapping[str, Any]:
+    state_payload = monster.get("_ai_state")
+    if isinstance(state_payload, MutableMapping):
+        state = state_payload
+    elif isinstance(state_payload, Mapping):
+        state = dict(state_payload)
+        monster["_ai_state"] = state
+    else:
+        state = {}
+        monster["_ai_state"] = state
+
+    json_payload = monster.get("ai_state_json")
+    if isinstance(json_payload, str) and json_payload.strip():
+        try:
+            decoded = json.loads(json_payload)
+        except json.JSONDecodeError:
+            decoded = None
+        if isinstance(decoded, Mapping):
+            for key, value in decoded.items():
+                state.setdefault(key, value)
+
+    ledger_payload = state.get("ledger")
+    if isinstance(ledger_payload, MutableMapping):
+        ledger = ledger_payload
+    elif isinstance(ledger_payload, Mapping):
+        ledger = dict(ledger_payload)
+        state["ledger"] = ledger
+    else:
+        ledger = {}
+        state["ledger"] = ledger
+
+    top_ions_present = "ions" in monster
+    top_riblets_present = "riblets" in monster
+    top_ions = _sanitize_int(monster.get("ions"), minimum=0, fallback=0)
+    top_riblets = _sanitize_int(monster.get("riblets"), minimum=0, fallback=0)
+    ledger_ions = _sanitize_int(ledger.get("ions"), minimum=0, fallback=0)
+    ledger_riblets = _sanitize_int(ledger.get("riblets"), minimum=0, fallback=0)
+
+    if top_ions_present:
+        ledger_ions = top_ions
+    else:
+        top_ions = ledger_ions
+    if top_riblets_present:
+        ledger_riblets = top_riblets
+    else:
+        top_riblets = ledger_riblets
+
+    ledger["ions"] = ledger_ions
+    ledger["riblets"] = ledger_riblets
+    monster["ions"] = top_ions
+    monster["riblets"] = top_riblets
+    monster["_ai_state"] = state
+    return state
+
+
+def _encode_ai_state(state: Mapping[str, Any]) -> Optional[str]:
+    if not isinstance(state, Mapping) or not state:
+        return None
+    try:
+        return json.dumps(state, sort_keys=True, separators=(",", ":"))
+    except (TypeError, ValueError):
+        fallback: Dict[str, Any] = {}
+        ledger_payload = state.get("ledger") if isinstance(state, Mapping) else None
+        if isinstance(ledger_payload, Mapping):
+            fallback["ledger"] = {
+                "ions": _sanitize_int(ledger_payload.get("ions"), minimum=0, fallback=0),
+                "riblets": _sanitize_int(ledger_payload.get("riblets"), minimum=0, fallback=0),
+            }
+        if not fallback:
+            return None
+        return json.dumps(fallback, sort_keys=True, separators=(",", ":"))
 
 
 def _normalize_item(
@@ -188,6 +308,9 @@ def _normalize_item(
     if template.get("armour"):
         base_ac = _sanitize_int(template.get("armour_class"), minimum=0, fallback=0)
         derived["armour_class"] = base_ac + enchant_level
+
+    if template.get("ranged"):
+        derived["is_ranged"] = True
 
     for key in ("base_power_melee", "base_power"):
         if key in template:
@@ -319,6 +442,138 @@ def _compute_derived(
     return derived
 
 
+def _resolve_prefers_ranged_flag(monster: Mapping[str, Any]) -> bool:
+    if not isinstance(monster, Mapping):
+        return False
+    raw = monster.get("prefers_ranged")
+    if raw is not None:
+        return bool(raw)
+    state = monster.get("_ai_state") if isinstance(monster.get("_ai_state"), Mapping) else None
+    if isinstance(state, Mapping):
+        state_value = state.get("prefers_ranged")
+        if state_value is not None:
+            return bool(state_value)
+    return False
+
+
+def _armour_score(entry: Mapping[str, Any] | None) -> int:
+    if not isinstance(entry, Mapping):
+        return 0
+    derived = entry.get("derived") if isinstance(entry.get("derived"), Mapping) else {}
+    return _sanitize_int(derived.get("armour_class"), minimum=0, fallback=0)
+
+
+def _weapon_candidate(
+    entry: Mapping[str, Any],
+    *,
+    stats: Mapping[str, int],
+) -> tuple[str, Dict[str, Any], bool] | None:
+    if not isinstance(entry, Mapping):
+        return None
+    iid_raw = entry.get("iid")
+    iid = str(iid_raw) if iid_raw else ""
+    if not iid:
+        return None
+    payload = _derive_weapon_payload(entry, stats=stats)
+    if not payload:
+        return None
+    derived = entry.get("derived") if isinstance(entry.get("derived"), Mapping) else {}
+    is_ranged = bool(derived.get("is_ranged"))
+    return iid, payload, is_ranged
+
+
+def _auto_equip_armour(monster: MutableMapping[str, Any], bag: list[MutableMapping[str, Any]]) -> bool:
+    if not isinstance(bag, list):
+        return False
+    current = monster.get("armour_slot") if isinstance(monster.get("armour_slot"), MutableMapping) else None
+    current_score = _armour_score(current)
+
+    best_index: int | None = None
+    best_score = current_score
+
+    for idx, entry in enumerate(bag):
+        if not isinstance(entry, MutableMapping):
+            continue
+        score = _armour_score(entry)
+        if score > best_score:
+            best_score = score
+            best_index = idx
+
+    if best_index is None:
+        return False
+
+    best_entry = bag.pop(best_index)
+    if isinstance(current, MutableMapping):
+        bag.append(current)
+    monster["armour_slot"] = best_entry
+    return True
+
+
+def _auto_equip_weapon(
+    monster: MutableMapping[str, Any],
+    bag: list[MutableMapping[str, Any]],
+    *,
+    stats: Mapping[str, int],
+) -> bool:
+    if not isinstance(bag, list):
+        return False
+
+    prefer_ranged = _resolve_prefers_ranged_flag(monster)
+    current_iid = str(monster.get("wielded") or "")
+    current_damage = 0
+    current_is_ranged = False
+
+    candidates: list[tuple[str, Dict[str, Any], bool]] = []
+
+    for entry in bag:
+        if not isinstance(entry, MutableMapping):
+            continue
+        candidate = _weapon_candidate(entry, stats=stats)
+        if not candidate:
+            continue
+        iid, payload, is_ranged = candidate
+        candidates.append(candidate)
+        if iid == current_iid:
+            current_damage = payload.get("damage", 0)
+            current_is_ranged = is_ranged
+
+    if prefer_ranged:
+        ranged_candidates = [candidate for candidate in candidates if candidate[2]]
+        if ranged_candidates:
+            candidates = ranged_candidates
+        elif current_is_ranged:
+            # Current weapon is ranged but no other ranged candidates found.
+            candidates = [candidate for candidate in candidates if candidate[0] == current_iid]
+
+    if not candidates:
+        return False
+
+    best_iid = current_iid
+    best_damage = current_damage
+
+    for iid, payload, _ in candidates:
+        damage = payload.get("damage", 0)
+        if damage > best_damage:
+            best_damage = damage
+            best_iid = iid
+
+    if not best_iid or best_iid == current_iid:
+        return False
+
+    monster["wielded"] = best_iid
+    return True
+
+
+def _auto_equip_upgrades(monster: MutableMapping[str, Any], *, stats: Mapping[str, int]) -> bool:
+    bag_payload = monster.get("bag")
+    if not isinstance(bag_payload, list):
+        return False
+    changed = False
+    changed |= _auto_equip_armour(monster, bag_payload)
+    changed |= _auto_equip_weapon(monster, bag_payload, stats=stats)
+    return changed
+
+
 def _refresh_monster_derived(monster: MutableMapping[str, Any]) -> None:
     stats = _sanitize_stats(monster.get("stats"))
     monster["stats"] = stats
@@ -327,6 +582,8 @@ def _refresh_monster_derived(monster: MutableMapping[str, Any]) -> None:
     if not isinstance(bag, list):
         bag = []
         monster["bag"] = bag
+
+    equipment_changed = _auto_equip_upgrades(monster, stats=stats)
 
     armour = monster.get("armour_slot")
     armour_payload = _derive_armour_payload(armour)
@@ -344,6 +601,8 @@ def _refresh_monster_derived(monster: MutableMapping[str, Any]) -> None:
         armour_payload=armour_payload,
         weapon_payload=weapon_payload,
     )
+
+    return equipment_changed
 
 
 def _level_up_stats(stats: MutableMapping[str, int]) -> None:
@@ -419,6 +678,20 @@ class MonstersState:
 
         payload["hp"] = _sanitize_hp(payload.get("hp"))
 
+        state = _ensure_ai_state(payload)
+        ai_state_json = _encode_ai_state(state)
+        if ai_state_json is not None:
+            payload["ai_state_json"] = ai_state_json
+        else:
+            payload.pop("ai_state_json", None)
+
+        statuses = _sanitize_status_list(payload.get("status_effects"))
+        payload["status_effects"] = [dict(entry) for entry in statuses]
+        if statuses:
+            payload["timers"] = [dict(entry) for entry in statuses]
+        else:
+            payload.pop("timers", None)
+
         return payload
 
     def _persist_monster(self, monster: Mapping[str, Any]) -> None:
@@ -450,6 +723,18 @@ class MonstersState:
             "stats_json": json.dumps(payload, sort_keys=True, separators=(",", ":")),
         }
 
+        fields["ai_state_json"] = payload.get("ai_state_json")
+
+        timers_payload = payload.get("status_effects") or []
+        if timers_payload:
+            fields["timers_json"] = json.dumps(
+                {"status_effects": timers_payload},
+                sort_keys=True,
+                separators=(",", ":"),
+            )
+        else:
+            fields["timers_json"] = None
+
         try:
             self._instances.update_fields(instance_id, **fields)
         except KeyError:
@@ -464,6 +749,12 @@ class MonstersState:
             if not isinstance(record, Mapping):
                 continue
             entry = dict(record)
+            state_block = _ensure_ai_state(entry)
+            ai_state_json = _encode_ai_state(state_block)
+            if ai_state_json is not None:
+                entry["ai_state_json"] = ai_state_json
+            else:
+                entry.pop("ai_state_json", None)
             ident_raw = entry.get("id") or entry.get("instance_id") or entry.get("monster_id")
             ident = str(ident_raw) if ident_raw else ""
             if not ident:
@@ -523,6 +814,57 @@ class MonstersState:
         monster = self._by_id.get(monster_id)
         self._last_accessed_id = monster_id if monster else None
         return monster
+
+    def set_status_effects(
+        self, monster_id: str, statuses: Iterable[Mapping[str, Any]]
+    ) -> List[Dict[str, Any]]:
+        monster = self._by_id.get(monster_id)
+        if monster is None:
+            raise KeyError(monster_id)
+
+        raw_entries = list(statuses) if isinstance(statuses, Iterable) else []
+        sanitized = _sanitize_status_list(raw_entries)
+        current = _sanitize_status_list(monster.get("status_effects"))
+        if current == sanitized:
+            return [dict(entry) for entry in current]
+
+        payload = [dict(entry) for entry in sanitized]
+        monster["status_effects"] = payload
+        if payload:
+            monster["timers"] = [dict(entry) for entry in payload]
+        else:
+            monster.pop("timers", None)
+
+        self._track_dirty(monster_id)
+        return payload
+
+    def decrement_status_effects(self, amount: int = 1) -> Dict[str, List[Dict[str, Any]]]:
+        if amount <= 0:
+            return {}
+
+        expired: Dict[str, List[Dict[str, Any]]] = {}
+        changed = False
+
+        for monster_id, monster in list(self._by_id.items()):
+            entries = _sanitize_status_list(monster.get("status_effects"))
+            updated: List[Dict[str, Any]] = []
+            expired_entries: List[Dict[str, Any]] = []
+            for entry in entries:
+                remaining = max(0, int(entry.get("duration", 0)) - amount)
+                if remaining > 0:
+                    updated.append({"status_id": entry["status_id"], "duration": remaining})
+                else:
+                    expired_entries.append({"status_id": entry["status_id"], "duration": 0})
+            if expired_entries:
+                expired[monster_id] = expired_entries
+            if updated != entries:
+                changed = True
+            self.set_status_effects(monster_id, updated)
+
+        if changed:
+            self.save()
+
+        return expired
 
     def mark_dirty(self) -> None:
         self._track_dirty(self._last_accessed_id)
@@ -723,6 +1065,13 @@ def _normalize_monsters(monsters: List[Dict[str, Any]], *, catalog: Mapping[str,
         monster["stats"] = _sanitize_stats(monster.get("stats"))
         monster["hp"] = _sanitize_hp(monster.get("hp"))
 
+        state_block = _ensure_ai_state(monster)
+        ai_state_json = _encode_ai_state(state_block)
+        if ai_state_json is not None:
+            monster["ai_state_json"] = ai_state_json
+        else:
+            monster.pop("ai_state_json", None)
+
         bag = _resolve_bag(monster.get("bag"), monster_id=monster_id, seen_iids=seen_iids, catalog=catalog)
         monster["bag"] = bag
 
@@ -768,6 +1117,31 @@ def _normalize_monsters(monsters: List[Dict[str, Any]], *, catalog: Mapping[str,
             monster["ready_target"] = None
             if "target_monster_id" in monster:
                 monster["target_monster_id"] = None
+
+        timers_payload: Any = monster.get("status_effects")
+        if timers_payload is None:
+            timers_payload = monster.get("timers")
+        if timers_payload is None:
+            timers_payload = monster.get("statuses")
+        if timers_payload is None:
+            timers_raw = monster.get("timers_json")
+            if isinstance(timers_raw, str) and timers_raw.strip():
+                try:
+                    decoded = json.loads(timers_raw)
+                except json.JSONDecodeError:
+                    decoded = None
+                if isinstance(decoded, Mapping):
+                    timers_payload = decoded.get("status_effects") or decoded.get("statuses")
+                elif isinstance(decoded, list):
+                    timers_payload = decoded
+        statuses = _sanitize_status_list(timers_payload)
+        if statuses:
+            monster["status_effects"] = statuses
+            monster["timers"] = statuses
+        else:
+            monster["status_effects"] = []
+            if "timers" in monster:
+                monster.pop("timers", None)
 
         normalized.append(monster)
 

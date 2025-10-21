@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from typing import Any, Dict, Mapping, MutableMapping, Optional, Sequence
 
 from mutants.registries import items_catalog, items_instances as itemsreg
@@ -11,6 +12,9 @@ from mutants.ui.item_display import item_label
 
 MIN_INNATE_DAMAGE = 6
 MIN_BOLT_DAMAGE = 6
+
+
+LOG = logging.getLogger(__name__)
 
 
 def _load_monsters(ctx: Mapping[str, Any]) -> Any:
@@ -403,7 +407,8 @@ def strike_cmd(arg: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
 
     final_damage = _clamp_melee_damage(target, final_damage)
 
-    wear_amount = items_wear.wear_from_event({"kind": "strike", "damage": final_damage})
+    wear_event = items_wear.build_wear_event(actor="player", source=str(attack.source), damage=final_damage)
+    wear_amount = items_wear.wear_from_event(wear_event)
 
     weapon_wear: Mapping[str, Any] | None = None
     armour_wear: Mapping[str, Any] | None = None
@@ -498,6 +503,12 @@ def strike_cmd(arg: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
         )
         pstate.clear_ready_target_for_active(reason="monster-dead")
         bus.push("COMBAT/INFO", f"{label} crumbles to dust.")
+        try:
+            from mutants.services import monster_actions as monster_actions_mod
+
+            monster_actions_mod.notify_monster_death(summary or target, ctx=ctx)
+        except Exception:  # pragma: no cover - defensive
+            LOG.exception("Failed to notify monster spawner after kill")
         result["killed"] = True
     else:
         marker = getattr(monsters, "mark_dirty", None)

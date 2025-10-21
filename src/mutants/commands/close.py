@@ -1,11 +1,15 @@
 from __future__ import annotations
 
+import logging
 from typing import Any, Dict
 
 from mutants.registries.world import BASE_GATE
+from mutants.services import player_state as pstate
 
 from .argcmd import coerce_direction
 
+
+LOG = logging.getLogger(__name__)
 
 def _active(state: Dict[str, Any]) -> Dict[str, Any]:
     aid = state.get("active_id")
@@ -51,6 +55,11 @@ def register(dispatch, ctx) -> None:
 
         world.set_edge(x, y, D, gate_state=1, force_gate_base=True)
         world.save()
+
+        try:
+            pstate.clear_target(reason="player-exit")
+        except Exception:  # pragma: no cover - defensive guard
+            LOG.exception("Failed to clear player target after close command")
 
         bus.push("SYSTEM/OK", f"You've just closed the {dir_full} gate.")
         if logsink:

@@ -25,6 +25,7 @@ from .viewmodels import EdgeDesc, Thing
 from . import uicontract as UC
 from . import item_display as idisp
 from .textutils import harden_final_display
+from ..world import vision as world_vision
 
 Segments = List[Segment]
 
@@ -41,12 +42,7 @@ def format_compass(x: int, y: int) -> Segments:
 
 
 def _dir_word(name: str) -> str:
-    return {
-        "N": "north",
-        "S": "south",
-        "E": "east",
-        "W": "west",
-    }[name]
+    return world_vision.direction_word(name)
 
 
 def format_direction_segments(dir_name: str, edge: EdgeDesc) -> Segments:
@@ -90,13 +86,10 @@ def format_item(text: str) -> Segments:
 
 
 def format_shadows(dirs: List[str]) -> Segments | None:
-    if not dirs:
+    ordered = world_vision.normalize_directions(dirs or [])
+    if not ordered:
         return None
-    words = []
-    order = ["E", "S", "W", "N"]
-    for d in order:
-        if d in dirs:
-            words.append(_dir_word(d))
+    words = [world_vision.direction_word(d) for d in ordered]
     text = ", ".join(words)
     return [(SHADOWS_LABEL, f"You see shadows to the {text}.")]
 
