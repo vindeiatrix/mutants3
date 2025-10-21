@@ -6,7 +6,13 @@ def register(dispatch, ctx):
     bus = ctx["feedback_bus"]
 
     def _help(arg: str = ""):
-        text = render_help(dispatch)
+        topic = (arg or "").strip().lower()
+        if topic == "debug":
+            from . import debug as debug_cmds
+
+            text = debug_cmds.render_debug_help()
+        else:
+            text = render_help(dispatch)
         # For long help, you might want to print directly; for now use feedback:
         bus.push("SYSTEM/OK", text)
 

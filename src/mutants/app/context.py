@@ -8,6 +8,10 @@ import os
 from mutants.bootstrap.lazyinit import ensure_player_state
 from mutants.bootstrap.runtime import ensure_runtime
 from mutants.data.room_headers import ROOM_HEADERS, STORE_FOR_SALE_IDX
+from mutants.env import runtime_spawner_config, runtime_spawner_v2_enabled
+from mutants.registries import monsters_catalog as mon_catalog
+from mutants.registries import monsters_instances as mon_instances
+from mutants.registries import world as world_registry
 from mutants.registries.world import load_nearest_year
 from mutants.state import state_path
 from mutants.world import vision
@@ -23,6 +27,7 @@ from ..registries import items_instances as itemsreg
 from mutants.services import (
     audio_cues,
     monster_leveling,
+    monster_spawner,
     monsters_state,
     player_state as pstate,
 )
@@ -88,6 +93,29 @@ def build_context() -> Dict[str, Any]:
     st.set_ansi_enabled(theme.ansi_enabled)
     sink = LogSink()
     monsters = monsters_state.load_state()
+    spawner = None
+    if runtime_spawner_v2_enabled():
+        try:
+            instances = mon_instances.load_monsters_instances()
+            try:
+                catalog = mon_catalog.load_monsters_catalog()
+            except FileNotFoundError:
+                catalog = None
+            except Exception:
+                catalog = None
+            years = world_registry.list_years()
+            config_values = runtime_spawner_config()
+            spawner = monster_spawner.build_runtime_spawner(
+                templates_state=monsters,
+                catalog=catalog,
+                instances=instances,
+                world_loader=world_registry.load_year,
+                years=years,
+                monsters_state_obj=monsters,
+                config=config_values,
+            )
+        except Exception:
+            spawner = None
     bus.subscribe(sink.handle)
     turn_observer = TurnObserver()
     monster_leveling.attach(bus, monsters)
@@ -108,6 +136,11 @@ def build_context() -> Dict[str, Any]:
         "peek_vm": None,
         "session": {"active_class": active_class} if active_class else {},
     }
+    if spawner is not None:
+        ctx["monster_spawner"] = spawner
+        services_entry = ctx.setdefault("services", {})
+        if isinstance(services_entry, dict):
+            services_entry["monster_spawner"] = spawner
     scheduler = TurnScheduler(ctx)
     ctx["turn_scheduler"] = scheduler
     session.set_turn_scheduler(scheduler)

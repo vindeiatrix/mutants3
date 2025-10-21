@@ -8,6 +8,7 @@ import uuid
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Mapping, MutableMapping, Optional
 
+from mutants import env
 from mutants.registries import items_catalog
 from mutants.registries import items_instances
 from mutants.registries import monsters_instances
@@ -1021,6 +1022,9 @@ def _load_raw(
     if snapshot:
         records = [dict(mon) for mon in snapshot if isinstance(mon, Mapping)]
         return records, True
+
+    if not env.seed_monsters_on_boot():
+        return [], False
 
     if not path.exists():
         return [], False

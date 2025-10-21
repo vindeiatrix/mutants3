@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 import os
 from pathlib import Path
-from typing import Final, Optional
+from typing import Dict, Final, Optional
 
 from mutants.state import state_path
 from mutants.util import parse_int
@@ -16,6 +16,36 @@ _DB_FILENAME: Final[str] = "mutants.db"
 _CONFIG_LOGGED = False
 _COMBAT_CONFIG_FILENAME: Final[tuple[str, str]] = ("config", "combat.json")
 _RNG_SEED_ENV: Final[str] = "MUTANTS_RNG_SEED"
+_SEED_ON_BOOT_ENV: Final[str] = "SEED_ON_BOOT"
+_RUNTIME_SPAWNER_ENV: Final[str] = "RUNTIME_SPAWNER_V2"
+_SPAWN_INTERVAL_ENV: Final[str] = "SPAWN_TICK_INTERVAL_TURNS"
+_SPAWN_JITTER_ENV: Final[str] = "SPAWN_JITTER_PCT"
+_POP_FLOOR_ENV: Final[str] = "POP_FLOOR"
+_POP_CAP_ENV: Final[str] = "POP_CAP"
+_SPAWN_BATCH_ENV: Final[str] = "SPAWN_BATCH_MAX"
+_DEBUG_ENV: Final[str] = "DEBUG"
+
+
+def _parse_bool(raw: Optional[str], *, default: bool = False) -> bool:
+    if raw is None:
+        return default
+    token = raw.strip().lower()
+    if token in {"1", "true", "yes", "on"}:
+        return True
+    if token in {"0", "false", "no", "off"}:
+        return False
+    return default
+
+
+def _parse_int_env(name: str, default: int) -> int:
+    raw = os.getenv(name)
+    if raw is None:
+        return default
+    try:
+        value = int(raw.strip())
+    except (TypeError, ValueError):
+        return default
+    return value
 
 
 def get_state_backend() -> str:
@@ -81,3 +111,39 @@ def _log_configuration_once(backend: str) -> None:
         get_runtime_seed(),
     )
     _CONFIG_LOGGED = True
+
+
+def seed_monsters_on_boot() -> bool:
+    """Return ``True`` when legacy monster seeding should run."""
+
+    return _parse_bool(os.getenv(_SEED_ON_BOOT_ENV), default=False)
+
+
+def runtime_spawner_v2_enabled() -> bool:
+    """Return ``True`` when the runtime spawner v2 should be active."""
+
+    return _parse_bool(os.getenv(_RUNTIME_SPAWNER_ENV), default=True)
+
+
+def runtime_spawner_config() -> Dict[str, int]:
+    """Return configuration for the runtime monster spawner."""
+
+    interval = max(1, _parse_int_env(_SPAWN_INTERVAL_ENV, 7))
+    jitter = max(0, _parse_int_env(_SPAWN_JITTER_ENV, 20))
+    floor = max(0, _parse_int_env(_POP_FLOOR_ENV, 30))
+    cap_default = max(floor, 60)
+    cap = max(floor, _parse_int_env(_POP_CAP_ENV, cap_default))
+    batch = max(1, _parse_int_env(_SPAWN_BATCH_ENV, 5))
+    return {
+        "interval": interval,
+        "jitter_pct": jitter,
+        "floor": floor,
+        "cap": cap,
+        "batch_max": batch,
+    }
+
+
+def debug_commands_enabled() -> bool:
+    """Return ``True`` when debug-only commands should be enabled."""
+
+    return _parse_bool(os.getenv(_DEBUG_ENV), default=False)
