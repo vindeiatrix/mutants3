@@ -149,6 +149,13 @@ class MonstersInstances:
     def spawn(self, inst: Dict[str, Any]) -> Dict[str, Any]:
         return self._add(inst)
 
+    def add_instance(self, inst: Dict[str, Any]) -> bool:
+        try:
+            self._add(inst)
+        except Exception:
+            return False
+        return True
+
     def move(self, instance_id: str, *, year: int, x: int, y: int) -> None:
         target_pos = [self._coerce_int(year), self._coerce_int(x), self._coerce_int(y)]
 
@@ -422,3 +429,15 @@ def load_monsters_instances(
     active_store = store or stores.monsters
     active_kv = kv_store or stores.runtime_kv
     return MonstersInstances(Path(path), [], store=active_store, kv_store=active_kv)
+
+
+_INSTANCES_CACHE: MonstersInstances | None = None
+
+
+def get() -> MonstersInstances:
+    """Return a cached :class:`MonstersInstances` handle."""
+
+    global _INSTANCES_CACHE
+    if _INSTANCES_CACHE is None:
+        _INSTANCES_CACHE = load_monsters_instances()
+    return _INSTANCES_CACHE

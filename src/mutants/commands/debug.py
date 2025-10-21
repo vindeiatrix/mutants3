@@ -5,10 +5,17 @@ import shlex
 from typing import Mapping, Sequence
 
 from mutants.env import debug_commands_enabled
-from ..registries import items_instances as itemsreg
-from ..registries import items_catalog
-from ..services import player_state as pstate
+from mutants.services import monster_manual_spawn, player_state as pstate
+from mutants.registries import (
+    items_catalog,
+    items_instances,
+    monsters_catalog,
+    monsters_instances,
+)
 from ..util.textnorm import normalize_item_query
+
+
+itemsreg = items_instances
 
 
 LOG_P = logging.getLogger("mutants.playersdbg")
@@ -107,6 +114,52 @@ def _debug_count(ctx) -> None:
     )
 
 
+def _debug_monster(arg: str, ctx) -> None:
+    bus = ctx["feedback_bus"]
+    monster_id = (arg or "").strip()
+    if not monster_id:
+        bus.push("SYSTEM/WARN", "Usage: debug monster <monster_id>")
+        return
+
+    pos = _pos_from_ctx(ctx)
+    coords = [int(pos[0]), int(pos[1]), int(pos[2])]
+
+    try:
+        mon_cat = monsters_catalog.get()
+    except FileNotFoundError:
+        bus.push("SYSTEM/WARN", "Monster catalog unavailable.")
+        return
+
+    mon_reg = monsters_instances.get()
+    item_reg = items_instances.get()
+    try:
+        item_cat = items_catalog.get()
+    except FileNotFoundError:
+        bus.push("SYSTEM/WARN", "Items catalog unavailable.")
+        return
+
+    template = mon_cat.get_template(monster_id)
+    if not template:
+        bus.push("SYSTEM/WARN", f"No monster template found for ID: {monster_id}")
+        return
+
+    instance = monster_manual_spawn.spawn_monster_at(
+        monster_id=template.monster_id,
+        pos=coords,
+        monsters_cat=mon_cat,
+        monsters_reg=mon_reg,
+        items_cat=item_cat,
+        items_reg=item_reg,
+    )
+
+    if instance:
+        name = instance.get("name") or template.name
+        bus.push("SYSTEM/OK", f"Spawned {name} at your location.")
+        ctx["render_next"] = True
+    else:
+        bus.push("SYSTEM/WARN", f"Failed to spawn {monster_id}.")
+
+
 def _set_currency_for_active(ctx, currency: str, amount: int) -> None:
     """Set a per-class currency to ``amount`` with detailed debug logging."""
 
@@ -193,9 +246,14 @@ def debug_cmd(arg: str, ctx):
     if not parts:
         ctx["feedback_bus"].push(
             "SYSTEM/INFO",
-            "Usage: debug add <item_id> [qty] | debug where | debug count | "
-            "debug ions <amount> | debug riblets <amount>",
+            "Usage: debug add <item_id> [qty] | debug monster <monster_id> | "
+            "debug where | debug count | debug ions <amount> | debug riblets <amount>",
         )
+        return
+
+    if parts[0] == "monster":
+        monster_id = parts[1] if len(parts) >= 2 else ""
+        _debug_monster(monster_id, ctx)
         return
 
     if parts[0] == "add":
@@ -244,13 +302,14 @@ def debug_cmd(arg: str, ctx):
 
     ctx["feedback_bus"].push(
         "SYSTEM/INFO",
-        "Usage: debug add <item_id> [qty] | debug where | debug count | "
-        "debug ions <amount> | debug riblets <amount>",
+        "Usage: debug add <item_id> [qty] | debug monster <monster_id> | "
+        "debug where | debug count | debug ions <amount> | debug riblets <amount>",
     )
 
 
 _DEBUG_HELP_ENTRIES: Sequence[str] = (
     "debug add <item_id> [qty]",
+    "debug monster <monster_id>",
     "debug where",
     "debug count",
     "debug ions <amount>",

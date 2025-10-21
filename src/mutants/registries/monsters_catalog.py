@@ -5,7 +5,7 @@ import logging
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Mapping, Optional
 
-from mutants.services.monster_entities import DEFAULT_INNATE_ATTACK_LINE
+from mutants.services import monster_entities
 from mutants.state import state_path
 
 from .sqlite_store import SQLiteConnectionManager
@@ -38,6 +38,87 @@ class MonstersCatalog:
 
     def get(self, monster_id: str) -> Optional[Dict[str, Any]]:
         return self._by_id.get(monster_id)
+
+    def get_template(self, monster_id: str) -> Optional[monster_entities.MonsterTemplate]:
+        base = self.get(monster_id)
+        if not isinstance(base, Mapping):
+            return None
+
+        def _coerce_int(value: Any, default: int = 0) -> int:
+            try:
+                return int(value)
+            except (TypeError, ValueError):
+                return default
+
+        def _coerce_optional_int(value: Any) -> Optional[int]:
+            try:
+                if value is None:
+                    return None
+                return int(value)
+            except (TypeError, ValueError):
+                return None
+
+        def _coerce_str(value: Any, fallback: str = "") -> str:
+            if isinstance(value, str):
+                token = value.strip()
+                return token or fallback
+            if value is None:
+                return fallback
+            return str(value)
+
+        def _coerce_int_list(values: Any) -> tuple[int, ...]:
+            if isinstance(values, (list, tuple)):
+                out: list[int] = []
+                for item in values:
+                    try:
+                        out.append(int(item))
+                    except (TypeError, ValueError):
+                        continue
+                return tuple(out)
+            return tuple()
+
+        def _coerce_str_list(values: Any) -> tuple[str, ...]:
+            if isinstance(values, (list, tuple)):
+                out: list[str] = []
+                for item in values:
+                    if item is None:
+                        continue
+                    token = str(item).strip()
+                    if token:
+                        out.append(token)
+                return tuple(out)
+            if values is None:
+                return tuple()
+            token = str(values).strip()
+            return (token,) if token else tuple()
+
+        stats_payload = base.get("stats") if isinstance(base.get("stats"), Mapping) else {}
+        innate_payload = base.get("innate_attack") if isinstance(base.get("innate_attack"), Mapping) else {}
+
+        template = monster_entities.MonsterTemplate(
+            monster_id=_coerce_str(base.get("monster_id") or monster_id, monster_id),
+            name=_coerce_str(base.get("name"), "Monster"),
+            level=_coerce_int(base.get("level"), 1),
+            hp_max=_coerce_int(base.get("hp_max"), 1),
+            armour_class=_coerce_int(base.get("armour_class"), 0),
+            spawn_years=_coerce_int_list(base.get("spawn_years")),
+            spawnable=bool(base.get("spawnable", True)),
+            taunt=_coerce_str(base.get("taunt"), ""),
+            stats=dict(stats_payload),
+            innate_attack=dict(innate_payload),
+            exp_bonus=_coerce_optional_int(base.get("exp_bonus")),
+            ions_min=_coerce_optional_int(base.get("ions_min")),
+            ions_max=_coerce_optional_int(base.get("ions_max")),
+            riblets_min=_coerce_optional_int(base.get("riblets_min")),
+            riblets_max=_coerce_optional_int(base.get("riblets_max")),
+            spells=_coerce_str_list(base.get("spells")),
+            starter_armour=_coerce_str_list(base.get("starter_armour")),
+            starter_items=_coerce_str_list(base.get("starter_items")),
+            metadata=dict(base.get("metadata") or {}),
+            ai_overrides=base.get("ai_overrides") if isinstance(base.get("ai_overrides"), Mapping) else None,
+        )
+
+        return template
 
     def require(self, monster_id: str) -> Dict[str, Any]:
         m = self.get(monster_id)
@@ -245,7 +326,7 @@ def _load_monsters_from_store(manager: SQLiteConnectionManager) -> List[Dict[str
         if isinstance(innate_payload, dict):
             line_value = innate_payload.get("line")
             if not isinstance(line_value, str) or not line_value.strip():
-                innate_payload["line"] = DEFAULT_INNATE_ATTACK_LINE
+                innate_payload["line"] = monster_entities.DEFAULT_INNATE_ATTACK_LINE
 
         override_payload = overrides.get(str(monster.get("monster_id") or ""))
         if override_payload is None:
@@ -271,3 +352,15 @@ def load_monsters_catalog(path: Path | str | None = None) -> MonstersCatalog:
         _validate_base_monster(m)
 
     return MonstersCatalog(monsters)
+
+
+_CATALOG_CACHE: MonstersCatalog | None = None
+
+
+def get() -> MonstersCatalog:
+    """Return a cached :class:`MonstersCatalog` instance."""
+
+    global _CATALOG_CACHE
+    if _CATALOG_CACHE is None:
+        _CATALOG_CACHE = load_monsters_catalog()
+    return _CATALOG_CACHE
