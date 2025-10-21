@@ -27,7 +27,6 @@ from ..registries import items_instances as itemsreg
 from mutants.services import (
     audio_cues,
     monster_leveling,
-    monster_spawner,
     monsters_state,
     player_state as pstate,
 )
