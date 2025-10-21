@@ -77,6 +77,7 @@ class TurnScheduler:
             self._run_monster_turns(token, resolved)
             self._run_status_tick()
             self._run_free_actions(rng)
+            self._run_monster_spawner()
         finally:
             self._restore_rng(restore_token)
 
@@ -209,6 +210,27 @@ class TurnScheduler:
                 action(rng)
             except Exception:  # pragma: no cover - defensive
                 LOG.exception("Free action dispatch failed")
+
+    def _run_monster_spawner(self) -> None:
+        ctx = self._ctx
+        spawner = None
+        if isinstance(ctx, Mapping):
+            spawner = ctx.get("monster_spawner")
+            if spawner is None:
+                services = ctx.get("services")
+                if isinstance(services, Mapping):
+                    spawner = services.get("monster_spawner")
+        elif ctx is not None:
+            spawner = getattr(ctx, "monster_spawner", None)
+        if spawner is None:
+            return
+        tick = getattr(spawner, "tick", None)
+        if not callable(tick):
+            return
+        try:
+            tick()
+        except Exception:  # pragma: no cover - defensive
+            LOG.exception("Monster spawner tick failed")
 
     def _log_tick(self, tick_id: int) -> None:
         message = f"tick={tick_id}"
