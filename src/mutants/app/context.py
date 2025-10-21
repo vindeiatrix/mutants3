@@ -8,7 +8,7 @@ import os
 from mutants.bootstrap.lazyinit import ensure_player_state
 from mutants.bootstrap.runtime import ensure_runtime
 from mutants.data.room_headers import ROOM_HEADERS, STORE_FOR_SALE_IDX
-from mutants.env import runtime_spawner_config, runtime_spawner_v2_enabled
+from mutants.env import runtime_spawner_config
 from mutants.registries import monsters_catalog as mon_catalog
 from mutants.registries import monsters_instances as mon_instances
 from mutants.registries import world as world_registry
@@ -94,28 +94,27 @@ def build_context() -> Dict[str, Any]:
     sink = LogSink()
     monsters = monsters_state.load_state()
     spawner = None
-    if runtime_spawner_v2_enabled():
+    try:
+        instances = mon_instances.load_monsters_instances()
         try:
-            instances = mon_instances.load_monsters_instances()
-            try:
-                catalog = mon_catalog.load_monsters_catalog()
-            except FileNotFoundError:
-                catalog = None
-            except Exception:
-                catalog = None
-            years = world_registry.list_years()
-            config_values = runtime_spawner_config()
-            spawner = monster_spawner.build_runtime_spawner(
-                templates_state=monsters,
-                catalog=catalog,
-                instances=instances,
-                world_loader=world_registry.load_year,
-                years=years,
-                monsters_state_obj=monsters,
-                config=config_values,
-            )
+            catalog = mon_catalog.load_monsters_catalog()
+        except FileNotFoundError:
+            catalog = None
         except Exception:
-            spawner = None
+            catalog = None
+        years = world_registry.list_years()
+        config_values = runtime_spawner_config()
+        spawner = monster_spawner.build_runtime_spawner(
+            templates_state=monsters,
+            catalog=catalog,
+            instances=instances,
+            world_loader=world_registry.load_year,
+            years=years,
+            monsters_state_obj=monsters,
+            config=config_values,
+        )
+    except Exception:
+        spawner = None
     bus.subscribe(sink.handle)
     turn_observer = TurnObserver()
     monster_leveling.attach(bus, monsters)
