@@ -2,19 +2,24 @@ from __future__ import annotations
 
 import json
 import random
+import threading
 import uuid
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional, Tuple
+from typing import Any, Dict, Iterable, List, Mapping, MutableMapping, Optional, Tuple
 
 # NOTE: Imported by ``mutants.registries.json_store`` via :func:`get_stores`.
 
 from mutants.registries.monsters_catalog import MonstersCatalog, exp_for
 from mutants.services.monster_entities import DEFAULT_INNATE_ATTACK_LINE
 from mutants.state import state_path
-from .storage import MonstersInstanceStore, get_stores
+from .storage import MonstersInstanceStore, RuntimeKVStore, get_stores
 
 DEFAULT_INSTANCES_PATH = state_path("monsters", "instances.json")
 FALLBACK_INSTANCES_PATH = state_path("monsters.json")  # optional fallback; rarely used
+
+_INSTANCE_COUNTER_KEY = "monster_instance_counter"
+_COUNTER_LOCK = threading.Lock()
+
 
 class MonstersInstances:
     """
@@ -40,12 +45,28 @@ class MonstersInstances:
         items: List[Dict[str, Any]],
         *,
         store: MonstersInstanceStore | None = None,
+        kv_store: RuntimeKVStore | None = None,
     ):
         # ``path`` and ``items`` are retained for backwards compatibility with
         # historical call sites. Persistence is now exclusively handled by the
         # injected store so we no longer maintain an in-memory snapshot.
         self._path = Path(path)
-        self._store = store or get_stores().monsters
+        stores = None
+        if store is None or kv_store is None:
+            stores = get_stores()
+        if store is None:
+            if stores is None:
+                stores = get_stores()
+            self._store = stores.monsters
+        else:
+            self._store = store
+        if kv_store is None:
+            if stores is None:
+                stores = get_stores()
+            self._kv_store = stores.runtime_kv
+        else:
+            self._kv_store = kv_store
+        self._counter_cache: int | None = None
 
     # ---------- Internal helpers ----------
     @staticmethod
@@ -59,6 +80,9 @@ class MonstersInstances:
         if self._store is None:  # pragma: no cover - defensive
             raise RuntimeError("MonstersInstances requires an active store")
         return self._store
+
+    def _ensure_kv(self) -> RuntimeKVStore | None:
+        return self._kv_store
 
     def _persist_payload(self, payload: Dict[str, Any]) -> None:
         store = self._ensure_store()
@@ -133,6 +157,89 @@ class MonstersInstances:
 
         self._mutate_payload(instance_id, _mutator)
 
+    def _counter_from_instance_id(self, instance_id: Any) -> Optional[int]:
+        if not isinstance(instance_id, str):
+            return None
+        head, sep, tail = instance_id.rpartition("#")
+        if not sep or not tail:
+            return None
+        try:
+            return int(tail, 16)
+        except ValueError:
+            return None
+
+    def _scan_existing_counter(self) -> int:
+        store = self._ensure_store()
+        highest = 0
+        try:
+            records = store.snapshot()
+        except Exception:
+            return 0
+        for record in records:
+            instance_id = record.get("instance_id") if isinstance(record, Mapping) else None
+            value = self._counter_from_instance_id(instance_id)
+            if value is not None and value > highest:
+                highest = value
+        return highest
+
+    def _ensure_counter_seeded(self) -> None:
+        if self._counter_cache is not None:
+            return
+
+        store = self._ensure_kv()
+        seed = 0
+        if store is not None:
+            try:
+                raw = store.get(_INSTANCE_COUNTER_KEY)
+            except Exception:
+                raw = None
+            if raw is not None:
+                try:
+                    seed = int(str(raw))
+                except ValueError:
+                    seed = 0
+            else:
+                seed = self._scan_existing_counter()
+                try:
+                    store.set(_INSTANCE_COUNTER_KEY, str(seed))
+                except Exception:
+                    pass
+        else:
+            seed = self._scan_existing_counter()
+
+        self._counter_cache = seed
+
+    def _next_counter(self) -> int:
+        with _COUNTER_LOCK:
+            self._ensure_counter_seeded()
+            current = (self._counter_cache or 0) + 1
+            self._counter_cache = current
+            store = self._ensure_kv()
+            if store is not None:
+                try:
+                    store.set(_INSTANCE_COUNTER_KEY, str(current))
+                except Exception:
+                    pass
+            return current
+
+    @staticmethod
+    def _format_counter(value: int) -> str:
+        width = max(8, (value.bit_length() + 3) // 4)
+        return f"{value:0{width}X}"
+
+    def mint_instance_id(self, monster_kind: Any) -> str:
+        base = str(monster_kind or "monster").strip()
+        if not base:
+            base = "monster"
+        suffix = self._next_counter()
+        return f"{base}#{self._format_counter(suffix)}"
+
+    def remint_instance_id(self, payload: MutableMapping[str, Any]) -> str:
+        monster_kind = payload.get("monster_id")
+        new_id = self.mint_instance_id(monster_kind)
+        payload["instance_id"] = new_id
+        return new_id
+
     def create_instance(
         self,
         base: Dict[str, Any],
@@ -151,7 +258,14 @@ class MonstersInstances:
         """
         rr = rng or random.Random()
         year, x, y = map(int, pos)
-        instance_id = f"{base['monster_id']}#{uuid.uuid4().hex[:8]}"
+        monster_key_raw = (
+            base.get("monster_id")
+            or base.get("id")
+            or base.get("name")
+            or "monster"
+        )
+        monster_key = str(monster_key_raw)
+        instance_id = self.mint_instance_id(monster_key)
 
         lvl = int(level if level is not None else base.get("level", 1))
         ions_rng = (int(base.get("ions_min", 0)), int(base.get("ions_max", 0)))
@@ -176,7 +290,7 @@ class MonstersInstances:
 
         inst: Dict[str, Any] = {
             "instance_id": instance_id,
-            "monster_id": base["monster_id"],
+            "monster_id": str(base.get("monster_id", monster_key)),
             "pos": [year, x, y],
             "hp": {"current": int(base["hp_max"]), "max": int(base["hp_max"])},
             "armour_class": int(base["armour_class"]),
@@ -200,7 +314,7 @@ class MonstersInstances:
             },
             "spells": list(base.get("spells", [])),
         }
-        return self._add(inst)
+        return inst
 
     def set_target_player(self, instance_id: str, player_id: Optional[str]) -> None:
         def _mutator(record: Dict[str, Any]) -> None:
@@ -249,6 +363,45 @@ class MonstersInstances:
             )
         )
 
+    def count_alive(self, year: int) -> int:
+        store = self._ensure_store()
+        try:
+            return int(store.count_alive(self._coerce_int(year)))
+        except AttributeError:
+            total = 0
+            for record in store.snapshot():
+                if not isinstance(record, Mapping):
+                    continue
+                pos = record.get("pos")
+                record_year: Optional[int]
+                if isinstance(pos, (list, tuple)) and len(pos) >= 1:
+                    try:
+                        record_year = int(pos[0])
+                    except (TypeError, ValueError):
+                        record_year = None
+                else:
+                    try:
+                        record_year = int(record.get("year"))
+                    except (TypeError, ValueError):
+                        record_year = None
+                if record_year != self._coerce_int(year):
+                    continue
+                hp = record.get("hp")
+                if isinstance(hp, Mapping):
+                    try:
+                        if int(hp.get("current", 0)) > 0:
+                            total += 1
+                            continue
+                    except (TypeError, ValueError):
+                        pass
+                hp_cur = record.get("hp_cur")
+                try:
+                    if int(hp_cur) > 0:
+                        total += 1
+                except (TypeError, ValueError):
+                    total += 1
+            return total
+
     # ---------- Direct store helpers ----------
     def update_fields(self, instance_id: str, **fields: Any) -> None:
         self._ensure_store().update_fields(str(instance_id), **fields)
@@ -260,9 +413,12 @@ def load_monsters_instances(
     path: Path | str = DEFAULT_INSTANCES_PATH,
     *,
     store: MonstersInstanceStore | None = None,
+    kv_store: RuntimeKVStore | None = None,
 ) -> MonstersInstances:
     # ``path`` is retained for backwards compatibility with legacy callers.
     # Persistence now flows through the configured store regardless of the
     # provided path so no JSON files are read or written.
-    active_store = store or get_stores().monsters
-    return MonstersInstances(Path(path), [], store=active_store)
+    stores = get_stores()
+    active_store = store or stores.monsters
+    active_kv = kv_store or stores.runtime_kv
+    return MonstersInstances(Path(path), [], store=active_store, kv_store=active_kv)

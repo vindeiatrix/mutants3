@@ -101,10 +101,6 @@ def _copy_innate_attack(template: Mapping[str, Any]) -> Dict[str, Any]:
     }
 
 
-def _mint_instance_id(template: Mapping[str, Any]) -> str:
-    return itemsreg.mint_iid()
-
-
 def _mint_item_instance_id(template: Mapping[str, Any], item: Mapping[str, Any]) -> str:
     return itemsreg.mint_iid()
 
@@ -204,11 +200,18 @@ def _coerce_positive_int(value: Any, *, default: int = 0) -> int:
     return max(0, result)
 
 
-def _clone_template(template: Mapping[str, Any], pos: Pos) -> Dict[str, Any]:
+def _clone_template(
+    template: Mapping[str, Any],
+    pos: Pos,
+    *,
+    instances: mon_instances.MonstersInstances,
+) -> Dict[str, Any]:
     inventory, armour_iid = _clone_inventory(template)
+    monster_id_raw = template.get("monster_id") or template.get("id")
+    monster_id = str(monster_id_raw or "monster")
     return {
-        "instance_id": _mint_instance_id(template),
-        "monster_id": str(template.get("id") or template.get("monster_id") or "monster"),
+        "instance_id": instances.mint_instance_id(monster_id),
+        "monster_id": monster_id,
         "pos": [int(pos[0]), int(pos[1]), int(pos[2])],
         "hp": _copy_hp(template),
         "armour_class": _derive_armour_class(template),
@@ -411,7 +414,7 @@ class MonsterSpawnerController:
 
         template = self._rng.choice(year_state.templates)
         pos = list(self._rng.choice(year_state.tiles))
-        instance = _clone_template(template, pos)
+        instance = _clone_template(template, pos, instances=self._instances)
         self._instances._add(instance)
         if pstate._pdbg_enabled():  # pragma: no cover - diagnostic logging
             try:
@@ -643,19 +646,7 @@ class RuntimeMonsterSpawner:
         if cached is not None:
             return cached
 
-        total = 0
-        for monster in self._instances.list_all():
-            pos = monster.get("pos") if isinstance(monster, Mapping) else None
-            if not (isinstance(pos, (list, tuple)) and len(pos) == 3):
-                continue
-            try:
-                if int(pos[0]) != int(year):
-                    continue
-            except (TypeError, ValueError):
-                continue
-            if self._is_alive(monster):
-                total += 1
-
+        total = self._instances.count_alive(year)
         self._live_cache[year] = total
         return total
 
@@ -696,7 +687,51 @@ class RuntimeMonsterSpawner:
             return None
 
         payload = self._instances.create_instance(template, (year, x, y), rng=rng)
-        stored = self._instances.spawn(payload)
+        monster_kind = payload.get("monster_id")
+        instance_id = payload.get("instance_id")
+        LOG.debug(
+            "runtime spawn attempt year=%s x=%s y=%s monster=%s iid=%s",
+            year,
+            x,
+            y,
+            monster_kind,
+            instance_id,
+        )
+        try:
+            stored = self._instances.spawn(payload)
+        except KeyError:
+            original_id = str(instance_id)
+            retry_id = self._instances.remint_instance_id(payload)
+            LOG.warning(
+                "runtime spawn duplicate year=%s x=%s y=%s monster=%s iid=%s retry=new_id=%s",
+                year,
+                x,
+                y,
+                monster_kind,
+                original_id,
+                retry_id,
+            )
+            try:
+                stored = self._instances.spawn(payload)
+            except KeyError:
+                LOG.warning(
+                    "runtime spawn duplicate year=%s x=%s y=%s monster=%s iid=%s retry_failed=1",
+                    year,
+                    x,
+                    y,
+                    monster_kind,
+                    retry_id,
+                )
+                return None
+            else:
+                LOG.warning(
+                    "runtime spawn duplicate year=%s x=%s y=%s monster=%s iid=%s retry_success=1",
+                    year,
+                    x,
+                    y,
+                    monster_kind,
+                    retry_id,
+                )
         self._live_cache.pop(year, None)
         if self._monsters_state is not None:
             try:
@@ -727,7 +762,17 @@ class RuntimeMonsterSpawner:
             self._spawn_for_year(year, state, live)
 
     def _spawn_for_year(self, year: int, state: _RuntimeYearStateV2, live: int) -> None:
-        goal = min(self._floor - live, self._batch_max, self._cap - live)
+        remaining_to_floor = max(0, self._floor - live)
+        remaining_to_cap = max(0, self._cap - live)
+        goal = max(0, min(remaining_to_floor, self._batch_max, remaining_to_cap))
+        LOG.info(
+            "runtime spawner tick start year=%s live_before=%s floor=%s cap=%s batch_planned=%s",
+            year,
+            live,
+            self._floor,
+            self._cap,
+            goal,
+        )
         spawned = 0
         for _ in range(goal):
             rng = self._rng()
@@ -745,6 +790,17 @@ class RuntimeMonsterSpawner:
         state.next_turn_due = self._turn + self._next_interval(self._rng())
         if spawned:
             self._live_cache.pop(year, None)
+            live_after = self._count_live_monsters(year)
+        else:
+            live_after = live
+        LOG.info(
+            "runtime spawner tick end year=%s live_before=%s batch_planned=%s batch_done=%s live_after=%s",
+            year,
+            live,
+            goal,
+            spawned,
+            live_after,
+        )
 
     def notify_monster_death(
         self,

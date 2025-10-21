@@ -1349,6 +1349,23 @@ class SQLiteMonstersInstanceStore:
         cur = conn.execute(sql, params)
         return [self._row_to_dict(row) for row in cur.fetchall()]
 
+    def count_alive(self, year: int) -> int:
+        conn = self._connection()
+        sql = (
+            "SELECT COUNT(1) AS total FROM monsters_instances "
+            "WHERE year = ? AND hp_cur > 0"
+        )
+        params = (_coerce_int(year),)
+        _debug_query_plan(conn, sql, params)
+        cur = conn.execute(sql, params)
+        row = cur.fetchone()
+        if row is None:
+            return 0
+        try:
+            return int(row["total"])
+        except (KeyError, TypeError, ValueError):
+            return 0
+
     def spawn(self, rec: Dict[str, Any]) -> None:
         normalized = self._normalize_payload(dict(rec), _epoch_ms())
         instance_id = normalized["instance_id"]
