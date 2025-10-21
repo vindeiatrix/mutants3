@@ -278,6 +278,22 @@ class JSONMonstersInstanceStore:
         registry = self._load()
         return list(registry.list_at(year, x, y))
 
+    def count_alive(self, year: int) -> int:
+        total = 0
+        for record in self._load_raw():
+            if int(record.get("year", 0)) != int(year):
+                continue
+            hp = record.get("hp")
+            if isinstance(hp, dict):
+                try:
+                    if int(hp.get("current", 0)) > 0:
+                        total += 1
+                except (TypeError, ValueError):
+                    total += 1
+            else:
+                total += 1
+        return total
+
     def spawn(self, rec: Dict[str, Any]) -> None:
         registry = self._load()
         payload = dict(rec)
