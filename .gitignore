@@ -1,14 +1,14 @@
+# Runtime-friendly ignore rules
+.venv/
 __pycache__/
 *.pyc
-.egg-info/
-.venv/
-.env
-state/**
-!state/ui/
-!state/ui/colors.json
-!state/ui/themes/
-!state/ui/themes/bbs.json
-!state/ui/themes/mono.json
-!state/monsters/
-!state/monsters/catalog.json
-site/
+*.db
+*.log
+
+# Prevent re-adding removed development tooling and assets
+.devcontainer/
+.github/
+docs/
+styles/
+tests/
+scripts/migrations/
