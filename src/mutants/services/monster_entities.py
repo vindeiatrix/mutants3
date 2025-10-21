@@ -173,9 +173,41 @@ def resolve_monster_ai_overrides(*sources: Any) -> dict[str, Any]:
     return overrides
 
 
+def copy_innate_attack(
+    source: Mapping[str, Any] | None, fallback_name: str = "Monster"
+) -> dict[str, Any]:
+    """Return a normalised copy of an innate attack mapping."""
+
+    attack: dict[str, Any] = {}
+    if isinstance(source, Mapping):
+        attack.update({k: v for k, v in source.items() if isinstance(k, str)})
+
+    attack_name = attack.get("name")
+    if isinstance(attack_name, str):
+        attack_name = attack_name.strip() or fallback_name
+    else:
+        attack_name = fallback_name
+    attack["name"] = attack_name
+
+    def _coerce_int(value: Any) -> int:
+        try:
+            return int(value)
+        except (TypeError, ValueError):
+            return 0
+
+    attack["power_base"] = _coerce_int(attack.get("power_base"))
+    attack["power_per_level"] = _coerce_int(attack.get("power_per_level"))
+
+    line_value = _sanitize_line(attack.get("line"))
+    attack["line"] = line_value or DEFAULT_INNATE_ATTACK_LINE
+
+    return attack
+
+
 __all__ = [
     "DEFAULT_INNATE_ATTACK_LINE",
     "MonsterInstance",
     "MonsterTemplate",
+    "copy_innate_attack",
     "resolve_monster_ai_overrides",
 ]

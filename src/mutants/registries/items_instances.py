@@ -6,7 +6,7 @@ import time
 import uuid
 from collections.abc import MutableSet
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Mapping, MutableMapping, Optional, Tuple
+from typing import Any, Dict, Iterable, List, Mapping, MutableMapping, Optional, Sequence, Tuple
 
 # NOTE: Imported by ``mutants.registries.json_store`` via :func:`get_stores`.
 
@@ -655,6 +655,52 @@ def mint_instance(item_id: str, origin: str = "unknown") -> str:
             continue
 
 
+def mint_item(
+    *,
+    item_id: str,
+    pos: Sequence[int] | Mapping[str, Any] | None,
+    owner_iid: str | None,
+    origin: str = "monster_native",
+) -> Optional[Dict[str, Any]]:
+    """Mint an item instance for ``item_id`` and assign it to ``owner_iid``."""
+
+    if not item_id:
+        return None
+
+    if isinstance(pos, Mapping):
+        year = int(pos.get("year", 0) or 0)
+        x = int(pos.get("x", 0) or 0)
+        y = int(pos.get("y", 0) or 0)
+    elif isinstance(pos, Sequence) and len(pos) >= 3:
+        try:
+            year, x, y = int(pos[0]), int(pos[1]), int(pos[2])
+        except (TypeError, ValueError):
+            year, x, y = 0, 0, 0
+    else:
+        year, x, y = 0, 0, 0
+
+    iid = mint_instance(str(item_id), origin=origin)
+    try:
+        updated = update_instance(
+            iid,
+            owner=str(owner_iid) if owner_iid is not None else None,
+            year=year,
+            x=x,
+            y=y,
+        )
+    except KeyError:
+        updated = None
+
+    instance = updated if isinstance(updated, Mapping) else get_instance(iid)
+    if not isinstance(instance, Mapping):
+        return None
+
+    payload = dict(instance)
+    payload.setdefault("instance_id", iid)
+    payload.setdefault("iid", iid)
+    return payload
+
+
 def bulk_add(instances: Iterable[Mapping[str, Any]]) -> List[str]:
     """Add ``instances`` to the registry ensuring normalization."""
 
@@ -1059,4 +1105,28 @@ def create_and_save_instance(item_id: str, year: int, x: int, y: int, origin: st
             return mint
         except KeyError:
             continue
+
+
+class ItemsInstancesFacade:
+    """Light-weight facade exposing runtime helpers for item instances."""
+
+    def mint_item(
+        self,
+        *,
+        item_id: str,
+        pos: Sequence[int] | Mapping[str, Any] | None,
+        owner_iid: str | None,
+        origin: str = "monster_native",
+    ) -> Optional[Dict[str, Any]]:
+        return mint_item(item_id=item_id, pos=pos, owner_iid=owner_iid, origin=origin)
+
+
+ItemsInstances = ItemsInstancesFacade
+_FACADE = ItemsInstancesFacade()
+
+
+def get() -> ItemsInstancesFacade:
+    """Return a process-wide facade for item instance helpers."""
+
+    return _FACADE
 

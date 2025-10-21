@@ -6,6 +6,10 @@
     "properties":{
       "instance_id":{"type":"string"},
       "monster_id":{"type":"string"},
+      "name":{
+        "type":"string",
+        "description":"The unique instance name, e.g. 'Monster-1234'"
+      },
       "pos":{"type":"array","minItems":3,"maxItems":3,"items":[{"type":"integer"},{"type":"integer"},{"type":"integer"}]},
       "hp":{"type":"object","required":["current","max"],"properties":{"current":{"type":"integer"},"max":{"type":"integer"}}},
       "armour_class":{"type":"integer"},

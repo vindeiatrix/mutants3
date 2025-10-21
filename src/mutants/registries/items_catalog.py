@@ -63,6 +63,11 @@ class ItemsCatalog:
 
         return self._by_id.get(item_id)
 
+    def get_item(self, item_id: str) -> Optional[Dict[str, Any]]:
+        """Alias for :meth:`get` used by higher-level services."""
+
+        return self.get(item_id)
+
     def require(self, item_id: str) -> Dict[str, Any]:
         """Return the catalog entry for ``item_id`` or raise ``KeyError``."""
 
@@ -434,6 +439,18 @@ def playable_years() -> List[int]:
 
     world_dir = state_path("world")
     return dl._list_years(world_dir)
+
+
+_CATALOG_CACHE: ItemsCatalog | None = None
+
+
+def get() -> ItemsCatalog:
+    """Return a cached :class:`ItemsCatalog` instance."""
+
+    global _CATALOG_CACHE
+    if _CATALOG_CACHE is None:
+        _CATALOG_CACHE = load_catalog()
+    return _CATALOG_CACHE
 
 
 def _spawnable_map(spawnables: Iterable[Dict[str, Any]]) -> Dict[str, Dict[str, Optional[int]]]:
