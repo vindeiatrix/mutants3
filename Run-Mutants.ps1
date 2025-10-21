@@ -110,13 +110,6 @@ if ($Years) {
   $spawnArgs += @("--years", $Years)
 }
 
-Write-Host "Ensuring passive monsters are topped up across all world years..."
-& $PyExe "scripts\monsters_initial_spawn.py" @spawnArgs
-if ($LASTEXITCODE -ne 0) {
-  Write-Error "Monster spawn top-up failed."
-  exit 1
-}
-
 # --- Launch the game ---
 Write-Host ""
 Write-Host "Launching game (SQLite backend)..."
