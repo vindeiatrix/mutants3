@@ -2,12 +2,11 @@ from __future__ import annotations
 
 import logging
 import shlex
-from typing import Any, Iterable, Mapping, Sequence
+from typing import Mapping, Sequence
 
 from mutants.env import debug_commands_enabled
 from ..registries import items_instances as itemsreg
 from ..registries import items_catalog
-from ..registries import monsters_catalog
 from ..services import player_state as pstate
 from ..util.textnorm import normalize_item_query
 
@@ -73,76 +72,6 @@ def _debug_mode_enabled(ctx) -> bool:
     return bool(attr_flag)
 
 
-def _resolve_spawner(ctx):
-    spawner = None
-    if isinstance(ctx, Mapping):
-        spawner = ctx.get("monster_spawner")
-        if spawner is None:
-            services = ctx.get("services")
-            if isinstance(services, Mapping):
-                spawner = services.get("monster_spawner")
-    else:
-        spawner = getattr(ctx, "monster_spawner", None)
-    return spawner
-
-
-def _format_template_label(template: Mapping[str, Any]) -> str:
-    name = str(template.get("name") or template.get("monster_id") or "monster")
-    monster_id = template.get("monster_id")
-    if monster_id and str(monster_id) and str(monster_id).lower() != name.lower():
-        return f"{name} ({monster_id})"
-    return name
-
-
-def _resolve_monster_template(year: int, query: str) -> tuple[Mapping[str, Any] | None, list[Mapping[str, Any]]]:
-    token = query.strip().lower()
-    if not token:
-        return None, []
-
-    try:
-        catalog = monsters_catalog.load_monsters_catalog()
-    except FileNotFoundError:
-        return None, []
-    except Exception:
-        return None, []
-
-    try:
-        templates = catalog.list_spawnable(int(year))
-    except Exception:
-        templates = []
-
-    matches: list[Mapping[str, Any]] = []
-    seen: set[str] = set()
-    exact: list[Mapping[str, Any]] = []
-
-    for template in templates:
-        if not isinstance(template, Mapping):
-            continue
-        name = str(template.get("name") or "")
-        monster_id = str(template.get("monster_id") or "")
-        name_lower = name.lower()
-        id_lower = monster_id.lower()
-        key = id_lower or name_lower
-        if key in seen:
-            continue
-        if name_lower == token or id_lower == token:
-            exact.append(template)
-            seen.add(key)
-            continue
-        if name_lower.startswith(token) or id_lower.startswith(token):
-            matches.append(template)
-            seen.add(key)
-
-    if exact:
-        return exact[0], []
-    if not matches:
-        return None, []
-
-    matches.sort(key=lambda tpl: (str(tpl.get("name") or "").lower(), str(tpl.get("monster_id") or "").lower()))
-    return None, matches
-
-
-
 def _spawn_items_at_player(
     ctx, item_id: str, count: int
 ) -> tuple[list[str], tuple[int, int, int]]:
@@ -175,79 +104,6 @@ def _debug_count(ctx) -> None:
     here = len(list(store.list_at(year, x, y)))
     ctx["feedback_bus"].push(
         "DEBUG", f"items total={total} here={here} at ({year}, {x}, {y})"
-    )
-
-
-def _debug_spawn_monster(args: Sequence[str], ctx) -> None:
-    bus = ctx["feedback_bus"]
-
-    if not _debug_mode_enabled(ctx):
-        bus.push("SYSTEM/WARN", "Debug monster spawning requires DEBUG=1.")
-        return
-
-    spawner = _resolve_spawner(ctx)
-    spawn_fn = getattr(spawner, "spawn_template", None) if spawner else None
-    if not callable(spawn_fn):
-        bus.push("SYSTEM/WARN", "Monster spawner unavailable; cannot spawn monsters.")
-        return
-
-    if not args:
-        bus.push("SYSTEM/INFO", "Usage: debug monster <name_or_id> [here|adjacent]")
-        return
-
-    tokens = list(args)
-    placement = tokens[-1].lower()
-    if placement in {"here", "adjacent"}:
-        tokens = tokens[:-1]
-    else:
-        placement = "here"
-
-    query = " ".join(tokens).strip()
-    if not query:
-        bus.push("SYSTEM/INFO", "Usage: debug monster <name_or_id> [here|adjacent]")
-        return
-
-    year, x, y = _pos_from_ctx(ctx)
-    template, candidates = _resolve_monster_template(year, query)
-    if template is None:
-        if candidates:
-            preview = ", ".join(_format_template_label(t) for t in candidates[:5])
-            bus.push(
-                "SYSTEM/WARN",
-                f"Ambiguous monster '{query}': {preview}",
-            )
-        else:
-            bus.push(
-                "SYSTEM/WARN",
-                f"Unknown monster '{query}' for year {year}.",
-            )
-        return
-
-    positions: list[tuple[int, int, int]] = []
-    if placement == "adjacent":
-        for dx, dy in ((0, 1), (0, -1), (1, 0), (-1, 0)):
-            positions.append((year, x + dx, y + dy))
-    else:
-        positions.append((year, x, y))
-
-    spawned_at: tuple[int, int, int] | None = None
-    for pos in positions:
-        try:
-            stored = spawn_fn(dict(template), pos, bypass_cap=True)
-        except Exception:
-            stored = None
-        if stored:
-            spawned_at = (int(pos[0]), int(pos[1]), int(pos[2]))
-            break
-
-    if spawned_at is None:
-        bus.push("SYSTEM/WARN", "No valid tile available for monster spawn.")
-        return
-
-    label = _format_template_label(template)
-    bus.push(
-        "DEBUG",
-        f"spawned {label} at ({spawned_at[0]}, {spawned_at[1]}, {spawned_at[2]})",
     )
 
 
@@ -338,8 +194,7 @@ def debug_cmd(arg: str, ctx):
         ctx["feedback_bus"].push(
             "SYSTEM/INFO",
             "Usage: debug add <item_id> [qty] | debug where | debug count | "
-            "debug ions <amount> | debug riblets <amount> | "
-            "debug monster <name_or_id> [here|adjacent]",
+            "debug ions <amount> | debug riblets <amount>",
         )
         return
 
@@ -353,10 +208,6 @@ def debug_cmd(arg: str, ctx):
 
     if parts[0] == "count":
         _debug_count(ctx)
-        return
-
-    if parts[0] == "monster":
-        _debug_spawn_monster(parts[1:], ctx)
         return
 
     if parts[0] in {"ions", "ion"}:
@@ -394,8 +245,7 @@ def debug_cmd(arg: str, ctx):
     ctx["feedback_bus"].push(
         "SYSTEM/INFO",
         "Usage: debug add <item_id> [qty] | debug where | debug count | "
-        "debug ions <amount> | debug riblets <amount> | "
-        "debug monster <name_or_id> [here|adjacent]",
+        "debug ions <amount> | debug riblets <amount>",
     )
 
 
@@ -405,7 +255,6 @@ _DEBUG_HELP_ENTRIES: Sequence[str] = (
     "debug count",
     "debug ions <amount>",
     "debug riblets <amount>",
-    "debug monster <name_or_id> [here|adjacent]",
 )
 
 
