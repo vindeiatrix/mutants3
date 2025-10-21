@@ -95,11 +95,6 @@ def combat_cmd(arg: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
         bus.push("SYSTEM/WARN", f"No monster here matches '{token}'.")
         return {"ok": False, "reason": "not_found"}
 
-    if len(matches) > 1:
-        preview = ", ".join(_display_name(mon, mid or "monster") for mon, mid in matches[:3])
-        bus.push("SYSTEM/WARN", f"Ambiguous target '{token}' ({preview}).")
-        return {"ok": False, "reason": "ambiguous", "candidates": [mid for _, mid in matches]}
-
     target_monster, target_id = matches[0]
     sanitized = pstate.set_ready_target_for_active(target_id)
     label = _display_name(target_monster, sanitized or target_id)
