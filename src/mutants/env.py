@@ -16,8 +16,6 @@ _DB_FILENAME: Final[str] = "mutants.db"
 _CONFIG_LOGGED = False
 _COMBAT_CONFIG_FILENAME: Final[tuple[str, str]] = ("config", "combat.json")
 _RNG_SEED_ENV: Final[str] = "MUTANTS_RNG_SEED"
-_SEED_ON_BOOT_ENV: Final[str] = "SEED_ON_BOOT"
-_RUNTIME_SPAWNER_ENV: Final[str] = "RUNTIME_SPAWNER_V2"
 _SPAWN_INTERVAL_ENV: Final[str] = "SPAWN_TICK_INTERVAL_TURNS"
 _SPAWN_JITTER_ENV: Final[str] = "SPAWN_JITTER_PCT"
 _POP_FLOOR_ENV: Final[str] = "POP_FLOOR"
@@ -111,19 +109,6 @@ def _log_configuration_once(backend: str) -> None:
         get_runtime_seed(),
     )
     _CONFIG_LOGGED = True
-
-
-def seed_monsters_on_boot() -> bool:
-    """Return ``True`` when legacy monster seeding should run."""
-
-    return _parse_bool(os.getenv(_SEED_ON_BOOT_ENV), default=False)
-
-
-def runtime_spawner_v2_enabled() -> bool:
-    """Return ``True`` when the runtime spawner v2 should be active."""
-
-    return _parse_bool(os.getenv(_RUNTIME_SPAWNER_ENV), default=True)
-
 
 def runtime_spawner_config() -> Dict[str, int]:
     """Return configuration for the runtime monster spawner."""

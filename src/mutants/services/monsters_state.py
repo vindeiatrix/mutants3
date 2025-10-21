@@ -8,7 +8,6 @@ import uuid
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Mapping, MutableMapping, Optional
 
-from mutants import env
 from mutants.registries import items_catalog
 from mutants.registries import items_instances
 from mutants.registries import monsters_instances
@@ -1023,25 +1022,7 @@ def _load_raw(
         records = [dict(mon) for mon in snapshot if isinstance(mon, Mapping)]
         return records, True
 
-    if not env.seed_monsters_on_boot():
-        return [], False
-
-    if not path.exists():
-        return [], False
-    try:
-        with path.open("r", encoding="utf-8") as handle:
-            data = json.load(handle)
-    except (json.JSONDecodeError, OSError):
-        return [], False
-
-    if isinstance(data, Mapping) and "monsters" in data:
-        monsters = data.get("monsters", [])
-    elif isinstance(data, list):
-        monsters = data
-    else:
-        monsters = []
-
-    return [dict(mon) for mon in monsters if isinstance(mon, Mapping)], False
+    return [], False
 
 
 def _compute_signature(records: Iterable[Mapping[str, Any]]) -> str:
