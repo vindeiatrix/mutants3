@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, Iterable, Mapping, Optional, Sequence
 
-DEFAULT_INNATE_ATTACK_LINE = "The {monster} uses {attack}!"
+from mutants.constants import DEFAULT_INNATE_ATTACK_LINE
 
 
 def _sanitize_line(value: Any) -> str:

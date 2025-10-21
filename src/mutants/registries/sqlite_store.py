@@ -18,8 +18,8 @@ from typing import (
     Tuple,
 )
 
+from mutants.constants import DEFAULT_INNATE_ATTACK_LINE
 from mutants.env import get_state_database_path
-from mutants.services.monster_entities import DEFAULT_INNATE_ATTACK_LINE
 
 logger = logging.getLogger(__name__)
 
