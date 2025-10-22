@@ -567,6 +567,9 @@ def _inflate_store_record(record: Mapping[str, Any]) -> Dict[str, Any]:
     owner = inst.get("owner")
     if owner is not None:
         inst["owner"] = str(owner)
+        inst["owner_iid"] = inst["owner"]
+    else:
+        inst.setdefault("owner_iid", None)
 
     origin = inst.get("origin")
     if origin is not None:

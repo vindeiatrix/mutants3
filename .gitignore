@@ -10,5 +10,6 @@ __pycache__/
 .github/
 docs/
 styles/
-tests/
+tests/*
+!tests/test_monster_spawn.py
 scripts/migrations/
