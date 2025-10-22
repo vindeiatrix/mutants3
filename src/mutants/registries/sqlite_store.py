@@ -1363,7 +1363,16 @@ class SQLiteMonstersInstanceStore:
         params: Tuple[int, int, int] = (year, x, y)
         _debug_query_plan(conn, sql, params)
         cur = conn.execute(sql, params)
-        results = [self._row_to_dict(row) for row in cur.fetchall()]
+        results = []
+        seen_ids = set()
+        for row in cur.fetchall():
+            data = self._row_to_dict(row)
+            instance_id = data.get("instance_id")
+            if instance_id and instance_id in seen_ids:
+                continue
+            results.append(data)
+            if instance_id:
+                seen_ids.add(instance_id)
         LOG.warning("<<< _list_at returning %s results.", len(results))
         return results
 
