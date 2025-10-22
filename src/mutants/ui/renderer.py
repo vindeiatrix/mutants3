@@ -103,16 +103,25 @@ def _render_monsters(vm: RoomVM) -> tuple[List[SegmentLine], list[Any]]:
     if not parts:
         return [], monsters_here
 
-    if len(parts) == 1:
-        name_str = parts[0].rsplit(" is here.", 1)[0]
-        text = f"{name_str} is here."
-    elif len(parts) == 2:
-        name1 = parts[0].rsplit(" is here.", 1)[0]
-        name2 = parts[1].rsplit(" is here.", 1)[0]
-        text = f"{name1}, and {name2} are here with you."
+    processed_parts: list[str] = []
+    for part_str in parts:
+        if " is here." in part_str:
+            processed_parts.append(part_str.rsplit(" is here.", 1)[0])
+        else:
+            processed_parts.append(part_str)
+
+    if len(processed_parts) == 1:
+        name_str = processed_parts[0]
+        suffix = " is here." if not name_str.endswith(")") else " are here."
+        text = f"{name_str}{suffix}"
+    elif len(processed_parts) == 2:
+        text = (
+            f"{processed_parts[0]}, and {processed_parts[1]} are here with you."
+        )
     else:
-        names_only = [p.rsplit(" is here.", 1)[0] for p in parts]
-        text = f"{', '.join(names_only[:-1])}, and {names_only[-1]} are here."
+        text = (
+            f"{', '.join(processed_parts[:-1])}, and {processed_parts[-1]} are here."
+        )
 
     return [[(st.MONSTER, text)]], monsters_here
 
