@@ -196,18 +196,19 @@ def build_room_vm(
     seen_monster_ids: set[str] = set()
     monster_ids: set[str] = set()
 
-    monsters_source = monsters or mon_instances.get()
+    from mutants.registries import monsters_instances as monreg
+
+    # Always use the authoritative registry; avoid overlay double-sourcing.
+    monsters_source = monreg.get()
     mons_iter: List[Any] = []
     if monsters_source:
-        try:
-            src_name = type(monsters_source).__name__
-        except Exception:
-            src_name = str(monsters_source)
         try:
             mons_iter = list(monsters_source.list_at(year, x, y))  # type: ignore[attr-defined]
         except Exception:
             LOG.warning(
-                "[build_room_vm] monsters_source=%s list_at raised", src_name, exc_info=True
+                "[build_room_vm] monsters_source=%s list_at raised",
+                type(monsters_source).__name__,
+                exc_info=True,
             )
             monster_ids.clear()
             mons_iter = []
@@ -221,7 +222,7 @@ def build_room_vm(
                     ids_logged.append(None)
             LOG.warning(
                 "[build_room_vm] monsters_source=%s returned %d rows ids=%s",
-                src_name,
+                type(monsters_source).__name__,
                 len(mons_iter),
                 ids_logged,
             )
