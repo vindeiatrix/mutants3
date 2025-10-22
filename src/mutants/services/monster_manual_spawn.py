@@ -4,6 +4,7 @@ Service for manually spawning a monster instance from a template.
 from __future__ import annotations
 
 import random
+import json
 from typing import Any, Mapping, Sequence
 
 from mutants.registries import (
@@ -24,10 +25,43 @@ def _get_next_suffix_id(
     base_name: str,
 ) -> int:
     """Finds the next available numeric suffix for a monster."""
+
+    def _extract_name(inst: Mapping[str, Any]) -> str | None:
+        """Best-effort extraction of the monster display name.
+
+        Instances returned by :class:`MonstersInstances` are usually fully
+        normalized and expose the ``name`` field directly. However, legacy
+        rows – especially those minted by external tooling – may still have
+        the name embedded inside the serialized ``stats_json`` payload. The
+        manual spawn command should treat both formats identically so that the
+        suffix generator can see all existing names and avoid duplicates.
+        """
+
+        name = inst.get("name")
+        if isinstance(name, str) and name.strip():
+            return name.strip()
+
+        # Fall back to decoding ``stats_json`` if present. This mirrors the
+        # logic in ``SQLiteMonstersInstanceStore._row_to_payload`` where the
+        # field is normally unpacked.
+        stats_json = inst.get("stats_json")
+        if isinstance(stats_json, str) and stats_json.strip():
+            try:
+                decoded = json.loads(stats_json)
+            except json.JSONDecodeError:
+                decoded = None
+            if isinstance(decoded, Mapping):
+                raw_name = decoded.get("name")
+                if isinstance(raw_name, str) and raw_name.strip():
+                    return raw_name.strip()
+        return None
+
     current_suffixes = set()
     prefix = f"{base_name}-"
     for inst in monsters_reg.list_all():
-        name = inst.get("name")
+        if not isinstance(inst, Mapping):
+            continue
+        name = _extract_name(inst)
         if isinstance(name, str) and name.startswith(prefix):
             try:
                 suffix = int(name[len(prefix) :])
