@@ -1442,6 +1442,22 @@ class SQLiteMonstersInstanceStore:
             return 0
 
     def spawn(self, rec: Dict[str, Any]) -> None:
+        instance_id = rec.get("instance_id") if isinstance(rec, Mapping) else None
+        monster_id = rec.get("monster_id") if isinstance(rec, Mapping) else None
+        if not isinstance(instance_id, str) or not instance_id.startswith("i."):
+            LOG.error(
+                "spawn rejected: invalid instance_id=%r (must start with 'i.')",
+                instance_id,
+            )
+            raise ValueError(
+                f"instance_id must start with 'i.' (got {instance_id!r})"
+            )
+        if instance_id == monster_id:
+            LOG.error(
+                "spawn rejected: instance_id equals monster_id (%r)",
+                instance_id,
+            )
+            raise ValueError("instance_id must not equal monster_id")
         normalized = self._normalize_payload(dict(rec), _epoch_ms())
         instance_id = normalized["instance_id"]
         monster_id = normalized["monster_id"]
@@ -1466,6 +1482,9 @@ class SQLiteMonstersInstanceStore:
             raise KeyError(str(instance_id)) from exc
 
     def update_fields(self, mid: str, **fields: Any) -> None:
+        if not isinstance(mid, str) or not mid.startswith("i."):
+            LOG.warning("update_fields blocked for non-instance-shaped id=%r", mid)
+            raise KeyError(mid)
         if not fields:
             return
         updates = []

@@ -214,18 +214,40 @@ def build_room_vm(
             mons_iter = []
         else:
             ids_logged: List[Any] = []
+            bad_entries: List[Any] = []
             for entry in mons_iter:
                 if isinstance(entry, Mapping):
                     ident = entry.get("instance_id") or entry.get("id")
                     ids_logged.append(str(ident) if ident is not None else None)
+                    inst_id = entry.get("instance_id")
                 else:
                     ids_logged.append(None)
+                    inst_id = getattr(entry, "instance_id", None)
+                if not isinstance(inst_id, str) or not inst_id.startswith("i."):
+                    bad_entries.append(entry)
             LOG.warning(
                 "[build_room_vm] monsters_source=%s returned %d rows ids=%s",
                 type(monsters_source).__name__,
                 len(mons_iter),
                 ids_logged,
             )
+            if bad_entries:
+                try:
+                    bad_ids = []
+                    for entry in bad_entries:
+                        if isinstance(entry, Mapping):
+                            bad_ids.append(entry.get("instance_id"))
+                        else:
+                            bad_ids.append(getattr(entry, "instance_id", None))
+                except Exception:
+                    bad_ids = ["<unprintable>"]
+                LOG.warning(
+                    "[build_room_vm] non-instance-shaped monster ids at %s,%s,%s: %s",
+                    year,
+                    x,
+                    y,
+                    bad_ids,
+                )
 
     for m in mons_iter:
         if not isinstance(m, Mapping):
