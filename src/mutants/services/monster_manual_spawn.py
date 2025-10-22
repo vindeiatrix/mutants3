@@ -89,46 +89,84 @@ def _create_monster_items(
     pos: Sequence[int] | Mapping[str, Any] | None,
     items_cat: items_catalog.ItemsCatalog,
     items_reg: items_instances.ItemsInstances,
-) -> tuple[list[dict[str, Any]], str | None]:
+) -> tuple[list[dict[str, Any]], str | None, list[str]]:
     """
     Creates item instances for the monster's starting gear and returns
     the monster inventory list and the instance_id of the equipped armour.
     """
     inventory_list: list[dict[str, Any]] = []
     armour_iid: str | None = None
-    
+    minted_iids: list[str] = []
+
+    def _cleanup_minted() -> None:
+        for iid in minted_iids:
+            try:
+                items_instances.delete_instance(iid)
+            except Exception:
+                continue
+
     # Mint starter items
-    for item_id in template.starter_items:
-        item_template = items_cat.get_item(item_id)
-        if not item_template:
-            continue  # Item doesn't exist in catalog
+    try:
+        for item_id in template.starter_items:
+            item_template = items_cat.get_item(item_id)
+            if not item_template:
+                continue  # Item doesn't exist in catalog
 
-        instance = items_reg.mint_item(
-            item_id=item_id,
-            pos=pos,
-            owner_iid=monster_instance_id,
-            origin="monster_native",
-        )
-        if instance:
-            inventory_list.append({"instance_id": instance["instance_id"]})
-
-    # Mint and equip starter armour
-    if template.starter_armour:
-        armour_id = template.starter_armour[0]
-        armour_template = items_cat.get_item(armour_id)
-        if armour_template:
             instance = items_reg.mint_item(
-                item_id=armour_id,
+                item_id=item_id,
                 pos=pos,
                 owner_iid=monster_instance_id,
                 origin="monster_native",
             )
-            if instance:
-                armour_iid = instance["instance_id"]
+            if not instance:
+                raise RuntimeError(f"failed to mint starter item {item_id!r}")
+
+            minted_iid = str(
+                instance.get("instance_id")
+                or instance.get("iid")
+                or ""
+            ).strip()
+            if not minted_iid:
+                raise RuntimeError(f"starter item {item_id!r} missing instance_id")
+
+            minted_iids.append(minted_iid)
+            inventory_list.append({"instance_id": minted_iid})
+
+        # Mint and equip starter armour
+        if template.starter_armour:
+            armour_id = template.starter_armour[0]
+            armour_template = items_cat.get_item(armour_id)
+            if armour_template:
+                instance = items_reg.mint_item(
+                    item_id=armour_id,
+                    pos=pos,
+                    owner_iid=monster_instance_id,
+                    origin="monster_native",
+                )
+                if not instance:
+                    raise RuntimeError(
+                        f"failed to mint starter armour {armour_id!r}"
+                    )
+
+                minted_iid = str(
+                    instance.get("instance_id")
+                    or instance.get("iid")
+                    or ""
+                ).strip()
+                if not minted_iid:
+                    raise RuntimeError(
+                        f"starter armour {armour_id!r} missing instance_id"
+                    )
+
+                minted_iids.append(minted_iid)
+                armour_iid = minted_iid
                 # Add to inventory
                 inventory_list.append({"instance_id": armour_iid})
+    except Exception:
+        _cleanup_minted()
+        raise
 
-    return inventory_list, armour_iid
+    return inventory_list, armour_iid, minted_iids
 
 
 def spawn_monster_at(
@@ -174,10 +212,6 @@ def spawn_monster_at(
     else:
         coords = [0, 0, 0]
 
-    inventory, armour_iid = _create_monster_items(
-        template, instance_id, coords, items_cat, items_reg
-    )
-
     hp = max(1, template.hp_max or 1)
     ions_min = template.ions_min if template.ions_min is not None else 0
     ions_max = template.ions_max if template.ions_max is not None else ions_min
@@ -199,8 +233,8 @@ def spawn_monster_at(
         "level": template.level or 1,
         "ions": _RNG.randint(ions_min, ions_max),
         "riblets": _RNG.randint(rib_min, rib_max),
-        "inventory": inventory,
-        "armour_wearing": armour_iid,
+        "inventory": [],
+        "armour_wearing": None,
         "readied_spell": None,
         "target_player_id": None,
         "target_monster_id": None,
@@ -215,13 +249,50 @@ def spawn_monster_at(
     }
 
     # Add to registry and save
-    if monsters_reg.add_instance(instance_data):
-        monsters_reg.save()
-        LOG.warning(
-            "<<< spawn_monster_at SUCCESS for %s, name=%s",
-            instance_id,
-            instance_data.get("name"),
-        )
-        return instance_data
+    if not monsters_reg.add_instance(instance_data):
+        try:
+            monsters_reg.delete(instance_id)
+        except Exception:
+            pass
+        return None
 
-    return None
+    try:
+        inventory, armour_iid, minted_iids = _create_monster_items(
+            template, instance_id, coords, items_cat, items_reg
+        )
+    except Exception:
+        try:
+            monsters_reg.delete(instance_id)
+        except Exception:
+            pass
+        return None
+
+    instance_data["inventory"] = inventory
+    instance_data["armour_wearing"] = armour_iid
+
+    try:
+        monsters_reg.update_fields(
+            instance_id,
+            stats_json=json.dumps(
+                instance_data, sort_keys=True, separators=(",", ":")
+            ),
+        )
+    except Exception:
+        for iid in minted_iids:
+            try:
+                items_instances.delete_instance(iid)
+            except Exception:
+                continue
+        try:
+            monsters_reg.delete(instance_id)
+        except Exception:
+            pass
+        return None
+
+    monsters_reg.save()
+    LOG.warning(
+        "<<< spawn_monster_at SUCCESS for %s, name=%s",
+        instance_id,
+        instance_data.get("name"),
+    )
+    return instance_data
