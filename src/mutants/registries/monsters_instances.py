@@ -154,7 +154,8 @@ class MonstersInstances:
             self._add(inst)
         except Exception:
             return False
-        return True
+        else:
+            return True
 
     def move(self, instance_id: str, *, year: int, x: int, y: int) -> None:
         target_pos = [self._coerce_int(year), self._coerce_int(x), self._coerce_int(y)]
