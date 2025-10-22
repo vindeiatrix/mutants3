@@ -15,6 +15,8 @@ from mutants.services import items_weight
 from mutants.services import player_state as pstate
 from mutants.state import state_path
 
+LOG = logging.getLogger(__name__)
+
 DEFAULT_MONSTERS_PATH = state_path("monsters", "instances.json")
 
 
@@ -805,8 +807,31 @@ class MonstersState:
             return int(pos[0]) == int(year) and int(pos[1]) == int(x) and int(pos[2]) == int(y)
 
         if self._dirty:
-            return [mon for mon in self._monsters if _match(mon)]
-        return [mon for mon in self._sync_local_with_store() if _match(mon)]
+            raw = [mon for mon in self._monsters if _match(mon)]
+        else:
+            raw = [mon for mon in self._sync_local_with_store() if _match(mon)]
+
+        filtered: List[Dict[str, Any]] = []
+        seen: set[str] = set()
+        for mon in raw:
+            instance_id_raw = mon.get("instance_id")
+            instance_id = str(instance_id_raw).strip() if instance_id_raw is not None else ""
+            if not instance_id or instance_id in seen:
+                continue
+            seen.add(instance_id)
+            filtered.append(mon)
+
+        if len(filtered) != len(raw):
+            LOG.warning(
+                "[MonstersState.list_at %s,%s,%s] filtered %d -> %d",
+                year,
+                x,
+                y,
+                len(raw),
+                len(filtered),
+            )
+
+        return filtered
 
     def get(self, monster_id: str) -> Optional[Dict[str, Any]]:
         if not self._dirty:
