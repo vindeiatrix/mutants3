@@ -143,7 +143,6 @@ def _debug_monster(arg: str, ctx) -> None:
         bus.push("SYSTEM/WARN", f"No monster template found for ID: {monster_id}")
         return
 
-    # Do not modify a MonstersState overlay here. Rely solely on spawn service + registry.
     instance = monster_manual_spawn.spawn_monster_at(
         monster_id=template.monster_id,
         pos=coords,
