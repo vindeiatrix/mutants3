@@ -30,6 +30,48 @@ def _normalize_player_name(value: Any) -> Optional[str]:
     return None
 
 
+def _render_monsters(vm: RoomVM) -> tuple[List[SegmentLine], list[Any]]:
+    import logging
+
+    LOG = logging.getLogger(__name__)
+    coords = vm.get("coords") or {}
+    year = coords.get("year")
+    x = coords.get("x")
+    y = coords.get("y")
+    LOG.warning(
+        ">>> _render_monsters called for %s,%s,%s", year, x, y
+    )
+
+    raw_monsters = vm.get("monsters_here") or []
+    if isinstance(raw_monsters, list):
+        monsters_here = list(raw_monsters)
+    else:
+        try:
+            monsters_here = list(raw_monsters)
+        except TypeError:
+            monsters_here = [raw_monsters]
+
+    LOG.warning(
+        "--- _render_monsters received %s monsters from list_at.",
+        len(monsters_here),
+    )
+    try:
+        names_received = [
+            m.get("name", "N/A") if isinstance(m, Mapping) else str(m)
+            for m in monsters_here
+        ]
+    except Exception:
+        names_received = []
+    if names_received:
+        LOG.warning("--- _render_monsters received names: %s", names_received)
+
+    lines = fmt.format_monsters_here_tokens(monsters_here)
+    LOG.warning("--- _render_monsters lines before grouping: %s", lines)
+    parts: List[SegmentLine] = list(lines)
+    LOG.warning("--- _render_monsters parts after grouping: %s", parts)
+    return parts, monsters_here
+
+
 def _with_player_display_name(
     event: Mapping[str, Any] | None, fallback: str
 ) -> Mapping[str, Any] | Any:
@@ -186,9 +228,8 @@ def render_token_lines(
                 block_ground.append(fmt.format_item(line))
 
     # ---- Monsters block (optional, after Ground) ----
-    monsters = vm.get("monsters_here") or []
-    for segs in fmt.format_monsters_here_tokens(monsters):
-        block_monsters.append(segs)
+    monster_segments, _ = _render_monsters(vm)
+    block_monsters.extend(monster_segments)
 
     # ---- Cues block (optional, after Monsters) ----
     sep_line: SegmentLine = [("", UC.SEPARATOR_LINE)]
@@ -375,9 +416,9 @@ def render(
 
     # ---- Monsters block (optional, after Ground) ----
     block_monsters: list[str] = []
-    monsters = vm.get("monsters_here") or []
-    if monsters:
-        mline = fmt.format_monsters_here(monsters)
+    _, monsters_logged = _render_monsters(vm)
+    if monsters_logged:
+        mline = fmt.format_monsters_here(monsters_logged)
         if mline:
             block_monsters.append(mline)
 
