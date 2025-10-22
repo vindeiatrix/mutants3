@@ -458,6 +458,9 @@ def list_ids_at(year: int, x: int, y: int) -> List[str]:
     """Return raw item_ids for instances at (year, x, y)."""
     out: List[str] = []
     for inst in list_instances_at(year, x, y):
+        # Only items with no owner are on the ground.
+        if inst.get("owner") not in (None, "", 0):
+            continue
         item_id = (
             inst.get("item_id")
             or inst.get("catalog_id")
@@ -667,7 +670,10 @@ def mint_item(
     if not item_id:
         return None
 
-    if isinstance(pos, Mapping):
+    # If this item is going directly into an inventory, force it off-ground.
+    if owner_iid is not None:
+        year, x, y = -1, -1, -1
+    elif isinstance(pos, Mapping):
         year = int(pos.get("year", 0) or 0)
         x = int(pos.get("x", 0) or 0)
         y = int(pos.get("y", 0) or 0)
@@ -677,7 +683,8 @@ def mint_item(
         except (TypeError, ValueError):
             year, x, y = 0, 0, 0
     else:
-        year, x, y = 0, 0, 0
+        # No owner and no pos provided: default to "nowhere"/off-ground until positioned explicitly.
+        year, x, y = -1, -1, -1
 
     iid = mint_instance(str(item_id), origin=origin)
     try:

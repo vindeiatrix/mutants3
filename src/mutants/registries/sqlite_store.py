@@ -999,6 +999,13 @@ class SQLiteItemsInstanceStore:
     def update_fields(self, iid: str, **fields: Any) -> None:
         if not fields:
             return
+        # If owner is set, force "off-ground" coords.
+        owner_is_set = "owner" in fields and fields["owner"] is not None
+        if owner_is_set:
+            fields = dict(fields)
+            fields["year"] = -1
+            fields["x"] = -1
+            fields["y"] = -1
         updates = []
         values: list[Any] = []
         for key, value in fields.items():
