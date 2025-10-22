@@ -1430,33 +1430,6 @@ class SQLiteMonstersInstanceStore:
             return 0
 
     def spawn(self, rec: Dict[str, Any]) -> None:
-        raw_instance_id = raw_monster_id = None
-        if isinstance(rec, Mapping):
-            raw_instance_id = rec.get("instance_id")
-            raw_monster_id = rec.get("monster_id")
-        else:  # pragma: no cover - defensive fallback for unexpected types
-            try:
-                raw_instance_id = rec["instance_id"]
-                raw_monster_id = rec["monster_id"]
-            except Exception:
-                raw_instance_id = raw_monster_id = None
-
-        conn: Optional[sqlite3.Connection] = None
-        if (
-            raw_instance_id is not None
-            and raw_monster_id is not None
-            and raw_instance_id == raw_monster_id
-        ):
-            conn = self._connection()
-            cur = conn.execute(
-                "SELECT 1 FROM monsters_catalog WHERE monster_id = ? LIMIT 1",
-                (str(raw_monster_id),),
-            )
-            if cur.fetchone() is not None:
-                raise ValueError(
-                    f"Invalid spawn: instance_id '{raw_instance_id}' cannot be the same as a catalog monster_id"
-                )
-
         normalized = self._normalize_payload(dict(rec), _epoch_ms())
         instance_id = normalized["instance_id"]
         monster_id = normalized["monster_id"]
@@ -1468,7 +1441,7 @@ class SQLiteMonstersInstanceStore:
         placeholders = ", ".join("?" for _ in self._COLUMNS)
         values = tuple(normalized[key] for key in self._COLUMNS)
 
-        conn = conn or self._connection()
+        conn = self._connection()
         try:
             with conn:
                 _begin_immediate(conn)
