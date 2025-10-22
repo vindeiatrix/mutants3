@@ -113,7 +113,7 @@ def spawn_monster_at(
     if not template:
         return None
 
-    instance_id = id_utils.mint_iid()
+    instance_id = id_utils.mint_instance_id()
     base_name = template.name or "Monster"
     suffix = _get_next_suffix_id(monsters_reg, base_name)
     unique_name = f"{base_name}-{suffix}"
