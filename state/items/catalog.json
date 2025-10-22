@@ -492,7 +492,10 @@
     "type": "ARMOUR",
     "weight": 8,
     "value": 5,
+    "spawnable": true,
     "armour_class": 3,
+    "base_power_melee": 0,
+    "base_power_bolt": 0,
     "wear_slots": ["BODY"]
   },
   {
@@ -501,15 +504,21 @@
     "type": "WEAPON",
     "weight": 2,
     "value": 5,
+    "spawnable": true,
     "damage_base": 2,
-    "damage_dice": "1d4"
+    "damage_dice": "1d4",
+    "base_power_melee": 2,
+    "base_power_bolt": 0
   },
   {
     "item_id": "Bolt Pouch",
     "name": "Bolt Pouch",
     "type": "ITEM",
     "weight": 1,
-    "value": 1
+    "value": 1,
+    "spawnable": true,
+    "base_power_melee": 0,
+    "base_power_bolt": 0
   },
   {
     "item_id": "Thick Hide",
@@ -517,7 +526,10 @@
     "type": "ARMOUR",
     "weight": 12,
     "value": 10,
+    "spawnable": true,
     "armour_class": 5,
+    "base_power_melee": 0,
+    "base_power_bolt": 0,
     "wear_slots": ["BODY"]
   },
   {
@@ -526,8 +538,11 @@
     "type": "WEAPON",
     "weight": 1,
     "value": 15,
+    "spawnable": true,
     "damage_base": 3,
-    "damage_dice": "1d6"
+    "damage_dice": "1d6",
+    "base_power_melee": 3,
+    "base_power_bolt": 0
   },
   {
     "item_id": "Tattered Cloths",
@@ -535,7 +550,10 @@
     "type": "ARMOUR",
     "weight": 4,
     "value": 2,
+    "spawnable": true,
     "armour_class": 1,
+    "base_power_melee": 0,
+    "base_power_bolt": 0,
     "wear_slots": ["BODY"]
   },
   {
@@ -544,8 +562,11 @@
     "type": "WEAPON",
     "weight": 7,
     "value": 150,
+    "spawnable": true,
     "damage_base": 5,
     "damage_dice": "2d6",
+    "base_power_melee": 0,
+    "base_power_bolt": 5,
     "ranged": {
       "projectile_name": "ion blast",
       "max_range": 5,
