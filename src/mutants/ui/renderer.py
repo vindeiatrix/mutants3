@@ -65,11 +65,56 @@ def _render_monsters(vm: RoomVM) -> tuple[List[SegmentLine], list[Any]]:
     if names_received:
         LOG.warning("--- _render_monsters received names: %s", names_received)
 
-    lines = fmt.format_monsters_here_tokens(monsters_here)
+    lines: list[str] = []
+    for monster in monsters_here:
+        if isinstance(monster, Mapping):
+            name = str(monster.get("name", "")).strip()
+        else:
+            name = str(monster).strip()
+        if not name:
+            continue
+        lines.append(f"{name} is here.")
+
     LOG.warning("--- _render_monsters lines before grouping: %s", lines)
-    parts: List[SegmentLine] = list(lines)
+
+    def _group_lines(values: list[str]) -> list[tuple[str, int]]:
+        order: list[str] = []
+        counts: dict[str, int] = {}
+        for value in values:
+            if value not in counts:
+                order.append(value)
+                counts[value] = 1
+            else:
+                counts[value] += 1
+        return [(value, counts[value]) for value in order]
+
+    groups = _group_lines(lines)
+
+    parts: list[str] = []
+    for name_line, count in groups:
+        if count == 1:
+            parts.append(name_line)
+        else:
+            name_only = name_line.rsplit(" is here.", 1)[0]
+            parts.append(f"{name_only} ({count})")
+
     LOG.warning("--- _render_monsters parts after grouping: %s", parts)
-    return parts, monsters_here
+
+    if not parts:
+        return [], monsters_here
+
+    if len(parts) == 1:
+        name_str = parts[0].rsplit(" is here.", 1)[0]
+        text = f"{name_str} is here."
+    elif len(parts) == 2:
+        name1 = parts[0].rsplit(" is here.", 1)[0]
+        name2 = parts[1].rsplit(" is here.", 1)[0]
+        text = f"{name1}, and {name2} are here with you."
+    else:
+        names_only = [p.rsplit(" is here.", 1)[0] for p in parts]
+        text = f"{', '.join(names_only[:-1])}, and {names_only[-1]} are here."
+
+    return [[(st.MONSTER, text)]], monsters_here
 
 
 def _with_player_display_name(
