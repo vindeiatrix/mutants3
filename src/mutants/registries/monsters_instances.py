@@ -21,6 +21,37 @@ _INSTANCE_COUNTER_KEY = "monster_instance_counter"
 _COUNTER_LOCK = threading.Lock()
 
 
+def _dedupe_by_instance_id(rows: Iterable[Mapping[str, Any]] | None) -> List[Mapping[str, Any]]:
+    seen = set()
+    out: List[Mapping[str, Any]] = []
+    for record in rows or []:
+        if not isinstance(record, Mapping):
+            continue
+        instance_id = str(
+            record.get("instance_id")
+            or record.get("id")
+            or record.get("monster_instance_id")
+            or ""
+        )
+        if not instance_id or instance_id in seen:
+            continue
+        seen.add(instance_id)
+        out.append(record)
+    return out
+
+
+def _inflate_store_record(record: Mapping[str, Any]) -> Dict[str, Any]:
+    payload: Dict[str, Any] = dict(record)
+    payload["id"] = record.get("id")
+    instance_id = (
+        record.get("instance_id")
+        or record.get("id")
+        or record.get("iid")
+    )
+    payload["instance_id"] = str(instance_id) if instance_id is not None else ""
+    return payload
+
+
 class MonstersInstances:
     """
     Mutable live monsters backed by the configured state store.
@@ -355,21 +386,32 @@ class MonstersInstances:
     def get(self, instance_id: str) -> Optional[Dict[str, Any]]:
         store = self._ensure_store()
         record = store.get(str(instance_id))
-        return dict(record) if isinstance(record, dict) else record
+        if isinstance(record, Mapping):
+            return _inflate_store_record(record)
+        return record
 
     def list_all(self) -> Iterable[Dict[str, Any]]:
         store = self._ensure_store()
-        return list(store.snapshot())
+        return [
+            _inflate_store_record(record)
+            if isinstance(record, Mapping)
+            else record
+            for record in store.snapshot()
+        ]
 
     def list_at(self, year: int, x: int, y: int) -> Iterable[Dict[str, Any]]:
         store = self._ensure_store()
-        return list(
-            store.list_at(
+        rows = [
+            _inflate_store_record(record)
+            if isinstance(record, Mapping)
+            else record
+            for record in store.list_at(
                 self._coerce_int(year),
                 self._coerce_int(x),
                 self._coerce_int(y),
             )
-        )
+        ]
+        return _dedupe_by_instance_id(rows)
 
     def count_alive(self, year: int) -> int:
         store = self._ensure_store()
