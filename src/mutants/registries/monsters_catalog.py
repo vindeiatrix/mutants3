@@ -24,10 +24,6 @@ def _optional_int(value: Any) -> Optional[int]:
 
 DEFAULT_CATALOG_PATH = state_path("monsters", "catalog.json")
 
-# EXP formula (can be adjusted later in one place)
-def exp_for(level: int, exp_bonus: int = 0) -> int:
-    return max(0, 100 * int(level) + int(exp_bonus))
-
 class MonstersCatalog:
     """
     Read-only base monster definitions. Load once; fast lookups by monster_id.

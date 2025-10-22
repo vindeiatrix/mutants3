@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import random
+
 from typing import Any, Mapping, MutableMapping, TYPE_CHECKING
 
 from .monsters_state import MonstersState
@@ -49,3 +51,8 @@ def attach(bus: "FeedbackBus", state: MonstersState) -> None:
         _handle_kill_event(state, event)
 
     bus.subscribe(_listener)
+
+
+# EXP formula (can be adjusted later in one place)
+def exp_for(level: int, exp_bonus: int = 0) -> int:
+    return max(0, 100 * int(level) + int(exp_bonus))
