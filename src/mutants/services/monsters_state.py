@@ -17,6 +17,12 @@ from mutants.state import state_path
 
 LOG = logging.getLogger(__name__)
 
+
+def _looks_like_instance_id(s: Any) -> bool:
+    """Treat only strings prefixed with ``i.`` as real instance ids."""
+
+    return isinstance(s, str) and s.startswith("i.")
+
 DEFAULT_MONSTERS_PATH = state_path("monsters", "instances.json")
 
 
@@ -660,14 +666,12 @@ class MonstersState:
     def _prepare_store_payload(self, monster: Mapping[str, Any]) -> Dict[str, Any]:
         payload = copy.deepcopy(dict(monster))
 
-        monster_id_raw = (
-            payload.get("id")
-            or payload.get("monster_id")
-            or payload.get("instance_id")
-        )
-        monster_id = str(monster_id_raw) if monster_id_raw else f"monster#{uuid.uuid4().hex[:6]}"
-        payload["id"] = monster_id
-        payload["instance_id"] = monster_id
+        iid = payload.get("instance_id")
+        if not _looks_like_instance_id(iid):
+            # Not a persisted instance (likely a template-backed record) — skip persisting.
+            raise KeyError("instance_id")
+        payload["id"] = iid
+        payload["instance_id"] = iid
 
         monster_kind = payload.get("monster_id")
         if monster_kind:
@@ -697,7 +701,10 @@ class MonstersState:
         return payload
 
     def _persist_monster(self, monster: Mapping[str, Any]) -> None:
-        payload = self._prepare_store_payload(monster)
+        try:
+            payload = self._prepare_store_payload(monster)
+        except KeyError:
+            return
         instance_id = payload["instance_id"]
         hp_block = payload.get("hp") if isinstance(payload.get("hp"), Mapping) else {}
         hp_cur = _sanitize_int(
@@ -740,9 +747,10 @@ class MonstersState:
         try:
             self._instances.update_fields(instance_id, **fields)
         except KeyError:
-            spawn_payload = copy.deepcopy(payload)
-            spawn_payload.setdefault("hp", {"current": hp_cur, "max": max(hp_cur, hp_max)})
-            self._instances.spawn(spawn_payload)
+            if _looks_like_instance_id(instance_id):
+                spawn_payload = copy.deepcopy(payload)
+                spawn_payload.setdefault("hp", {"current": hp_cur, "max": max(hp_cur, hp_max)})
+                self._instances.spawn(spawn_payload)
 
     def _sync_local_with_store(self) -> List[Dict[str, Any]]:
         records: List[Dict[str, Any]] = []
