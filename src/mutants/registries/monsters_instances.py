@@ -413,15 +413,23 @@ class MonstersInstances:
 
     def list_at(self, year: int, x: int, y: int) -> Iterable[Dict[str, Any]]:
         store = self._ensure_store()
+        records = store.list_at(
+            self._coerce_int(year),
+            self._coerce_int(x),
+            self._coerce_int(y),
+        )
+        # Drop any catalog/spec rows that lack an instance_id so only true
+        # instances flow through to callers.
+        records = [
+            record
+            for record in (records or [])
+            if isinstance(record, Mapping) and record.get("instance_id")
+        ]
         rows = [
             _inflate_store_record(record)
             if isinstance(record, Mapping)
             else record
-            for record in store.list_at(
-                self._coerce_int(year),
-                self._coerce_int(x),
-                self._coerce_int(y),
-            )
+            for record in records
         ]
         raw_ids = _ids(rows)
         LOG.warning(
