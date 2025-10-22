@@ -198,8 +198,8 @@ def build_room_vm(
 
     from mutants.registries import monsters_instances as monreg
 
-    # Always use the authoritative registry; avoid overlay double-sourcing.
-    monsters_source = monreg.get()
+    # Always use the authoritative registry unless a specific source is supplied.
+    monsters_source = monsters or monreg.get()
     mons_iter: List[Any] = []
     if monsters_source:
         try:
