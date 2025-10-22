@@ -193,6 +193,7 @@ def build_room_vm(
             dirs[d] = {k: e.get(k) for k in ("base", "gate_state", "key_type")}
 
     monsters_here: List[Dict[str, str]] = []
+    seen_monster_ids: set[str] = set()
     monster_ids: set[str] = set()
     if monsters:
         try:
@@ -200,6 +201,10 @@ def build_room_vm(
                 name = m.get("name") or m.get("monster_id", "?")
                 raw_id = m.get("id") or m.get("instance_id") or m.get("monster_id")
                 mid = str(raw_id) if raw_id else ""
+                if mid and mid in seen_monster_ids:
+                    continue
+                if mid:
+                    seen_monster_ids.add(mid)
                 hp_block = m.get("hp") if isinstance(m, Mapping) else None
                 is_alive = True
                 if isinstance(hp_block, Mapping):
@@ -256,7 +261,7 @@ def render_frame(ctx: Dict[str, Any]) -> None:
             ctx["player_state"],
             ctx["world_loader"],
             ctx["headers"],
-            ctx.get("monsters"),
+            ctx.get("monsters") or mon_instances.get(),
             ctx.get("items"),
         )
     cues = audio_cues.drain(ctx)
