@@ -492,7 +492,7 @@
     "weight": 8,
     "ion_value": 100,
     "riblet_value": 50,
-    "spawnable": true,
+    "spawnable": false,
     "enchantable": true,
     "nondegradable": false,
     "armour": true,
