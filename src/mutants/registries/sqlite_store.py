@@ -1337,6 +1337,22 @@ class SQLiteMonstersInstanceStore:
                 )
 
     def list_at(self, year: int, x: int, y: int) -> Iterable[Dict[str, Any]]:
+        import logging
+
+        LOG = logging.getLogger(__name__)
+        cache_attr = getattr(self, "_cache", None)
+        try:
+            cache_size = len(cache_attr) if cache_attr is not None else 0
+        except TypeError:
+            cache_size = 0
+        LOG.warning(
+            ">>> _list_at called for %s,%s,%s. Cache size: %s",
+            year,
+            x,
+            y,
+            cache_size,
+        )
+
         conn = self._connection()
         sql = (
             "SELECT instance_id, monster_id, year, x, y, hp_cur, hp_max, stats_json, created_at, "
@@ -1347,7 +1363,9 @@ class SQLiteMonstersInstanceStore:
         params: Tuple[int, int, int] = (year, x, y)
         _debug_query_plan(conn, sql, params)
         cur = conn.execute(sql, params)
-        return [self._row_to_dict(row) for row in cur.fetchall()]
+        results = [self._row_to_dict(row) for row in cur.fetchall()]
+        LOG.warning("<<< _list_at returning %s results.", len(results))
+        return results
 
     def count_alive(self, year: int) -> int:
         conn = self._connection()

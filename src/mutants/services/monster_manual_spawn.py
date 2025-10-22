@@ -109,6 +109,13 @@ def spawn_monster_at(
     Mints a new monster instance from a template and adds it to the registry.
     This function creates the unique name.
     """
+    import logging
+
+    LOG = logging.getLogger(__name__)
+    LOG.warning(
+        ">>> spawn_monster_at called for %s at %s", monster_id, pos
+    )
+
     template = monsters_cat.get_template(monster_id)
     if not template:
         return None
@@ -176,6 +183,11 @@ def spawn_monster_at(
     # Add to registry and save
     if monsters_reg.add_instance(instance_data):
         monsters_reg.save()
+        LOG.warning(
+            "<<< spawn_monster_at SUCCESS for %s, name=%s",
+            instance_id,
+            instance_data.get("name"),
+        )
         return instance_data
-    
+
     return None
