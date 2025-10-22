@@ -171,3 +171,72 @@ def test_room_vm_deduplicates_monsters():
     monsters_here = vm["monsters_here"]
     assert len(monsters_here) == 1
     assert monsters_here[0]["id"] == "mid-1"
+
+
+def test_debug_spawn_does_not_touch_overlay(runtime_modules, monkeypatch):
+    mods = runtime_modules
+    db_path = Path(mods.state.STATE_ROOT) / "mutants.db"
+    _seed_catalogs(mods, db_path)
+
+    stores = mods.sqlite_store.get_stores(db_path)
+
+    # Ensure all registry helpers resolve to the isolated stores.
+    monkeypatch.setattr(mods.storage, "get_stores", lambda: stores)
+
+    import mutants.registries.storage as storage_mod
+
+    monkeypatch.setattr(storage_mod, "get_stores", lambda: stores)
+
+    # Reset caches to pick up the new state backend and catalog entries.
+    mods.monsters_catalog._CATALOG_CACHE = None
+    mods.items_catalog._CATALOG_CACHE = None
+    mods.monsters_instances._INSTANCES_CACHE = None
+
+    import mutants.commands.debug as debug_module
+
+    debug_module = importlib.reload(debug_module)
+
+    class DummyBus:
+        def __init__(self):
+            self.messages = []
+
+        def push(self, channel, message):
+            self.messages.append((channel, message))
+
+    class SentinelOverlay:
+        def __init__(self):
+            self.add_calls = []
+
+        def add(self, payload):  # pragma: no cover - defensive guard
+            self.add_calls.append(dict(payload))
+            raise AssertionError("Monsters overlay must not be mutated by debug spawn")
+
+    overlay = SentinelOverlay()
+
+    ctx = {
+        "feedback_bus": DummyBus(),
+        "player_state": {
+            "active_id": "p1",
+            "players": [{"id": "p1", "pos": [2000, 10, 10]}],
+        },
+        "render_next": False,
+        "monsters": overlay,
+    }
+
+    debug_module.debug_cmd("monster junkyard_scrapper", ctx)
+
+    # Command should report success and request a render.
+    assert any(channel == "SYSTEM/OK" for channel, _ in ctx["feedback_bus"].messages)
+    assert ctx["render_next"] is True
+    assert overlay.add_calls == []
+
+    records = list(stores.monsters.snapshot())
+    assert records
+    for record in records:
+        instance_id = record.get("instance_id")
+        assert instance_id != "junkyard_scrapper"
+        stats_json = record.get("stats_json")
+        if isinstance(stats_json, str):
+            payload = json.loads(stats_json)
+            assert payload.get("instance_id") == instance_id
+            assert payload.get("monster_id") == "junkyard_scrapper"
