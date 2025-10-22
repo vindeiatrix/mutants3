@@ -4,7 +4,8 @@ import logging
 from typing import Any, Dict, Mapping, MutableMapping, Optional, Sequence
 
 from mutants.registries import items_catalog, items_instances as itemsreg
-from mutants.registries.monsters_catalog import exp_for as monster_exp_for, load_monsters_catalog
+from mutants.registries.monsters_catalog import load_monsters_catalog
+from mutants.services.monster_leveling import exp_for as monster_exp_for
 from mutants.services import combat_loot
 from mutants.services import damage_engine, items_wear, monsters_state, player_state as pstate
 from mutants.debug import turnlog

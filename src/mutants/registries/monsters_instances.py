@@ -9,7 +9,8 @@ from typing import Any, Dict, Iterable, List, Mapping, MutableMapping, Optional,
 
 # NOTE: Imported by ``mutants.registries.json_store`` via :func:`get_stores`.
 
-from mutants.registries.monsters_catalog import MonstersCatalog, exp_for
+from mutants.registries.monsters_catalog import MonstersCatalog
+from mutants.services.monster_leveling import exp_for
 from mutants.services.monster_entities import DEFAULT_INNATE_ATTACK_LINE
 from mutants.state import state_path
 from .storage import MonstersInstanceStore, RuntimeKVStore, get_stores
