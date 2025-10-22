@@ -152,12 +152,13 @@ def _debug_monster(arg: str, ctx) -> None:
         items_reg=item_reg,
     )
 
-    if instance:
-        name = instance.get("name") or template.name
-        bus.push("SYSTEM/OK", f"Spawned {name} at your location.")
-        ctx["render_next"] = True
-    else:
+    if instance is None:
         bus.push("SYSTEM/WARN", f"Failed to spawn {monster_id}.")
+        return
+
+    name = instance.get("name") or template.name
+    bus.push("SYSTEM/OK", f"Spawned {name} at your location.")
+    ctx["render_next"] = True
 
 
 def _set_currency_for_active(ctx, currency: str, amount: int) -> None:
