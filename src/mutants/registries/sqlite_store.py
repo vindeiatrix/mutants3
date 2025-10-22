@@ -1409,6 +1409,18 @@ class SQLiteMonstersInstanceStore:
             results.append(data)
             if instance_id:
                 seen_ids.add(instance_id)
+        store_ids: list[Any] = []
+        for record in results:
+            ident = record.get("instance_id") or record.get("id")
+            store_ids.append(str(ident) if ident is not None else None)
+        LOG.warning(
+            "[store.monsters.list_at %s,%s,%s] sql_count=%d ids=%s",
+            year,
+            x,
+            y,
+            len(results),
+            store_ids,
+        )
         LOG.warning("<<< _list_at returning %s results.", len(results))
         return results
 

@@ -195,31 +195,60 @@ def build_room_vm(
     monsters_here: List[Dict[str, str]] = []
     seen_monster_ids: set[str] = set()
     monster_ids: set[str] = set()
-    if monsters:
+
+    monsters_source = monsters or mon_instances.get()
+    mons_iter: List[Any] = []
+    if monsters_source:
         try:
-            for m in monsters.list_at(year, x, y):  # type: ignore[attr-defined]
-                name = m.get("name") or m.get("monster_id", "?")
-                raw_id = m.get("id") or m.get("instance_id") or m.get("monster_id")
-                mid = str(raw_id) if raw_id else ""
-                if mid and mid in seen_monster_ids:
-                    continue
-                if mid:
-                    seen_monster_ids.add(mid)
-                hp_block = m.get("hp") if isinstance(m, Mapping) else None
-                is_alive = True
-                if isinstance(hp_block, Mapping):
-                    try:
-                        is_alive = int(hp_block.get("current", 0)) > 0
-                    except (TypeError, ValueError):
-                        is_alive = True
-                entry: Dict[str, str] = {"name": name}
-                if mid:
-                    entry["id"] = mid
-                monsters_here.append(entry)
-                if mid and is_alive:
-                    monster_ids.add(mid)
+            src_name = type(monsters_source).__name__
         except Exception:
+            src_name = str(monsters_source)
+        try:
+            mons_iter = list(monsters_source.list_at(year, x, y))  # type: ignore[attr-defined]
+        except Exception:
+            LOG.warning(
+                "[build_room_vm] monsters_source=%s list_at raised", src_name, exc_info=True
+            )
             monster_ids.clear()
+            mons_iter = []
+        else:
+            ids_logged: List[Any] = []
+            for entry in mons_iter:
+                if isinstance(entry, Mapping):
+                    ident = entry.get("instance_id") or entry.get("id")
+                    ids_logged.append(str(ident) if ident is not None else None)
+                else:
+                    ids_logged.append(None)
+            LOG.warning(
+                "[build_room_vm] monsters_source=%s returned %d rows ids=%s",
+                src_name,
+                len(mons_iter),
+                ids_logged,
+            )
+
+    for m in mons_iter:
+        if not isinstance(m, Mapping):
+            continue
+        name = m.get("name") or m.get("monster_id", "?")
+        raw_id = m.get("id") or m.get("instance_id") or m.get("monster_id")
+        mid = str(raw_id) if raw_id else ""
+        if mid and mid in seen_monster_ids:
+            continue
+        if mid:
+            seen_monster_ids.add(mid)
+        hp_block = m.get("hp") if isinstance(m, Mapping) else None
+        is_alive = True
+        if isinstance(hp_block, Mapping):
+            try:
+                is_alive = int(hp_block.get("current", 0)) > 0
+            except (TypeError, ValueError):
+                is_alive = True
+        entry: Dict[str, str] = {"name": name}
+        if mid:
+            entry["id"] = mid
+        monsters_here.append(entry)
+        if mid and is_alive:
+            monster_ids.add(mid)
     try:
         pstate.ensure_active_ready_target_in(monster_ids, reason="tile-mismatch")
     except Exception:
