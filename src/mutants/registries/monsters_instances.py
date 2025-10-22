@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import random
 import threading
 import uuid
@@ -17,8 +18,24 @@ from .storage import MonstersInstanceStore, RuntimeKVStore, get_stores
 DEFAULT_INSTANCES_PATH = state_path("monsters", "instances.json")
 FALLBACK_INSTANCES_PATH = state_path("monsters.json")  # optional fallback; rarely used
 
+LOG = logging.getLogger(__name__)
+
 _INSTANCE_COUNTER_KEY = "monster_instance_counter"
 _COUNTER_LOCK = threading.Lock()
+
+def _iid(row: Mapping[str, Any] | Any) -> str:
+    if not isinstance(row, Mapping):
+        return ""
+    return str(
+        row.get("instance_id")
+        or row.get("id")
+        or row.get("monster_instance_id")
+        or ""
+    )
+
+
+def _ids(rows: Iterable[Mapping[str, Any]] | None) -> List[str]:
+    return [_iid(record) for record in (rows or [])]
 
 
 def _dedupe_by_instance_id(rows: Iterable[Mapping[str, Any]] | None) -> List[Mapping[str, Any]]:
@@ -27,12 +44,7 @@ def _dedupe_by_instance_id(rows: Iterable[Mapping[str, Any]] | None) -> List[Map
     for record in rows or []:
         if not isinstance(record, Mapping):
             continue
-        instance_id = str(
-            record.get("instance_id")
-            or record.get("id")
-            or record.get("monster_instance_id")
-            or ""
-        )
+        instance_id = _iid(record)
         if not instance_id or instance_id in seen:
             continue
         seen.add(instance_id)
@@ -411,7 +423,38 @@ class MonstersInstances:
                 self._coerce_int(y),
             )
         ]
-        return _dedupe_by_instance_id(rows)
+        raw_ids = _ids(rows)
+        LOG.warning(
+            "[monsters.list_at %s,%s,%s] raw_count=%d raw_ids=%s",
+            year,
+            x,
+            y,
+            len(rows or []),
+            raw_ids,
+        )
+
+        deduped = _dedupe_by_instance_id(rows)
+        deduped_ids = _ids(deduped)
+        LOG.warning(
+            "[monsters.list_at %s,%s,%s] post_dedupe=%d ids=%s",
+            year,
+            x,
+            y,
+            len(deduped),
+            deduped_ids,
+        )
+
+        if any(not iid for iid in raw_ids):
+            missing = sum(1 for iid in raw_ids if not iid)
+            LOG.error(
+                "[monsters.list_at %s,%s,%s] %d row(s) missing instance_id",
+                year,
+                x,
+                y,
+                missing,
+            )
+
+        return deduped
 
     def count_alive(self, year: int) -> int:
         store = self._ensure_store()

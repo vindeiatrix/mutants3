@@ -20,6 +20,8 @@ from ..services import player_state as pstate
 from ..app import context as appctx
 from ..app.trace import is_ui_trace_enabled
 
+LOG = logging.getLogger(__name__)
+
 SegmentLine = List[st.Segment]
 
 
@@ -31,9 +33,6 @@ def _normalize_player_name(value: Any) -> Optional[str]:
 
 
 def _render_monsters(vm: RoomVM) -> tuple[List[SegmentLine], list[Any]]:
-    import logging
-
-    LOG = logging.getLogger(__name__)
     coords = vm.get("coords") or {}
     year = coords.get("year")
     x = coords.get("x")
@@ -51,19 +50,23 @@ def _render_monsters(vm: RoomVM) -> tuple[List[SegmentLine], list[Any]]:
         except TypeError:
             monsters_here = [raw_monsters]
 
+    _incoming = monsters_here
+    incoming_ids: list[Any] = []
+    incoming_names: list[Any] = []
+    for entry in _incoming:
+        if isinstance(entry, Mapping):
+            ident = entry.get("instance_id") or entry.get("id")
+            incoming_ids.append(str(ident) if ident is not None else None)
+            incoming_names.append(entry.get("name"))
+        else:
+            incoming_ids.append(None)
+            incoming_names.append(str(entry))
     LOG.warning(
-        "--- _render_monsters received %s monsters from list_at.",
-        len(monsters_here),
+        "--- _render_monsters received %d monsters from list_at. ids=%s names=%s",
+        len(_incoming),
+        incoming_ids,
+        incoming_names,
     )
-    try:
-        names_received = [
-            m.get("name", "N/A") if isinstance(m, Mapping) else str(m)
-            for m in monsters_here
-        ]
-    except Exception:
-        names_received = []
-    if names_received:
-        LOG.warning("--- _render_monsters received names: %s", names_received)
 
     lines: list[str] = []
     for monster in monsters_here:
