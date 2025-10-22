@@ -13,6 +13,7 @@ from typing import (
     Dict,
     Iterable,
     Mapping,
+    MutableMapping,
     Optional,
     Sequence,
     Tuple,
@@ -21,7 +22,7 @@ from typing import (
 from mutants.constants import DEFAULT_INNATE_ATTACK_LINE
 from mutants.env import get_state_database_path
 
-logger = logging.getLogger(__name__)
+LOG = logging.getLogger(__name__)
 
 DEBUG_QUERY_PLAN = bool(os.getenv("MUTANTS_SQLITE_DEBUG_PLAN"))
 
@@ -100,7 +101,7 @@ def _debug_query_plan(
             detail = row[3]
         except (IndexError, TypeError):
             detail = row
-        logger.info("QUERY PLAN %s :: %s", sql, detail)
+        LOG.info("QUERY PLAN %s :: %s", sql, detail)
 
 
 def _coerce_optional_int(value: Any) -> Optional[int]:
@@ -421,12 +422,12 @@ class SQLiteConnectionManager:
         try:
             data = json.loads(raw)
         except json.JSONDecodeError:
-            logger.error("Invalid JSON for item %s in catalog", item_id)
+            LOG.error("Invalid JSON for item %s in catalog", item_id)
             return None
         if isinstance(data, dict):
             data.setdefault("item_id", str(item_id))
             return data
-        logger.error("Catalog row for item %s did not decode to an object", item_id)
+        LOG.error("Catalog row for item %s did not decode to an object", item_id)
         return None
 
     def list_spawnable_items(self) -> Iterable[Dict[str, Any]]:
@@ -445,7 +446,7 @@ class SQLiteConnectionManager:
             try:
                 data = json.loads(raw)
             except json.JSONDecodeError:
-                logger.error("Invalid JSON for item %s in spawnable list", row["item_id"])
+                LOG.error("Invalid JSON for item %s in spawnable list", row["item_id"])
                 continue
             if isinstance(data, dict):
                 data.setdefault("item_id", row["item_id"])
@@ -503,7 +504,7 @@ class SQLiteConnectionManager:
             return None
         monster = _decode_monster_row(row)
         if monster is None:
-            logger.error("Invalid monster catalog row for %s", monster_id)
+            LOG.error("Invalid monster catalog row for %s", monster_id)
             return None
         return monster
 
@@ -1094,7 +1095,7 @@ class SQLiteRuntimeKVStore:
 class SQLiteMonstersInstanceStore:
     """SQLite-backed implementation of :class:`MonstersInstanceStore`."""
 
-    __slots__ = ("_manager",)
+    __slots__ = ("_manager", "_cache")
 
     _COLUMNS: Sequence[str] = (
         "instance_id",
@@ -1114,6 +1115,7 @@ class SQLiteMonstersInstanceStore:
 
     def __init__(self, manager: SQLiteConnectionManager) -> None:
         self._manager = manager
+        self._cache: MutableMapping[str, Dict[str, Any]] = {}
 
     def _connection(self) -> sqlite3.Connection:
         return self._manager.connect()
@@ -1287,6 +1289,34 @@ class SQLiteMonstersInstanceStore:
 
         return payload
 
+    def _log_cache_update(self, data: Mapping[str, Any]) -> None:
+        cache = getattr(self, "_cache", None)
+        if not isinstance(cache, MutableMapping):
+            return
+        instance_id = data.get("instance_id")
+        if instance_id is None:
+            return
+        instance_id = str(instance_id)
+        try:
+            cache_keys_before = list(cache.keys())
+        except Exception:  # pragma: no cover - defensive logging
+            cache_keys_before = []
+        LOG.warning(
+            "--- _add: Cache BEFORE update for %s: IDs present %s",
+            instance_id,
+            cache_keys_before,
+        )
+        cache[instance_id] = data
+        try:
+            cache_keys_after = list(cache.keys())
+        except Exception:  # pragma: no cover - defensive logging
+            cache_keys_after = []
+        LOG.warning(
+            "--- _add: Cache AFTER update for %s: IDs present %s",
+            instance_id,
+            cache_keys_after,
+        )
+
     def get(self, mid: str) -> Optional[Dict[str, Any]]:
         conn = self._connection()
         cur = conn.execute(
@@ -1337,9 +1367,6 @@ class SQLiteMonstersInstanceStore:
                 )
 
     def list_at(self, year: int, x: int, y: int) -> Iterable[Dict[str, Any]]:
-        import logging
-
-        LOG = logging.getLogger(__name__)
         cache_attr = getattr(self, "_cache", None)
         try:
             cache_size = len(cache_attr) if cache_attr is not None else 0
@@ -1352,6 +1379,8 @@ class SQLiteMonstersInstanceStore:
             y,
             cache_size,
         )
+        if isinstance(cache_attr, Mapping):
+            LOG.warning("--- _list_at: Iterating cache. Keys: %s", list(cache_attr.keys()))
 
         conn = self._connection()
         sql = (
@@ -1413,6 +1442,7 @@ class SQLiteMonstersInstanceStore:
                     f"INSERT INTO monsters_instances ({columns}) VALUES ({placeholders})",
                     values,
                 )
+            self._log_cache_update(dict(normalized))
         except sqlite3.IntegrityError as exc:
             raise KeyError(str(instance_id)) from exc
 
