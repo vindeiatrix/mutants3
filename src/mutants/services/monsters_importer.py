@@ -5,7 +5,7 @@ import sys
 from collections import defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Mapping, MutableMapping, Optional, Set, TextIO
+from typing import Any, Dict, Iterable, List, Mapping, Optional, Set, TextIO
 
 from mutants.io.atomic import atomic_write_json
 from mutants.services import monsters_state

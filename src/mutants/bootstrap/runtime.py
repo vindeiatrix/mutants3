@@ -5,7 +5,7 @@ import os
 import re
 import logging
 from pathlib import Path
-from typing import Dict, Iterable, List, Optional
+from typing import Dict, Iterable, List
 
 from mutants.io.atomic import atomic_write_json
 from mutants.state import STATE_ROOT, state_path

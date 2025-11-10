@@ -21,7 +21,7 @@ from mutants.debug.turnlog import TurnObserver
 from mutants.debug import items_probe
 from mutants.ui.feedback import FeedbackBus
 from mutants.ui.logsink import LogSink
-from mutants.ui.themes import Theme, load_theme
+from mutants.ui.themes import load_theme
 from mutants.ui import styles as st
 from ..registries import items_instances as itemsreg
 from mutants.services import (

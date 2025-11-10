@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import List
-
 from mutants.app import trace as traceflags
 from mutants.engine import edge_resolver as ER
 from mutants.registries import dynamics as dyn

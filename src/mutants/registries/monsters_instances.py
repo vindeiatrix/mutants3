@@ -4,13 +4,11 @@ import json
 import logging
 import random
 import threading
-import uuid
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Mapping, MutableMapping, Optional, Tuple
 
 # NOTE: Imported by ``mutants.registries.json_store`` via :func:`get_stores`.
 
-from mutants.services.monster_leveling import exp_for
 from mutants.services.monster_entities import DEFAULT_INNATE_ATTACK_LINE
 from mutants.state import state_path
 from .storage import MonstersInstanceStore, RuntimeKVStore, get_stores

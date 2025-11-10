@@ -72,7 +72,6 @@ def unlock_cmd(arg: str, ctx: Dict[str, Any]) -> None:
         nbr = world.get_tile(x + dx, y + dy) or {}
         nedge = (nbr.get("edges") or {}).get(opp, {}) or {}
         nbase = nedge.get("base", 0)
-        ngs = nedge.get("gate_state", 0)
 
         lock_meta = dyn.get_lock(year, x, y, D)
         locked = False
