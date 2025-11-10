@@ -1,7 +1,7 @@
 """Pure formatters that produce tokenized text segments."""
 from __future__ import annotations
 
-from typing import List
+from typing import TypeAlias
 
 from .styles import (
     COMPASS_LABEL,
@@ -26,7 +26,7 @@ from . import item_display as idisp
 from .textutils import harden_final_display
 from ..world import vision as world_vision
 
-Segments = List[Segment]
+Segments: TypeAlias = list[Segment]
 
 
 def format_header(text: str) -> Segments:
@@ -68,8 +68,8 @@ def format_direction_segments(dir_name: str, edge: EdgeDesc) -> Segments:
     return segments
 
 
-def format_monsters_here_tokens(monsters: List[Thing]) -> List[Segments]:
-    lines: List[Segments] = []
+def format_monsters_here_tokens(monsters: list[Thing]) -> list[Segments]:
+    lines: list[Segments] = []
     for m in monsters:
         lines.append([(MONSTER, f"{m['name']} is here.")])
     return lines
@@ -84,7 +84,7 @@ def format_item(text: str) -> Segments:
     return [(ITEM, text)]
 
 
-def format_shadows(dirs: List[str]) -> Segments | None:
+def format_shadows(dirs: list[str]) -> Segments | None:
     ordered = world_vision.normalize_directions(dirs or [])
     if not ordered:
         return None
