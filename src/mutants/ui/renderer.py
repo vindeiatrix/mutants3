@@ -37,7 +37,7 @@ def _render_monsters(vm: RoomVM) -> tuple[List[SegmentLine], list[Any]]:
     year = coords.get("year")
     x = coords.get("x")
     y = coords.get("y")
-    LOG.warning(
+    LOG.debug(
         ">>> _render_monsters called for %s,%s,%s", year, x, y
     )
 
@@ -61,7 +61,7 @@ def _render_monsters(vm: RoomVM) -> tuple[List[SegmentLine], list[Any]]:
         else:
             incoming_ids.append(None)
             incoming_names.append(str(entry))
-    LOG.warning(
+    LOG.debug(
         "--- _render_monsters received %d monsters from list_at. ids=%s names=%s",
         len(_incoming),
         incoming_ids,
@@ -78,7 +78,7 @@ def _render_monsters(vm: RoomVM) -> tuple[List[SegmentLine], list[Any]]:
             continue
         lines.append(f"{name} is here.")
 
-    LOG.warning("--- _render_monsters lines before grouping: %s", lines)
+    LOG.debug("--- _render_monsters lines before grouping: %s", lines)
 
     def _group_lines(values: list[str]) -> list[tuple[str, int]]:
         order: list[str] = []
@@ -101,7 +101,7 @@ def _render_monsters(vm: RoomVM) -> tuple[List[SegmentLine], list[Any]]:
             name_only = name_line.rsplit(" is here.", 1)[0]
             parts.append(f"{name_only} ({count})")
 
-    LOG.warning("--- _render_monsters parts after grouping: %s", parts)
+    LOG.debug("--- _render_monsters parts after grouping: %s", parts)
 
     if not parts:
         return [], monsters_here
