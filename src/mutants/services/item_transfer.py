@@ -270,7 +270,6 @@ def _choose_instance_from_prefix(
 
 
 def _ground_ordered_ids(year: int, x: int, y: int) -> List[str]:
-    catalog = catreg.load_catalog() or {}
     insts = itemsreg.list_instances_at(year, x, y)
     groups: Dict[str, List[Dict]] = {}
     order: List[str] = []

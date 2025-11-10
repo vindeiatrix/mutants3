@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 import random
-from typing import TYPE_CHECKING, Any, Iterable, List, Mapping, MutableMapping, Sequence, Tuple
+from typing import TYPE_CHECKING, Any, Iterable, List, Mapping, Sequence, Tuple
 
 from mutants.services import player_state as pstate
 from mutants.debug import turnlog
