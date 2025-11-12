@@ -803,11 +803,7 @@ class MonstersState:
             self._dirty_all = True
 
     def list_all(self) -> List[Dict[str, Any]]:
-        # When dirty, we still want to see new registry additions (e.g., debug spawns),
-        # but we must not resurrect unsaved deletions. _sync_local_with_store() already
-        # avoids pruning if self._dirty is True, so we can safely merge here.
         if self._dirty:
-            self._sync_local_with_store()
             return list(self._monsters)
         return list(self._sync_local_with_store())
 
@@ -818,9 +814,7 @@ class MonstersState:
                 return False
             return int(pos[0]) == int(year) and int(pos[1]) == int(x) and int(pos[2]) == int(y)
 
-        # Same rationale as list_all(): merge additions even while dirty, without pruning.
         if self._dirty:
-            self._sync_local_with_store()
             raw = [mon for mon in self._monsters if _match(mon)]
         else:
             raw = [mon for mon in self._sync_local_with_store() if _match(mon)]
