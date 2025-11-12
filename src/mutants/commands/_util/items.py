@@ -9,7 +9,7 @@ from ...util.textnorm import normalize_item_query as normalize
 
 
 def inventory_iids_for_active_player(ctx) -> list[str]:
-    p = itx._load_player()
+    p = pstate.ensure_player_state(ctx)
     pstate.ensure_active_profile(p, ctx)
     pstate.bind_inventory_to_active_class(p)
     itx._ensure_inventory(p)

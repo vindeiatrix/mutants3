@@ -23,7 +23,7 @@ def _active(state: Dict[str, Any]) -> Dict[str, Any]:
 def _has_matching_key(ctx: Dict[str, Any], required: Optional[str]) -> tuple[bool, bool]:
     """Return (has_any_key, matches_required)."""
     cat = items_catalog.load_catalog()
-    p = it._load_player()
+    p = pstate.ensure_player_state(ctx)
     pstate.ensure_active_profile(p, ctx)
     pstate.bind_inventory_to_active_class(p)
     it._ensure_inventory(p)
