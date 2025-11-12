@@ -11,6 +11,8 @@ from mutants.services import damage_engine, items_wear, monsters_state, player_s
 from mutants.debug import turnlog
 from mutants.ui.item_display import item_label
 
+from ._helpers import resolve_ready_target_in_tile
+
 MIN_INNATE_DAMAGE = 6
 MIN_BOLT_DAMAGE = 6
 
@@ -364,14 +366,22 @@ def strike_cmd(arg: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
         bus.push("SYSTEM/WARN", "You're not ready to combat anyone!")
         return {"ok": False, "reason": "no_target"}
 
+    resolved_target_id = resolve_ready_target_in_tile(ctx)
+    if not resolved_target_id:
+        bus.push("SYSTEM/WARN", "Your target is nowhere to be found.")
+        pstate.clear_ready_target_for_active(reason="target-missing")
+        return {"ok": False, "reason": "target_missing"}
+
     target = None
     getter = getattr(monsters, "get", None)
     if callable(getter):
-        target = getter(target_id)
+        target = getter(resolved_target_id)
     if target is None:
         bus.push("SYSTEM/WARN", "Your target is nowhere to be found.")
         pstate.clear_ready_target_for_active(reason="target-missing")
         return {"ok": False, "reason": "target_missing"}
+
+    target_id = resolved_target_id
 
     if not isinstance(target, MutableMapping):
         bus.push("SYSTEM/WARN", "You cannot strike that target.")
