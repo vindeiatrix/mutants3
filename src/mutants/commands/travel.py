@@ -153,7 +153,7 @@ def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
         bus.push("SYSTEM/WARN", "That year doesn't exist yet!")
         return
 
-    player = itx._load_player()
+    player = pstate.ensure_player_state(ctx)
     pstate.ensure_active_profile(player, ctx)
     pstate.bind_inventory_to_active_class(player)
     itx._ensure_inventory(player)

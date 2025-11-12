@@ -16,8 +16,6 @@ from mutants.util.directions import vec as dir_vec
 from mutants.services import player_state as pstate
 from ..services.items_weight import get_effective_weight
 
-_STATE_CACHE: Optional[Dict[str, Any]] = None
-
 LOG = logging.getLogger(__name__)
 ITEMS_LOG = logging.getLogger("mutants.itemsdbg")
 LOG_P = logging.getLogger("mutants.playersdbg")
@@ -65,104 +63,61 @@ def _ensure_inventory(p: Dict[str, Any]) -> None:
             bags[klass_str] = normalized
 
 
-def _load_state() -> Dict[str, Any]:
-    """Load player state from disk with graceful fallbacks."""
+def _state_from_ctx(ctx: Mapping[str, Any]) -> Dict[str, Any]:
+    """Return the player state associated with ``ctx``."""
 
-    state = pstate.load_state()
-    if isinstance(state, dict):
+    if isinstance(ctx, MutableMapping):
+        existing = ctx.get("player_state")
+        if isinstance(existing, dict):
+            return existing
+        state = pstate.load_state()
+        ctx["player_state"] = state
         return state
-    return {}
+    state = pstate.load_state()
+    return state if isinstance(state, dict) else {}
+def _save_player(ctx: Mapping[str, Any], player: Dict[str, Any]) -> Dict[str, Any]:
+    """Update the player state stored in ``ctx`` after a mutation."""
 
-
-def _active_from_state(state: Dict[str, Any]) -> Dict[str, Any]:
-    """Return the active player's mapping from a state payload."""
-
-    players = state.get("players")
-    if isinstance(players, list) and players:
-        active_id = state.get("active_id")
-        for player in players:
-            if player.get("id") == active_id:
-                return player
-        return players[0]
-    return state
-
-
-def _load_player() -> Dict[str, Any]:
-    global _STATE_CACHE
-
-    state = _load_state()
-    player = _active_from_state(state)
-    _STATE_CACHE = state
-    if not isinstance(player, dict):
-        return {}
-    if "armour" in player and "armor" not in player:
-        player["armor"] = player.pop("armour")
-    equipment = state.get("equipment_by_class")
-    if isinstance(equipment, dict):
-        player.setdefault("equipment_by_class", equipment)
-    _ensure_inventory(player)
-    legacy_inv = state.get("inventory")
-    if isinstance(legacy_inv, list):
-        cleaned = [str(i) for i in legacy_inv if i]
-        if cleaned:
-            player["inventory"] = cleaned.copy()
-            _ensure_inventory(player)
-        state["inventory"] = cleaned
-    return player
-
-
-def _save_player(player: Dict[str, Any]) -> None:
-    global _STATE_CACHE
+    state = _state_from_ctx(ctx)
 
     _ensure_inventory(player)
     inv = list(player.get("inventory", []))
-    state = _STATE_CACHE if isinstance(_STATE_CACHE, dict) else _load_state()
+
     players = state.get("players")
+    active_id = state.get("active_id")
+    active_entry: Dict[str, Any] = player
+
     if isinstance(players, list) and players:
-        active_id = state.get("active_id")
-        updated = False
-        first_player = players[0]
-        new_players: List[Dict[str, Any]] = []
-        for existing in players:
-            is_active = (active_id is not None and existing.get("id") == active_id) or (
-                active_id is None and existing is first_player
-            )
+        for idx, existing in enumerate(players):
+            if not isinstance(existing, MutableMapping):
+                continue
+            is_active = False
+            if active_id is not None:
+                is_active = existing.get("id") == active_id
+            else:
+                is_active = idx == 0
             if is_active:
-                merged = {**existing, **player}
-                merged["inventory"] = inv
-                new_players.append(merged)
-                updated = True
-            else:
-                new_players.append(existing)
-        if not updated and player.get("id") is not None:
-            new_players = []
-            target_id = player.get("id")
-            for existing in players:
-                if existing.get("id") == target_id:
-                    merged = {**existing, **player}
-                    merged["inventory"] = inv
-                    new_players.append(merged)
-                    updated = True
-                else:
-                    new_players.append(existing)
-        if not updated:
-            merged = {**first_player, **player}
-            merged["inventory"] = inv
-            if new_players:
-                new_players[0] = merged
-            else:
-                new_players.append(merged)
-        state["players"] = new_players
+                if existing is not player:
+                    existing.update(player)
+                active_entry = existing
+                break
+        else:
+            active_entry = {**player}
+            players.append(active_entry)
     else:
         state.update(player)
-        state.setdefault("players", [])
-    player["inventory"] = inv
+        active_entry = state
+        state.setdefault("players", [active_entry])
+
+    active_entry["inventory"] = list(inv)
     state["inventory"] = list(inv)
-    klass_raw = player.get("class") or player.get("name")
+
+    klass_raw = active_entry.get("class") or active_entry.get("name")
     if not klass_raw:
         active_profile = state.get("active")
-        if isinstance(active_profile, dict):
+        if isinstance(active_profile, Mapping):
             klass_raw = active_profile.get("class") or active_profile.get("name")
+
     if isinstance(klass_raw, str) and klass_raw:
         klass = klass_raw
         bags = state.get("bags")
@@ -170,15 +125,26 @@ def _save_player(player: Dict[str, Any]) -> None:
             bags = {}
         bags[klass] = list(inv)
         state["bags"] = bags
+
         active_profile = state.get("active")
-        if isinstance(active_profile, dict):
-            if not isinstance(active_profile.get("bags"), dict):
-                active_profile["bags"] = {}
-            active_profile["bags"][klass] = list(inv)
-            active_profile["inventory"] = list(inv)
-    # Persist inventory and other canonical fields only; equipment is owned by pstate helpers.
-    pstate.save_state(state)
-    _STATE_CACHE = None
+        if not isinstance(active_profile, MutableMapping):
+            active_profile = {}
+        active_profile.update(active_entry)
+        if not isinstance(active_profile.get("bags"), dict):
+            active_profile["bags"] = {}
+        active_profile["bags"][klass] = list(inv)
+        active_profile["inventory"] = list(inv)
+        state["active"] = active_profile
+    else:
+        state["active"] = active_entry
+
+    active_entry["_dirty"] = True
+
+    if isinstance(ctx, MutableMapping):
+        ctx["player_state"] = state
+        ctx["_runtime_player"] = active_entry
+
+    return active_entry
 
 
 def _armor_iid(p: Dict) -> Optional[str]:
@@ -340,7 +306,7 @@ def _pos_from_ctx(ctx) -> tuple[int, int, int]:
 
 
 def pick_from_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
-    player = _load_player()
+    player = pstate.ensure_player_state(ctx)
     pstate.ensure_active_profile(player, ctx)
     pstate.bind_inventory_to_active_class(player)
     _ensure_inventory(player)
@@ -438,7 +404,7 @@ def pick_from_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
     template_map = template if isinstance(template, dict) else None
     weight = max(0, get_effective_weight(chosen_inst, template_map))
     required = weight // 10
-    state_for_stats = _STATE_CACHE if isinstance(_STATE_CACHE, dict) else pstate.load_state()
+    state_for_stats = _state_from_ctx(ctx)
     stats = pstate.get_stats_for_active(state_for_stats)
     strength = _coerce_int(stats.get("str"), 0)
     monster_actor = actor_is_monster(ctx)
@@ -488,7 +454,7 @@ def pick_from_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
         player["inventory"] = inv
         overflow_info = {"inv_overflow_drop": drop_iid}
 
-    _save_player(player)
+    _save_player(ctx, player)
     if _pdbg_enabled():
         try:
             after_inv = list(player.get("inventory") or [])
@@ -540,7 +506,7 @@ def pick_from_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
 
 
 def drop_to_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
-    player = _load_player()
+    player = pstate.ensure_player_state(ctx)
     pstate.ensure_active_profile(player, ctx)
     pstate.bind_inventory_to_active_class(player)
     _ensure_inventory(player)
@@ -611,7 +577,7 @@ def drop_to_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
             overflow_info = {"ground_overflow_pick": pick, "inv_overflow_drop": drop_iid}
         else:
             overflow_info = {"ground_overflow_pick": pick}
-    _save_player(player)
+    _save_player(ctx, player)
     return {
         "ok": True,
         "iid": iid,
@@ -621,7 +587,7 @@ def drop_to_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
 
 
 def throw_to_direction(ctx, direction: str, prefix: str, *, seed: Optional[int] = None) -> Dict:
-    player = _load_player()
+    player = pstate.ensure_player_state(ctx)
     pstate.ensure_active_profile(player, ctx)
     pstate.bind_inventory_to_active_class(player)
     _ensure_inventory(player)
@@ -717,7 +683,7 @@ def throw_to_direction(ctx, direction: str, prefix: str, *, seed: Optional[int] 
             overflow_info = {"ground_overflow_pick": pick, "inv_overflow_drop": drop_iid}
         else:
             overflow_info = {"ground_overflow_pick": pick}
-    _save_player(player)
+    _save_player(ctx, player)
     return {
         "ok": True,
         "iid": iid,

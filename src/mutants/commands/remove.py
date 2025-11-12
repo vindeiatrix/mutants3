@@ -56,7 +56,7 @@ def remove_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
         return {"ok": False, "reason": "unexpected_argument"}
 
     catalog = catreg.load_catalog() or {}
-    player = itx._load_player()
+    player = pstate.ensure_player_state(ctx)
     pstate.ensure_active_profile(player, ctx)
     pstate.bind_inventory_to_active_class(player)
     itx._ensure_inventory(player)

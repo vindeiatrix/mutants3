@@ -21,6 +21,134 @@ _PDBG_CONFIGURED = False
 
 DEFAULT_PLAYER_DISPLAY_NAME = "Vindeiatrix"
 
+
+_RUNTIME_PLAYER_KEY = "_runtime_player"
+
+
+def _active_player_from_state(state: Mapping[str, Any]) -> Dict[str, Any]:
+    """Return the active player mapping from ``state``."""
+
+    if not isinstance(state, Mapping):
+        return {}
+
+    players = state.get("players")
+    active_id = state.get("active_id")
+    if isinstance(players, list) and players:
+        if active_id is not None:
+            for player in players:
+                if isinstance(player, MutableMapping) and player.get("id") == active_id:
+                    return player  # type: ignore[return-value]
+        first = players[0]
+        if isinstance(first, MutableMapping):
+            return first  # type: ignore[return-value]
+
+    active = state.get("active")
+    if isinstance(active, MutableMapping):
+        return active  # type: ignore[return-value]
+
+    return {}
+
+
+def _load_player_from_disk() -> Dict[str, Any]:
+    """Load and return the active player mapping from disk."""
+
+    state = load_state()
+    player = _active_player_from_state(state)
+    if isinstance(player, MutableMapping):
+        player.setdefault("_dirty", False)
+        return player  # type: ignore[return-value]
+    return {"_dirty": False}
+
+
+def _strip_runtime_metadata(state: Mapping[str, Any]) -> Dict[str, Any]:
+    """Return ``state`` copied without transient runtime markers."""
+
+    sanitized = copy.deepcopy(state if isinstance(state, Mapping) else {})
+
+    active = sanitized.get("active")
+    if isinstance(active, MutableMapping):
+        active.pop("_dirty", None)
+
+    players = sanitized.get("players")
+    if isinstance(players, list):
+        for entry in players:
+            if isinstance(entry, MutableMapping):
+                entry.pop("_dirty", None)
+
+    return sanitized
+
+
+def _save_player_to_disk(state: Mapping[str, Any]) -> None:
+    """Persist ``state`` to disk using the canonical saver."""
+
+    save_state(dict(state))
+
+
+def _current_runtime_ctx() -> MutableMapping[str, Any] | None:
+    """Return the current runtime context if available."""
+
+    try:
+        from mutants.app import context as app_context
+
+        ctx = app_context.current_context()
+    except Exception:
+        return None
+
+    return ctx if isinstance(ctx, MutableMapping) else None
+
+
+def ensure_player_state(ctx: MutableMapping[str, Any]) -> Dict[str, Any]:
+    """Return the runtime player for ``ctx``, loading it if required."""
+
+    if not isinstance(ctx, MutableMapping):
+        return _load_player_from_disk()
+
+    cached = ctx.get(_RUNTIME_PLAYER_KEY)
+    if isinstance(cached, MutableMapping):
+        cached.setdefault("_dirty", False)
+        return cached  # type: ignore[return-value]
+
+    state_hint = ctx.get("player_state")
+    if not isinstance(state_hint, MutableMapping):
+        state_hint = load_state()
+        ctx["player_state"] = state_hint
+
+    active_player = _active_player_from_state(state_hint)
+    if not isinstance(active_player, MutableMapping):
+        active_player = {}
+        state_hint["active"] = active_player
+
+    active_player.setdefault("_dirty", False)
+    ctx[_RUNTIME_PLAYER_KEY] = active_player
+    return active_player  # type: ignore[return-value]
+
+
+def save_player_state(ctx: MutableMapping[str, Any]) -> None:
+    """Persist the runtime player associated with ``ctx`` if dirty."""
+
+    if not isinstance(ctx, MutableMapping):
+        return
+
+    player = ctx.get(_RUNTIME_PLAYER_KEY)
+    if not isinstance(player, MutableMapping):
+        return
+
+    if not player.get("_dirty"):
+        return
+
+    state = ctx.get("player_state")
+    if not isinstance(state, Mapping):
+        state = load_state()
+
+    sanitized = _strip_runtime_metadata(state)
+    _save_player_to_disk(sanitized)
+
+    ctx["player_state"] = sanitized
+    _, refreshed_player = get_active_pair(sanitized)
+    refreshed_player.setdefault("_dirty", False)
+    ctx[_RUNTIME_PLAYER_KEY] = refreshed_player
+
+
 def _combat_log_set(target: Optional[str], actor: Optional[str]) -> None:
     if not _pdbg_enabled() or not target:
         return
@@ -2838,8 +2966,22 @@ def get_ready_target_for_active(state: Dict[str, Any]) -> Optional[str]:
 def _update_ready_target_for_active(
     monster_id: Optional[str], *, reason: Optional[str] = None
 ) -> Tuple[Optional[str], Optional[str]]:
-    state = load_state()
-    normalized, _active, cls = _prepare_active_storage(state)
+    ctx = _current_runtime_ctx()
+    runtime_mode = False
+    state: Mapping[str, Any]
+
+    if ctx is not None:
+        state_hint = ctx.get("player_state")
+        if isinstance(state_hint, MutableMapping):
+            state = state_hint
+            runtime_mode = True
+        else:
+            state = load_state()
+            runtime_mode = True
+    else:
+        state = load_state()
+
+    normalized, _active, cls = _prepare_active_storage(dict(state))
     ready_map = normalized.setdefault("ready_target_by_class", {})
     if not isinstance(ready_map, dict):
         ready_map = {}
@@ -2892,7 +3034,14 @@ def _update_ready_target_for_active(
             break
     normalized["ready_target_by_class"] = dict(ready_map)
     normalized["target_monster_id_by_class"] = dict(target_map)
-    save_state(normalized)
+
+    if runtime_mode and ctx is not None:
+        ctx["player_state"] = normalized
+        ctx.pop(_RUNTIME_PLAYER_KEY, None)
+        player_ctx = ensure_player_state(ctx)
+        player_ctx["_dirty"] = True
+    else:
+        save_state(normalized)
 
     if sanitized:
         _combat_log_set(sanitized, cls)
