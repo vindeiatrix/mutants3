@@ -24,7 +24,7 @@ import json
 import logging
 import os
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, MutableMapping, Optional
 
 from mutants.io.atomic import atomic_write_json
 from mutants.bootstrap.runtime import discover_world_years, read_config
@@ -163,16 +163,43 @@ def make_player_from_template(t: Dict[str, Any], make_active: bool = False) -> D
 
 # ---------- Public API ----------
 
-def ensure_player_state(state_dir: str = "state",
-                        out_name: str = "playerlivestate.json",
-                        templates_pkg: str = "mutants.data",
-                        templates_resource: str = "startingclasstemplates.json",
-                        fs_fallback: Optional[str] = None,
-                        active_first_class: str = "Thief") -> Dict[str, Any]:
-    """
-    Ensure playerlivestate.json exists; create from templates if missing.
-    Returns a dict like: {"players": [...], "active_id": "..."}.
-    """
+def ensure_player_state(
+    ctx: MutableMapping[str, Any] | None = None,
+    *,
+    state_dir: str = "state",
+    out_name: str = "playerlivestate.json",
+    templates_pkg: str = "mutants.data",
+    templates_resource: str = "startingclasstemplates.json",
+    fs_fallback: Optional[str] = None,
+    active_first_class: str = "Thief",
+) -> Dict[str, Any]:
+    """Ensure runtime player state is ready and return it."""
+
+    if ctx is not None:
+        from mutants.services import player_state as pstate
+
+        return pstate.ensure_player_state(ctx)
+
+    return _ensure_player_state_file(
+        state_dir=state_dir,
+        out_name=out_name,
+        templates_pkg=templates_pkg,
+        templates_resource=templates_resource,
+        fs_fallback=fs_fallback,
+        active_first_class=active_first_class,
+    )
+
+
+def _ensure_player_state_file(
+    *,
+    state_dir: str = "state",
+    out_name: str = "playerlivestate.json",
+    templates_pkg: str = "mutants.data",
+    templates_resource: str = "startingclasstemplates.json",
+    fs_fallback: Optional[str] = None,
+    active_first_class: str = "Thief",
+) -> Dict[str, Any]:
+    """Ensure playerlivestate.json exists; create from templates if missing."""
     ensure_config_dir(state_dir)
     out_path = Path(state_dir) / out_name
 
