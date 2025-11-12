@@ -4,7 +4,6 @@ from typing import Tuple
 
 from mutants.services import player_state as pstate
 from mutants.services import player_reset
-from mutants.services import player_active as act
 from mutants.engine import session
 
 
@@ -115,12 +114,20 @@ def handle_input(raw: str, ctx: dict) -> None:
         if isinstance(year_candidate, int):
             year_val = year_candidate
 
-    new_state = act.set_active(str(target_id))
+    state["active_id"] = target_id
+    state["active"] = {"class": class_name, "pos": [int(year_val), 0, 0]}
+    state.pop("class", None)
+
+    if isinstance(players, list):
+        for entry in players:
+            if isinstance(entry, dict):
+                entry["is_active"] = bool(entry.get("id") == target_id)
 
     session.set_active_class(class_name)
     session_ctx = ctx.setdefault("session", {})
     if isinstance(session_ctx, dict):
         session_ctx["active_class"] = class_name
-    ctx["player_state"] = new_state
+    pstate.save_state(state)
+    ctx["player_state"] = pstate.load_state()
     ctx["mode"] = None
     ctx["render_next"] = True

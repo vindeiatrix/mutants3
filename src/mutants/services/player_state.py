@@ -1872,11 +1872,7 @@ def _normalize_player_state(state: Dict[str, Any]) -> Dict[str, Any]:
         state["active"] = active
 
     klass_raw = active.get("class") or state.get("class") or state.get("name")
-    klass = (
-        str(klass_raw)
-        if isinstance(klass_raw, str) and klass_raw
-        else get_active_class(state)
-    )
+    klass = str(klass_raw) if isinstance(klass_raw, str) and klass_raw else "Thief"
     active["class"] = klass
     if "class" not in state or not state.get("class"):
         state["class"] = klass
@@ -2087,22 +2083,9 @@ def on_class_switch(
 
 
 def get_active_class(state: Dict[str, Any]) -> str:
-    """Return the active class without silently defaulting to ``"Thief"``.
-
-    Resolution order: ``active_id`` → engine session → first player entry →
-    ``state['active']`` snapshot → final hard fallback.
-    """
+    """Return the active class, preferring multi-profile resolution."""
 
     if not isinstance(state, dict):
-        try:
-            from mutants.engine import session as _session  # local import: avoid cycles
-
-            sess_cls = _session.get_active_class()
-            if isinstance(sess_cls, str) and sess_cls:
-                return sess_cls
-        except Exception:
-            pass
-        LOG_P.debug("ACTIVE_CLASS fallback -> 'Thief' (could not resolve from state/session)")
         return "Thief"
 
     players = state.get("players")
@@ -2118,24 +2101,6 @@ def get_active_class(state: Dict[str, Any]) -> str:
                 return candidate
             break
 
-    try:
-        from mutants.engine import session as _session  # local import: avoid cycles
-
-        sess_cls = _session.get_active_class()
-        if isinstance(sess_cls, str) and sess_cls:
-            return sess_cls
-    except Exception:
-        pass
-
-    if isinstance(players, list):
-        for player in players:
-            if not isinstance(player, Mapping):
-                continue
-            candidate = player.get("class") or player.get("name")
-            if isinstance(candidate, str) and candidate:
-                return candidate
-            break
-
     active = state.get("active")
     if isinstance(active, Mapping):
         klass = active.get("class") or active.get("name")
@@ -2143,11 +2108,7 @@ def get_active_class(state: Dict[str, Any]) -> str:
             return klass
 
     fallback = state.get("class") or state.get("name")
-    if isinstance(fallback, str) and fallback:
-        return fallback
-
-    LOG_P.debug("ACTIVE_CLASS fallback -> 'Thief' (could not resolve from state/session)")
-    return "Thief"
+    return fallback if isinstance(fallback, str) and fallback else "Thief"
 
 
 def _prepare_active_storage(
@@ -3376,9 +3337,10 @@ def bind_inventory_to_active_class(player: Dict[str, Any]) -> None:
         player["active"] = active
 
     klass_raw = active.get("class") or player.get("class") or player.get("name")
-    klass = (
-        klass_raw if isinstance(klass_raw, str) and klass_raw else get_active_class(player)
-    )
+    if isinstance(klass_raw, str) and klass_raw:
+        klass = klass_raw
+    else:
+        klass = "Thief"
     active["class"] = klass
     if "class" not in player or not player.get("class"):
         player["class"] = klass
