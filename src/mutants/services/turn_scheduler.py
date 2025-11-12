@@ -95,6 +95,18 @@ class TurnScheduler:
                     monsters.save()
             except Exception:  # pragma: no cover - defensive
                 LOG.exception("Failed to flush caches at end of command")
+            try:
+                save_player_state = getattr(
+                    __import__(
+                        "mutants.services.player_state", fromlist=["save_player_state"]
+                    ),
+                    "save_player_state",
+                    None,
+                )
+                if save_player_state:
+                    save_player_state(self._ctx)
+            except Exception:  # pragma: no cover
+                LOG.exception("Failed to persist player runtime at end of command")
 
     # Internal helpers -------------------------------------------------
     def _normalize_result(self, result: Any) -> tuple[str, Optional[str]]:
