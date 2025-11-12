@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import inspect
 import json
 import logging
+import os
 import random
 import threading
 from pathlib import Path
@@ -17,6 +19,33 @@ DEFAULT_INSTANCES_PATH = state_path("monsters", "instances.json")
 FALLBACK_INSTANCES_PATH = state_path("monsters.json")  # optional fallback; rarely used
 
 LOG = logging.getLogger(__name__)
+_STRICT_CACHE = os.getenv("MUTANTS_STRICT_CACHE") == "1"
+
+
+def _guard_command_read(method_name: str) -> None:
+    if not _STRICT_CACHE:
+        return
+
+    frame = inspect.currentframe()
+    if frame is None:  # pragma: no cover - defensive
+        return
+
+    try:
+        outer = frame.f_back
+        while outer is not None:
+            module_name = outer.f_globals.get("__name__", "")
+            if module_name.startswith("mutants.commands") or module_name.startswith("mutants.app"):
+                LOG.error(
+                    "MUTANTS_STRICT_CACHE violation: %s called from %s",
+                    method_name,
+                    module_name,
+                )
+                raise RuntimeError(
+                    f"monsters_instances.{method_name} disallowed in command/app paths"
+                )
+            outer = outer.f_back
+    finally:
+        del frame
 
 _INSTANCE_COUNTER_KEY = "monster_instance_counter"
 _COUNTER_LOCK = threading.Lock()
@@ -394,6 +423,7 @@ class MonstersInstances:
 
     # ---------- Queries ----------
     def get(self, instance_id: str) -> Optional[Dict[str, Any]]:
+        _guard_command_read("get")
         store = self._ensure_store()
         record = store.get(str(instance_id))
         if isinstance(record, Mapping):
@@ -401,6 +431,7 @@ class MonstersInstances:
         return record
 
     def list_all(self) -> Iterable[Dict[str, Any]]:
+        _guard_command_read("list_all")
         store = self._ensure_store()
         return [
             _inflate_store_record(record)
@@ -410,6 +441,7 @@ class MonstersInstances:
         ]
 
     def list_at(self, year: int, x: int, y: int) -> Iterable[Dict[str, Any]]:
+        _guard_command_read("list_at")
         store = self._ensure_store()
         records = store.list_at(
             self._coerce_int(year),
