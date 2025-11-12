@@ -130,7 +130,6 @@ def _debug_monster(arg: str, ctx) -> None:
         bus.push("SYSTEM/WARN", "Monster catalog unavailable.")
         return
 
-    mon_reg = monsters_instances.get()
     item_reg = items_instances.get()
     try:
         item_cat = items_catalog.get()
@@ -161,6 +160,7 @@ def _debug_monster(arg: str, ctx) -> None:
         )
     else:
         # Fallback: write directly to the store if no cache is available.
+        mon_reg = monsters_instances.load_monsters_instances()
         instance = monster_manual_spawn.spawn_monster_at(
             monster_id=template.monster_id,
             pos=coords,

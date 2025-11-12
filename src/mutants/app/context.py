@@ -196,10 +196,13 @@ def build_room_vm(
     seen_monster_ids: set[str] = set()
     monster_ids: set[str] = set()
 
-    from mutants.registries import monsters_instances as monreg
+    # Always use the authoritative cache unless a specific source is supplied.
+    monsters_source = monsters
+    if monsters_source is None:
+        ctx = current_context()
+        if isinstance(ctx, Mapping):
+            monsters_source = ctx.get("monsters")
 
-    # Always use the authoritative registry unless a specific source is supplied.
-    monsters_source = monsters or monreg.get()
     mons_iter: List[Any] = []
     if monsters_source:
         try:
