@@ -2626,8 +2626,21 @@ def set_wielded_weapon(iid: Optional[str]) -> Optional[str]:
     """Set the wielded weapon for the active class to ``iid`` and persist."""
 
     sanitized = _sanitize_equipped_iid(iid)
-    state = load_state()
-    normalized, active, cls = _prepare_active_storage(state)
+    ctx = _current_runtime_ctx()
+    runtime_mode = False
+
+    if ctx is not None:
+        state_hint = ctx.get("player_state")
+        if isinstance(state_hint, MutableMapping):
+            state: Mapping[str, Any] = state_hint
+            runtime_mode = True
+        else:
+            state = load_state()
+            runtime_mode = True
+    else:
+        state = load_state()
+
+    normalized, active, cls = _prepare_active_storage(dict(state))
 
     bags = normalized.setdefault("bags", {})
     bag_list = [str(item) for item in bags.get(cls) or [] if item]
@@ -2667,7 +2680,15 @@ def set_wielded_weapon(iid: Optional[str]) -> Optional[str]:
             _set_wield_view(player, sanitized)
             break
 
-    save_state(normalized)
+    if runtime_mode and ctx is not None:
+        ctx["player_state"] = normalized
+        ctx.pop(_RUNTIME_PLAYER_KEY, None)
+        player_ctx = ensure_player_state(ctx)
+        bind_inventory_to_active_class(player_ctx)
+        player_ctx["_dirty"] = True
+    else:
+        save_state(normalized)
+
     return sanitized
 
 

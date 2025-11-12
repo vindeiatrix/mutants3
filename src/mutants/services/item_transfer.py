@@ -75,12 +75,20 @@ def _state_from_ctx(ctx: Mapping[str, Any]) -> Dict[str, Any]:
         return state
     state = pstate.load_state()
     return state if isinstance(state, dict) else {}
+def _mark_player_dirty(player: MutableMapping[str, Any]) -> None:
+    try:
+        player["_dirty"] = True
+    except Exception:  # pragma: no cover - defensive
+        pass
+
+
 def _save_player(ctx: Mapping[str, Any], player: Dict[str, Any]) -> Dict[str, Any]:
     """Update the player state stored in ``ctx`` after a mutation."""
 
     state = _state_from_ctx(ctx)
 
     _ensure_inventory(player)
+    pstate.bind_inventory_to_active_class(player)
     inv = list(player.get("inventory", []))
 
     players = state.get("players")
@@ -138,7 +146,9 @@ def _save_player(ctx: Mapping[str, Any], player: Dict[str, Any]) -> Dict[str, An
     else:
         state["active"] = active_entry
 
-    active_entry["_dirty"] = True
+    _mark_player_dirty(active_entry)
+    if player is not active_entry and isinstance(player, MutableMapping):
+        _mark_player_dirty(player)
 
     if isinstance(ctx, MutableMapping):
         ctx["player_state"] = state
@@ -439,6 +449,7 @@ def pick_from_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
     inv = list(player.get("inventory", []))
     inv.append(chosen_iid)
     player["inventory"] = inv
+    _mark_player_dirty(player)
 
     overflow_info = None
     rng = _rng(seed)
@@ -452,6 +463,7 @@ def pick_from_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
         itemsreg.set_position(drop_iid, year, x, y)
         inv = _remove_first(inv, drop_iid)
         player["inventory"] = inv
+        _mark_player_dirty(player)
         overflow_info = {"inv_overflow_drop": drop_iid}
 
     _save_player(ctx, player)
@@ -666,6 +678,7 @@ def throw_to_direction(ctx, direction: str, prefix: str, *, seed: Optional[int] 
     itemsreg.set_position(iid, year, drop_x, drop_y)
     inv = _remove_first(inv, iid)
     player["inventory"] = inv
+    _mark_player_dirty(player)
     overflow_info = None
     rng = _rng(seed)
     ground_after = _ground_ordered_ids(year, drop_x, drop_y)
@@ -675,11 +688,13 @@ def throw_to_direction(ctx, direction: str, prefix: str, *, seed: Optional[int] 
         itemsreg.clear_position(pick)
         inv.append(pick)
         player["inventory"] = inv
+        _mark_player_dirty(player)
         if len(inv) > INV_CAP:
             drop_iid = rng.choice(inv)
             itemsreg.set_position(drop_iid, year, drop_x, drop_y)
             inv = _remove_first(inv, drop_iid)
             player["inventory"] = inv
+            _mark_player_dirty(player)
             overflow_info = {"ground_overflow_pick": pick, "inv_overflow_drop": drop_iid}
         else:
             overflow_info = {"ground_overflow_pick": pick}
