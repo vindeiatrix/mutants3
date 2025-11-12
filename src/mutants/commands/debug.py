@@ -143,15 +143,32 @@ def _debug_monster(arg: str, ctx) -> None:
         bus.push("SYSTEM/WARN", f"No monster template found for ID: {monster_id}")
         return
 
-    # Do not modify a MonstersState overlay here. Rely solely on spawn service + registry.
-    instance = monster_manual_spawn.spawn_monster_at(
-        monster_id=template.monster_id,
-        pos=coords,
-        monsters_cat=mon_cat,
-        monsters_reg=mon_reg,
-        items_cat=item_cat,
-        items_reg=item_reg,
-    )
+    # Prefer spawning into the in-memory cache so rendering and gameplay
+    # immediately see the new monster; the scheduler will flush to store.
+    monsters_state_obj = None
+    if isinstance(ctx, Mapping):
+        candidate = ctx.get("monsters")
+        if hasattr(candidate, "add_instance") and hasattr(candidate, "list_all"):
+            monsters_state_obj = candidate
+    if monsters_state_obj is not None:
+        instance = monster_manual_spawn.spawn_monster_into_state(
+            monster_id=template.monster_id,
+            pos=coords,
+            monsters_cat=mon_cat,
+            items_cat=item_cat,
+            items_reg=item_reg,
+            monsters_state_obj=monsters_state_obj,
+        )
+    else:
+        # Fallback: write directly to the store if no cache is available.
+        instance = monster_manual_spawn.spawn_monster_at(
+            monster_id=template.monster_id,
+            pos=coords,
+            monsters_cat=mon_cat,
+            monsters_reg=mon_reg,
+            items_cat=item_cat,
+            items_reg=item_reg,
+        )
 
     if instance is None:
         bus.push("SYSTEM/WARN", f"Failed to spawn {monster_id}.")

@@ -309,11 +309,12 @@ def build_room_vm(
 def render_frame(ctx: Dict[str, Any]) -> None:
     vm = ctx.pop("peek_vm", None)
     if vm is None:
+        # Cache is the single read path for monsters; never read directly from the store.
         vm = build_room_vm(
             ctx["player_state"],
             ctx["world_loader"],
             ctx["headers"],
-            ctx.get("monsters") or mon_instances.get(),
+            ctx["monsters"],
             ctx.get("items"),
         )
     cues = audio_cues.drain(ctx)

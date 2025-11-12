@@ -1,11 +1,11 @@
-"""
-Service for manually spawning a monster instance from a template.
-"""
+"""Service for manually spawning a monster instance from a template."""
+
 from __future__ import annotations
 
-import random
 import json
-from typing import Any, Mapping, Sequence
+import logging
+import random
+from typing import TYPE_CHECKING, Any, Mapping, Sequence
 
 from mutants.registries import (
     items_catalog,
@@ -16,12 +16,17 @@ from mutants.registries import (
 from mutants.services import monster_entities
 from mutants.util import ids as id_utils
 
+LOG = logging.getLogger(__name__)
+
+if TYPE_CHECKING:
+    from mutants.services.monsters_state import MonstersState
+
 # Helper to get a random number for the unique suffix
 _RNG = random.Random()
 
 
 def _get_next_suffix_id(
-    monsters_reg: monsters_instances.MonstersInstances,
+    monsters_reg: Any,
     base_name: str,
 ) -> int:
     """Finds the next available numeric suffix for a monster."""
@@ -58,7 +63,11 @@ def _get_next_suffix_id(
 
     current_suffixes = set()
     prefix = f"{base_name}-"
-    for inst in monsters_reg.list_all():
+    list_all = getattr(monsters_reg, "list_all", None)
+    if not callable(list_all):
+        return _RNG.randint(100, 999)
+
+    for inst in list_all():
         if not isinstance(inst, Mapping):
             continue
         name = _extract_name(inst)
@@ -81,6 +90,76 @@ def _get_next_suffix_id(
                 return i
         return 9999  # Should be unreachable
     return next_id
+
+
+def _coerce_pos(pos: Sequence[int] | Mapping[str, Any] | None) -> list[int] | None:
+    if isinstance(pos, Mapping):
+        try:
+            return [
+                int(pos.get("year", 0) or 0),
+                int(pos.get("x", 0) or 0),
+                int(pos.get("y", 0) or 0),
+            ]
+        except (TypeError, ValueError):
+            return None
+    if isinstance(pos, Sequence) and not isinstance(pos, (str, bytes)) and len(pos) >= 3:
+        try:
+            return [int(pos[0]), int(pos[1]), int(pos[2])]
+        except (TypeError, ValueError):
+            return None
+    return None
+
+
+def _build_instance_payload(
+    template: monster_entities.MonsterTemplate,
+    base_name: str,
+    suffix: int,
+    instance_id: str,
+    coords: Sequence[int],
+) -> dict[str, Any]:
+    hp = max(1, template.hp_max or 1)
+    ions_min = template.ions_min if template.ions_min is not None else 0
+    ions_max = template.ions_max if template.ions_max is not None else ions_min
+    if ions_max < ions_min:
+        ions_max = ions_min
+
+    rib_min = template.riblets_min if template.riblets_min is not None else 0
+    rib_max = template.riblets_max if template.riblets_max is not None else rib_min
+    if rib_max < rib_min:
+        rib_max = rib_min
+
+    unique_name = f"{base_name}-{suffix}"
+
+    return {
+        "instance_id": instance_id,
+        "monster_id": template.monster_id,
+        "name": unique_name,
+        "pos": list(coords),
+        "hp": {"current": hp, "max": hp},
+        "armour_class": template.armour_class or 0,
+        "level": template.level or 1,
+        "ions": _RNG.randint(ions_min, ions_max),
+        "riblets": _RNG.randint(rib_min, rib_max),
+        "inventory": [],
+        "armour_wearing": None,
+        "readied_spell": None,
+        "target_player_id": None,
+        "target_monster_id": None,
+        "ready_target": None,
+        "taunt": template.taunt or "",
+        "innate_attack": monster_entities.copy_innate_attack(
+            template.innate_attack, base_name
+        ),
+        "spells": list(template.spells or []),
+        "stats": dict(template.stats or {}),
+        "derived": {},
+    }
+
+
+def _armour_payload(armour_iid: str | None) -> Mapping[str, Any] | None:
+    if not armour_iid:
+        return None
+    return {"instance_id": armour_iid}
 
 
 def _create_monster_items(
@@ -178,12 +257,10 @@ def spawn_monster_at(
     items_reg: items_instances.ItemsInstances,
 ) -> dict[str, Any] | None:
     """
-    Mints a new monster instance from a template and adds it to the registry.
-    This function creates the unique name.
+    Mint a new monster instance from a template and add it directly to the
+    persistent registry.
     """
-    import logging
 
-    LOG = logging.getLogger(__name__)
     LOG.warning(
         ">>> spawn_monster_at called for %s at %s", monster_id, pos
     )
@@ -195,58 +272,8 @@ def spawn_monster_at(
     instance_id = id_utils.new_instance_id()
     base_name = template.name or "Monster"
     suffix = _get_next_suffix_id(monsters_reg, base_name)
-    unique_name = f"{base_name}-{suffix}"
-
-    coords: list[int]
-    if isinstance(pos, Mapping):
-        coords = [
-            int(pos.get("year", 0) or 0),
-            int(pos.get("x", 0) or 0),
-            int(pos.get("y", 0) or 0),
-        ]
-    elif isinstance(pos, Sequence) and len(pos) >= 3:
-        try:
-            coords = [int(pos[0]), int(pos[1]), int(pos[2])]
-        except (TypeError, ValueError):
-            coords = [0, 0, 0]
-    else:
-        coords = [0, 0, 0]
-
-    hp = max(1, template.hp_max or 1)
-    ions_min = template.ions_min if template.ions_min is not None else 0
-    ions_max = template.ions_max if template.ions_max is not None else ions_min
-    if ions_max < ions_min:
-        ions_max = ions_min
-
-    rib_min = template.riblets_min if template.riblets_min is not None else 0
-    rib_max = template.riblets_max if template.riblets_max is not None else rib_min
-    if rib_max < rib_min:
-        rib_max = rib_min
-
-    instance_data = {
-        "instance_id": instance_id,
-        "monster_id": template.monster_id,
-        "name": unique_name,  # This is the new unique name!
-        "pos": coords,
-        "hp": {"current": hp, "max": hp},
-        "armour_class": template.armour_class or 0,
-        "level": template.level or 1,
-        "ions": _RNG.randint(ions_min, ions_max),
-        "riblets": _RNG.randint(rib_min, rib_max),
-        "inventory": [],
-        "armour_wearing": None,
-        "readied_spell": None,
-        "target_player_id": None,
-        "target_monster_id": None,
-        "ready_target": None,
-        "taunt": template.taunt or "",
-        "innate_attack": monster_entities.copy_innate_attack(
-            template.innate_attack, base_name
-        ),
-        "spells": list(template.spells or []),
-        "stats": dict(template.stats or {}),
-        "derived": {},  # Add derived key for schema validation
-    }
+    coords = _coerce_pos(pos) or [0, 0, 0]
+    instance_data = _build_instance_payload(template, base_name, suffix, instance_id, coords)
 
     # Add to registry and save
     if not monsters_reg.add_instance(instance_data):
@@ -296,3 +323,47 @@ def spawn_monster_at(
         instance_data.get("name"),
     )
     return instance_data
+
+
+def spawn_monster_into_state(
+    monster_id: str,
+    pos: Sequence[int] | Mapping[str, Any] | None,
+    monsters_cat: monsters_catalog.MonstersCatalog,
+    items_cat: items_catalog.ItemsCatalog,
+    items_reg: items_instances.ItemsInstances,
+    monsters_state_obj: "MonstersState",
+) -> dict[str, Any] | None:
+    """
+    Mint a monster from a template and insert it into an in-memory
+    :class:`~mutants.services.monsters_state.MonstersState` cache, leaving the
+    persistent store untouched until the cache flushes.
+    """
+
+    template = monsters_cat.get_template(monster_id)
+    if template is None:
+        return None
+
+    base_name = template.name or monster_id
+    suffix = _get_next_suffix_id(monsters_state_obj, base_name)
+    instance_id = id_utils.new_instance_id()
+    coords = _coerce_pos(pos) or [2000, 0, 0]
+    instance_data = _build_instance_payload(template, base_name, suffix, instance_id, coords)
+
+    inventory, armour_iid, _ = _create_monster_items(
+        template, instance_id, coords, items_cat, items_reg
+    )
+    instance_data["inventory"] = inventory
+    instance_data["armour_wearing"] = _armour_payload(armour_iid)
+    instance_data["pos"] = {
+        "year": int(coords[0]),
+        "x": int(coords[1]),
+        "y": int(coords[2]),
+    }
+
+    entry = monsters_state_obj.add_instance(instance_data)
+    LOG.warning(
+        "<<< spawn_monster_into_state SUCCESS for %s, name=%s",
+        instance_id,
+        entry.get("name"),
+    )
+    return entry
