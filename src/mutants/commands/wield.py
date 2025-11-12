@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Mapping, MutableMapping, Optional, Tuple
 
 from ..registries import items_catalog as catreg
 from ..registries import items_instances as itemsreg
@@ -57,15 +57,32 @@ def _resolve_candidate(
     return str(iid), str(candidate_item)
 
 
+def _state_from_ctx(ctx: Mapping[str, object] | MutableMapping[str, object]) -> Optional[Dict[str, object]]:
+    if isinstance(ctx, MutableMapping):
+        state = ctx.get("player_state")
+        if isinstance(state, dict):
+            return state
+    try:
+        state = pstate.load_state()
+    except Exception:
+        return None
+    if isinstance(ctx, MutableMapping) and isinstance(state, dict):
+        ctx["player_state"] = state
+    return state if isinstance(state, dict) else None
+
+
 def wield_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
     bus = ctx["feedback_bus"]
     prefix = (arg or "").strip()
+    catalog = catreg.load_catalog() or {}
+    player = pstate.ensure_player_state(ctx)
+    pstate.ensure_active_profile(player, ctx)
+    pstate.bind_inventory_to_active_class(player)
+    itx._ensure_inventory(player)
+
     if not prefix:
         if _edbg_enabled():
-            try:
-                state = pstate.load_state()
-            except Exception:
-                state = None
+            state = _state_from_ctx(ctx)
             cls_name = pstate.get_active_class(state) if state else None
             wield_iid = pstate.get_wielded_weapon_id(state) if state else None
             _edbg_log(
@@ -74,21 +91,15 @@ def wield_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
                 prefix=repr(prefix),
                 **{
                     "class": cls_name or "None",
-                    "pos": _pos_repr(state),
-                    "bag_count": _bag_count(state=state),
+                    "pos": _pos_repr(state, player),
+                    "bag_count": _bag_count(state=state, player=player),
                     "wield_iid": wield_iid or "None",
                 },
             )
         bus.push("SYSTEM/WARN", "Usage: wield <item>")
         return {"ok": False, "reason": "missing_argument"}
 
-    catalog = catreg.load_catalog() or {}
-    player = pstate.ensure_player_state(ctx)
-    pstate.ensure_active_profile(player, ctx)
-    pstate.bind_inventory_to_active_class(player)
-    itx._ensure_inventory(player)
-
-    stats_state = pstate.load_state()
+    stats_state = _state_from_ctx(ctx)
     cls_name = pstate.get_active_class(stats_state)
     current_iid = pstate.get_wielded_weapon_id(stats_state)
     ready_target_id = (
@@ -199,11 +210,7 @@ def wield_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
 
     strike_summary: Optional[Dict[str, object]] = None
     if ready_target_id and not monster_actor:
-        refreshed_state: Optional[Dict[str, object]]
-        try:
-            refreshed_state = pstate.load_state()
-        except Exception:
-            refreshed_state = None
+        refreshed_state = _state_from_ctx(ctx)
         active_target = (
             pstate.get_ready_target_for_active(refreshed_state)
             if isinstance(refreshed_state, dict)
@@ -243,10 +250,7 @@ def wield_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
         result["strike"] = strike_summary
 
     if _edbg_enabled():
-        try:
-            final_state = pstate.load_state()
-        except Exception:
-            final_state = None
+        final_state = _state_from_ctx(ctx)
         payload = {
             "cmd": "wield",
             "prefix": repr(prefix),
