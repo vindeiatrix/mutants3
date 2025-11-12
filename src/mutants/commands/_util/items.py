@@ -5,11 +5,13 @@ from typing import Optional
 from ...registries import items_catalog, items_instances as itemsreg
 from ...services import item_transfer as itx
 from ...services import player_state as pstate
+from ...bootstrap.lazyinit import ensure_player_state
 from ...util.textnorm import normalize_item_query as normalize
 
 
 def inventory_iids_for_active_player(ctx) -> list[str]:
-    p = pstate.ensure_player_state(ctx)
+    # Use runtime player—never reload from disk during a command.
+    p = ensure_player_state(ctx)
     pstate.ensure_active_profile(p, ctx)
     pstate.bind_inventory_to_active_class(p)
     itx._ensure_inventory(p)

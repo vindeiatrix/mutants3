@@ -1,9 +1,10 @@
 from __future__ import annotations
 
-from collections.abc import Mapping, MutableMapping
-from typing import Any, Optional
+from collections.abc import Mapping
+from typing import Optional
 
 from mutants.app import advance_invalid_turn as app_advance_invalid_turn
+from mutants.bootstrap.lazyinit import ensure_player_state
 from mutants.services import player_state as pstate
 from ._util.items import resolve_item_arg
 
@@ -23,84 +24,52 @@ def advance_invalid_command_turn(
     return app_advance_invalid_turn(token, ctx=ctx, resolved=resolved)
 
 
-def _ensure_state(ctx: Any) -> Mapping[str, Any] | dict[str, Any]:
-    if isinstance(ctx, Mapping):
-        state = ctx.get("player_state")
-        if isinstance(state, Mapping):
-            return state
-    try:
-        state = pstate.load_state()
-    except Exception:
-        state = {}
-    if isinstance(ctx, MutableMapping):
-        try:
-            ctx.setdefault("player_state", state)  # type: ignore[index]
-        except Exception:
-            pass
-    return state if isinstance(state, Mapping) else {}
-
-
-def _sanitize_target(value: Any) -> Optional[str]:
-    if value is None:
-        return None
-    try:
-        token = str(value).strip()
-    except Exception:
-        return None
-    return token or None
-
-
-def _extract_pos(payload: Mapping[str, Any] | None) -> Optional[tuple[int, int, int]]:
-    if not isinstance(payload, Mapping):
-        return None
-    pos = payload.get("pos") or payload.get("position")
-    if isinstance(pos, (list, tuple)) and len(pos) >= 3:
-        try:
-            return int(pos[0]), int(pos[1]), int(pos[2])
-        except (TypeError, ValueError):
-            return None
-    return None
-
-
 def resolve_ready_target_in_tile(ctx) -> Optional[str]:
-    p = _ensure_state(ctx)  # see Task 3
-    active = p.get("active") if isinstance(p, Mapping) else None
+    """Return the ready target's instance_id iff it’s in the player’s current tile."""
+    p = ensure_player_state(ctx)
+    if not isinstance(p, dict):
+        return None
 
-    target = None
-    if isinstance(active, Mapping):
-        target = _sanitize_target(
-            active.get("ready_target") or active.get("target_monster_id")
-        )
-    if target is None and isinstance(p, Mapping):
-        target = _sanitize_target(p.get("ready_target") or p.get("target_monster_id"))
+    target_raw = p.get("ready_target") or p.get("target_monster_id")
+    target = str(target_raw).strip() if target_raw else ""
     if not target:
         return None
 
-    pos = _extract_pos(active) or _extract_pos(p if isinstance(p, Mapping) else None)
-    if pos is None:
+    pstate.ensure_active_profile(p, ctx)
+    active = p.get("active")
+    if isinstance(active, Mapping):
+        pos_raw = active.get("pos") or active.get("position")
+    else:
+        pos_raw = None
+    if pos_raw is None:
+        pos_raw = p.get("pos") or p.get("position")
+    try:
+        year, x, y = (int(pos_raw[0]), int(pos_raw[1]), int(pos_raw[2]))  # type: ignore[index]
+    except Exception:
         return None
 
     monsters = None
     if isinstance(ctx, Mapping):
         monsters = ctx.get("monsters")
+    else:
+        monsters = getattr(ctx, "monsters", None)
     if monsters is None:
         return None
+
     list_at = getattr(monsters, "list_at", None)
     if not callable(list_at):
         return None
 
-    year, x, y = pos
     try:
         entries = list_at(year, x, y)
     except Exception:
         return None
 
-    for monster in entries or []:
-        if not isinstance(monster, Mapping):
+    for m in entries or []:
+        if not isinstance(m, Mapping):
             continue
-        mid = _sanitize_target(
-            monster.get("id") or monster.get("instance_id") or monster.get("monster_id")
-        )
-        if mid and mid == target:
+        mid_raw = m.get("id") or m.get("instance_id") or m.get("monster_id")
+        mid = str(mid_raw).strip() if mid_raw else ""
+        if mid == target:
             return mid
     return None

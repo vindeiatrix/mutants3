@@ -8,6 +8,7 @@ from mutants.registries.monsters_catalog import load_monsters_catalog
 from mutants.services.monster_leveling import exp_for as monster_exp_for
 from mutants.services import combat_loot
 from mutants.services import damage_engine, items_wear, monsters_state, player_state as pstate
+from mutants.bootstrap.lazyinit import ensure_player_state
 from mutants.debug import turnlog
 from mutants.ui.item_display import item_label
 
@@ -360,7 +361,15 @@ def strike_cmd(arg: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
         bus.push("SYSTEM/WARN", "No monsters are available to strike.")
         return {"ok": False, "reason": "no_monsters"}
 
-    state, active = pstate.get_active_pair()
+    state = ctx.get("player_state")
+    if not isinstance(state, dict):
+        state = {}
+
+    player = ensure_player_state(ctx)
+    if not isinstance(player, Mapping):
+        player = {}
+    active = player
+
     target_id = pstate.get_ready_target_for_active(state)
     if not target_id:
         bus.push("SYSTEM/WARN", "You're not ready to combat anyone!")
@@ -373,7 +382,12 @@ def strike_cmd(arg: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
         return {"ok": False, "reason": "target_missing"}
 
     target = None
-    getter = getattr(monsters, "get", None)
+    ctx_monsters = (
+        ctx.get("monsters") if isinstance(ctx, MutableMapping) else getattr(ctx, "monsters", None)
+    )
+    if ctx_monsters is None:
+        ctx_monsters = monsters
+    getter = getattr(ctx_monsters, "get", None)
     if callable(getter):
         target = getter(resolved_target_id)
     if target is None:
@@ -401,15 +415,11 @@ def strike_cmd(arg: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
     cls_name = pstate.get_active_class(state)
     weapon_iid = pstate.get_wielded_weapon_id(state)
     if not weapon_iid:
-        weapon_iid = pstate.get_wielded_weapon_id(active)
+        weapon_iid = pstate.get_wielded_weapon_id(player)
     if not weapon_iid:
         weapon_iid = _extract_wielded_iid(state, cls_name)
     if not weapon_iid:
-        weapon_iid = _extract_wielded_iid(active, cls_name)
-    if not weapon_iid:
-        weapon_iid = pstate.get_wielded_weapon_id(pstate.load_state())
-    if not weapon_iid:
-        weapon_iid = _extract_wielded_iid(pstate.load_state(), cls_name)
+        weapon_iid = _extract_wielded_iid(player, cls_name)
     damage_item = weapon_iid if weapon_iid else {}
     attack = damage_engine.resolve_attack(damage_item, active, target)
     final_damage = max(0, int(attack.damage))

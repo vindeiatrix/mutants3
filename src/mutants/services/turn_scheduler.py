@@ -95,18 +95,17 @@ class TurnScheduler:
                     monsters.save()
             except Exception:  # pragma: no cover - defensive
                 LOG.exception("Failed to flush caches at end of command")
+            # End-of-command checkpoint: persist runtime player if dirty.
             try:
-                save_player_state = getattr(
-                    __import__(
-                        "mutants.services.player_state", fromlist=["save_player_state"]
-                    ),
-                    "save_player_state",
-                    None,
-                )
-                if save_player_state:
-                    save_player_state(self._ctx)
+                from mutants.bootstrap.lazyinit import ensure_player_state
+                from mutants.services import player_state as pstate
+
+                player = ensure_player_state(self._ctx)
+                if isinstance(player, dict) and player.get("_dirty"):
+                    pstate.save_player_state(self._ctx)
+                    player["_dirty"] = False
             except Exception:  # pragma: no cover
-                LOG.exception("Failed to persist player runtime at end of command")
+                LOG.exception("Failed to persist runtime player at end of command")
 
     # Internal helpers -------------------------------------------------
     def _normalize_result(self, result: Any) -> tuple[str, Optional[str]]:

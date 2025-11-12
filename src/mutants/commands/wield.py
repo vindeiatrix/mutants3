@@ -11,6 +11,7 @@ from ..services.items_weight import get_effective_weight
 from ..util.textnorm import normalize_item_query
 from .convert import _choose_inventory_item, _display_name
 from .strike import strike_cmd
+from ._helpers import resolve_ready_target_in_tile
 from .wear import _bag_count, _catalog_template, _pos_repr
 
 
@@ -210,13 +211,8 @@ def wield_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
 
     strike_summary: Optional[Dict[str, object]] = None
     if ready_target_id and not monster_actor:
-        refreshed_state = _state_from_ctx(ctx)
-        active_target = (
-            pstate.get_ready_target_for_active(refreshed_state)
-            if isinstance(refreshed_state, dict)
-            else ready_target_id
-        )
-        if active_target:
+        resolved_ready = resolve_ready_target_in_tile(ctx)
+        if resolved_ready:
             try:
                 strike_result = strike_cmd("", ctx)
             except Exception as exc:  # pragma: no cover - defensive guard
@@ -230,7 +226,7 @@ def wield_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
                         "[ equip ] auto_strike failure",
                         cmd="wield",
                         prefix=repr(prefix),
-                        target=active_target,
+                        target=resolved_ready,
                         error=str(exc),
                     )
             else:
@@ -243,7 +239,7 @@ def wield_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
                         "[ equip ] auto_strike",
                         cmd="wield",
                         prefix=repr(prefix),
-                        target=active_target,
+                        target=resolved_ready,
                         strike_ok=strike_summary.get("ok"),
                     )
     if strike_summary is not None:
