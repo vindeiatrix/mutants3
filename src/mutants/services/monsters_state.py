@@ -1100,11 +1100,16 @@ def _normalize_monsters(monsters: List[Dict[str, Any]], *, catalog: Mapping[str,
     for raw in monsters:
         monster = dict(raw)
 
-        monster_id_raw = monster.get("id") or monster.get("monster_id") or monster.get("instance_id")
-        monster_id = str(monster_id_raw) if monster_id_raw else f"monster#{uuid.uuid4().hex[:6]}"
-        monster["id"] = monster_id
+        primary_raw = (
+            monster.get("instance_id") or monster.get("id") or monster.get("monster_id")
+        )
+        primary_str = str(primary_raw).strip() if primary_raw is not None else ""
+        primary = primary_str or f"monster#{uuid.uuid4().hex[:6]}"
+        monster["instance_id"] = primary
+        monster["id"] = primary
+        assert monster["id"] == monster["instance_id"]
 
-        name_raw = monster.get("name") or monster.get("monster_id") or monster_id
+        name_raw = monster.get("name") or monster.get("monster_id") or primary
         monster["name"] = str(name_raw)
 
         monster["level"] = _sanitize_int(monster.get("level"), minimum=1, fallback=1)
@@ -1118,10 +1123,20 @@ def _normalize_monsters(monsters: List[Dict[str, Any]], *, catalog: Mapping[str,
         else:
             monster.pop("ai_state_json", None)
 
-        bag = _resolve_bag(monster.get("bag"), monster_id=monster_id, seen_iids=seen_iids, catalog=catalog)
+        bag = _resolve_bag(
+            monster.get("bag"),
+            monster_id=primary,
+            seen_iids=seen_iids,
+            catalog=catalog,
+        )
         monster["bag"] = bag
 
-        armour = _resolve_armour_slot(monster.get("armour_slot"), monster_id=monster_id, seen_iids=seen_iids, catalog=catalog)
+        armour = _resolve_armour_slot(
+            monster.get("armour_slot"),
+            monster_id=primary,
+            seen_iids=seen_iids,
+            catalog=catalog,
+        )
         if armour:
             bag = [item for item in bag if item.get("iid") != armour.get("iid")]
             monster["bag"] = bag

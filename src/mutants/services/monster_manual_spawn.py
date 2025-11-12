@@ -273,7 +273,11 @@ def spawn_monster_at(
     base_name = template.name or "Monster"
     suffix = _get_next_suffix_id(monsters_reg, base_name)
     coords = _coerce_pos(pos) or [0, 0, 0]
-    instance_data = _build_instance_payload(template, base_name, suffix, instance_id, coords)
+    instance_data = _build_instance_payload(
+        template, base_name, suffix, instance_id, coords
+    )
+    instance_data["instance_id"] = instance_id
+    instance_data["id"] = instance_id  # id mirrors instance_id
 
     # Add to registry and save
     if not monsters_reg.add_instance(instance_data):
@@ -347,7 +351,11 @@ def spawn_monster_into_state(
     suffix = _get_next_suffix_id(monsters_state_obj, base_name)
     instance_id = id_utils.new_instance_id()
     coords = _coerce_pos(pos) or [2000, 0, 0]
-    instance_data = _build_instance_payload(template, base_name, suffix, instance_id, coords)
+    instance_data = _build_instance_payload(
+        template, base_name, suffix, instance_id, coords
+    )
+    instance_data["instance_id"] = instance_id
+    instance_data["id"] = instance_id  # id mirrors instance_id
 
     inventory, armour_iid, _ = _create_monster_items(
         template, instance_id, coords, items_cat, items_reg
