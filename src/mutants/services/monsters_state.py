@@ -803,9 +803,8 @@ class MonstersState:
             self._dirty_all = True
 
     def list_all(self) -> List[Dict[str, Any]]:
-        if self._dirty:
-            return list(self._monsters)
-        return list(self._sync_local_with_store())
+        # Cache is the authoritative read path during a session.
+        return list(self._monsters)
 
     def list_at(self, year: int, x: int, y: int) -> List[Dict[str, Any]]:
         def _match(mon: Dict[str, Any]) -> bool:
@@ -814,10 +813,8 @@ class MonstersState:
                 return False
             return int(pos[0]) == int(year) and int(pos[1]) == int(x) and int(pos[2]) == int(y)
 
-        if self._dirty:
-            raw = [mon for mon in self._monsters if _match(mon)]
-        else:
-            raw = [mon for mon in self._sync_local_with_store() if _match(mon)]
+        # Always read from the in-memory cache.
+        raw = [mon for mon in self._monsters if _match(mon)]
 
         filtered: List[Dict[str, Any]] = []
         seen: set[str] = set()
@@ -842,11 +839,42 @@ class MonstersState:
         return filtered
 
     def get(self, monster_id: str) -> Optional[Dict[str, Any]]:
-        if not self._dirty:
-            self._sync_local_with_store()
+        # Do not reach into the store for reads; rely on cache.
         monster = self._by_id.get(monster_id)
         self._last_accessed_id = monster_id if monster else None
         return monster
+
+    def add_instance(self, record: Mapping[str, Any]) -> Dict[str, Any]:
+        """
+        Add a (template-derived) monster instance into the cached state,
+        normalizing fields and marking the cache dirty so it will flush on the
+        next end-of-command checkpoint.
+        """
+
+        normalized = normalize_records([dict(record)])
+        if not normalized:
+            raise ValueError("invalid monster record")
+
+        entry = normalized[0]
+        iid_raw = entry.get("instance_id") or entry.get("id")
+        iid = str(iid_raw) if iid_raw else ""
+        if not iid:
+            raise KeyError("instance_id")
+
+        self._by_id[iid] = entry
+        replaced = False
+        for idx, mon in enumerate(self._monsters):
+            if isinstance(mon, Mapping) and (
+                mon.get("instance_id") == iid or mon.get("id") == iid
+            ):
+                self._monsters[idx] = entry
+                replaced = True
+                break
+        if not replaced:
+            self._monsters.append(entry)
+
+        self._track_dirty(iid)
+        return entry
 
     def set_status_effects(
         self, monster_id: str, statuses: Iterable[Mapping[str, Any]]

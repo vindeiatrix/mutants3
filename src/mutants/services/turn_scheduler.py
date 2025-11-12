@@ -80,6 +80,21 @@ class TurnScheduler:
             self._run_monster_spawner()
         finally:
             self._restore_rng(restore_token)
+            # NEW: end-of-command checkpoint — flush dirty caches back to store.
+            try:
+                ctx = self._ctx
+                monsters = None
+                if isinstance(ctx, Mapping):
+                    monsters = ctx.get("monsters")
+                else:
+                    try:
+                        monsters = getattr(ctx, "monsters", None)
+                    except Exception:
+                        monsters = None
+                if monsters is not None and hasattr(monsters, "save"):
+                    monsters.save()
+            except Exception:  # pragma: no cover - defensive
+                LOG.exception("Failed to flush caches at end of command")
 
     # Internal helpers -------------------------------------------------
     def _normalize_result(self, result: Any) -> tuple[str, Optional[str]]:
