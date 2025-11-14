@@ -276,8 +276,9 @@ def spawn_monster_at(
     instance_data = _build_instance_payload(
         template, base_name, suffix, instance_id, coords
     )
+    # Mirror identity so downstream reads by 'id' or 'instance_id' match.
     instance_data["instance_id"] = instance_id
-    instance_data["id"] = instance_id  # id mirrors instance_id
+    instance_data["id"] = instance_id
 
     # Add to registry and save
     if not monsters_reg.add_instance(instance_data):
@@ -354,8 +355,9 @@ def spawn_monster_into_state(
     instance_data = _build_instance_payload(
         template, base_name, suffix, instance_id, coords
     )
+    # Mirror identity so downstream reads by 'id' or 'instance_id' match.
     instance_data["instance_id"] = instance_id
-    instance_data["id"] = instance_id  # id mirrors instance_id
+    instance_data["id"] = instance_id
 
     inventory, armour_iid, _ = _create_monster_items(
         template, instance_id, coords, items_cat, items_reg
