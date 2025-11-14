@@ -94,7 +94,13 @@ class TurnScheduler:
                 y, x, z = pstate.canonical_player_pos(p)
                 view = self._ctx.get("_active_view", {}).get("pos") if isinstance(self._ctx, Mapping) else None
                 if view and list(view)[:3] != [y, x, z]:
-                    LOG.warning("pos drift (view vs canonical): %s != %s", view, [y, x, z])
+                    message = f"pos drift (view vs canonical): {view} != {[y, x, z]}"
+                    LOG.error(message)
+                    try:
+                        if pstate._pdbg_enabled():
+                            raise RuntimeError(message)
+                    except AttributeError:  # pragma: no cover - defensive guard
+                        pass
             except Exception:
                 LOG.exception("post-turn guardrails failed")
             # NEW: end-of-command checkpoint — flush dirty caches back to store.

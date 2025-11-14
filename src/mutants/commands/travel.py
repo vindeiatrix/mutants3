@@ -4,7 +4,7 @@ import logging
 import random
 from collections.abc import Mapping
 from pathlib import Path
-from typing import Any, Dict, Iterable, Optional
+from typing import Any, Dict, Iterable, MutableMapping, Optional
 
 from mutants.registries.world import load_nearest_year
 from mutants.services import player_state as pstate
@@ -103,7 +103,9 @@ def _resolved_year(ctx: Dict[str, Any], target: int) -> Optional[int]:
     return int(getattr(world, "year", int(target)))
 
 
-def _persist_pos_only(resolved_year: int) -> Optional[Dict[str, Any]]:
+def _persist_pos_only(
+    resolved_year: int, ctx: MutableMapping[str, Any]
+) -> Optional[Dict[str, Any]]:
     """Write only the active player's position to canonical state."""
 
     try:
@@ -118,14 +120,30 @@ def _persist_pos_only(resolved_year: int) -> Optional[Dict[str, Any]]:
             return None
 
     class_name = pstate.get_active_class(state)
-    pstate.update_player_pos(state, class_name, (resolved_year, 0, 0))
+    new_pos = pstate.update_player_pos(state, class_name, (resolved_year, 0, 0))
 
     try:
         pstate.save_state(state)
     except Exception:
         return None
 
-    return state
+    try:
+        refreshed = pstate.load_state()
+    except Exception:
+        refreshed = state
+
+    if isinstance(refreshed, Mapping) and not isinstance(refreshed, dict):
+        refreshed = dict(refreshed)
+
+    if isinstance(refreshed, dict):
+        pstate.normalize_player_state_inplace(refreshed)
+        active_view = pstate.build_active_view(refreshed)
+        if active_view:
+            refreshed["active"] = active_view
+
+    pstate.sync_runtime_position(ctx, new_pos)
+
+    return refreshed if isinstance(refreshed, dict) else None
 
 
 def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
@@ -223,8 +241,10 @@ def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
         resolved_year = _resolved_year(ctx, dest_century)
         if resolved_year is None:
             return
-        player["pos"] = [resolved_year, 0, 0]
-        new_state = _persist_pos_only(resolved_year)
+        new_pos = [resolved_year, 0, 0]
+        player["pos"] = list(new_pos)
+        player["position"] = list(new_pos)
+        new_state = _persist_pos_only(resolved_year, ctx)
         if isinstance(new_state, Mapping):
             ctx["player_state"] = dict(new_state)
             if "render_next" in ctx:
@@ -270,7 +290,7 @@ def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
             return
         new_total = ions - full_cost
         _update_ions(new_total)
-        maybe_state = _persist_pos_only(resolved_year)
+        maybe_state = _persist_pos_only(resolved_year, ctx)
         if isinstance(maybe_state, Mapping):
             ctx["player_state"] = dict(maybe_state)
             if "render_next" in ctx:
@@ -296,7 +316,7 @@ def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
     if not candidates:
         # Spend everything we can to get as far as possible (as before), then persist.
         _update_ions(0)
-        maybe_state = _persist_pos_only(current_century)
+        maybe_state = _persist_pos_only(current_century, ctx)
         if isinstance(maybe_state, Mapping):
             ctx["player_state"] = dict(maybe_state)
             if "render_next" in ctx:
@@ -320,7 +340,7 @@ def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
     if resolved_year is None:
         return
     _update_ions(0)
-    maybe_state = _persist_pos_only(resolved_year)
+    maybe_state = _persist_pos_only(resolved_year, ctx)
     if isinstance(maybe_state, Mapping):
         ctx["player_state"] = dict(maybe_state)
         if "render_next" in ctx:

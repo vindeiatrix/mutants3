@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any, Dict, Mapping
 
 import logging
 import os
@@ -18,18 +18,22 @@ WORLD_DEBUG = os.getenv("WORLD_DEBUG") == "1"
 DIR_WORD = {"N": "north", "S": "south", "E": "east", "W": "west"}
 
 
-def _active(state: Dict[str, Any]) -> Dict[str, Any]:
-    aid = state.get("active_id")
-    for p in state.get("players", []):
-        if p.get("id") == aid:
-            return p
-    return state["players"][0]
+def _load_canonical_state() -> Dict[str, Any]:
+    try:
+        state = pstate.load_state()
+    except Exception:
+        return {}
+
+    if isinstance(state, dict):
+        return state
+    if isinstance(state, Mapping):
+        return dict(state)
+    return {}
 
 
 def move(dir_code: str, ctx: Dict[str, Any]) -> None:
     """Attempt to move the active player in direction *dir_code*."""
-    state = ctx["player_state"]
-    p = _active(state)
+    state = ctx.get("player_state")
     year, x, y = pstate.canonical_player_pos(state)
     world = ctx["world_loader"](year)
 
@@ -82,70 +86,42 @@ def move(dir_code: str, ctx: Dict[str, Any]) -> None:
         return
 
     dx, dy = DELTA[dir_code]
-    nx, ny = x + dx, y + dy
-    new_pos = [year, nx, ny]
+    canonical_state = _load_canonical_state()
+    if not canonical_state:
+        if isinstance(state, Mapping):
+            canonical_state = dict(state)
+        else:
+            canonical_state = {}
 
-    # Update only the canonical players[active_id] entry.
-    players = state.get("players") if isinstance(state, dict) else None
-    active_id = state.get("active_id") if isinstance(state, dict) else None
-    target_entry = None
-    if isinstance(players, list):
-        for entry in players:
-            if not isinstance(entry, dict):
-                continue
-            if entry is p:
-                target_entry = entry
-                break
-            if active_id is not None and entry.get("id") == active_id:
-                target_entry = entry
-                break
-        if target_entry is None:
-            for entry in players:
-                if isinstance(entry, dict):
-                    target_entry = entry
-                    break
-    if target_entry is None and isinstance(p, dict):
-        target_entry = p
-    if isinstance(target_entry, dict):
-        target_entry["pos"] = list(new_pos)
-        target_entry["_dirty"] = True
+    new_pos = pstate.move_player(canonical_state, pstate.get_active_class(canonical_state), (0, dx, dy))
 
-    # Provide a transient active view for any UI consumers.
-    ctx["_active_view"] = {"pos": list(new_pos)}
-
-    # Persist new position (autosave)
+    save_success = False
     try:
-        # Write the updated position into the active player on disk.
-        def _persist(state_snapshot: Dict[str, Any], active: Dict[str, Any]) -> None:
-            players_snapshot = state_snapshot.get("players")
-            active_id_snapshot = state_snapshot.get("active_id")
-            target_snapshot = None
-            if isinstance(players_snapshot, list):
-                for entry in players_snapshot:
-                    if not isinstance(entry, dict):
-                        continue
-                    if entry is active:
-                        target_snapshot = entry
-                        break
-                    if active_id_snapshot is not None and entry.get("id") == active_id_snapshot:
-                        target_snapshot = entry
-                        break
-                if target_snapshot is None:
-                    for entry in players_snapshot:
-                        if isinstance(entry, dict):
-                            target_snapshot = entry
-                            break
-            if target_snapshot is None and isinstance(active, dict):
-                target_snapshot = active
-            if isinstance(target_snapshot, dict):
-                target_snapshot["pos"] = list(new_pos)
-                target_snapshot["_dirty"] = True
-
-        pstate.mutate_active(_persist)
+        pstate.save_state(canonical_state)
     except Exception:
         LOG.exception("Failed to autosave position after move.")
     else:
+        save_success = True
         pstate.clear_ready_target_for_active(reason="player-moved")
+
+    refreshed: Mapping[str, Any] | None = None
+    if save_success:
+        try:
+            refreshed = pstate.load_state()
+        except Exception:
+            refreshed = None
+    if refreshed is None:
+        refreshed = canonical_state
+    if isinstance(refreshed, Mapping) and not isinstance(refreshed, dict):
+        refreshed = dict(refreshed)
+    if isinstance(refreshed, dict):
+        pstate.normalize_player_state_inplace(refreshed)
+        active_view = pstate.build_active_view(refreshed)
+        if active_view:
+            refreshed["active"] = active_view
+        ctx["player_state"] = refreshed
+
+    pstate.sync_runtime_position(ctx, new_pos)
     # Successful movement requests a render of the new room.
     ctx["render_next"] = True
     # Do not echo success movement like "You head north." Original shows next room immediately.
