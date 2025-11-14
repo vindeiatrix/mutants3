@@ -23,13 +23,8 @@ LOG_P = logging.getLogger("mutants.playersdbg")
 
 def _pos_from_ctx(ctx) -> tuple[int, int, int]:
     state = ctx.get("player_state", {})
-    aid = state.get("active_id")
-    for pl in state.get("players", []):
-        if pl.get("id") == aid:
-            pos = pl.get("pos") or [0, 0, 0]
-            return int(pos[0]), int(pos[1]), int(pos[2])
-    pos = state.get("players", [{}])[0].get("pos") or [0, 0, 0]
-    return int(pos[0]), int(pos[1]), int(pos[2])
+    year, x, y = pstate.canonical_player_pos(state)
+    return year, x, y
 
 
 def _display_name(it: dict) -> str:

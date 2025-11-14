@@ -179,7 +179,7 @@ def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
                 "[playersdbg] TRAVEL start active_id=%s class=%s pos=%s",
                 currency_state.get("active_id"),
                 pstate.get_active_class(currency_state),
-                (player.get("pos") or [None, None, None]),
+                list(pstate.canonical_player_pos(currency_state)),
             )
         except Exception:
             pass
@@ -224,11 +224,7 @@ def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
             active_profile["Ions"] = result
         return result
 
-    pos = player.get("pos") or [2000, 0, 0]
-    try:
-        current_year = int(pos[0])
-    except Exception:
-        current_year = 2000
+    current_year, _, _ = pstate.canonical_player_pos(ctx.get("player_state"))
     current_century = _floor_to_century(current_year)
 
     if dest_century == current_century:

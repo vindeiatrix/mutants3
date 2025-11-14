@@ -123,6 +123,25 @@ def ensure_player_state(ctx: MutableMapping[str, Any]) -> Dict[str, Any]:
     return active_player  # type: ignore[return-value]
 
 
+def canonical_player_pos(p) -> tuple[int, int, int]:
+    """Return (year, x, y) using the active player's record in players[]."""
+
+    aid = (p or {}).get("active_id")
+    players = (p or {}).get("players") or []
+    if isinstance(players, list) and aid:
+        for pl in players:
+            if isinstance(pl, dict) and pl.get("id") == aid:
+                pos = pl.get("pos") or pl.get("position")
+                if pos:
+                    return int(pos[0]), int(pos[1]), int(pos[2])
+
+    # Fallbacks (legacy/debug)
+    active = (p or {}).get("active")
+    pos = (active or {}).get("pos") if isinstance(active, dict) else None
+    pos = pos or (p or {}).get("pos") or (p or {}).get("position") or (2000, 0, 0)
+    return int(pos[0]), int(pos[1]), int(pos[2])
+
+
 def save_player_state(ctx: MutableMapping[str, Any]) -> None:
     """Persist the runtime player associated with ``ctx`` if dirty."""
 

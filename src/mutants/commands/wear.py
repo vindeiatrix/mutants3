@@ -89,33 +89,18 @@ def _bag_count(state: Optional[Dict[str, object]] = None, player: Optional[Dict[
 
 
 def _pos_repr(state: Optional[Dict[str, object]] = None, player: Optional[Dict[str, object]] = None) -> str:
-    candidate = None
+    source: Optional[Dict[str, object]] = None
     if isinstance(state, dict):
-        active = state.get("active")
-        if isinstance(active, dict):
-            candidate = active.get("pos")
-        if candidate is None:
-            players = state.get("players")
-            if isinstance(players, list):
-                for entry in players:
-                    if not isinstance(entry, dict):
-                        continue
-                    if entry.get("is_active"):
-                        candidate = entry.get("pos")
-                        break
-                if candidate is None and players:
-                    first = players[0]
-                    if isinstance(first, dict):
-                        candidate = first.get("pos")
-        if candidate is None:
-            candidate = state.get("pos")
-    if candidate is None and isinstance(player, dict):
-        candidate = player.get("pos")
-    if isinstance(candidate, (list, tuple)):
-        return "[" + ",".join(str(v) for v in candidate) + "]"
-    if candidate is None:
+        source = state
+    elif isinstance(player, dict):
+        source = player
+    if source is None:
         return "None"
-    return str(candidate)
+    try:
+        year, x, y = pstate.canonical_player_pos(source)
+    except Exception:
+        return "None"
+    return f"[{year},{x},{y}]"
 
 
 def _catalog_template(catalog: Dict[str, Dict[str, object]], item_id: str) -> Dict[str, object]:

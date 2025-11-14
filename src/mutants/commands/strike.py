@@ -285,13 +285,8 @@ def _award_player_progress(
     pos = _coerce_pos(summary.get("pos") if isinstance(summary, Mapping) else None)
     if pos is None:
         pos = _coerce_pos(monster_payload.get("pos"))
-
-    if pos is None:
-        player_state = dict(state)
-        active = player_state.get("active") if isinstance(player_state, Mapping) else None
-        pos = _coerce_pos(active.get("pos")) if isinstance(active, Mapping) else None
-    if pos is None:
-        pos = _coerce_pos(state.get("pos")) if isinstance(state, Mapping) else None
+    if pos is None and isinstance(state, Mapping):
+        pos = _coerce_pos(pstate.canonical_player_pos(state))
     if pos is None:
         return
 

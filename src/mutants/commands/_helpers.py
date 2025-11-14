@@ -35,18 +35,7 @@ def resolve_ready_target_in_tile(ctx) -> Optional[str]:
     if not target:
         return None
 
-    pstate.ensure_active_profile(p, ctx)
-    active = p.get("active")
-    if isinstance(active, Mapping):
-        pos_raw = active.get("pos") or active.get("position")
-    else:
-        pos_raw = None
-    if pos_raw is None:
-        pos_raw = p.get("pos") or p.get("position")
-    try:
-        year, x, y = (int(pos_raw[0]), int(pos_raw[1]), int(pos_raw[2]))  # type: ignore[index]
-    except Exception:
-        return None
+    year, x, y = pstate.canonical_player_pos(p)
 
     monsters = None
     if isinstance(ctx, Mapping):

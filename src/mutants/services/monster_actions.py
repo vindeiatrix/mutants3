@@ -240,10 +240,14 @@ def _sanitize_player_id(value: Any) -> Optional[str]:
 def _normalize_player_pos(
     state: Mapping[str, Any], active: Mapping[str, Any]
 ) -> Optional[tuple[int, int, int]]:
-    pos = combat_loot.coerce_pos(active.get("pos"))
-    if pos is None:
-        pos = combat_loot.coerce_pos(state.get("pos"))
-    return pos
+    try:
+        return pstate.canonical_player_pos(state)
+    except Exception:
+        pass
+    try:
+        return pstate.canonical_player_pos(active)
+    except Exception:
+        return None
 
 
 def _ai_state(monster: MutableMapping[str, Any]) -> MutableMapping[str, Any]:
@@ -647,10 +651,15 @@ def _handle_player_death(
             victim_class=victim_class,
         )
 
-    pos = combat_loot.coerce_pos(active.get("pos")) or combat_loot.coerce_pos(state.get("pos"))
-    if pos is None:
-        pos = (2000, 0, 0)
-
+    pos: tuple[int, int, int]
+    try:
+        pos = pstate.canonical_player_pos(state)
+    except Exception:
+        try:
+            pos = pstate.canonical_player_pos(active)
+        except Exception:
+            pos = (2000, 0, 0)
+    
     catalog = _load_catalog()
     inventory_iids = _collect_player_items(state, active, victim_class)
     dropped: list[str] = []

@@ -28,8 +28,9 @@ def _active(state: Dict[str, Any]) -> Dict[str, Any]:
 
 def move(dir_code: str, ctx: Dict[str, Any]) -> None:
     """Attempt to move the active player in direction *dir_code*."""
-    p = _active(ctx["player_state"])
-    year, x, y = p.get("pos", [0, 0, 0])
+    state = ctx["player_state"]
+    p = _active(state)
+    year, x, y = pstate.canonical_player_pos(state)
     world = ctx["world_loader"](year)
 
     dec = ER.resolve(world, dyn, year, x, y, dir_code, actor={})
@@ -87,14 +88,14 @@ def move(dir_code: str, ctx: Dict[str, Any]) -> None:
     try:
         # Write the updated position into the active player on disk.
         def _persist(_, active: Dict[str, Any]) -> None:
-            pos = list(active.get("pos") or [])
-            if len(pos) >= 3:
-                pos[0] = year
-                pos[1] = x + dx
-                pos[2] = y + dy
+            current = list(pstate.canonical_player_pos(active))
+            if len(current) >= 3:
+                current[0] = year
+                current[1] = x + dx
+                current[2] = y + dy
             else:
-                pos = [year, x + dx, y + dy]
-            active["pos"] = pos
+                current = [year, x + dx, y + dy]
+            active["pos"] = current
 
         pstate.mutate_active(_persist)
     except Exception:
