@@ -6,18 +6,6 @@ from mutants.services import player_state as pstate
 from mutants.util.textnorm import normalize_item_query
 
 CLEAR_TOKENS = {"none", "clear", "cancel"}
-
-
-def _coerce_position(player: Mapping[str, Any]) -> Optional[Tuple[int, int, int]]:
-    pos = player.get("pos")
-    if isinstance(pos, (list, tuple)) and len(pos) >= 3:
-        try:
-            return int(pos[0]), int(pos[1]), int(pos[2])
-        except (TypeError, ValueError):
-            return None
-    return None
-
-
 def _list_monsters(
     monsters: Any, year: int, x: int, y: int
 ) -> List[Mapping[str, Any]]:
@@ -60,14 +48,17 @@ def combat_cmd(arg: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
 
     normalized = normalize_item_query(token)
     state, active = pstate.get_active_pair()
-    player: Mapping[str, Any] = active if isinstance(active, Mapping) else {}
-    pos = _coerce_position(player)
-    if not pos:
+    source_state: Mapping[str, Any] | None = None
+    if isinstance(state, Mapping):
+        source_state = state
+    elif isinstance(active, Mapping):
+        source_state = active
+    if source_state is None:
         bus.push("SYSTEM/WARN", "You are nowhere to engage in combat.")
         pstate.clear_ready_target_for_active(reason="invalid-position")
         return {"ok": False, "reason": "invalid_position"}
 
-    year, px, py = pos
+    year, px, py = pstate.canonical_player_pos(source_state)
     monsters_state = ctx.get("monsters")
     monsters_here = _list_monsters(monsters_state, year, px, py)
     living = [mon for mon in monsters_here if _is_alive(mon)]

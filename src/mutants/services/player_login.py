@@ -41,10 +41,13 @@ def _resolve_player_pair(state_hint: Any) -> tuple[Mapping[str, Any], Mapping[st
 
 
 def _player_pos(state: Mapping[str, Any], active: Mapping[str, Any]) -> Optional[tuple[int, int, int]]:
-    pos = combat_loot.coerce_pos(active.get("pos"))
-    if pos is None:
-        pos = combat_loot.coerce_pos(state.get("pos"))
-    return pos
+    try:
+        return pstate.canonical_player_pos(state)
+    except Exception:
+        try:
+            return pstate.canonical_player_pos(active)
+        except Exception:
+            return None
 
 
 def _pull_monsters(ctx: MutableMapping[str, Any]) -> Any:

@@ -6,6 +6,7 @@ from mutants.registries import dynamics as dyn
 from mutants.ui import renderer as uirender
 from mutants.ui import item_display as idisp
 from mutants.services import item_transfer as itx
+from mutants.services import player_state as pstate
 from mutants.ui.wrap import wrap_segments, WRAP_DEBUG_OPTS
 import random
 import logging
@@ -173,8 +174,7 @@ def _verify_edges(sample_count: int, ctx) -> None:
     """Sample random tiles and verify resolver symmetry."""
     logger = logging.getLogger(__name__)
     world_loader = ctx["world_loader"]
-    p = _active(ctx["player_state"])
-    year, px, py = p.get("pos", [0, 0, 0])
+    year, px, py = pstate.canonical_player_pos(ctx.get("player_state"))
     world = world_loader(year)
 
     tiles = []

@@ -230,14 +230,17 @@ def on_player_command(ctx: Any, *, token: str, resolved: str | None) -> None:
     if not player_id:
         return
 
-    pos = None
-    if isinstance(active, Mapping):
-        pos = _normalize_pos(active.get("pos"))
-    if pos is None and isinstance(state, Mapping):
-        pos = _normalize_pos(state.get("pos"))
-    if pos is None:
+    source_state: Mapping[str, Any] | None = None
+    if isinstance(state, Mapping):
+        source_state = state
+    elif isinstance(active, Mapping):
+        source_state = active
+    if source_state is None:
         return
-    year, x, y = pos
+    try:
+        year, x, y = pstate.canonical_player_pos(source_state)
+    except Exception:
+        return
 
     rng = _resolve_rng(ctx)
     weights = _resolve_weights(ctx)
@@ -245,6 +248,7 @@ def on_player_command(ctx: Any, *, token: str, resolved: str | None) -> None:
     wake_rng = _resolve_wake_rng(ctx, rng)
     wake_events = _resolve_wake_events(token, resolved)
 
+    pos = (year, x, y)
     reentry_ids = tracking_mod.update_target_positions(monsters, player_id, pos)
 
     for monster in _iter_aggro_monsters(monsters, year=year, x=x, y=y):

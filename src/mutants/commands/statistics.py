@@ -25,6 +25,9 @@ def _int(value: object, default: int = 0) -> int:
 def statistics_cmd(arg: str, ctx) -> None:
     state, active = pstate.get_active_pair()
     player: Dict[str, object] = active if isinstance(active, dict) else {}
+    source_state: Mapping[str, object] | None = state if isinstance(state, Mapping) else None
+    if source_state is None and isinstance(player, Mapping):
+        source_state = player
     bus = ctx["feedback_bus"]
 
     name = player.get("name", "Unknown")
@@ -37,11 +40,7 @@ def statistics_cmd(arg: str, ctx) -> None:
     CON = _int(stats_map.get("con"))
     CHA = _int(stats_map.get("cha"))
 
-    pos = player.get("pos")
-    if isinstance(pos, (list, tuple)) and pos:
-        year = _int(pos[0], default=2000)
-    else:
-        year = 2000
+    year, pos_x, pos_y = pstate.canonical_player_pos(source_state or {})
 
     exhaustion = pstate.get_exhaustion_for_active(state)
     hp = pstate.get_hp_for_active(state)
@@ -108,17 +107,12 @@ def statistics_cmd(arg: str, ctx) -> None:
         target_record: Mapping[str, object] | None = None
         if monsters_state and hasattr(monsters_state, "list_at"):
             try:
-                pos = player.get("pos") if isinstance(player, Mapping) else None
-                if isinstance(pos, (list, tuple)) and len(pos) >= 3:
-                    pos_year = int(pos[0])
-                    pos_x = int(pos[1])
-                    pos_y = int(pos[2])
-                    for mon in monsters_state.list_at(pos_year, pos_x, pos_y):  # type: ignore[attr-defined]
-                        mid_raw = mon.get("id") or mon.get("instance_id") or mon.get("monster_id")
-                        mid = str(mid_raw) if mid_raw else ""
-                        if mid == ready_target_id:
-                            target_record = mon
-                            break
+                for mon in monsters_state.list_at(year, pos_x, pos_y):  # type: ignore[attr-defined]
+                    mid_raw = mon.get("id") or mon.get("instance_id") or mon.get("monster_id")
+                    mid = str(mid_raw) if mid_raw else ""
+                    if mid == ready_target_id:
+                        target_record = mon
+                        break
             except Exception:
                 target_record = None
         if target_record:
