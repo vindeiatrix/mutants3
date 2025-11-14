@@ -8,7 +8,6 @@ from typing import Any, Dict, Iterable, Optional
 
 from mutants.registries.world import load_nearest_year
 from mutants.services import player_state as pstate
-from mutants.services.turn_scheduler import checkpoint
 from mutants.state import state_path
 from ..services import item_transfer as itx
 
@@ -102,6 +101,39 @@ def _resolved_year(ctx: Dict[str, Any], target: int) -> Optional[int]:
         )
         return None
     return int(getattr(world, "year", int(target)))
+
+
+def _persist_pos_only(resolved_year: int) -> Optional[Dict[str, Any]]:
+    """Write only the active player's position to canonical state."""
+
+    try:
+        state = pstate.load_state()
+    except Exception:
+        return None
+
+    if not isinstance(state, dict):
+        if isinstance(state, Mapping):
+            state = dict(state)
+        else:
+            return None
+
+    active_id = state.get("active_id")
+    if isinstance(state.get("active"), dict):
+        state["active"]["pos"] = [resolved_year, 0, 0]
+
+    players = state.get("players")
+    if isinstance(players, list) and active_id:
+        for entry in players:
+            if isinstance(entry, dict) and entry.get("id") == active_id:
+                entry["pos"] = [resolved_year, 0, 0]
+                break
+
+    try:
+        pstate.save_state(state)
+    except Exception:
+        return None
+
+    return state
 
 
 def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
@@ -199,10 +231,12 @@ def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
         resolved_year = _resolved_year(ctx, dest_century)
         if resolved_year is None:
             return
-        pstate.set_position(ctx, year=resolved_year, x=0, y=0, reason="travel")
-        checkpoint(ctx)
-        if "render_next" in ctx:
-            ctx["render_next"] = False
+        player["pos"] = [resolved_year, 0, 0]
+        new_state = _persist_pos_only(resolved_year)
+        if isinstance(new_state, Mapping):
+            ctx["player_state"] = dict(new_state)
+            if "render_next" in ctx:
+                ctx["render_next"] = False
         bus.push(
             "SYSTEM/OK",
             f"You're already in the {_century_index(dest_century)}th Century!",
@@ -244,10 +278,11 @@ def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
             return
         new_total = ions - full_cost
         _update_ions(new_total)
-        pstate.set_position(ctx, year=resolved_year, x=0, y=0, reason="travel")
-        checkpoint(ctx)
-        if "render_next" in ctx:
-            ctx["render_next"] = False
+        maybe_state = _persist_pos_only(resolved_year)
+        if isinstance(maybe_state, Mapping):
+            ctx["player_state"] = dict(maybe_state)
+            if "render_next" in ctx:
+                ctx["render_next"] = False
         if pstate._pdbg_enabled():  # pragma: no cover
             try:
                 LOG_P.info(
@@ -269,10 +304,11 @@ def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
     if not candidates:
         # Spend everything we can to get as far as possible (as before), then persist.
         _update_ions(0)
-        pstate.set_position(ctx, year=current_century, x=0, y=0, reason="travel")
-        checkpoint(ctx)
-        if "render_next" in ctx:
-            ctx["render_next"] = False
+        maybe_state = _persist_pos_only(current_century)
+        if isinstance(maybe_state, Mapping):
+            ctx["player_state"] = dict(maybe_state)
+            if "render_next" in ctx:
+                ctx["render_next"] = False
         if pstate._pdbg_enabled():  # pragma: no cover
             try:
                 LOG_P.info(
@@ -292,10 +328,11 @@ def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
     if resolved_year is None:
         return
     _update_ions(0)
-    pstate.set_position(ctx, year=resolved_year, x=0, y=0, reason="travel")
-    checkpoint(ctx)
-    if "render_next" in ctx:
-        ctx["render_next"] = False
+    maybe_state = _persist_pos_only(resolved_year)
+    if isinstance(maybe_state, Mapping):
+        ctx["player_state"] = dict(maybe_state)
+        if "render_next" in ctx:
+            ctx["render_next"] = False
     bus.push(
         "SYSTEM/WARN",
         "ZAAAPPPP!!!! You suddenly feel something has gone terribly wrong!",
