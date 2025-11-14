@@ -227,7 +227,7 @@ def convert_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
         player["ions_by_class"] = {str(klass): new_total}
 
     itemsreg.remove_instance(iid)
-    itx._save_player(player)
+    itx._save_player(ctx, player)
 
     try:
         state = pstate.load_state()
