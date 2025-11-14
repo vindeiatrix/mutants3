@@ -87,8 +87,21 @@ class TurnScheduler:
 
                 p = ensure_player_state(self._ctx)
                 ay, ax, ay2 = pstate.canonical_player_pos(p)
-                legacy = ((p.get("active") or {}).get("pos") or [ay, ax, ay2])
-                if list(legacy)[:3] != [ay, ax, ay2]:
+                legacy = [ay, ax, ay2]
+                legacy_source = p.get("active") if isinstance(p, Mapping) else None
+                if isinstance(legacy_source, Mapping):
+                    try:
+                        legacy = list(
+                            pstate.canonical_player_pos(
+                                {
+                                    "players": [legacy_source],
+                                    "active_id": legacy_source.get("id"),
+                                }
+                            )
+                        )
+                    except Exception:
+                        legacy = [ay, ax, ay2]
+                if legacy[:3] != [ay, ax, ay2]:
                     LOG.warning(
                         "player-pos drift: canonical=%s legacy=%s", (ay, ax, ay2), legacy
                     )

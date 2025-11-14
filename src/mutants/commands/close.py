@@ -34,8 +34,7 @@ def register(dispatch, ctx) -> None:
             return
         D = dir_full[0].upper()
 
-        p = _active(ctx["player_state"])
-        year, x, y = p.get("pos", [0, 0, 0])
+        year, x, y = pstate.canonical_player_pos(ctx.get("player_state"))
         world = ctx["world_loader"](year)
         tile = world.get_tile(x, y)
         if not tile:

@@ -4,6 +4,7 @@ from typing import Any, Dict
 
 from mutants.registries.world import BASE_GATE
 from mutants.registries import dynamics as dyn
+from mutants.services import player_state as pstate
 
 from .argcmd import coerce_direction
 
@@ -31,8 +32,7 @@ def register(dispatch, ctx) -> None:
             return
         D = dir_full[0].upper()
 
-        p = _active(ctx["player_state"])
-        year, x, y = p.get("pos", [0, 0, 0])
+        year, x, y = pstate.canonical_player_pos(ctx.get("player_state"))
         world = ctx["world_loader"](year)
         tile = world.get_tile(x, y)
         if not tile:

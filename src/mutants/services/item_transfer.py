@@ -305,14 +305,8 @@ def _rng(seed: Optional[int]) -> random.Random:
 
 
 def _pos_from_ctx(ctx) -> tuple[int, int, int]:
-    state = ctx["player_state"]
-    aid = state.get("active_id")
-    for pl in state.get("players", []):
-        if pl.get("id") == aid:
-            pos = pl.get("pos") or [0, 0, 0]
-            return int(pos[0]), int(pos[1]), int(pos[2])
-    pos = state.get("players", [{}])[0].get("pos") or [0, 0, 0]
-    return int(pos[0]), int(pos[1]), int(pos[2])
+    state = ctx.get("player_state") if isinstance(ctx, Mapping) else None
+    return pstate.canonical_player_pos(state)
 
 
 def pick_from_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
@@ -335,7 +329,7 @@ def pick_from_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
             LOG_P.info(
                 "[playersdbg] PICKUP-BEFORE class=%s pos=%s inv_iids=%s tile=(%s,%s,%s) tile_items=%s",
                 player.get("active", {}).get("class") or player.get("class"),
-                player.get("active", {}).get("pos"),
+                pstate.canonical_player_pos(player),
                 before_inv,
                 year,
                 x,

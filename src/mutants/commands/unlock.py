@@ -59,8 +59,7 @@ def unlock_cmd(arg: str, ctx: Dict[str, Any]) -> None:
 
     def action(dir: str) -> Dict[str, Any]:
         # Use active player and check both sides of the edge.
-        p = _active(ctx["player_state"])
-        year, x, y = p.get("pos", [0, 0, 0])
+        year, x, y = pstate.canonical_player_pos(ctx.get("player_state"))
         D = dir[0].upper()
         world = ctx["world_loader"](year)
         tile = world.get_tile(x, y) or {}

@@ -5,6 +5,7 @@ from typing import Any, Dict
 from mutants.registries.world import BASE_GATE
 from mutants.registries import dynamics as dyn
 from mutants.registries import items_instances as itemsreg, items_catalog
+from mutants.services import player_state as pstate
 from mutants.util.directions import OPP, DELTA
 
 from .argcmd import coerce_direction
@@ -72,8 +73,7 @@ def lock_cmd(arg: str, ctx: Dict[str, Any]) -> None:
 
 def _lock_gate(ctx: Dict[str, Any], direction: str, key_type: str) -> Dict[str, Any]:
     # Use active player and check both sides of the edge.
-    p = _active(ctx["player_state"])
-    year, x, y = p.get("pos", [0, 0, 0])
+    year, x, y = pstate.canonical_player_pos(ctx.get("player_state"))
     D = direction[0].upper()
     world = ctx["world_loader"](year)
     tile = world.get_tile(x, y) or {}
