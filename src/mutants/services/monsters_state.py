@@ -1100,13 +1100,14 @@ def _normalize_monsters(monsters: List[Dict[str, Any]], *, catalog: Mapping[str,
     for raw in monsters:
         monster = dict(raw)
 
+        # Canonical identity: prefer per-spawn instance_id; mirror into id.
         primary_raw = (
             monster.get("instance_id") or monster.get("id") or monster.get("monster_id")
         )
-        primary_str = str(primary_raw).strip() if primary_raw is not None else ""
-        primary = primary_str or f"monster#{uuid.uuid4().hex[:6]}"
+        primary = str(primary_raw) if primary_raw else f"i.{uuid.uuid4().hex[:12]}"
         monster["instance_id"] = primary
         monster["id"] = primary
+        monster["_template_id"] = monster.get("monster_id")
         assert monster["id"] == monster["instance_id"]
 
         name_raw = monster.get("name") or monster.get("monster_id") or primary
