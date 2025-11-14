@@ -25,147 +25,6 @@ DEFAULT_PLAYER_DISPLAY_NAME = "Vindeiatrix"
 _RUNTIME_PLAYER_KEY = "_runtime_player"
 
 
-def mark_dirty(
-    ctx: MutableMapping[str, Any] | Any,
-    *,
-    scope: str = "player",
-    reason: str = "system",
-    player: Optional[MutableMapping[str, Any]] = None,
-) -> None:
-    """Mark the runtime player associated with ``ctx`` as dirty."""
-
-    target: Optional[MutableMapping[str, Any]] = player
-    if target is None:
-        candidate = ensure_player_state(ctx)
-        target = candidate if isinstance(candidate, MutableMapping) else None
-
-    if isinstance(target, MutableMapping):
-        try:
-            target["_dirty"] = True
-        except Exception:  # pragma: no cover - defensive
-            pass
-
-    if isinstance(ctx, MutableMapping):
-        try:
-            dirty_meta = ctx.setdefault("_dirty_meta", {})
-            if isinstance(dirty_meta, MutableMapping):
-                reasons = dirty_meta.setdefault(scope, [])
-                if isinstance(reasons, list):
-                    reasons.append(reason)
-        except Exception:  # pragma: no cover - best-effort bookkeeping
-            pass
-
-        state_hint = ctx.get("player_state")
-        if isinstance(state_hint, MutableMapping):
-            active_id = state_hint.get("active_id")
-            players = state_hint.get("players")
-            if isinstance(players, list):
-                for entry in players:
-                    if not isinstance(entry, MutableMapping):
-                        continue
-                    if entry is target or (
-                        active_id is not None and entry.get("id") == active_id
-                    ):
-                        entry["_dirty"] = True
-                        break
-
-
-def _apply_position_fields(target: MutableMapping[str, Any] | None, pos: list[int]) -> None:
-    """Apply canonical position fields to ``target`` if mutable."""
-
-    if not isinstance(target, MutableMapping):
-        return
-
-    year, x, y = pos
-    snapshot = [int(year), int(x), int(y)]
-    target["pos"] = list(snapshot)
-    target["position"] = list(snapshot)
-    target["year"] = int(year)
-    target["x"] = int(x)
-    target["y"] = int(y)
-
-
-def set_position(
-    ctx: MutableMapping[str, Any] | Any,
-    *,
-    year: int,
-    x: int,
-    y: int,
-    reason: str = "system",
-) -> Dict[str, Any]:
-    """Canonical setter for player position used by movement commands."""
-
-    player = ensure_player_state(ctx)
-    if not isinstance(player, MutableMapping):
-        return {}
-
-    new_pos = [int(year), int(x), int(y)]
-
-    current = player.get("pos") if isinstance(player, Mapping) else None
-    changed = True
-    if isinstance(current, (list, tuple)) and len(current) >= 3:
-        try:
-            changed = any(int(current[idx]) != new_pos[idx] for idx in range(3))
-        except Exception:  # pragma: no cover - defensive
-            changed = True
-
-    if not changed:
-        # fall back to explicit scalar keys
-        try:
-            changed = (
-                int(player.get("year", new_pos[0])) != new_pos[0]
-                or int(player.get("x", new_pos[1])) != new_pos[1]
-                or int(player.get("y", new_pos[2])) != new_pos[2]
-            )
-        except Exception:  # pragma: no cover - defensive
-            changed = True
-
-    if not changed:
-        return player  # No canonical change required.
-
-    _apply_position_fields(player, new_pos)
-
-    state_hint: MutableMapping[str, Any] | None = None
-    if isinstance(ctx, MutableMapping):
-        raw_state = ctx.get("player_state")
-        state_hint = raw_state if isinstance(raw_state, MutableMapping) else None
-
-    if state_hint is not None:
-        active_entry = state_hint.get("active")
-        if active_entry is not player:
-            _apply_position_fields(active_entry if isinstance(active_entry, MutableMapping) else None, new_pos)
-
-        players = state_hint.get("players")
-        active_id = state_hint.get("active_id")
-        if isinstance(players, list):
-            for entry in players:
-                if not isinstance(entry, MutableMapping):
-                    continue
-                if entry is player or (active_id is not None and entry.get("id") == active_id):
-                    _apply_position_fields(entry, new_pos)
-                    break
-
-    if isinstance(ctx, MutableMapping):
-        active_view = ctx.get("_active_view")
-        if isinstance(active_view, MutableMapping):
-            _apply_position_fields(active_view, new_pos)
-        else:
-            ctx["_active_view"] = {"pos": list(new_pos)}
-
-    mark_dirty(ctx, scope="player", reason=f"set_position:{reason}", player=player)
-    return player  # type: ignore[return-value]
-
-
-def scrub_for_persist(player: Mapping[str, Any]) -> Dict[str, Any]:
-    """Return a sanitized copy of ``player`` without transient overlay keys."""
-
-    sanitized = dict(player or {})
-    sanitized.pop("active", None)
-    sanitized.pop("_dirty", None)
-    sanitized.pop("_dirty_meta", None)
-    return sanitized
-
-
 def _active_player_from_state(state: Mapping[str, Any]) -> Dict[str, Any]:
     """Return the active player mapping from ``state``."""
 
@@ -209,14 +68,12 @@ def _strip_runtime_metadata(state: Mapping[str, Any]) -> Dict[str, Any]:
     active = sanitized.get("active")
     if isinstance(active, MutableMapping):
         active.pop("_dirty", None)
-        active.pop("_dirty_meta", None)
 
     players = sanitized.get("players")
     if isinstance(players, list):
         for entry in players:
             if isinstance(entry, MutableMapping):
                 entry.pop("_dirty", None)
-                entry.pop("_dirty_meta", None)
 
     normalize_player_state_inplace(sanitized)
 
@@ -361,7 +218,6 @@ def save_player_state(ctx: MutableMapping[str, Any]) -> None:
         state = load_state()
 
     sanitized = _strip_runtime_metadata(state)
-    sanitized = scrub_for_persist(sanitized)
     _save_player_to_disk(sanitized)
 
     ctx["player_state"] = sanitized
@@ -3814,17 +3670,15 @@ def bind_inventory_to_active_class(player: Dict[str, Any]) -> None:
 def _save_player(state: Dict[str, Any]) -> None:
     """Persist ``state`` ensuring critical invariants are respected."""
 
-    sanitized = scrub_for_persist(state)
+    ensure_active_profile(state, ctx={})
+    bind_inventory_to_active_class(state)
 
-    ensure_active_profile(sanitized, ctx={})
-    bind_inventory_to_active_class(sanitized)
-
-    active = sanitized.get("active")
+    active = state.get("active")
     klass = "Thief"
     if isinstance(active, dict):
-        klass = str(active.get("class") or sanitized.get("class") or "Thief")
-    bags = sanitized.setdefault("bags", {})
-    inventory = sanitized.get("inventory")
+        klass = str(active.get("class") or state.get("class") or "Thief")
+    bags = state.setdefault("bags", {})
+    inventory = state.get("inventory")
     bags[klass] = list(inventory) if isinstance(inventory, list) else []
 
-    save_state(sanitized)
+    save_state(state)

@@ -9,7 +9,6 @@ from mutants.registries.world import DELTA
 from mutants.engine import edge_resolver as ER
 from mutants.registries import dynamics as dyn
 from mutants.services import player_state as pstate
-from mutants.services.turn_scheduler import checkpoint
 from mutants.app import trace as traceflags
 import json
 
@@ -84,16 +83,69 @@ def move(dir_code: str, ctx: Dict[str, Any]) -> None:
 
     dx, dy = DELTA[dir_code]
     nx, ny = x + dx, y + dy
+    new_pos = [year, nx, ny]
 
-    pstate.set_position(
-        ctx,
-        year=year,
-        x=nx,
-        y=ny,
-        reason=f"move:{dir_code.lower()}",
-    )
-    pstate.clear_ready_target_for_active(reason="player-moved")
-    checkpoint(ctx)
+    # Update only the canonical players[active_id] entry.
+    players = state.get("players") if isinstance(state, dict) else None
+    active_id = state.get("active_id") if isinstance(state, dict) else None
+    target_entry = None
+    if isinstance(players, list):
+        for entry in players:
+            if not isinstance(entry, dict):
+                continue
+            if entry is p:
+                target_entry = entry
+                break
+            if active_id is not None and entry.get("id") == active_id:
+                target_entry = entry
+                break
+        if target_entry is None:
+            for entry in players:
+                if isinstance(entry, dict):
+                    target_entry = entry
+                    break
+    if target_entry is None and isinstance(p, dict):
+        target_entry = p
+    if isinstance(target_entry, dict):
+        target_entry["pos"] = list(new_pos)
+        target_entry["_dirty"] = True
+
+    # Provide a transient active view for any UI consumers.
+    ctx["_active_view"] = {"pos": list(new_pos)}
+
+    # Persist new position (autosave)
+    try:
+        # Write the updated position into the active player on disk.
+        def _persist(state_snapshot: Dict[str, Any], active: Dict[str, Any]) -> None:
+            players_snapshot = state_snapshot.get("players")
+            active_id_snapshot = state_snapshot.get("active_id")
+            target_snapshot = None
+            if isinstance(players_snapshot, list):
+                for entry in players_snapshot:
+                    if not isinstance(entry, dict):
+                        continue
+                    if entry is active:
+                        target_snapshot = entry
+                        break
+                    if active_id_snapshot is not None and entry.get("id") == active_id_snapshot:
+                        target_snapshot = entry
+                        break
+                if target_snapshot is None:
+                    for entry in players_snapshot:
+                        if isinstance(entry, dict):
+                            target_snapshot = entry
+                            break
+            if target_snapshot is None and isinstance(active, dict):
+                target_snapshot = active
+            if isinstance(target_snapshot, dict):
+                target_snapshot["pos"] = list(new_pos)
+                target_snapshot["_dirty"] = True
+
+        pstate.mutate_active(_persist)
+    except Exception:
+        LOG.exception("Failed to autosave position after move.")
+    else:
+        pstate.clear_ready_target_for_active(reason="player-moved")
     # Successful movement requests a render of the new room.
     ctx["render_next"] = True
     # Do not echo success movement like "You head north." Original shows next room immediately.
