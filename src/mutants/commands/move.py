@@ -85,39 +85,61 @@ def move(dir_code: str, ctx: Dict[str, Any]) -> None:
     nx, ny = x + dx, y + dy
     new_pos = [year, nx, ny]
 
-    # Update the active player entry stored in players[].
-    p["pos"] = list(new_pos)
-    p["_dirty"] = True
+    # Update only the canonical players[active_id] entry.
+    players = state.get("players") if isinstance(state, dict) else None
+    active_id = state.get("active_id") if isinstance(state, dict) else None
+    target_entry = None
+    if isinstance(players, list):
+        for entry in players:
+            if not isinstance(entry, dict):
+                continue
+            if entry is p:
+                target_entry = entry
+                break
+            if active_id is not None and entry.get("id") == active_id:
+                target_entry = entry
+                break
+        if target_entry is None:
+            for entry in players:
+                if isinstance(entry, dict):
+                    target_entry = entry
+                    break
+    if target_entry is None and isinstance(p, dict):
+        target_entry = p
+    if isinstance(target_entry, dict):
+        target_entry["pos"] = list(new_pos)
+        target_entry["_dirty"] = True
 
-    # Keep the legacy active snapshot in sync for older code paths.
-    active_snapshot = state.get("active") if isinstance(state, dict) else None
-    if isinstance(active_snapshot, dict):
-        active_snapshot["pos"] = list(new_pos)
-        active_snapshot["_dirty"] = True
-
-    # Some state dumps keep a root-level position; keep that aligned as well.
-    if isinstance(state, dict):
-        root_pos = state.get("pos")
-        if isinstance(root_pos, list) and len(root_pos) >= 3:
-            root_pos[0], root_pos[1], root_pos[2] = new_pos
-        else:
-            state["pos"] = list(new_pos)
+    # Provide a transient active view for any UI consumers.
+    ctx["_active_view"] = {"pos": list(new_pos)}
 
     # Persist new position (autosave)
     try:
         # Write the updated position into the active player on disk.
         def _persist(state_snapshot: Dict[str, Any], active: Dict[str, Any]) -> None:
-            active["pos"] = list(new_pos)
-
-            legacy_active = state_snapshot.get("active")
-            if isinstance(legacy_active, dict):
-                legacy_active["pos"] = list(new_pos)
-
-            legacy_root_pos = state_snapshot.get("pos")
-            if isinstance(legacy_root_pos, list) and len(legacy_root_pos) >= 3:
-                legacy_root_pos[0], legacy_root_pos[1], legacy_root_pos[2] = new_pos
-            else:
-                state_snapshot["pos"] = list(new_pos)
+            players_snapshot = state_snapshot.get("players")
+            active_id_snapshot = state_snapshot.get("active_id")
+            target_snapshot = None
+            if isinstance(players_snapshot, list):
+                for entry in players_snapshot:
+                    if not isinstance(entry, dict):
+                        continue
+                    if entry is active:
+                        target_snapshot = entry
+                        break
+                    if active_id_snapshot is not None and entry.get("id") == active_id_snapshot:
+                        target_snapshot = entry
+                        break
+                if target_snapshot is None:
+                    for entry in players_snapshot:
+                        if isinstance(entry, dict):
+                            target_snapshot = entry
+                            break
+            if target_snapshot is None and isinstance(active, dict):
+                target_snapshot = active
+            if isinstance(target_snapshot, dict):
+                target_snapshot["pos"] = list(new_pos)
+                target_snapshot["_dirty"] = True
 
         pstate.mutate_active(_persist)
     except Exception:
