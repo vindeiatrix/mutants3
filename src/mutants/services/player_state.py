@@ -243,6 +243,76 @@ def update_player_pos(
     return list(entry["pos"])  # type: ignore[return-value]
 
 
+def move_player(
+    state: MutableMapping[str, Any], class_name: Any, delta: Iterable[Any]
+) -> List[int]:
+    """Apply ``delta`` to the canonical position for ``class_name``."""
+
+    try:
+        raw_delta = list(delta)
+    except Exception:
+        raw_delta = []
+
+    if len(raw_delta) < 3:
+        raw_delta = list(raw_delta) + [0] * (3 - len(raw_delta))
+    try:
+        d_year = int(raw_delta[0])
+    except Exception:
+        d_year = 0
+    try:
+        d_x = int(raw_delta[1])
+    except Exception:
+        d_x = 0
+    try:
+        d_y = int(raw_delta[2])
+    except Exception:
+        d_y = 0
+
+    year, x, y = canonical_player_pos(state)
+    new_pos = (year + d_year, x + d_x, y + d_y)
+    return update_player_pos(state, class_name, new_pos)
+
+
+def sync_runtime_position(ctx: MutableMapping[str, Any], pos: Iterable[Any]) -> None:
+    """Update in-memory views of the active player's position."""
+
+    coords = list(pos)
+    while len(coords) < 3:
+        coords.append(0)
+    canonical = [int(coords[0]), int(coords[1]), int(coords[2])]
+
+    state_hint = ctx.get("player_state") if isinstance(ctx, MutableMapping) else None
+    if isinstance(state_hint, MutableMapping):
+        state_hint["pos"] = list(canonical)
+        state_hint["position"] = list(canonical)
+        players = state_hint.get("players")
+        active_id = state_hint.get("active_id")
+        if isinstance(players, list):
+            target = None
+            if active_id is not None:
+                for entry in players:
+                    if isinstance(entry, MutableMapping) and entry.get("id") == active_id:
+                        target = entry
+                        break
+            if target is None and players:
+                candidate = players[0]
+                target = candidate if isinstance(candidate, MutableMapping) else None
+            if isinstance(target, MutableMapping):
+                target["pos"] = list(canonical)
+                target["position"] = list(canonical)
+        active_view = state_hint.get("active")
+        if isinstance(active_view, MutableMapping):
+            active_view["pos"] = list(canonical)
+            active_view["position"] = list(canonical)
+
+    runtime = ctx.get("_runtime_player") if isinstance(ctx, MutableMapping) else None
+    if isinstance(runtime, MutableMapping):
+        runtime["pos"] = list(canonical)
+        runtime["position"] = list(canonical)
+
+    ctx["_active_view"] = {"pos": list(canonical)}
+
+
 def update_player_inventory(
     state: MutableMapping[str, Any], class_name: Any, inventory_delta: Iterable[Any]
 ) -> List[Any]:

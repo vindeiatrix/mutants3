@@ -13,4 +13,5 @@ styles/
 tests/*
 !tests/test_monster_spawn.py
 !tests/test_player_state_canonical.py
+!tests/test_position_sync.py
 scripts/migrations/
