@@ -7,12 +7,13 @@ from typing import TYPE_CHECKING, Any, Callable, Mapping, MutableMapping, Option
 from mutants.debug import turnlog
 if TYPE_CHECKING:
     from mutants.services.status_manager import StatusManager
+from mutants.services import player_state as pstate
 from mutants.services import random_pool
 from mutants.services.combat_config import CombatConfig
 
 LOG = logging.getLogger(__name__)
 
-__all__ = ["TurnScheduler"]
+__all__ = ["TurnScheduler", "checkpoint"]
 
 _MISSING = object()
 
@@ -90,6 +91,29 @@ class TurnScheduler:
                 if isinstance(p, MutableMapping) and "active" in p:
                     LOG.error("player_state contains forbidden 'active' snapshot; stripping")
                     del p["active"]
+
+                state_hint: MutableMapping[str, Any] | None = None
+                ctx_obj = self._ctx
+                if isinstance(ctx_obj, MutableMapping):
+                    candidate = ctx_obj.get("player_state")
+                    state_hint = candidate if isinstance(candidate, MutableMapping) else None
+                else:
+                    try:
+                        candidate = getattr(ctx_obj, "player_state", None)
+                    except Exception:
+                        candidate = None
+                    state_hint = candidate if isinstance(candidate, MutableMapping) else None
+
+                if state_hint and "active" in state_hint:
+                    LOG.error("player_state context cache contained 'active'; scrubbing")
+                    cleaned_state = pstate.scrub_for_persist(state_hint)
+                    if isinstance(ctx_obj, MutableMapping):
+                        ctx_obj["player_state"] = cleaned_state
+                    else:
+                        try:
+                            setattr(ctx_obj, "player_state", cleaned_state)
+                        except Exception:  # pragma: no cover - defensive
+                            pass
                 # (2) Drift check: any lingering view must match canonical
                 y, x, z = pstate.canonical_player_pos(p)
                 view = self._ctx.get("_active_view", {}).get("pos") if isinstance(self._ctx, Mapping) else None
@@ -123,6 +147,56 @@ class TurnScheduler:
                     player["_dirty"] = False
             except Exception:  # pragma: no cover
                 LOG.exception("Failed to persist runtime player at end of command")
+
+# Module-level helpers -------------------------------------------------
+
+
+def checkpoint(ctx: Any) -> None:
+    """Flush runtime player state immediately if marked dirty."""
+
+    try:
+        from mutants.bootstrap.lazyinit import ensure_player_state
+    except Exception:  # pragma: no cover - defensive
+        ensure_player_state = None
+
+    if ensure_player_state is None:
+        return
+
+    ctx_obj = ctx
+    state_hint: MutableMapping[str, Any] | None = None
+    if isinstance(ctx_obj, MutableMapping):
+        candidate = ctx_obj.get("player_state")
+        state_hint = candidate if isinstance(candidate, MutableMapping) else None
+    else:
+        try:
+            candidate = getattr(ctx_obj, "player_state", None)
+        except Exception:
+            candidate = None
+        state_hint = candidate if isinstance(candidate, MutableMapping) else None
+
+    if state_hint and "active" in state_hint:
+        cleaned_state = pstate.scrub_for_persist(state_hint)
+        if isinstance(ctx_obj, MutableMapping):
+            ctx_obj["player_state"] = cleaned_state
+        else:
+            try:
+                setattr(ctx_obj, "player_state", cleaned_state)
+            except Exception:  # pragma: no cover - defensive
+                pass
+
+    try:
+        player = ensure_player_state(ctx_obj)
+    except Exception:  # pragma: no cover - defensive
+        LOG.exception("Failed to resolve player during checkpoint")
+        return
+
+    if isinstance(player, MutableMapping) and player.get("_dirty"):
+        try:
+            pstate.save_player_state(ctx_obj)
+            player["_dirty"] = False
+        except Exception:  # pragma: no cover - defensive
+            LOG.exception("Failed to persist runtime player during checkpoint")
+
 
     # Internal helpers -------------------------------------------------
     def _normalize_result(self, result: Any) -> tuple[str, Optional[str]]:
