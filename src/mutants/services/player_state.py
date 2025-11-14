@@ -75,6 +75,8 @@ def _strip_runtime_metadata(state: Mapping[str, Any]) -> Dict[str, Any]:
             if isinstance(entry, MutableMapping):
                 entry.pop("_dirty", None)
 
+    normalize_player_state_inplace(sanitized)
+
     return sanitized
 
 
@@ -112,6 +114,11 @@ def ensure_player_state(ctx: MutableMapping[str, Any]) -> Dict[str, Any]:
     if not isinstance(state_hint, MutableMapping):
         state_hint = load_state()
         ctx["player_state"] = state_hint
+    else:
+        normalize_player_state_inplace(state_hint)
+        active_view = build_active_view(state_hint)
+        if active_view:
+            state_hint["active"] = active_view
 
     active_player = _active_player_from_state(state_hint)
     if not isinstance(active_player, MutableMapping):
@@ -124,22 +131,73 @@ def ensure_player_state(ctx: MutableMapping[str, Any]) -> Dict[str, Any]:
 
 
 def canonical_player_pos(p) -> tuple[int, int, int]:
-    """Return (year, x, y) using the active player's record in players[]."""
+    """Return (year, x, y) from the active player entry."""
 
     aid = (p or {}).get("active_id")
-    players = (p or {}).get("players") or []
-    if isinstance(players, list) and aid:
+    for pl in (p or {}).get("players") or []:
+        if isinstance(pl, dict) and pl.get("id") == aid:
+            pos = pl.get("pos") or pl.get("position")
+            if pos:
+                return int(pos[0]), int(pos[1]), int(pos[2])
+
+    pos = ((p or {}).get("pos") or (p or {}).get("position") or (2000, 0, 0))
+    return int(pos[0]), int(pos[1]), int(pos[2])
+
+
+def normalize_player_state_inplace(p: dict) -> dict:
+    """Strip persisted snapshots; keep only canonical fields."""
+
+    if not isinstance(p, dict):
+        return p
+
+    if "active" in p:
+        del p["active"]
+
+    aid = p.get("active_id")
+    players = p.get("players")
+    if isinstance(players, list) and players:
+        target: Optional[Dict[str, Any]] = None
+        if aid is not None:
+            for pl in players:
+                if isinstance(pl, dict) and pl.get("id") == aid:
+                    target = pl
+                    break
+        if target is None:
+            first = players[0]
+            target = first if isinstance(first, dict) else None
+
+        if isinstance(target, dict):
+            pos = target.get("pos") or target.get("position")
+            if pos:
+                y, x, z = pos
+            else:
+                y, x, z = canonical_player_pos(p)
+            target["pos"] = [int(y), int(x), int(z)]
+
+    return p
+
+
+def build_active_view(p: dict) -> Dict[str, Any]:
+    """Build a read-only view for UI consumption; do not persist this."""
+
+    if not isinstance(p, dict):
+        return {}
+
+    aid = p.get("active_id")
+    players = p.get("players")
+    if isinstance(players, list):
         for pl in players:
-            if isinstance(pl, dict) and pl.get("id") == aid:
+            if not isinstance(pl, dict):
+                continue
+            if aid is None or pl.get("id") == aid:
                 pos = pl.get("pos") or pl.get("position")
                 if pos:
-                    return int(pos[0]), int(pos[1]), int(pos[2])
+                    y, x, z = pos
+                    pl["pos"] = [int(y), int(x), int(z)]
+                return pl
 
-    # Fallbacks (legacy/debug)
-    active = (p or {}).get("active")
-    pos = (active or {}).get("pos") if isinstance(active, dict) else None
-    pos = pos or (p or {}).get("pos") or (p or {}).get("position") or (2000, 0, 0)
-    return int(pos[0]), int(pos[1]), int(pos[2])
+    y, x, z = canonical_player_pos(p)
+    return {"pos": [int(y), int(x), int(z)]}
 
 
 def save_player_state(ctx: MutableMapping[str, Any]) -> None:
@@ -163,6 +221,9 @@ def save_player_state(ctx: MutableMapping[str, Any]) -> None:
     _save_player_to_disk(sanitized)
 
     ctx["player_state"] = sanitized
+    active_view = build_active_view(sanitized)
+    if active_view:
+        sanitized["active"] = active_view
     _, refreshed_player = get_active_pair(sanitized)
     refreshed_player.setdefault("_dirty", False)
     ctx[_RUNTIME_PLAYER_KEY] = refreshed_player
@@ -2180,6 +2241,10 @@ def load_state() -> Dict[str, Any]:
         state = migrated
     except (FileNotFoundError, json.JSONDecodeError):
         state = {"players": [], "active_id": None}
+    normalize_player_state_inplace(state)
+    active_view = build_active_view(state)
+    if active_view:
+        state["active"] = active_view
     _playersdbg_log("LOAD", state)
     _check_invariants_and_log(state, "after load")
     return state
@@ -2206,9 +2271,16 @@ def save_state(state: Dict[str, Any]) -> None:
                 "pos": [2000, 0, 0],
             }
     normalized = migrate_per_class_fields(to_save)
+    normalize_player_state_inplace(normalized)
     _persist_canonical(normalized)
-    _playersdbg_log("SAVE", normalized)
-    _check_invariants_and_log(normalized, "after save")
+
+    log_state = dict(normalized)
+    active_view = build_active_view(log_state)
+    if active_view:
+        log_state["active"] = active_view
+
+    _playersdbg_log("SAVE", log_state)
+    _check_invariants_and_log(log_state, "after save")
 
 
 def on_class_switch(
