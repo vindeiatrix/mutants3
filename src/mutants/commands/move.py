@@ -82,20 +82,42 @@ def move(dir_code: str, ctx: Dict[str, Any]) -> None:
         return
 
     dx, dy = DELTA[dir_code]
-    p["pos"][1] = x + dx
-    p["pos"][2] = y + dy
+    nx, ny = x + dx, y + dy
+    new_pos = [year, nx, ny]
+
+    # Update the active player entry stored in players[].
+    p["pos"] = list(new_pos)
+    p["_dirty"] = True
+
+    # Keep the legacy active snapshot in sync for older code paths.
+    active_snapshot = state.get("active") if isinstance(state, dict) else None
+    if isinstance(active_snapshot, dict):
+        active_snapshot["pos"] = list(new_pos)
+        active_snapshot["_dirty"] = True
+
+    # Some state dumps keep a root-level position; keep that aligned as well.
+    if isinstance(state, dict):
+        root_pos = state.get("pos")
+        if isinstance(root_pos, list) and len(root_pos) >= 3:
+            root_pos[0], root_pos[1], root_pos[2] = new_pos
+        else:
+            state["pos"] = list(new_pos)
+
     # Persist new position (autosave)
     try:
         # Write the updated position into the active player on disk.
-        def _persist(_, active: Dict[str, Any]) -> None:
-            current = list(pstate.canonical_player_pos(active))
-            if len(current) >= 3:
-                current[0] = year
-                current[1] = x + dx
-                current[2] = y + dy
+        def _persist(state_snapshot: Dict[str, Any], active: Dict[str, Any]) -> None:
+            active["pos"] = list(new_pos)
+
+            legacy_active = state_snapshot.get("active")
+            if isinstance(legacy_active, dict):
+                legacy_active["pos"] = list(new_pos)
+
+            legacy_root_pos = state_snapshot.get("pos")
+            if isinstance(legacy_root_pos, list) and len(legacy_root_pos) >= 3:
+                legacy_root_pos[0], legacy_root_pos[1], legacy_root_pos[2] = new_pos
             else:
-                current = [year, x + dx, y + dy]
-            active["pos"] = current
+                state_snapshot["pos"] = list(new_pos)
 
         pstate.mutate_active(_persist)
     except Exception:
