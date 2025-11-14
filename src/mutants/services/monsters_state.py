@@ -769,7 +769,9 @@ class MonstersState:
             ident = str(ident_raw) if ident_raw else ""
             if not ident:
                 continue
+            entry["instance_id"] = ident
             entry["id"] = ident
+            assert entry["id"] == entry["instance_id"], "id must mirror instance_id"
             seen.add(ident)
             local = self._by_id.get(ident)
             if local is None:
