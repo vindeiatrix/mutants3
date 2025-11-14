@@ -3,6 +3,7 @@ from typing import Any, Dict
 
 from mutants.engine import edge_resolver as ER
 from mutants.registries import dynamics as dyn
+from mutants.services import player_state as pstate
 
 DIRS = {"n", "s", "e", "w"}
 
@@ -24,8 +25,7 @@ def why_cmd(arg: str, ctx) -> None:
     if d not in DIRS:
         ctx["feedback_bus"].push("SYSTEM/WARN", "Usage: why <n|s|e|w>")
         return
-    p = _active(ctx["player_state"])
-    year, x, y = p.get("pos", [0, 0, 0])
+    year, x, y = pstate.canonical_player_pos(ctx.get("player_state"))
     world = ctx["world_loader"](year)
     dec = ER.resolve(world, dyn, year, x, y, d, actor={})
     chain = "; ".join(f"{layer}={detail}" for (layer, detail) in dec.reason_chain)

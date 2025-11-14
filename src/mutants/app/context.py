@@ -171,10 +171,9 @@ def build_room_vm(
     items: Any | None = None,
 ) -> Dict[str, Any]:
     """Build a room view model for the active player."""
-    p = _active(state)
-    pos = p.get("pos") or [0, 0, 0]
-    year, x, y = pos[0], pos[1], pos[2]
+    year, x, y = pstate.canonical_player_pos(state)
     player_pos = (year, x, y)
+    pos = [year, x, y]
 
     if WORLD_DEBUG:
         LOG.debug(

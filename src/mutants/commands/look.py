@@ -11,6 +11,7 @@ from .argcmd import coerce_direction
 from ._helpers import find_inventory_item_by_prefix
 from mutants.registries import items_catalog, items_instances as itemsreg
 from mutants.ui.item_display import describe_instance
+from mutants.services import player_state as pstate
 
 DIR_CODE = {"north": "N", "south": "S", "east": "E", "west": "W"}
 
@@ -32,8 +33,7 @@ def look_cmd(arg: str, ctx: Dict[str, Any]) -> None:
     dir_full = coerce_direction(token)
     if dir_full:
         dir_code = DIR_CODE[dir_full]
-        p = _active(ctx["player_state"])
-        year, x, y = p.get("pos", [0, 0, 0])
+        year, x, y = pstate.canonical_player_pos(ctx.get("player_state"))
         world = ctx["world_loader"](year)
         dec = ER.resolve(world, dyn, year, x, y, dir_code, actor={})
         if not dec.passable:
@@ -42,8 +42,13 @@ def look_cmd(arg: str, ctx: Dict[str, Any]) -> None:
         dx, dy = DELTA[dir_code]
         peek_state = deepcopy(ctx["player_state"])
         p2 = _active(peek_state)
-        p2["pos"][1] = x + dx
-        p2["pos"][2] = y + dy
+        p2_pos = list(p2.get("pos") or [year, x, y])
+        if len(p2_pos) < 3:
+            p2_pos = [year, x, y]
+        p2_pos[0] = year
+        p2_pos[1] = x + dx
+        p2_pos[2] = y + dy
+        p2["pos"] = p2_pos
         vm = build_room_vm(
             peek_state,
             ctx["world_loader"],
