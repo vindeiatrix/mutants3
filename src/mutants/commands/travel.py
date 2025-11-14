@@ -117,16 +117,8 @@ def _persist_pos_only(resolved_year: int) -> Optional[Dict[str, Any]]:
         else:
             return None
 
-    active_id = state.get("active_id")
-    if isinstance(state.get("active"), dict):
-        state["active"]["pos"] = [resolved_year, 0, 0]
-
-    players = state.get("players")
-    if isinstance(players, list) and active_id:
-        for entry in players:
-            if isinstance(entry, dict) and entry.get("id") == active_id:
-                entry["pos"] = [resolved_year, 0, 0]
-                break
+    class_name = pstate.get_active_class(state)
+    pstate.update_player_pos(state, class_name, (resolved_year, 0, 0))
 
     try:
         pstate.save_state(state)

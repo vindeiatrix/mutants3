@@ -13,10 +13,23 @@ from mutants.services import monsters_state
 from .equip_debug import _edbg_enabled, _edbg_log
 
 
+LOG = logging.getLogger(__name__)
 LOG_P = logging.getLogger("mutants.playersdbg")
 
 
 _PDBG_CONFIGURED = False
+_ACTIVE_SNAPSHOT_WARNING_EMITTED = False
+
+# Canonical on-disk schema (no transient ``active`` snapshot):
+# {
+#   "players": [
+#       {"id": "player_thief", "class": "Thief", "pos": [2000, 0, 0], ...},
+#       ...
+#   ],
+#   "active_id": "player-id-or-null",
+#   "ions_by_class": {"Thief": 30000, ...},
+#   ...
+# }
 
 
 DEFAULT_PLAYER_DISPLAY_NAME = "Vindeiatrix"
@@ -80,6 +93,183 @@ def _strip_runtime_metadata(state: Mapping[str, Any]) -> Dict[str, Any]:
     return sanitized
 
 
+def _ensure_players_list(state: MutableMapping[str, Any]) -> List[Dict[str, Any]]:
+    players = state.get("players")
+    if isinstance(players, list):
+        sanitized: List[Dict[str, Any]] = [p for p in players if isinstance(p, MutableMapping)]
+        if len(sanitized) != len(players):
+            state["players"] = sanitized
+        return sanitized
+    state["players"] = []
+    return state["players"]  # type: ignore[return-value]
+
+
+def _canonical_class_token(state: Mapping[str, Any], class_name: Any) -> str:
+    token = _normalize_class_name(class_name)
+    if token:
+        return token
+
+    players = state.get("players")
+    active_id = _sanitize_player_id(state.get("active_id"))
+    if isinstance(players, list) and active_id:
+        for entry in players:
+            if not isinstance(entry, Mapping):
+                continue
+            if _sanitize_player_id(entry.get("id")) == active_id:
+                candidate = _normalize_class_name(entry.get("class")) or _normalize_class_name(
+                    entry.get("name")
+                )
+                if candidate:
+                    return candidate
+                break
+
+    if isinstance(players, list):
+        for entry in players:
+            if not isinstance(entry, Mapping):
+                continue
+            candidate = _normalize_class_name(entry.get("class")) or _normalize_class_name(
+                entry.get("name")
+            )
+            if candidate:
+                return candidate
+
+    return "Thief"
+
+
+def _generate_unique_player_id(players: Iterable[Mapping[str, Any]], class_token: str) -> str:
+    base = f"player_{class_token.lower()}" if class_token else "player"
+    existing = {
+        token
+        for token in (
+            _sanitize_player_id(entry.get("id"))
+            for entry in players
+            if isinstance(entry, Mapping)
+        )
+        if token
+    }
+    candidate = base
+    suffix = 2
+    while candidate in existing:
+        candidate = f"{base}_{suffix}"
+        suffix += 1
+    return candidate
+
+
+def _ensure_player_entry(state: MutableMapping[str, Any], class_name: Any) -> Dict[str, Any]:
+    players = _ensure_players_list(state)
+    class_token = _canonical_class_token(state, class_name)
+
+    active_id = _sanitize_player_id(state.get("active_id"))
+    if active_id:
+        for entry in players:
+            if not isinstance(entry, MutableMapping):
+                continue
+            if _sanitize_player_id(entry.get("id")) != active_id:
+                continue
+            entry_class = _normalize_class_name(entry.get("class")) or _normalize_class_name(entry.get("name"))
+            if entry_class == class_token or class_token == "Thief":
+                return entry  # type: ignore[return-value]
+            break
+
+    for entry in players:
+        if not isinstance(entry, MutableMapping):
+            continue
+        entry_class = _normalize_class_name(entry.get("class")) or _normalize_class_name(entry.get("name"))
+        if entry_class == class_token:
+            return entry  # type: ignore[return-value]
+
+    if players:
+        first = players[0]
+        if isinstance(first, MutableMapping):
+            return first  # type: ignore[return-value]
+
+    new_entry: Dict[str, Any] = {
+        "id": _generate_unique_player_id(players, class_token),
+        "class": class_token,
+        "name": class_token,
+        "pos": [2000, 0, 0],
+        "inventory": [],
+    }
+    players.append(new_entry)
+    if not _sanitize_player_id(state.get("active_id")):
+        state["active_id"] = new_entry["id"]
+    return new_entry
+
+
+def get_canonical_state(state: Optional[Mapping[str, Any]] = None) -> Dict[str, Any]:
+    """Return ``state`` coerced into canonical on-disk form."""
+
+    if isinstance(state, Mapping):
+        base = copy.deepcopy(dict(state))
+    else:
+        base = {}
+
+    if base:
+        base = migrate_per_class_fields(base)
+    else:
+        base = {"players": [], "active_id": None}
+
+    normalize_player_state_inplace(base)
+    base.pop("active", None)
+
+    players = base.get("players")
+    if not isinstance(players, list):
+        base["players"] = []
+    ions_map = base.get("ions_by_class")
+    if not isinstance(ions_map, dict):
+        base["ions_by_class"] = {}
+    base.setdefault("active_id", None)
+    return base
+
+
+def update_player_pos(
+    state: MutableMapping[str, Any], class_name: Any, pos: Iterable[Any]
+) -> List[int]:
+    """Update the canonical position for ``class_name`` within ``state``."""
+
+    entry = _ensure_player_entry(state, class_name)
+    coords = _coerce_pos(pos)
+    if coords is None:
+        return entry.get("pos", [2000, 0, 0])  # type: ignore[return-value]
+
+    year, x, y = coords
+    entry["pos"] = [int(year), int(x), int(y)]
+
+    active_id = _sanitize_player_id(state.get("active_id"))
+    if active_id and _sanitize_player_id(entry.get("id")) == active_id:
+        state["pos"] = list(entry["pos"])
+        state["position"] = list(entry["pos"])
+
+    return list(entry["pos"])  # type: ignore[return-value]
+
+
+def update_player_inventory(
+    state: MutableMapping[str, Any], class_name: Any, inventory_delta: Iterable[Any]
+) -> List[Any]:
+    """Bind ``inventory_delta`` to the canonical profile for ``class_name``."""
+
+    entry = _ensure_player_entry(state, class_name)
+    try:
+        raw_items = list(inventory_delta)
+    except TypeError:
+        raw_items = []
+    sanitized = [copy.deepcopy(item) for item in raw_items if item is not None]
+    entry["inventory"] = list(sanitized)
+
+    class_token = _canonical_class_token(state, class_name)
+    bags = state.get("bags")
+    if isinstance(bags, MutableMapping):
+        bags[class_token] = list(sanitized)
+    else:
+        state["bags"] = {class_token: list(sanitized)}
+
+    active_id = _sanitize_player_id(state.get("active_id"))
+    if active_id and _sanitize_player_id(entry.get("id")) == active_id:
+        state["inventory"] = list(sanitized)
+
+    return list(sanitized)
+
+
 def _save_player_to_disk(state: Mapping[str, Any]) -> None:
     """Persist ``state`` to disk using the canonical saver."""
 
@@ -116,9 +306,10 @@ def ensure_player_state(ctx: MutableMapping[str, Any]) -> Dict[str, Any]:
         ctx["player_state"] = state_hint
     else:
         normalize_player_state_inplace(state_hint)
-        active_view = build_active_view(state_hint)
-        if active_view:
-            state_hint["active"] = active_view
+
+    active_view = build_active_view(state_hint if isinstance(state_hint, MutableMapping) else {})
+    if isinstance(state_hint, MutableMapping) and active_view:
+        state_hint["active"] = active_view
 
     active_player = _active_player_from_state(state_hint)
     if not isinstance(active_player, MutableMapping):
@@ -2228,54 +2419,82 @@ def migrate_per_class_fields(state: Dict[str, Any]) -> Dict[str, Any]:
     return normalized
 
 
+def _strip_persisted_active_snapshot(state: MutableMapping[str, Any]) -> None:
+    """Merge and drop any persisted ``active`` snapshot from ``state``."""
+
+    active_payload = state.get("active")
+    if not isinstance(active_payload, Mapping):
+        state.pop("active", None)
+        return
+
+    global _ACTIVE_SNAPSHOT_WARNING_EMITTED
+    if not _ACTIVE_SNAPSHOT_WARNING_EMITTED:
+        LOG.warning("player_state contains forbidden 'active' snapshot; stripping")
+        _ACTIVE_SNAPSHOT_WARNING_EMITTED = True
+
+    class_hint = active_payload.get("class") or active_payload.get("name")
+    entry = _ensure_player_entry(state, class_hint)
+    class_token = _canonical_class_token(state, class_hint)
+
+    pos = active_payload.get("pos") or active_payload.get("position")
+    coerced = _coerce_pos(pos)
+    if coerced is not None:
+        update_player_pos(state, class_token, coerced)
+
+    inventory = active_payload.get("inventory")
+    if isinstance(inventory, list):
+        update_player_inventory(state, class_token, inventory)
+
+    ions_value = active_payload.get("ions")
+    if ions_value is None:
+        ions_value = active_payload.get("Ions")
+    if ions_value is not None:
+        ions_map = state.get("ions_by_class")
+        if not isinstance(ions_map, MutableMapping):
+            ions_map = {}
+            state["ions_by_class"] = ions_map
+        sanitized = max(0, _coerce_int(ions_value, 0))
+        ions_map[class_token] = sanitized
+        entry["ions"] = sanitized
+        entry["Ions"] = sanitized
+        state["ions"] = sanitized
+        state["Ions"] = sanitized
+
+    state.pop("active", None)
+
+
 def load_state() -> Dict[str, Any]:
     path = _player_path()
     try:
         with path.open("r", encoding="utf-8") as f:
             state: Dict[str, Any] = json.load(f)
-        before = json.dumps(state, sort_keys=True, ensure_ascii=False)
-        migrated = migrate_per_class_fields(state)
-        after = json.dumps(migrated, sort_keys=True, ensure_ascii=False)
-        if after != before:
-            _persist_canonical(migrated)
-        state = migrated
+        if isinstance(state, MutableMapping):
+            _strip_persisted_active_snapshot(state)
+            before = json.dumps(state, sort_keys=True, ensure_ascii=False)
+            canonical = get_canonical_state(state)
+            after = json.dumps(canonical, sort_keys=True, ensure_ascii=False)
+            if after != before:
+                _persist_canonical(canonical)
+            state = canonical
+        else:
+            state = get_canonical_state(state)
     except (FileNotFoundError, json.JSONDecodeError):
         state = {"players": [], "active_id": None}
-    normalize_player_state_inplace(state)
+    log_state = dict(state)
     active_view = build_active_view(state)
     if active_view:
-        state["active"] = active_view
-    _playersdbg_log("LOAD", state)
-    _check_invariants_and_log(state, "after load")
+        log_state["active"] = active_view
+    _playersdbg_log("LOAD", log_state)
+    _check_invariants_and_log(log_state, "after load")
     return state
 
 
 def save_state(state: Dict[str, Any]) -> None:
-    # Safety net: never write a state without an ``active`` profile present.
-    to_save: Dict[str, Any]
-    if isinstance(state, dict):
-        to_save = copy.deepcopy(state)
-    else:
-        to_save = {}
-    active = to_save.get("active")
-    if not isinstance(active, dict):
-        try:
-            prev = load_state()
-            prev_active = prev.get("active") if isinstance(prev, dict) else None
-            if isinstance(prev_active, dict):
-                to_save["active"] = copy.deepcopy(prev_active)
-        except Exception:
-            # If we cannot backfill from disk, synthesize a minimal default.
-            to_save["active"] = {
-                "class": to_save.get("class") or to_save.get("name") or "Thief",
-                "pos": [2000, 0, 0],
-            }
-    normalized = migrate_per_class_fields(to_save)
-    normalize_player_state_inplace(normalized)
-    _persist_canonical(normalized)
+    to_save = get_canonical_state(state)
+    _persist_canonical(to_save)
 
-    log_state = dict(normalized)
-    active_view = build_active_view(log_state)
+    log_state = dict(to_save)
+    active_view = build_active_view(to_save)
     if active_view:
         log_state["active"] = active_view
 
@@ -2390,32 +2609,31 @@ def get_ions_for_active(state: Dict[str, Any]) -> int:
 def set_ions_for_active(state: Dict[str, Any], amount: int) -> int:
     """Set ions for the active class to ``amount`` and persist."""
 
-    normalized, active, cls = _prepare_active_storage(state)
-    ion_map = normalized.setdefault("ions_by_class", {})
+    working: MutableMapping[str, Any]
+    if isinstance(state, MutableMapping):
+        working = state
+    else:
+        working = dict(state or {})  # type: ignore[arg-type]
+
+    cls = get_active_class(working)
+    entry = _ensure_player_entry(working, cls)
     new_total = max(0, _coerce_int(amount, 0))
-    ion_map[cls] = new_total
 
-    normalized["ions"] = new_total
-    normalized["Ions"] = new_total
-    active["ions"] = new_total
-    active["Ions"] = new_total
-    active["ions_by_class"] = dict(ion_map)
-    players = normalized.get("players")
-    if isinstance(players, list):
-        for player in players:
-            if not isinstance(player, Mapping):
-                continue
-            player_class = _normalize_class_name(player.get("class")) or _normalize_class_name(
-                player.get("name")
-            )
-            player_id = player.get("id")
-            if player_class == cls or player_id == normalized.get("active_id"):
-                player["ions"] = new_total
-                player["Ions"] = new_total
-                player["ions_by_class"] = dict(ion_map)
-                break
+    ions_map = working.get("ions_by_class")
+    if not isinstance(ions_map, MutableMapping):
+        ions_map = {}
+        working["ions_by_class"] = ions_map
+    ions_map[cls] = new_total
 
-    save_state(normalized)
+    entry["ions"] = new_total
+    entry["Ions"] = new_total
+
+    active_id = _sanitize_player_id(working.get("active_id"))
+    if active_id and _sanitize_player_id(entry.get("id")) == active_id:
+        working["ions"] = new_total
+        working["Ions"] = new_total
+
+    save_state(dict(working))
     return new_total
 
 
