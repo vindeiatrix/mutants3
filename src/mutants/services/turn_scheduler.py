@@ -80,33 +80,23 @@ class TurnScheduler:
             self._run_monster_spawner()
         finally:
             self._restore_rng(restore_token)
-            # Position drift guard (dev-only)
+            # Dev-only guardrails
             try:
                 from mutants.bootstrap.lazyinit import ensure_player_state
                 from mutants.services import player_state as pstate
 
                 p = ensure_player_state(self._ctx)
-                ay, ax, ay2 = pstate.canonical_player_pos(p)
-                legacy = [ay, ax, ay2]
-                legacy_source = p.get("active") if isinstance(p, Mapping) else None
-                if isinstance(legacy_source, Mapping):
-                    try:
-                        legacy = list(
-                            pstate.canonical_player_pos(
-                                {
-                                    "players": [legacy_source],
-                                    "active_id": legacy_source.get("id"),
-                                }
-                            )
-                        )
-                    except Exception:
-                        legacy = [ay, ax, ay2]
-                if legacy[:3] != [ay, ax, ay2]:
-                    LOG.warning(
-                        "player-pos drift: canonical=%s legacy=%s", (ay, ax, ay2), legacy
-                    )
+                # (1) No persisted active snapshot allowed
+                if isinstance(p, MutableMapping) and "active" in p:
+                    LOG.error("player_state contains forbidden 'active' snapshot; stripping")
+                    del p["active"]
+                # (2) Drift check: any lingering view must match canonical
+                y, x, z = pstate.canonical_player_pos(p)
+                view = self._ctx.get("_active_view", {}).get("pos") if isinstance(self._ctx, Mapping) else None
+                if view and list(view)[:3] != [y, x, z]:
+                    LOG.warning("pos drift (view vs canonical): %s != %s", view, [y, x, z])
             except Exception:
-                LOG.exception("pos drift check failed")
+                LOG.exception("post-turn guardrails failed")
             # NEW: end-of-command checkpoint — flush dirty caches back to store.
             try:
                 ctx = self._ctx
