@@ -80,6 +80,20 @@ class TurnScheduler:
             self._run_monster_spawner()
         finally:
             self._restore_rng(restore_token)
+            # Position drift guard (dev-only)
+            try:
+                from mutants.bootstrap.lazyinit import ensure_player_state
+                from mutants.services import player_state as pstate
+
+                p = ensure_player_state(self._ctx)
+                ay, ax, ay2 = pstate.canonical_player_pos(p)
+                legacy = ((p.get("active") or {}).get("pos") or [ay, ax, ay2])
+                if list(legacy)[:3] != [ay, ax, ay2]:
+                    LOG.warning(
+                        "player-pos drift: canonical=%s legacy=%s", (ay, ax, ay2), legacy
+                    )
+            except Exception:
+                LOG.exception("pos drift check failed")
             # NEW: end-of-command checkpoint — flush dirty caches back to store.
             try:
                 ctx = self._ctx
