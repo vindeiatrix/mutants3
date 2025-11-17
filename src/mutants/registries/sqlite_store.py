@@ -25,6 +25,7 @@ from mutants.env import get_state_database_path
 LOG = logging.getLogger(__name__)
 
 DEBUG_QUERY_PLAN = bool(os.getenv("MUTANTS_SQLITE_DEBUG_PLAN"))
+MONSTER_CACHE_DEBUG = bool(os.getenv("MUTANTS_MONSTER_CACHE_DEBUG"))
 
 _CATALOG_REQUIRED_FIELDS = {
     "monster_id",
@@ -1297,30 +1298,39 @@ class SQLiteMonstersInstanceStore:
         return payload
 
     def _log_cache_update(self, data: Mapping[str, Any]) -> None:
+        if not (MONSTER_CACHE_DEBUG or LOG.isEnabledFor(logging.DEBUG)):
+            return
+
         cache = getattr(self, "_cache", None)
         if not isinstance(cache, MutableMapping):
             return
+
         instance_id = data.get("instance_id")
         if instance_id is None:
             return
         instance_id = str(instance_id)
+
         try:
-            cache_keys_before = list(cache.keys())
+            cache_keys_before = sorted(cache.keys())
         except Exception:  # pragma: no cover - defensive logging
             cache_keys_before = []
-        LOG.warning(
-            "--- _add: Cache BEFORE update for %s: IDs present %s",
+        LOG.debug(
+            "cache_update_before instance_id=%s cache_size=%d ids=%s",
             instance_id,
+            len(cache_keys_before),
             cache_keys_before,
         )
+
         cache[instance_id] = data
+
         try:
-            cache_keys_after = list(cache.keys())
+            cache_keys_after = sorted(cache.keys())
         except Exception:  # pragma: no cover - defensive logging
             cache_keys_after = []
-        LOG.warning(
-            "--- _add: Cache AFTER update for %s: IDs present %s",
+        LOG.debug(
+            "cache_update_after instance_id=%s cache_size=%d ids=%s",
             instance_id,
+            len(cache_keys_after),
             cache_keys_after,
         )
 
