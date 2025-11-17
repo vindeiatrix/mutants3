@@ -12,6 +12,8 @@ from mutants.services import player_state as pstate
 from mutants.app import trace as traceflags
 import json
 
+from mutants.services import state_debug
+
 LOG = logging.getLogger(__name__)
 WORLD_DEBUG = os.getenv("WORLD_DEBUG") == "1"
 
@@ -92,6 +94,10 @@ def move(dir_code: str, ctx: Dict[str, Any]) -> None:
             canonical_state = dict(state)
         else:
             canonical_state = {}
+    try:
+        ions_before = pstate.get_ions_for_active(canonical_state)
+    except Exception:
+        ions_before = None
 
     new_pos = pstate.move_player(canonical_state, pstate.get_active_class(canonical_state), (0, dx, dy))
 
@@ -105,6 +111,7 @@ def move(dir_code: str, ctx: Dict[str, Any]) -> None:
         pstate.clear_ready_target_for_active(reason="player-moved")
 
     refreshed: Mapping[str, Any] | None = None
+    ions_after = ions_before
     if save_success:
         try:
             refreshed = pstate.load_state()
@@ -122,6 +129,19 @@ def move(dir_code: str, ctx: Dict[str, Any]) -> None:
         ctx["player_state"] = refreshed
 
     pstate.sync_runtime_position(ctx, new_pos)
+    try:
+        ions_after = pstate.get_ions_for_active(refreshed) if isinstance(refreshed, Mapping) else ions_before
+    except Exception:
+        ions_after = ions_before
+    state_debug.log_travel(
+        ctx,
+        command="move",
+        arg=dir_code,
+        from_pos=[year, x, y],
+        to_pos=new_pos,
+        ions_before=ions_before,
+        ions_after=ions_after,
+    )
     # Successful movement requests a render of the new room.
     ctx["render_next"] = True
     # Do not echo success movement like "You head north." Original shows next room immediately.

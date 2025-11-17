@@ -14,6 +14,7 @@ from mutants.engine import edge_resolver as ER
 from mutants.registries import dynamics as dyn
 from mutants.util.directions import vec as dir_vec
 from mutants.services import player_state as pstate
+from mutants.services import state_debug
 from ..services.items_weight import get_effective_weight
 
 LOG = logging.getLogger(__name__)
@@ -314,6 +315,9 @@ def pick_from_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
     pstate.ensure_active_profile(player, ctx)
     pstate.bind_inventory_to_active_class(player)
     _ensure_inventory(player)
+    before_snapshot = state_debug.log_inventory_stage(
+        ctx, player, command="get", arg=prefix, stage="inventory_before"
+    )
     year, x, y = _pos_from_ctx(ctx)
     # Command-side probe (before filtering/mutation)
     try:
@@ -461,6 +465,14 @@ def pick_from_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
         overflow_info = {"inv_overflow_drop": drop_iid}
 
     _save_player(ctx, player)
+    state_debug.log_inventory_update(
+        ctx,
+        player,
+        command="get",
+        arg=prefix,
+        before=before_snapshot,
+        extra={"picked_iid": chosen_iid, "overflow": overflow_info},
+    )
     if _pdbg_enabled():
         try:
             after_inv = list(player.get("inventory") or [])
@@ -516,6 +528,9 @@ def drop_to_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
     pstate.ensure_active_profile(player, ctx)
     pstate.bind_inventory_to_active_class(player)
     _ensure_inventory(player)
+    before_snapshot = state_debug.log_inventory_stage(
+        ctx, player, command="drop", arg=prefix, stage="inventory_before"
+    )
     inv = list(player.get("inventory", []))
     equipped = _armor_iid(player)
     if not inv:
@@ -584,6 +599,14 @@ def drop_to_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
         else:
             overflow_info = {"ground_overflow_pick": pick}
     _save_player(ctx, player)
+    state_debug.log_inventory_update(
+        ctx,
+        player,
+        command="drop",
+        arg=prefix,
+        before=before_snapshot,
+        extra={"dropped_iid": iid, "overflow": overflow_info},
+    )
     return {
         "ok": True,
         "iid": iid,
@@ -597,6 +620,13 @@ def throw_to_direction(ctx, direction: str, prefix: str, *, seed: Optional[int] 
     pstate.ensure_active_profile(player, ctx)
     pstate.bind_inventory_to_active_class(player)
     _ensure_inventory(player)
+    before_snapshot = state_debug.log_inventory_stage(
+        ctx,
+        player,
+        command="throw",
+        arg=f"{direction}:{prefix}",
+        stage="inventory_before",
+    )
     inv = list(player.get("inventory", []))
     equipped = _armor_iid(player)
     if not inv:
@@ -693,6 +723,18 @@ def throw_to_direction(ctx, direction: str, prefix: str, *, seed: Optional[int] 
         else:
             overflow_info = {"ground_overflow_pick": pick}
     _save_player(ctx, player)
+    state_debug.log_inventory_update(
+        ctx,
+        player,
+        command="throw",
+        arg=f"{direction}:{prefix}",
+        before=before_snapshot,
+        extra={
+            "thrown_iid": iid,
+            "overflow": overflow_info,
+            "blocked": blocked,
+        },
+    )
     return {
         "ok": True,
         "iid": iid,

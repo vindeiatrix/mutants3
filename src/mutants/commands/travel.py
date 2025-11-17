@@ -10,6 +10,7 @@ from mutants.registries.world import load_nearest_year
 from mutants.services import player_state as pstate
 from mutants.state import state_path
 from ..services import item_transfer as itx
+from ..services import state_debug
 
 
 ION_COST_PER_CENTURY = 3000
@@ -167,6 +168,8 @@ def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
     pstate.ensure_active_profile(player, ctx)
     pstate.bind_inventory_to_active_class(player)
     itx._ensure_inventory(player)
+    start_year, start_x, start_y = pstate.canonical_player_pos(player)
+    start_pos = [start_year, start_x, start_y]
     # Always operate on a fresh canonical state for currency to avoid stale ctx copies.
     try:
         loaded_state = pstate.load_state()
@@ -179,6 +182,11 @@ def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
             currency_state = dict(loaded_state)
         else:
             currency_state = {}
+
+    try:
+        ions_balance = pstate.get_ions_for_active(currency_state)
+    except Exception:
+        ions_balance = 0
 
     # Debug logger (same as CONVERT uses). Only emits when playersdbg is enabled.
     LOG_P = logging.getLogger("playersdbg")
@@ -253,12 +261,21 @@ def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
             "SYSTEM/OK",
             f"You're already in the {_century_index(dest_century)}th Century!",
         )
+        state_debug.log_travel(
+            ctx,
+            command="travel",
+            arg=arg,
+            from_pos=start_pos,
+            to_pos=new_pos,
+            ions_before=ions_balance,
+            ions_after=ions_balance,
+        )
         return
 
     steps = abs(dest_century - current_century) // 100
     full_cost = steps * ION_COST_PER_CENTURY
     # Read ions strictly from per-class storage for the active class.
-    ions = pstate.get_ions_for_active(currency_state)
+    ions = ions_balance
     if pstate._pdbg_enabled():  # pragma: no cover - diagnostic hook
         try:
             LOG_P.info(
@@ -304,6 +321,19 @@ def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
                 )
             except Exception:
                 pass
+        try:
+            ions_after = pstate.get_ions_for_active(currency_state)
+        except Exception:
+            ions_after = new_total
+        state_debug.log_travel(
+            ctx,
+            command="travel",
+            arg=arg,
+            from_pos=start_pos,
+            to_pos=[resolved_year, 0, 0],
+            ions_before=ions,
+            ions_after=ions_after,
+        )
         bus.push(
             "SYSTEM/OK",
             f"ZAAAPPPPP!! You've been sent to the year {resolved_year} A.D.",
@@ -315,7 +345,7 @@ def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
     candidates = [year for year in available if min_century <= year <= max_century]
     if not candidates:
         # Spend everything we can to get as far as possible (as before), then persist.
-        _update_ions(0)
+        ions_after = _update_ions(0)
         maybe_state = _persist_pos_only(current_century, ctx)
         if isinstance(maybe_state, Mapping):
             ctx["player_state"] = dict(maybe_state)
@@ -329,6 +359,15 @@ def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
                 )
             except Exception:
                 pass
+        state_debug.log_travel(
+            ctx,
+            command="travel",
+            arg=arg,
+            from_pos=start_pos,
+            to_pos=[current_century, 0, 0],
+            ions_before=ions,
+            ions_after=ions_after,
+        )
         bus.push(
             "SYSTEM/WARN",
             "ZAAAPPPP!!!! You suddenly feel something has gone terribly wrong!",
@@ -339,12 +378,21 @@ def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
     resolved_year = _resolved_year(ctx, chosen_year)
     if resolved_year is None:
         return
-    _update_ions(0)
+    ions_after = _update_ions(0)
     maybe_state = _persist_pos_only(resolved_year, ctx)
     if isinstance(maybe_state, Mapping):
         ctx["player_state"] = dict(maybe_state)
         if "render_next" in ctx:
             ctx["render_next"] = False
+    state_debug.log_travel(
+        ctx,
+        command="travel",
+        arg=arg,
+        from_pos=start_pos,
+        to_pos=[resolved_year, 0, 0],
+        ions_before=ions,
+        ions_after=ions_after,
+    )
     bus.push(
         "SYSTEM/WARN",
         "ZAAAPPPP!!!! You suddenly feel something has gone terribly wrong!",
