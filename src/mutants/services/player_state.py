@@ -19,6 +19,8 @@ from .equip_debug import _edbg_enabled, _edbg_log
 LOG = logging.getLogger(__name__)
 LOG_P = logging.getLogger("mutants.playersdbg")
 
+CANONICAL_CLASSES = tuple(CLASS_ORDER)
+
 
 _PDBG_CONFIGURED = False
 _ACTIVE_SNAPSHOT_WARNING_EMITTED = False
@@ -137,7 +139,7 @@ def normalize_player_live_state(data: dict) -> Dict[str, Any]:
     valid_ids = [entry.get("id") for entry in cleaned_players if isinstance(entry, Mapping) and isinstance(entry.get("id"), str)]
     if active_id not in valid_ids:
         resolved: Optional[str] = None
-        for class_name in CLASS_ORDER:
+        for class_name in CANONICAL_CLASSES:
             for entry in cleaned_players:
                 if entry.get("class") == class_name and isinstance(entry.get("id"), str):
                     resolved = entry["id"]
@@ -288,7 +290,7 @@ def ensure_class_profiles(state: MutableMapping[str, Any]) -> Dict[str, Any]:
     else:
         raw_players = []
 
-    by_class: Dict[str, List[Mapping[str, Any]]] = {cls: [] for cls in CLASS_ORDER}
+    by_class: Dict[str, List[Mapping[str, Any]]] = {cls: [] for cls in CANONICAL_CLASSES}
     for entry in raw_players:
         cls_token = _normalize_class_name(entry.get("class")) or _normalize_class_name(
             entry.get("name")
@@ -310,7 +312,7 @@ def ensure_class_profiles(state: MutableMapping[str, Any]) -> Dict[str, Any]:
         state.get("name")
     )
 
-    for class_name in CLASS_ORDER:
+    for class_name in CANONICAL_CLASSES:
         candidates = by_class.get(class_name, [])
         chosen: Mapping[str, Any] | None = None
         if active_id:
@@ -332,7 +334,7 @@ def ensure_class_profiles(state: MutableMapping[str, Any]) -> Dict[str, Any]:
     ions_map = state.get("ions_by_class")
     if isinstance(ions_map, MutableMapping):
         for key in list(ions_map.keys()):
-            if key not in CLASS_ORDER:
+            if key not in CANONICAL_CLASSES:
                 ions_map.pop(key)
     else:
         ions_map = {}
@@ -346,7 +348,7 @@ def ensure_class_profiles(state: MutableMapping[str, Any]) -> Dict[str, Any]:
                 break
 
     if resolved_active_id is None:
-        preferred_class = snapshot_class or root_class or CLASS_ORDER[0]
+        preferred_class = snapshot_class or root_class or CANONICAL_CLASSES[0]
         for entry in sanitized_players:
             if entry.get("class") == preferred_class:
                 resolved_active_id = entry["id"]
@@ -2710,11 +2712,21 @@ def migrate_per_class_fields(state: Dict[str, Any]) -> Dict[str, Any]:
     return normalized
 
 
+def _snapshot_state(payload: Mapping[str, Any] | None) -> str | None:
+    try:
+        return json.dumps(payload, sort_keys=True, ensure_ascii=False)
+    except Exception:
+        return None
+
+
 def load_state(*, source: str | None = None) -> Dict[str, Any]:
     path = _player_path()
+    loaded_from_disk = True
+    raw_snapshot: str | None = None
     try:
         with path.open("r", encoding="utf-8") as f:
             state: Dict[str, Any] = json.load(f)
+        raw_snapshot = _snapshot_state(state)
         if isinstance(state, MutableMapping):
             normalized_state = normalize_player_live_state(state)
             canonical = get_canonical_state(normalized_state)
@@ -2727,15 +2739,28 @@ def load_state(*, source: str | None = None) -> Dict[str, Any]:
         else:
             state = get_canonical_state(state)
     except (FileNotFoundError, json.JSONDecodeError):
+        loaded_from_disk = False
         state = {"players": [], "active_id": None}
 
     if isinstance(state, MutableMapping):
         ensure_class_profiles(state)
+    repaired_snapshot = _snapshot_state(state)
     log_state = dict(state)
     active_view = build_active_view(state)
     if active_view:
         log_state["active"] = active_view
     _playersdbg_log("LOAD", log_state)
+    if (
+        loaded_from_disk
+        and raw_snapshot is not None
+        and repaired_snapshot is not None
+        and repaired_snapshot != raw_snapshot
+    ):
+        LOG.info("Normalized player roster to canonical classes; persisting repairs")
+        try:
+            _persist_canonical(state, reason="load_state.repaired_roster")
+        except Exception:
+            LOG.exception("Failed to persist repaired player roster")
     _check_invariants_and_log(log_state, "after load")
     try:
         state_debug.log_load_state(state, source=source or "player_state.load_state")
