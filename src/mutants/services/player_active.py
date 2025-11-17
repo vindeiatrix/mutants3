@@ -6,11 +6,11 @@ from mutants.services import player_state
 
 
 def load_state() -> Dict[str, Any]:
-    return player_state.load_state()
+    return player_state.load_state(source="player_active.load_state")
 
 
 def save_state(state: Dict[str, Any]) -> None:
-    player_state.save_state(state)
+    player_state.save_state(state, reason="player_active.save_state")
 
 def set_active(active_id: str) -> Dict[str, Any]:
     """

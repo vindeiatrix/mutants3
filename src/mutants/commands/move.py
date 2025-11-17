@@ -103,7 +103,7 @@ def move(dir_code: str, ctx: Dict[str, Any]) -> None:
 
     save_success = False
     try:
-        pstate.save_state(canonical_state)
+        pstate.save_state(canonical_state, reason="autosave:move")
     except Exception:
         LOG.exception("Failed to autosave position after move.")
     else:
