@@ -50,22 +50,6 @@ def _update_map_entry(
     map_obj[str(cls_name)] = int(amount)
 
 
-def _update_active_snapshot(
-    state: MutableMapping[str, Any], cls_name: str | None, amount: int
-) -> None:
-    active = state.get("active")
-    if isinstance(active, MutableMapping):
-        active_cls = _extract_class_name(active) or cls_name
-        if active_cls == cls_name:
-            _set_scalar_ions(active, amount)
-            if cls_name:
-                _update_map_entry(active, "ions_by_class", cls_name, amount)
-
-    state_cls = _extract_class_name(state)
-    if state_cls == cls_name:
-        _set_scalar_ions(state, amount)
-
-
 def grant_starting_ions(
     player: MutableMapping[str, Any],
     reason: str,
@@ -92,7 +76,6 @@ def grant_starting_ions(
     if state is not None and isinstance(state, MutableMapping):
         if cls_name:
             _update_map_entry(state, "ions_by_class", cls_name, amount)
-        _update_active_snapshot(state, cls_name, amount)
         players = state.get("players")
         if isinstance(players, list):
             for entry in players:

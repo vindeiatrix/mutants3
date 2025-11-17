@@ -206,7 +206,7 @@ def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
         """Persist ions for the active class (fresh state-in, fresh state-out)."""
 
         nonlocal currency_state
-        # Persist via helper (updates per-class map + mirrors + active snapshot).
+        # Persist via helper (updates per-class map + mirrors the in-memory view).
         before_cls = pstate.get_active_class(currency_state)
         before_ions = pstate.get_ions_for_active(currency_state)
         result = pstate.set_ions_for_active(currency_state, new_amount)

@@ -53,7 +53,7 @@ def set_active(active_id: str) -> Dict[str, Any]:
     state["active_id"] = active_id
     updated = player_state.on_class_switch(prev_class, next_class, state)
     updated["active_id"] = active_id
-    # keep the active snapshot aligned immediately (readers relying on it stay stable)
+    # keep any in-memory active view aligned for callers using it immediately
     if isinstance(updated.get("active"), dict) and isinstance(next_class, str) and next_class:
         updated["active"]["class"] = next_class
     save_state(updated)

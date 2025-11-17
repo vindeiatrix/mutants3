@@ -88,12 +88,12 @@ class TurnScheduler:
                 from mutants.services import player_state as pstate
 
                 p = ensure_player_state(self._ctx)
-                # (1) No persisted active snapshot allowed
+                # (1) No persisted active view allowed
                 if isinstance(p, MutableMapping) and "active" in p:
                     global _ACTIVE_SNAPSHOT_WARNING_EMITTED
                     if not _ACTIVE_SNAPSHOT_WARNING_EMITTED:
                         LOG.warning(
-                            "player_state contains forbidden 'active' snapshot; stripping"
+                            "player_state contains forbidden 'active' view; stripping"
                         )
                         _ACTIVE_SNAPSHOT_WARNING_EMITTED = True
                     del p["active"]
