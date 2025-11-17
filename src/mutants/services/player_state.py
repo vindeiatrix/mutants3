@@ -94,6 +94,65 @@ def _strip_runtime_metadata(state: Mapping[str, Any]) -> Dict[str, Any]:
     return sanitized
 
 
+def normalize_player_live_state(data: dict) -> Dict[str, Any]:
+    """Normalize on-disk player live state in-place and drop snapshots."""
+
+    if not isinstance(data, Mapping):
+        return {"players": [], "active_id": None}
+
+    normalized: Dict[str, Any] = copy.deepcopy(dict(data))
+
+    active_payload = normalized.get("active")
+    if isinstance(active_payload, Mapping):
+        global _ACTIVE_SNAPSHOT_WARNING_EMITTED
+        if not _ACTIVE_SNAPSHOT_WARNING_EMITTED:
+            LOG.warning("player_state contains forbidden 'active' snapshot; stripping")
+            _ACTIVE_SNAPSHOT_WARNING_EMITTED = True
+
+    normalized.pop("active", None)
+
+    raw_players = normalized.get("players")
+    ions_lookup = normalized.get("ions_by_class") if isinstance(normalized.get("ions_by_class"), Mapping) else None
+    cleaned_players: List[Dict[str, Any]] = []
+    used_ids: set[str] = set()
+    if isinstance(raw_players, list):
+        for entry in raw_players:
+            if not isinstance(entry, Mapping):
+                continue
+            class_token = _normalize_class_name(entry.get("class")) or _normalize_class_name(entry.get("name"))
+            if not class_token:
+                continue
+
+            sanitized_entry = _sanitize_player_entry(entry, class_token, used_ids, ions_lookup)
+            allowed_keys = {"id", "class", "name", "display_name", "pos", "inventory", "is_active", "ions", "Ions"}
+            cleaned = {key: value for key, value in sanitized_entry.items() if key in allowed_keys}
+            if "display_name" in cleaned and "name" not in cleaned:
+                cleaned["name"] = cleaned["display_name"]
+            cleaned_players.append(cleaned)
+
+    normalized["players"] = cleaned_players
+
+    active_id = _sanitize_player_id(normalized.get("active_id"))
+    valid_ids = [entry.get("id") for entry in cleaned_players if isinstance(entry, Mapping) and isinstance(entry.get("id"), str)]
+    if active_id not in valid_ids:
+        resolved: Optional[str] = None
+        for class_name in CLASS_ORDER:
+            for entry in cleaned_players:
+                if entry.get("class") == class_name and isinstance(entry.get("id"), str):
+                    resolved = entry["id"]
+                    break
+            if resolved:
+                break
+
+        if resolved is None and valid_ids:
+            resolved = valid_ids[0]
+
+        active_id = resolved
+
+    normalized["active_id"] = active_id
+    return normalized
+
+
 def _ensure_players_list(state: MutableMapping[str, Any]) -> List[Dict[str, Any]]:
     players = state.get("players")
     if isinstance(players, list):
@@ -2628,32 +2687,20 @@ def migrate_per_class_fields(state: Dict[str, Any]) -> Dict[str, Any]:
     return normalized
 
 
-def _strip_persisted_active_snapshot(state: MutableMapping[str, Any]) -> None:
-    """Drop any persisted ``active`` snapshot from ``state``."""
-
-    active_payload = state.get("active")
-    if isinstance(active_payload, Mapping):
-        global _ACTIVE_SNAPSHOT_WARNING_EMITTED
-        if not _ACTIVE_SNAPSHOT_WARNING_EMITTED:
-            LOG.warning("player_state contains forbidden 'active' snapshot; stripping")
-            _ACTIVE_SNAPSHOT_WARNING_EMITTED = True
-
-    state.pop("active", None)
-
-
 def load_state() -> Dict[str, Any]:
     path = _player_path()
     try:
         with path.open("r", encoding="utf-8") as f:
             state: Dict[str, Any] = json.load(f)
         if isinstance(state, MutableMapping):
-            _strip_persisted_active_snapshot(state)
+            normalized_state = normalize_player_live_state(state)
+            canonical = get_canonical_state(normalized_state)
+            normalized_canonical = normalize_player_live_state(canonical)
             before = json.dumps(state, sort_keys=True, ensure_ascii=False)
-            canonical = get_canonical_state(state)
-            after = json.dumps(canonical, sort_keys=True, ensure_ascii=False)
+            after = json.dumps(normalized_canonical, sort_keys=True, ensure_ascii=False)
             if after != before:
-                _persist_canonical(canonical)
-            state = canonical
+                _persist_canonical(normalized_canonical)
+            state = normalized_canonical
         else:
             state = get_canonical_state(state)
     except (FileNotFoundError, json.JSONDecodeError):
