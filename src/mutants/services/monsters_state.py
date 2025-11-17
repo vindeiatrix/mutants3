@@ -13,6 +13,7 @@ from mutants.registries import items_instances
 from mutants.registries import monsters_instances
 from mutants.services import items_weight
 from mutants.services import player_state as pstate
+from mutants.services import state_debug
 from mutants.state import state_path
 
 LOG = logging.getLogger(__name__)
@@ -751,6 +752,10 @@ class MonstersState:
                 spawn_payload = copy.deepcopy(payload)
                 spawn_payload.setdefault("hp", {"current": hp_cur, "max": max(hp_cur, hp_max)})
                 self._instances.spawn(spawn_payload)
+                try:
+                    state_debug.log_monster_spawn(spawn_payload, reason="persist_spawn")
+                except Exception:
+                    pass
 
     def _sync_local_with_store(self) -> List[Dict[str, Any]]:
         records: List[Dict[str, Any]] = []
@@ -778,6 +783,10 @@ class MonstersState:
                 self._monsters.append(entry)
                 self._by_id[ident] = entry
                 local = entry
+                try:
+                    state_debug.log_monster_spawn(local, reason="store_sync")
+                except Exception:
+                    pass
             else:
                 local.clear()
                 local.update(entry)
@@ -790,6 +799,10 @@ class MonstersState:
                     try:
                         self._monsters.remove(monster)
                     except ValueError:
+                        pass
+                    try:
+                        state_debug.log_monster_despawn(monster, reason="store_removed")
+                    except Exception:
                         pass
 
         return records
@@ -876,6 +889,10 @@ class MonstersState:
             self._monsters.append(entry)
 
         self._track_dirty(iid)
+        try:
+            state_debug.log_monster_spawn(entry, reason="cache_add")
+        except Exception:
+            pass
         return entry
 
     def set_status_effects(
@@ -1006,6 +1023,11 @@ class MonstersState:
             hp_block["current"] = 0
 
         _refresh_monster_derived(monster)
+
+        try:
+            state_debug.log_monster_despawn(monster, reason="killed", drops=drops)
+        except Exception:
+            pass
 
         if pstate._pdbg_enabled():  # pragma: no cover - diagnostic logging
             try:

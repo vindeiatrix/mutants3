@@ -2687,7 +2687,7 @@ def migrate_per_class_fields(state: Dict[str, Any]) -> Dict[str, Any]:
     return normalized
 
 
-def load_state() -> Dict[str, Any]:
+def load_state(*, source: str | None = None) -> Dict[str, Any]:
     path = _player_path()
     try:
         with path.open("r", encoding="utf-8") as f:
@@ -2714,10 +2714,14 @@ def load_state() -> Dict[str, Any]:
         log_state["active"] = active_view
     _playersdbg_log("LOAD", log_state)
     _check_invariants_and_log(log_state, "after load")
+    try:
+        state_debug.log_load_state(state, source=source or "player_state.load_state")
+    except Exception:
+        pass
     return state
 
 
-def save_state(state: Dict[str, Any]) -> None:
+def save_state(state: Dict[str, Any], *, reason: str | None = None) -> None:
     working: Mapping[str, Any] | None
     if isinstance(state, MutableMapping):
         ensure_class_profiles(state)
@@ -2735,7 +2739,10 @@ def save_state(state: Dict[str, Any]) -> None:
 
     _playersdbg_log("SAVE", log_state)
     _check_invariants_and_log(log_state, "after save")
-    state_debug.log_save_state(to_save)
+    try:
+        state_debug.log_save_state(to_save, reason=reason or "save_state")
+    except Exception:
+        pass
 
 
 def on_class_switch(

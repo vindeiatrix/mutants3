@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import logging
+from logging.handlers import RotatingFileHandler
 import os
 from pathlib import Path
 from typing import Any, Iterable, Mapping, MutableMapping, Sequence
@@ -13,6 +14,8 @@ from mutants.state import state_path
 
 
 _LOGGER: logging.Logger | None = None
+_LOG_MAX_BYTES = 5 * 1024 * 1024
+_LOG_BACKUPS = 3
 
 
 def _debug_enabled() -> bool:
@@ -40,8 +43,13 @@ def _state_logger() -> logging.Logger | None:
 
     log_path = state_path("logs", "game.log")
     Path(log_path).parent.mkdir(parents=True, exist_ok=True)
-    stream = Path(log_path).open("a", encoding="utf-8", buffering=1)
-    handler = logging.StreamHandler(stream)
+    handler = RotatingFileHandler(
+        log_path,
+        maxBytes=_LOG_MAX_BYTES,
+        backupCount=_LOG_BACKUPS,
+        encoding="utf-8",
+        delay=True,
+    )
     handler.setFormatter(logging.Formatter("%(asctime)s STATE %(message)s"))
     logger.addHandler(handler)
 
@@ -168,6 +176,19 @@ def _inventory_snapshot(player: Mapping[str, Any] | None) -> list[dict[str, Any]
     return snapshot
 
 
+def _equipment_snapshot(player: Mapping[str, Any] | None) -> dict[str, Any]:
+    wielded = pstate.get_wielded_weapon_id(player or {}) if isinstance(player, Mapping) else None
+    armour = pstate.get_equipped_armour_id(player or {}) if isinstance(player, Mapping) else None
+    details: dict[str, Any] = {}
+    if wielded:
+        details["wielded"] = _describe_iid(wielded)
+    if armour:
+        details["armour"] = _describe_iid(armour)
+    if not details:
+        return {}
+    return details
+
+
 def log_tick(ctx: Any, tick: int) -> None:
     payload = {"event": "tick", "tick": int(tick)}
     payload.update(_base_context(ctx))
@@ -215,7 +236,7 @@ def log_pos_drift(
     _emit(payload)
 
 
-def log_save_state(state: Mapping[str, Any]) -> None:
+def _summaries_from_state(state: Mapping[str, Any]) -> list[dict[str, Any]]:
     summaries: list[dict[str, Any]] = []
     players = state.get("players") if isinstance(state, Mapping) else None
     if isinstance(players, list):
@@ -242,8 +263,25 @@ def log_save_state(state: Mapping[str, Any]) -> None:
                     "inventory_size": len(inv),
                 }
             )
+    return summaries
 
-    payload = {"event": "save_state", "players": summaries}
+
+def log_load_state(state: Mapping[str, Any], *, source: str | None = None) -> None:
+    payload = {
+        "event": "load_state",
+        "source": source,
+        "players": _summaries_from_state(state),
+    }
+    payload.update(_base_context(None, state))
+    _emit(payload)
+
+
+def log_save_state(state: Mapping[str, Any], *, reason: str | None = None) -> None:
+    payload = {
+        "event": "save_state",
+        "reason": reason,
+        "players": _summaries_from_state(state),
+    }
     payload.update(_base_context(None, state))
     _emit(payload)
 
@@ -258,15 +296,18 @@ def log_inventory_stage(
     extra: Mapping[str, Any] | None = None,
 ) -> list[dict[str, Any]]:
     snapshot = _inventory_snapshot(player)
+    equipment = _equipment_snapshot(player)
     payload = {"event": stage, "command": command}
     if arg is not None:
         payload["arg"] = arg
     payload["inventory"] = snapshot
+    if equipment:
+        payload["equipment"] = equipment
     payload.update(_base_context(ctx, player, player=player))
     if isinstance(extra, Mapping):
         payload.update({k: v for k, v in extra.items()})
     _emit(payload)
-    return snapshot
+    return [{"inventory": snapshot, "equipment": equipment}]
 
 
 def log_inventory_update(
@@ -278,18 +319,49 @@ def log_inventory_update(
     before: Sequence[Mapping[str, Any]] | None = None,
     extra: Mapping[str, Any] | None = None,
 ) -> None:
-    after = _inventory_snapshot(player)
+    after_inv = _inventory_snapshot(player)
+    after_equipment = _equipment_snapshot(player)
+    before_inv: list[Mapping[str, Any]] | None = None
+    before_equipment: Mapping[str, Any] | None = None
+    if before:
+        if isinstance(before, Sequence) and len(before) == 1 and isinstance(before[0], Mapping):
+            before_inv = before[0].get("inventory") if isinstance(before[0], Mapping) else None
+            before_equipment = before[0].get("equipment") if isinstance(before[0], Mapping) else None
+        elif isinstance(before, Sequence):
+            before_inv = [dict(entry) for entry in before if isinstance(entry, Mapping)]
     payload = {
         "event": "inventory_update",
         "command": command,
         "arg": arg,
-        "before": list(before) if before is not None else None,
-        "after": after,
+        "before": before_inv,
+        "after": after_inv,
+        "equipment_before": before_equipment,
+        "equipment_after": after_equipment,
     }
     payload.update(_base_context(ctx, player, player=player))
     if isinstance(extra, Mapping):
         payload.update({k: v for k, v in extra.items()})
+        for key, value in extra.items():
+            if isinstance(key, str) and key.endswith("_iid") and value:
+                payload[f"{key}_detail"] = _describe_iid(value)
+        swapped = extra.get("swapped") if isinstance(extra, Mapping) else None
+        if swapped:
+            payload["swapped_detail"] = _describe_iid(swapped)
     _emit(payload)
+
+
+def _describe_iid(iid: Any) -> dict[str, Any]:
+    if iid is None:
+        return {}
+    inst = itemsreg.get_instance(iid) or {}
+    item_id = inst.get("item_id") or inst.get("catalog_id") or inst.get("id") or iid
+    catalog = catreg.load_catalog() or {}
+    template = catalog.get(str(item_id)) if isinstance(catalog, Mapping) else None
+    if isinstance(template, Mapping):
+        name = template.get("display") or template.get("name") or template.get("title")
+    else:
+        name = None
+    return {"iid": iid, "item_id": item_id, "name": name or item_id}
 
 
 def log_travel(
@@ -316,4 +388,39 @@ def log_travel(
     payload.update(_base_context(ctx))
     if isinstance(extra, Mapping):
         payload.update({k: v for k, v in extra.items()})
+    _emit(payload)
+
+
+def log_monster_spawn(monster: Mapping[str, Any], *, reason: str | None = None) -> None:
+    if not isinstance(monster, Mapping):
+        return
+    payload = {
+        "event": "monster_spawn",
+        "reason": reason,
+        "id": monster.get("id") or monster.get("instance_id"),
+        "monster_id": monster.get("monster_id"),
+        "name": monster.get("name"),
+        "pos": monster.get("pos") if isinstance(monster.get("pos"), Iterable) else None,
+    }
+    _emit(payload)
+
+
+def log_monster_despawn(
+    monster: Mapping[str, Any] | None, *, reason: str | None = None, drops: Iterable[Any] | None = None
+) -> None:
+    payload = {
+        "event": "monster_despawn",
+        "reason": reason,
+    }
+    if isinstance(monster, Mapping):
+        payload.update(
+            {
+                "id": monster.get("id") or monster.get("instance_id"),
+                "monster_id": monster.get("monster_id"),
+                "name": monster.get("name"),
+                "pos": monster.get("pos") if isinstance(monster.get("pos"), Iterable) else None,
+            }
+        )
+    if drops:
+        payload["drops"] = [_describe_iid(entry.get("iid")) if isinstance(entry, Mapping) else entry for entry in drops]
     _emit(payload)
