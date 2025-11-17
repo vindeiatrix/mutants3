@@ -22,6 +22,7 @@ LOG_P = logging.getLogger("mutants.playersdbg")
 
 _PDBG_CONFIGURED = False
 _ACTIVE_SNAPSHOT_WARNING_EMITTED = False
+_AUTOSAVE_WARNING_EMITTED = False
 
 _STARTING_TEMPLATES_CACHE: Dict[str, Dict[str, Any]] | None = None
 
@@ -915,10 +916,32 @@ def _extract_display_name(payload: Mapping[str, Any] | None) -> Optional[str]:
     return None
 
 
-def _persist_canonical(state: Dict[str, Any]) -> None:
+def _persist_canonical(
+    state: Dict[str, Any],
+    *,
+    reason: str | None = None,
+    on_error: Callable[[Path, str | None, BaseException], None] | None = None,
+) -> None:
     """Write ``state`` to disk without mutating logging state."""
 
-    atomic_write_json(_player_path(), state)
+    path = _player_path()
+
+    def _handle_error(p: Path, tmp_path: str | None, error: BaseException) -> None:
+        if on_error is not None:
+            on_error(p, tmp_path, error)
+            return
+        state_debug.log_save_failure(
+            reason=reason,
+            path=p,
+            tmp_path=str(tmp_path) if tmp_path else None,
+            error=error,
+        )
+
+    atomic_write_json(
+        path,
+        state,
+        on_error=_handle_error,
+    )
 
 
 def _has_profile_payload(state: Dict[str, Any]) -> bool:
@@ -2699,7 +2722,7 @@ def load_state(*, source: str | None = None) -> Dict[str, Any]:
             before = json.dumps(state, sort_keys=True, ensure_ascii=False)
             after = json.dumps(normalized_canonical, sort_keys=True, ensure_ascii=False)
             if after != before:
-                _persist_canonical(normalized_canonical)
+                _persist_canonical(normalized_canonical, reason="load_state.normalized")
             state = normalized_canonical
         else:
             state = get_canonical_state(state)
@@ -2721,7 +2744,42 @@ def load_state(*, source: str | None = None) -> Dict[str, Any]:
     return state
 
 
-def save_state(state: Dict[str, Any], *, reason: str | None = None) -> None:
+def _warn_autosave_failure_once() -> None:
+    global _AUTOSAVE_WARNING_EMITTED
+    if _AUTOSAVE_WARNING_EMITTED:
+        return
+    _AUTOSAVE_WARNING_EMITTED = True
+    try:
+        print("(Warning: autosave failed; see logs)")
+    except Exception:
+        pass
+
+
+def _log_save_failure(
+    *,
+    reason: str | None,
+    path: Path,
+    tmp_path: str | None,
+    error: BaseException,
+) -> None:
+    state_debug.log_save_failure(
+        reason=reason,
+        path=path,
+        tmp_path=tmp_path,
+        error=error,
+    )
+    errno = getattr(error, "errno", None)
+    LOG.warning(
+        "Failed to persist player state to %s via %s: %s errno=%s message=%s",
+        path,
+        tmp_path,
+        type(error).__name__,
+        errno,
+        error,
+    )
+
+
+def save_state(state: Dict[str, Any], *, reason: str | None = None) -> bool:
     working: Mapping[str, Any] | None
     if isinstance(state, MutableMapping):
         ensure_class_profiles(state)
@@ -2730,7 +2788,23 @@ def save_state(state: Dict[str, Any], *, reason: str | None = None) -> None:
         working = state
 
     to_save = get_canonical_state(working)
-    _persist_canonical(to_save)
+    path = _player_path()
+    error_context: dict[str, Any] = {}
+
+    def _record_error(_: Path, tmp_path: str | None, __: BaseException) -> None:
+        error_context["tmp_path"] = str(tmp_path) if tmp_path else None
+
+    try:
+        _persist_canonical(
+            to_save,
+            reason=reason,
+            on_error=_record_error,
+        )
+    except Exception as exc:
+        tmp_path = error_context.get("tmp_path")
+        _log_save_failure(reason=reason, path=path, tmp_path=tmp_path, error=exc)
+        _warn_autosave_failure_once()
+        return False
 
     log_state = dict(to_save)
     active_view = build_active_view(to_save)
@@ -2743,6 +2817,7 @@ def save_state(state: Dict[str, Any], *, reason: str | None = None) -> None:
         state_debug.log_save_state(to_save, reason=reason or "save_state")
     except Exception:
         pass
+    return True
 
 
 def on_class_switch(

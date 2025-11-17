@@ -103,12 +103,12 @@ def move(dir_code: str, ctx: Dict[str, Any]) -> None:
 
     save_success = False
     try:
-        pstate.save_state(canonical_state, reason="autosave:move")
+        save_success = pstate.save_state(canonical_state, reason="autosave:move")
     except Exception:
         LOG.exception("Failed to autosave position after move.")
     else:
-        save_success = True
-        pstate.clear_ready_target_for_active(reason="player-moved")
+        if save_success:
+            pstate.clear_ready_target_for_active(reason="player-moved")
 
     refreshed: Mapping[str, Any] | None = None
     ions_after = ions_before

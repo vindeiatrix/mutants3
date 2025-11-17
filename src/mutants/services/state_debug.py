@@ -286,6 +286,31 @@ def log_save_state(state: Mapping[str, Any], *, reason: str | None = None) -> No
     _emit(payload)
 
 
+def log_save_failure(
+    *,
+    reason: str | None = None,
+    path: str | Path | None = None,
+    tmp_path: str | None = None,
+    error: BaseException | None = None,
+) -> None:
+    payload: dict[str, Any] = {
+        "event": "save_state_error",
+        "reason": reason,
+        "path": str(path) if path is not None else None,
+        "tmp_path": tmp_path,
+    }
+    if error is not None:
+        payload.update(
+            {
+                "exc_type": type(error).__name__,
+                "errno": getattr(error, "errno", None),
+                "message": str(error),
+            }
+        )
+    payload.update(_base_context(None, None))
+    _emit(payload)
+
+
 def log_inventory_stage(
     ctx: Any,
     player: Mapping[str, Any] | None,
