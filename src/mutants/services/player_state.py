@@ -12,7 +12,7 @@ from mutants.io.atomic import atomic_write_json
 from mutants.players import startup as player_startup
 from mutants.registries import items_instances as itemsreg
 from mutants.state import state_path
-from mutants.services import monsters_state
+from mutants.services import monsters_state, state_debug
 from .equip_debug import _edbg_enabled, _edbg_log
 
 
@@ -2795,6 +2795,7 @@ def save_state(state: Dict[str, Any]) -> None:
 
     _playersdbg_log("SAVE", log_state)
     _check_invariants_and_log(log_state, "after save")
+    state_debug.log_save_state(to_save)
 
 
 def on_class_switch(

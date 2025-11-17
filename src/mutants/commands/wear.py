@@ -7,6 +7,7 @@ from ..registries import items_catalog as catreg
 from ..registries import items_instances as itemsreg
 from ..services import player_state as pstate
 from ..services import item_transfer as itx
+from ..services import state_debug
 from ..services.equip_debug import _edbg_enabled, _edbg_log
 from ..services.items_weight import get_effective_weight
 from ..util.textnorm import normalize_item_query
@@ -143,6 +144,9 @@ def wear_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
     pstate.ensure_active_profile(player, ctx)
     pstate.bind_inventory_to_active_class(player)
     itx._ensure_inventory(player)
+    before_snapshot = state_debug.log_inventory_stage(
+        ctx, player, command="wear", arg=prefix, stage="inventory_before"
+    )
 
     stats_state = pstate.load_state()
     cls_name = pstate.get_active_class(stats_state)
@@ -291,6 +295,15 @@ def wear_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
     result: Dict[str, object] = {"ok": True, "iid": equipped, "item_id": item_id}
     if current:
         result["swapped"] = current
+
+    state_debug.log_inventory_update(
+        ctx,
+        player,
+        command="wear",
+        arg=prefix,
+        before=before_snapshot,
+        extra={"equipped_iid": equipped, "swapped": current},
+    )
 
     if _edbg_enabled():
         try:

@@ -13,6 +13,7 @@ from mutants.registries import (
     monsters_instances,
 )
 from ..util.textnorm import normalize_item_query
+from ..services import state_debug
 
 
 itemsreg = items_instances
@@ -118,6 +119,10 @@ def _debug_monster(arg: str, ctx) -> None:
 
     pos = _pos_from_ctx(ctx)
     coords = [int(pos[0]), int(pos[1]), int(pos[2])]
+    player = pstate.ensure_player_state(ctx)
+    before_snapshot = state_debug.log_inventory_stage(
+        ctx, player, command="debug_monster", arg=arg, stage="inventory_before"
+    )
 
     try:
         mon_cat = monsters_catalog.get()
@@ -170,6 +175,14 @@ def _debug_monster(arg: str, ctx) -> None:
         return
 
     name = instance.get("name") or template.name
+    state_debug.log_inventory_update(
+        ctx,
+        player,
+        command="debug_monster",
+        arg=arg,
+        before=before_snapshot,
+        extra={"monster_id": monster_id, "pos": coords, "instance_id": instance.get("id")},
+    )
     bus.push("SYSTEM/OK", f"Spawned {name} at your location.")
     ctx["render_next"] = True
 
@@ -245,10 +258,22 @@ def debug_add_cmd(arg: str, ctx):
     except Exception:
         count = 1
     count = max(1, min(99, count))
+    player = pstate.ensure_player_state(ctx)
+    before_snapshot = state_debug.log_inventory_stage(
+        ctx, player, command="debug_add", arg=arg, stage="inventory_before"
+    )
     spawned, pos = _spawn_items_at_player(ctx, item_id, count)
     preview = ", ".join(spawned[:5])
     if len(spawned) > 5:
         preview = f"{preview}, …"
+    state_debug.log_inventory_update(
+        ctx,
+        player,
+        command="debug_add",
+        arg=arg,
+        before=before_snapshot,
+        extra={"spawned": spawned, "pos": list(pos)},
+    )
     bus.push(
         "DEBUG",
         f"spawned {count} x {item_id} at ({pos[0]}, {pos[1]}, {pos[2]}) [{preview}]",

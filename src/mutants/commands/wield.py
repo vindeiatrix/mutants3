@@ -6,6 +6,7 @@ from ..registries import items_catalog as catreg
 from ..registries import items_instances as itemsreg
 from ..services import item_transfer as itx
 from ..services import player_state as pstate
+from ..services import state_debug
 from ..services.equip_debug import _edbg_enabled, _edbg_log
 from ..services.items_weight import get_effective_weight
 from ..util.textnorm import normalize_item_query
@@ -80,6 +81,9 @@ def wield_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
     pstate.ensure_active_profile(player, ctx)
     pstate.bind_inventory_to_active_class(player)
     itx._ensure_inventory(player)
+    before_snapshot = state_debug.log_inventory_stage(
+        ctx, player, command="wield", arg=prefix, stage="inventory_before"
+    )
 
     if not prefix:
         if _edbg_enabled():
@@ -244,6 +248,15 @@ def wield_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
                     )
     if strike_summary is not None:
         result["strike"] = strike_summary
+
+    state_debug.log_inventory_update(
+        ctx,
+        player,
+        command="wield",
+        arg=prefix,
+        before=before_snapshot,
+        extra={"wielded_iid": iid, "previous": current_iid},
+    )
 
     if _edbg_enabled():
         final_state = _state_from_ctx(ctx)

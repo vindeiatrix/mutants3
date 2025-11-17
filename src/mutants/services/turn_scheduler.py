@@ -5,6 +5,7 @@ import random
 from typing import TYPE_CHECKING, Any, Callable, Mapping, MutableMapping, Optional, Sequence
 
 from mutants.debug import turnlog
+from mutants.services import state_debug
 if TYPE_CHECKING:
     from mutants.services.status_manager import StatusManager
 from mutants.services import random_pool
@@ -96,6 +97,9 @@ class TurnScheduler:
                 if view and list(view)[:3] != [y, x, z]:
                     message = f"pos drift (view vs canonical): {view} != {[y, x, z]}"
                     LOG.error(message)
+                    state_debug.log_pos_drift(
+                        self._ctx, canonical=[y, x, z], view=view, state=p
+                    )
                     try:
                         if pstate._pdbg_enabled():
                             raise RuntimeError(message)
@@ -285,6 +289,7 @@ class TurnScheduler:
         message = f"tick={tick_id}"
         turnlog.emit(self._ctx, "TURN/TICK", message=message, tick=tick_id)
         LOG.info("TURN/TICK %s", message)
+        state_debug.log_tick(self._ctx, tick_id)
 
     # Public hooks -----------------------------------------------------
     def queue_free_emote(self, monster: Mapping[str, Any] | None, *, gate: str) -> None:
