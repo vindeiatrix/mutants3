@@ -16,6 +16,7 @@ LOG = logging.getLogger(__name__)
 __all__ = ["TurnScheduler"]
 
 _MISSING = object()
+_ACTIVE_SNAPSHOT_WARNING_EMITTED = False
 
 
 class TurnScheduler:
@@ -89,7 +90,12 @@ class TurnScheduler:
                 p = ensure_player_state(self._ctx)
                 # (1) No persisted active snapshot allowed
                 if isinstance(p, MutableMapping) and "active" in p:
-                    LOG.error("player_state contains forbidden 'active' snapshot; stripping")
+                    global _ACTIVE_SNAPSHOT_WARNING_EMITTED
+                    if not _ACTIVE_SNAPSHOT_WARNING_EMITTED:
+                        LOG.warning(
+                            "player_state contains forbidden 'active' snapshot; stripping"
+                        )
+                        _ACTIVE_SNAPSHOT_WARNING_EMITTED = True
                     del p["active"]
                 # (2) Drift check: any lingering view must match canonical
                 y, x, z = pstate.canonical_player_pos(p)
