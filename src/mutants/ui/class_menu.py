@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from typing import Tuple
+from typing import Any, Dict, List, Tuple
 
+from mutants.constants import CLASS_ORDER
 from mutants.services import player_state as pstate
 from mutants.services import player_reset
 from mutants.engine import session
@@ -21,17 +22,33 @@ def _coerce_pos(player) -> Tuple[int, int, int]:
         return (2000, 0, 0)
 
 
+def _players_by_class(state: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
+    mapping: Dict[str, Dict[str, Any]] = {}
+    players = state.get("players")
+    if not isinstance(players, list):
+        return mapping
+    for entry in players:
+        if not isinstance(entry, dict):
+            continue
+        cls_token = pstate.normalize_class_name(entry.get("class")) or pstate.normalize_class_name(
+            entry.get("name")
+        )
+        if cls_token:
+            mapping[cls_token] = entry
+    return mapping
+
+
 def render_menu(ctx: dict) -> None:
     state = pstate.load_state()
-    players = state.get("players", [])
+    players_by_class = _players_by_class(state)
     bus = ctx["feedback_bus"]
-    for i, player in enumerate(players, start=1):
+    for i, class_name in enumerate(CLASS_ORDER, start=1):
+        player = players_by_class.get(class_name, {})
         yr, x, y = _coerce_pos(player)
         lvl = int(player.get("level", 1) or 1)
-        cls = str(player.get("class") or "Unknown")
         bus.push(
             "SYSTEM/OK",
-            ROW_FMT.format(idx=i, cls=cls, lvl=lvl, yr=yr, x=x, y=y),
+            ROW_FMT.format(idx=i, cls=class_name, lvl=lvl, yr=yr, x=x, y=y),
         )
     # Blank line between the list and the hint line.
     bus.push("SYSTEM/OK", "")
@@ -54,6 +71,8 @@ def handle_input(raw: str, ctx: dict) -> None:
     s = (raw or "").strip()
     state = pstate.load_state()
     players = state.get("players", [])
+    players_by_class = _players_by_class(state)
+    slot_count = len(CLASS_ORDER)
     bus = ctx["feedback_bus"]
     if not s:
         return
@@ -72,33 +91,30 @@ def handle_input(raw: str, ctx: dict) -> None:
             bus.push("SYSTEM/ERROR", "Usage: BURY [class number]")
             return
         idx_n = int(parts[1])
-        if not (1 <= idx_n <= len(players)):
-            bus.push("SYSTEM/ERROR", f"Choose a number 1–{len(players)}")
+        if not (1 <= idx_n <= slot_count):
+            bus.push("SYSTEM/ERROR", f"Choose a number 1–{slot_count}")
             return
         player_reset.bury_by_index(idx_n - 1)
         ctx["player_state"] = pstate.load_state()
         bus.push("SYSTEM/OK", "Player reset.")
         render_menu(ctx)
         return
-    idx = _select_index(lowered, len(players))
+    idx = _select_index(lowered, slot_count)
     if idx is None:
         bus.push(
             "SYSTEM/ERROR",
-            f"Please enter a number (1–{len(players)}), 'bury <n>', or '?'.",
+            f"Please enter a number (1–{slot_count}), 'bury <n>', or '?'.",
         )
         return
-    target_id = players[idx - 1].get("id")
+    class_name = CLASS_ORDER[idx - 1]
+    selected_player = players_by_class.get(class_name)
+    if not isinstance(selected_player, dict):
+        bus.push("SYSTEM/ERROR", f"No player profile for {class_name}.")
+        return
+    target_id = selected_player.get("id")
     if not target_id:
         bus.push("SYSTEM/ERROR", "No player id for that slot.")
         return
-    selected_player = players[idx - 1]
-    class_name = str(
-        (selected_player.get("class") or selected_player.get("name") or "Thief")
-    )
-    class_name = class_name.strip()
-    if not class_name:
-        class_name = "Thief"
-
     year_val = 2000
     sel_pos = selected_player.get("pos")
     if isinstance(sel_pos, (list, tuple)) and sel_pos:

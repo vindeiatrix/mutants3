@@ -11,6 +11,7 @@ from mutants import env
 from mutants.bootstrap.lazyinit import compute_ac_from_dex
 from mutants.players import startup as player_startup
 from mutants.services import player_state as pstate
+from mutants.constants import CLASS_ORDER
 
 
 LOG = logging.getLogger(__name__)
@@ -137,20 +138,35 @@ def _purge_player_items(player_id: str) -> int:
     return removed
 
 
-def bury_by_index(index_0: int) -> Dict[str, Any]:
-    """Reset the player at ``index_0`` (0-based) to their starting template."""
+def bury_class(class_name: str) -> Dict[str, Any]:
+    """Reset the player matching ``class_name`` to their starting template."""
 
     state, active = pstate.get_active_pair()
-    players = state.get("players", [])
-    if not (0 <= index_0 < len(players)):
-        raise IndexError("Player index out of range")
+    if isinstance(state, dict):
+        pstate.ensure_class_profiles(state)
+        state, active = pstate.get_active_pair(state)
 
-    player = players[index_0]
+    normalized_cls = pstate.normalize_class_name(class_name) or "Thief"
+    players = state.get("players", [])
+    player: Dict[str, Any] | None = None
+    if isinstance(players, list):
+        for entry in players:
+            if not isinstance(entry, dict):
+                continue
+            entry_class = pstate.normalize_class_name(entry.get("class")) or pstate.normalize_class_name(
+                entry.get("name")
+            )
+            if entry_class == normalized_cls:
+                player = entry
+                break
+    if player is None:
+        raise KeyError(f"No player profile for class: {normalized_cls}")
+
     player_id = str(player.get("id") or "")
     _purge_player_items(player_id)
 
     templates = _load_templates()
-    template = _template_for(player.get("class"), templates)
+    template = _template_for(normalized_cls, templates)
     _reset_fields_from_template(
         player,
         template,
@@ -184,5 +200,16 @@ def bury_by_index(index_0: int) -> Dict[str, Any]:
             state=state,
         )
 
+    pstate.ensure_class_profiles(state)
     pstate.save_state(state)
     return state
+
+
+def bury_by_index(index_0: int) -> Dict[str, Any]:
+    """Reset the player at ``index_0`` (0-based) to their starting template."""
+
+    if not (0 <= index_0 < len(CLASS_ORDER)):
+        raise IndexError("Player index out of range")
+
+    class_name = CLASS_ORDER[index_0]
+    return bury_class(class_name)

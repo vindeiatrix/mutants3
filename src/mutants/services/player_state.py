@@ -6,7 +6,10 @@ import os
 from pathlib import Path
 from typing import Any, Callable, Dict, Iterable, List, Mapping, MutableMapping, Optional, Tuple
 
+from mutants.bootstrap import lazyinit
+from mutants.constants import CLASS_ORDER
 from mutants.io.atomic import atomic_write_json
+from mutants.players import startup as player_startup
 from mutants.registries import items_instances as itemsreg
 from mutants.state import state_path
 from mutants.services import monsters_state
@@ -19,6 +22,8 @@ LOG_P = logging.getLogger("mutants.playersdbg")
 
 _PDBG_CONFIGURED = False
 _ACTIVE_SNAPSHOT_WARNING_EMITTED = False
+
+_STARTING_TEMPLATES_CACHE: Dict[str, Dict[str, Any]] | None = None
 
 # Canonical on-disk schema (no transient ``active`` snapshot):
 # {
@@ -102,6 +107,214 @@ def _ensure_players_list(state: MutableMapping[str, Any]) -> List[Dict[str, Any]
         return sanitized
     state["players"] = []
     return state["players"]  # type: ignore[return-value]
+
+
+def _load_starting_templates() -> Dict[str, Dict[str, Any]]:
+    global _STARTING_TEMPLATES_CACHE
+    if _STARTING_TEMPLATES_CACHE is not None:
+        return _STARTING_TEMPLATES_CACHE
+
+    try:
+        templates = lazyinit.load_templates()
+    except Exception:
+        data_path = Path("src/mutants/data/startingclasstemplates.json")
+        templates = json.loads(data_path.read_text(encoding="utf-8"))
+
+    mapping: Dict[str, Dict[str, Any]] = {}
+    for entry in templates:
+        if not isinstance(entry, Mapping):
+            continue
+        cls_token = str(entry.get("class") or "").strip()
+        if not cls_token:
+            continue
+        mapping[cls_token.lower()] = dict(entry)
+
+    _STARTING_TEMPLATES_CACHE = mapping
+    return mapping
+
+
+def _get_starting_template(class_name: str) -> Dict[str, Any]:
+    templates = _load_starting_templates()
+    token = str(class_name or "").strip().lower()
+    template = templates.get(token)
+    if template is None:
+        raise KeyError(f"No starting template for class: {class_name}")
+    return copy.deepcopy(template)
+
+
+def _allocate_player_id(used_ids: set[str], class_name: str) -> str:
+    base = f"player_{class_name.lower()}" if class_name else "player"
+    candidate = base
+    suffix = 2
+    while candidate in used_ids:
+        candidate = f"{base}_{suffix}"
+        suffix += 1
+    used_ids.add(candidate)
+    return candidate
+
+
+def _coerce_pos_list(value: Any) -> List[int]:
+    if isinstance(value, (list, tuple)) and len(value) == 3:
+        try:
+            return [int(value[0]), int(value[1]), int(value[2])]
+        except (TypeError, ValueError):
+            pass
+    return [2000, 0, 0]
+
+
+def _sanitize_player_entry(
+    entry: Mapping[str, Any] | None,
+    class_name: str,
+    used_ids: set[str],
+    ions_lookup: Mapping[str, Any] | None,
+) -> Dict[str, Any]:
+    if isinstance(entry, Mapping):
+        sanitized: Dict[str, Any] = copy.deepcopy(dict(entry))
+    else:
+        sanitized = {}
+
+    sanitized["class"] = class_name
+    name_val = sanitized.get("name") or sanitized.get("display_name")
+    if not isinstance(name_val, str) or not name_val.strip():
+        sanitized["name"] = class_name
+
+    sanitized["pos"] = _coerce_pos_list(sanitized.get("pos"))
+
+    inventory = sanitized.get("inventory")
+    if not isinstance(inventory, list):
+        sanitized["inventory"] = []
+
+    ions_val = sanitized.get("ions")
+    if ions_val is None:
+        ions_val = sanitized.get("Ions")
+    if ions_val is None and isinstance(ions_lookup, Mapping):
+        ions_val = ions_lookup.get(class_name)
+    if ions_val is None:
+        ions_val = player_startup.START_IONS.get("fresh", 30_000)
+    sanitized["ions"] = int(ions_val)
+    sanitized["Ions"] = int(ions_val)
+
+    player_id = _sanitize_player_id(sanitized.get("id"))
+    if not player_id or player_id in used_ids:
+        sanitized["id"] = _allocate_player_id(used_ids, class_name)
+    else:
+        used_ids.add(player_id)
+
+    sanitized["is_active"] = False
+    return sanitized
+
+
+def _build_profile_for_class(
+    class_name: str, used_ids: set[str], ions_lookup: Mapping[str, Any] | None
+) -> Dict[str, Any]:
+    try:
+        template = _get_starting_template(class_name)
+    except KeyError:
+        template = {"class": class_name}
+
+    profile = lazyinit.make_player_from_template(template, make_active=False)
+    if not isinstance(profile, MutableMapping):
+        profile = {"class": class_name}
+
+    sanitized = _sanitize_player_entry(profile, class_name, used_ids, ions_lookup)
+    return sanitized
+
+
+def ensure_class_profiles(state: MutableMapping[str, Any]) -> Dict[str, Any]:
+    if not isinstance(state, MutableMapping):
+        return {"players": [], "active_id": None}
+
+    players = state.get("players")
+    existing_ions_map = state.get("ions_by_class") if isinstance(state.get("ions_by_class"), Mapping) else None
+
+    if isinstance(players, list):
+        raw_players = [p for p in players if isinstance(p, Mapping)]
+    else:
+        raw_players = []
+
+    by_class: Dict[str, List[Mapping[str, Any]]] = {cls: [] for cls in CLASS_ORDER}
+    for entry in raw_players:
+        cls_token = _normalize_class_name(entry.get("class")) or _normalize_class_name(
+            entry.get("name")
+        )
+        if cls_token and cls_token in by_class:
+            by_class[cls_token].append(entry)
+
+    used_ids: set[str] = set()
+    sanitized_players: List[Dict[str, Any]] = []
+
+    active_id = _sanitize_player_id(state.get("active_id"))
+    active_snapshot = state.get("active")
+    snapshot_class = None
+    if isinstance(active_snapshot, Mapping):
+        snapshot_class = _normalize_class_name(active_snapshot.get("class")) or _normalize_class_name(
+            active_snapshot.get("name")
+        )
+    root_class = _normalize_class_name(state.get("class")) or _normalize_class_name(
+        state.get("name")
+    )
+
+    for class_name in CLASS_ORDER:
+        candidates = by_class.get(class_name, [])
+        chosen: Mapping[str, Any] | None = None
+        if active_id:
+            for entry in candidates:
+                if _sanitize_player_id(entry.get("id")) == active_id:
+                    chosen = entry
+                    break
+        if chosen is None and candidates:
+            chosen = candidates[0]
+        if chosen is None:
+            sanitized_players.append(_build_profile_for_class(class_name, used_ids, existing_ions_map))
+        else:
+            sanitized_players.append(
+                _sanitize_player_entry(chosen, class_name, used_ids, existing_ions_map)
+            )
+
+    state["players"] = sanitized_players
+
+    ions_map = state.get("ions_by_class")
+    if isinstance(ions_map, MutableMapping):
+        for key in list(ions_map.keys()):
+            if key not in CLASS_ORDER:
+                ions_map.pop(key)
+    else:
+        ions_map = {}
+        state["ions_by_class"] = ions_map
+
+    resolved_active_id = None
+    if active_id:
+        for entry in sanitized_players:
+            if _sanitize_player_id(entry.get("id")) == active_id:
+                resolved_active_id = entry["id"]
+                break
+
+    if resolved_active_id is None:
+        preferred_class = snapshot_class or root_class or CLASS_ORDER[0]
+        for entry in sanitized_players:
+            if entry.get("class") == preferred_class:
+                resolved_active_id = entry["id"]
+                break
+
+    if resolved_active_id is None and sanitized_players:
+        resolved_active_id = sanitized_players[0]["id"]
+
+    state["active_id"] = resolved_active_id
+
+    active_player: Optional[Dict[str, Any]] = None
+    for entry in sanitized_players:
+        is_active = bool(resolved_active_id and entry.get("id") == resolved_active_id)
+        entry["is_active"] = is_active
+        if is_active:
+            active_player = entry
+        ions_map[entry["class"]] = int(entry.get("ions", 0))
+
+    if active_player:
+        state["class"] = active_player.get("class")
+        if isinstance(active_player.get("name"), str):
+            state["name"] = active_player["name"]
+
+    return state
 
 
 def _canonical_class_token(state: Mapping[str, Any], class_name: Any) -> str:
@@ -211,6 +424,8 @@ def get_canonical_state(state: Optional[Mapping[str, Any]] = None) -> Dict[str, 
 
     normalize_player_state_inplace(base)
     base.pop("active", None)
+
+    ensure_class_profiles(base)
 
     players = base.get("players")
     if not isinstance(players, list):
@@ -2550,6 +2765,9 @@ def load_state() -> Dict[str, Any]:
             state = get_canonical_state(state)
     except (FileNotFoundError, json.JSONDecodeError):
         state = {"players": [], "active_id": None}
+
+    if isinstance(state, MutableMapping):
+        ensure_class_profiles(state)
     log_state = dict(state)
     active_view = build_active_view(state)
     if active_view:
@@ -2560,7 +2778,14 @@ def load_state() -> Dict[str, Any]:
 
 
 def save_state(state: Dict[str, Any]) -> None:
-    to_save = get_canonical_state(state)
+    working: Mapping[str, Any] | None
+    if isinstance(state, MutableMapping):
+        ensure_class_profiles(state)
+        working = state
+    else:
+        working = state
+
+    to_save = get_canonical_state(working)
     _persist_canonical(to_save)
 
     log_state = dict(to_save)
