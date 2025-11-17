@@ -60,10 +60,6 @@ def _active_player_from_state(state: Mapping[str, Any]) -> Dict[str, Any]:
         if isinstance(first, MutableMapping):
             return first  # type: ignore[return-value]
 
-    active = state.get("active")
-    if isinstance(active, MutableMapping):
-        return active  # type: ignore[return-value]
-
     return {}
 
 
@@ -1132,24 +1128,18 @@ def _gather_class_sources(
             )
             if not candidate:
                 continue
-            if candidate not in sources:
-                sources[candidate] = player
             classes.append(candidate)
 
     active_class = _normalize_class_name(active.get("class")) if isinstance(active, dict) else None
     fallback_class = _normalize_class_name(klass) or active_class
     if fallback_class:
         classes.append(fallback_class)
-        if fallback_class not in sources and isinstance(active, dict):
-            sources[fallback_class] = active
 
     root_candidates = (
         _normalize_class_name(state.get("class")),
         _normalize_class_name(state.get("name")),
     )
     for candidate in root_candidates:
-        if candidate and candidate not in sources and isinstance(active, dict):
-            sources[candidate] = active
         if candidate:
             classes.append(candidate)
 
@@ -2608,13 +2598,10 @@ def _normalize_player_state(state: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def migrate_per_class_fields(state: Dict[str, Any]) -> Dict[str, Any]:
-    """Populate per-class structures from legacy scalar fields when needed."""
+    """Populate per-class structures while ignoring legacy snapshots."""
 
     if not isinstance(state, dict):
         return state
-
-    legacy_snapshot = copy.deepcopy(state)
-    legacy_values = _collect_legacy_snapshots(legacy_snapshot)
 
     normalized = _normalize_player_state(state)
 
@@ -2627,77 +2614,14 @@ def migrate_per_class_fields(state: Dict[str, Any]) -> Dict[str, Any]:
 
     sparse_ions = bool(normalized.pop("_sparse_ions_by_class", False))
 
-    ions_map = normalized.setdefault("ions_by_class", {})
-    rib_map = normalized.setdefault("riblets_by_class", {})
-    exp_map = normalized.setdefault("exp_by_class", {})
-    level_map = normalized.setdefault("level_by_class", {})
-    hp_map = normalized.setdefault("hp_by_class", {})
-    stats_map = normalized.setdefault("stats_by_class", {})
-    ready_map = normalized.setdefault("ready_target_by_class", {})
-    target_map = normalized.setdefault("target_monster_id_by_class", {})
-
-    for cls_name, payload in legacy_values.items():
-        if not isinstance(cls_name, str) or not cls_name:
-            continue
-
-        ions_value = payload.get("ions")
-        if ions_value is not None:
-            if sparse_ions and cls_name != klass:
-                pass
-            else:
-                if cls_name not in ions_map or _sanitize_class_int(ions_map.get(cls_name), 0) == 0:
-                    ions_map[cls_name] = _sanitize_class_int(ions_value, 0)
-
-        rib_value = payload.get("riblets")
-        if rib_value is not None:
-            if cls_name not in rib_map or _sanitize_class_int(rib_map.get(cls_name), 0) == 0:
-                rib_map[cls_name] = _sanitize_class_int(rib_value, 0)
-
-        exp_value = payload.get("exp")
-        if exp_value is not None:
-            if cls_name not in exp_map or _sanitize_class_int(exp_map.get(cls_name), 0) == 0:
-                exp_map[cls_name] = _sanitize_class_int(exp_value, 0)
-
-        level_value = payload.get("level")
-        if level_value is not None:
-            if cls_name not in level_map or _sanitize_class_int(level_map.get(cls_name), 1) == 1:
-                level_map[cls_name] = _sanitize_class_int(level_value, 1)
-
-        hp_value = payload.get("hp")
-        if hp_value is not None:
-            existing_hp = hp_map.get(cls_name)
-            if not isinstance(existing_hp, Mapping) or _normalize_hp_block(existing_hp) == _empty_hp():
-                hp_map[cls_name] = _normalize_hp_block(hp_value)
-
-        stats_value = payload.get("stats")
-        if stats_value is not None:
-            existing_stats = stats_map.get(cls_name)
-            if not isinstance(existing_stats, Mapping) or _normalize_stats_block(existing_stats) == _empty_stats():
-                stats_map[cls_name] = _normalize_stats_block(stats_value)
-
-        wield_value = payload.get("wielded")
-        if wield_value is not None:
-            wield_map = normalized.setdefault("wielded_by_class", {})
-            current_wield = _sanitize_equipped_iid(wield_map.get(cls_name))
-            sanitized_wield = _sanitize_equipped_iid(wield_value)
-            if sanitized_wield and not current_wield:
-                wield_map[cls_name] = sanitized_wield
-
-        target_value = payload.get("ready_target")
-        sanitized_ready = _sanitize_ready_target(target_value)
-        if sanitized_ready is None:
-            target_map_payload = payload.get("target_monster_id_by_class")
-            if isinstance(target_map_payload, Mapping):
-                sanitized_ready = _sanitize_ready_target(target_map_payload.get(cls_name))
-        if sanitized_ready is None and "target_monster_id" in payload:
-            sanitized_ready = _sanitize_ready_target(payload.get("target_monster_id"))
-        if sanitized_ready is not None:
-            current_ready = _sanitize_ready_target(ready_map.get(cls_name))
-            current_target = _sanitize_ready_target(target_map.get(cls_name))
-            if not current_ready:
-                ready_map[cls_name] = sanitized_ready
-            if not current_target:
-                target_map[cls_name] = sanitized_ready
+    normalized.setdefault("ions_by_class", {})
+    normalized.setdefault("riblets_by_class", {})
+    normalized.setdefault("exp_by_class", {})
+    normalized.setdefault("level_by_class", {})
+    normalized.setdefault("hp_by_class", {})
+    normalized.setdefault("stats_by_class", {})
+    normalized.setdefault("ready_target_by_class", {})
+    normalized.setdefault("target_monster_id_by_class", {})
 
     _normalize_per_class_structures(normalized, klass, active, sparse_ions=sparse_ions)
 
@@ -2705,45 +2629,14 @@ def migrate_per_class_fields(state: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def _strip_persisted_active_snapshot(state: MutableMapping[str, Any]) -> None:
-    """Merge and drop any persisted ``active`` snapshot from ``state``."""
+    """Drop any persisted ``active`` snapshot from ``state``."""
 
     active_payload = state.get("active")
-    if not isinstance(active_payload, Mapping):
-        state.pop("active", None)
-        return
-
-    global _ACTIVE_SNAPSHOT_WARNING_EMITTED
-    if not _ACTIVE_SNAPSHOT_WARNING_EMITTED:
-        LOG.warning("player_state contains forbidden 'active' snapshot; stripping")
-        _ACTIVE_SNAPSHOT_WARNING_EMITTED = True
-
-    class_hint = active_payload.get("class") or active_payload.get("name")
-    entry = _ensure_player_entry(state, class_hint)
-    class_token = _canonical_class_token(state, class_hint)
-
-    pos = active_payload.get("pos") or active_payload.get("position")
-    coerced = _coerce_pos(pos)
-    if coerced is not None:
-        update_player_pos(state, class_token, coerced)
-
-    inventory = active_payload.get("inventory")
-    if isinstance(inventory, list):
-        update_player_inventory(state, class_token, inventory)
-
-    ions_value = active_payload.get("ions")
-    if ions_value is None:
-        ions_value = active_payload.get("Ions")
-    if ions_value is not None:
-        ions_map = state.get("ions_by_class")
-        if not isinstance(ions_map, MutableMapping):
-            ions_map = {}
-            state["ions_by_class"] = ions_map
-        sanitized = max(0, _coerce_int(ions_value, 0))
-        ions_map[class_token] = sanitized
-        entry["ions"] = sanitized
-        entry["Ions"] = sanitized
-        state["ions"] = sanitized
-        state["Ions"] = sanitized
+    if isinstance(active_payload, Mapping):
+        global _ACTIVE_SNAPSHOT_WARNING_EMITTED
+        if not _ACTIVE_SNAPSHOT_WARNING_EMITTED:
+            LOG.warning("player_state contains forbidden 'active' snapshot; stripping")
+            _ACTIVE_SNAPSHOT_WARNING_EMITTED = True
 
     state.pop("active", None)
 
