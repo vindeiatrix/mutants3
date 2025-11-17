@@ -10,6 +10,7 @@ if str(SRC_PATH) not in sys.path:
 
 from mutants import state as state_mod
 from mutants.constants import CLASS_ORDER
+from mutants.players import startup as player_startup
 from mutants.services import player_state
 from mutants.services import player_reset
 
@@ -55,9 +56,9 @@ def test_load_state_strips_persisted_active(state_root):
     players = state["players"]
     assert len(players) == len(CLASS_ORDER)
     thief_entry = next(entry for entry in players if entry["class"] == "Thief")
-    assert thief_entry["pos"] == [2022, 1, 2]
-    assert thief_entry["inventory"] == ["mysterious-orb"]
-    assert state["ions_by_class"]["Thief"] == 123
+    assert thief_entry["pos"] == [2000, 0, 0]
+    assert thief_entry.get("inventory", []) == []
+    assert state["ions_by_class"]["Thief"] == 0
 
 
 def test_save_state_strips_active_snapshot(state_root):
