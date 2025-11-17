@@ -1,4 +1,5 @@
 import json
+import logging
 import sys
 from pathlib import Path
 
@@ -161,6 +162,27 @@ def test_ensure_class_profiles_rebuilds_missing_classes():
     assert normalized["ions_by_class"]["Mage"] == mage_entry["ions"]
 
     assert normalized["active_id"] == thief_entry["id"]
+
+
+def test_load_state_repairs_manual_edits(state_root, caplog):
+    player_path = state_root / "playerlivestate.json"
+    payload = {
+        "players": [
+            {"id": "player_thief", "class": "Thief", "pos": [2000, 0, 0], "ions": 111},
+            {"id": "player_spy", "class": "Spy", "pos": [2001, 1, 1], "ions": 222},
+        ],
+        "active_id": "player_spy",
+        "ions_by_class": {"Thief": 111, "Spy": 222},
+    }
+    _write_state(player_path, payload)
+
+    with caplog.at_level(logging.INFO):
+        repaired = player_state.load_state()
+
+    roster_classes = [entry.get("class") for entry in repaired["players"]]
+    assert roster_classes == list(player_state.CANONICAL_CLASSES)
+    assert set(repaired["ions_by_class"].keys()) == set(player_state.CANONICAL_CLASSES)
+    assert any("canonical classes" in message for message in caplog.messages)
 
 
 def test_bury_by_index_preserves_class_roster(state_root, monkeypatch):
