@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Mapping, Tuple
 
 from mutants.constants import CLASS_ORDER
-from mutants.services import player_state as pstate
+from mutants.services import player_active, player_state as pstate
 from mutants.services import player_reset
 from mutants.engine import session
 
@@ -20,6 +20,17 @@ def _coerce_pos(player) -> Tuple[int, int, int]:
         return (yr, x, y)
     except Exception:
         return (2000, 0, 0)
+
+
+def _load_canonical_state() -> Dict[str, Any]:
+    """Return a fresh, canonical player state from disk."""
+
+    state = pstate.load_state()
+    if isinstance(state, Mapping):
+        state = dict(state)
+    if isinstance(state, dict):
+        return pstate.ensure_class_profiles(state)
+    return {"players": [], "active_id": None}
 
 
 def _players_by_class(state: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
@@ -39,7 +50,7 @@ def _players_by_class(state: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
 
 
 def render_menu(ctx: dict) -> None:
-    state = pstate.load_state()
+    state = _load_canonical_state()
     players_by_class = _players_by_class(state)
     bus = ctx["feedback_bus"]
     for i, class_name in enumerate(CLASS_ORDER, start=1):
@@ -69,7 +80,7 @@ def _select_index(value: str, max_n: int) -> int | None:
 
 def handle_input(raw: str, ctx: dict) -> None:
     s = (raw or "").strip()
-    state = pstate.load_state()
+    state = _load_canonical_state()
     players = state.get("players", [])
     players_by_class = _players_by_class(state)
     slot_count = len(CLASS_ORDER)
@@ -95,7 +106,7 @@ def handle_input(raw: str, ctx: dict) -> None:
             bus.push("SYSTEM/ERROR", f"Choose a number 1–{slot_count}")
             return
         player_reset.bury_by_index(idx_n - 1)
-        ctx["player_state"] = pstate.load_state()
+        ctx["player_state"] = _load_canonical_state()
         bus.push("SYSTEM/OK", "Player reset.")
         render_menu(ctx)
         return
@@ -115,35 +126,17 @@ def handle_input(raw: str, ctx: dict) -> None:
     if not target_id:
         bus.push("SYSTEM/ERROR", "No player id for that slot.")
         return
-    year_val = 2000
-    sel_pos = selected_player.get("pos")
-    if isinstance(sel_pos, (list, tuple)) and sel_pos:
-        try:
-            year_val = int(sel_pos[0])
-        except Exception:
-            year_val = 2000
-    if year_val == 2000:
-        try:
-            year_candidate = int(selected_player.get("year"))
-        except Exception:
-            year_candidate = None
-        if isinstance(year_candidate, int):
-            year_val = year_candidate
+    try:
+        updated_state = player_active.set_active(str(target_id))
+    except Exception:
+        bus.push("SYSTEM/ERROR", "Could not activate that player.")
+        return
 
-    state["active_id"] = target_id
-    state["active"] = {"class": class_name, "pos": [int(year_val), 0, 0]}
-    state.pop("class", None)
-
-    if isinstance(players, list):
-        for entry in players:
-            if isinstance(entry, dict):
-                entry["is_active"] = bool(entry.get("id") == target_id)
-
-    session.set_active_class(class_name)
+    resolved_class = pstate.get_active_class(updated_state)
+    session.set_active_class(resolved_class)
     session_ctx = ctx.setdefault("session", {})
     if isinstance(session_ctx, dict):
-        session_ctx["active_class"] = class_name
-    pstate.save_state(state)
-    ctx["player_state"] = pstate.load_state()
+        session_ctx["active_class"] = resolved_class
+    ctx["player_state"] = updated_state
     ctx["mode"] = None
     ctx["render_next"] = True
