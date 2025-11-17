@@ -61,6 +61,38 @@ def test_load_state_strips_persisted_active(state_root):
     assert state["ions_by_class"]["Thief"] == 0
 
 
+def test_load_state_rewrites_with_clean_players(state_root):
+    player_path = state_root / "playerlivestate.json"
+    payload = {
+        "players": [
+            {
+                "id": "player_thief",
+                "class": "Thief",
+                "pos": [2024, 2, 4],
+                "inventory": ["amulet"],
+                "stats": {"str": 99},
+            }
+        ],
+        "active_id": "unknown",
+        "ions_by_class": {},
+        "active": {"junk": True},
+    }
+    _write_state(player_path, payload)
+
+    state = player_state.load_state()
+
+    assert state.get("active_id") == "player_thief"
+
+    with player_path.open("r", encoding="utf-8") as handle:
+        written = json.load(handle)
+
+    assert "active" not in written
+    cleaned_player = written["players"][0]
+    assert cleaned_player.get("id") == "player_thief"
+    assert cleaned_player.get("class") == "Thief"
+    assert "stats" not in cleaned_player
+
+
 def test_save_state_strips_active_snapshot(state_root):
     player_path = state_root / "playerlivestate.json"
     payload = {

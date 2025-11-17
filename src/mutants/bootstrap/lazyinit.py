@@ -208,7 +208,16 @@ def _ensure_player_state_file(
         try:
             data = json.loads(out_path.read_text(encoding="utf-8"))
             if isinstance(data, dict) and "players" in data and "active_id" in data:
-                return data
+                from mutants.services import player_state as pstate
+
+                normalized = pstate.normalize_player_live_state(data)
+                canonical = pstate.get_canonical_state(normalized)
+                normalized_canonical = pstate.normalize_player_live_state(canonical)
+                before = json.dumps(data, sort_keys=True, ensure_ascii=False)
+                after = json.dumps(normalized_canonical, sort_keys=True, ensure_ascii=False)
+                if after != before:
+                    atomic_write_json(out_path, normalized_canonical)
+                return normalized_canonical
             raise ValueError("missing required keys: players/active_id")
         except Exception:
             LOG.warning(
