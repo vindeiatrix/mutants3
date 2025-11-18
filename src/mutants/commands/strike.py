@@ -373,14 +373,14 @@ def strike_cmd(arg: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
         bus.push("SYSTEM/WARN", "No monsters are available to strike.")
         return {"ok": False, "reason": "no_monsters"}
 
-    state = ctx.get("player_state")
-    if not isinstance(state, dict):
-        state = {}
-
     player = ensure_player_state(ctx)
     if not isinstance(player, Mapping):
         player = {}
     active = player
+
+    state = ctx.get("player_state")
+    if not isinstance(state, dict):
+        state = {}
 
     target_id = pstate.get_ready_target_for_active(state)
     if not target_id:
