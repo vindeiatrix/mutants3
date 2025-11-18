@@ -29,6 +29,21 @@ def _resolve_item_id(entry: Mapping[str, object]) -> str:
     return ""
 
 
+def _resolve_instance_id(entry: Mapping[str, object]) -> str:
+    for key in ("iid", "instance_id"):
+        raw = entry.get(key)
+        if isinstance(raw, str) and raw.strip():
+            return raw.strip()
+        if raw is not None:
+            try:
+                token = str(raw).strip()
+            except Exception:
+                continue
+            if token:
+                return token
+    return ""
+
+
 def coerce_pos(value, fallback: tuple[int, int, int] | None = None) -> tuple[int, int, int] | None:
     """Return ``(year, x, y)`` when ``value`` looks like positional data."""
 
@@ -116,7 +131,24 @@ def drop_new_entries(
         elif existing is None or not existing.get("origin"):
             updates["origin"] = origin
 
-        itemsreg.update_instance(iid, **updates)
+        try:
+            itemsreg.update_instance(iid, **updates)
+        except KeyError:
+            # If the instance vanished between mint and update, mint a fresh one and retry
+            # once directly onto the ground. Skip optional metadata if the second attempt
+            # also fails so the drop is not lost entirely.
+            fallback_iid = itemsreg.mint_on_ground_with_defaults(
+                item_id,
+                year=year,
+                x=x,
+                y=y,
+                origin=origin_value,
+            )
+            try:
+                itemsreg.update_instance(fallback_iid, **updates)
+                iid = fallback_iid
+            except KeyError:
+                iid = fallback_iid
         minted.append(iid)
 
     return minted
@@ -283,6 +315,34 @@ def drop_monster_loot(
                 if hasattr(bus, "push"):
                     bus.push("COMBAT/INFO", message[0])
             continue
+
+        iid = _resolve_instance_id(entry)
+        if iid:
+            inst = itemsreg.get_instance(iid)
+            if inst:
+                moved = itemsreg.move_instance(iid, dest=pos)
+                if moved:
+                    try:
+                        itemsreg.update_instance(
+                            iid,
+                            owner=None,
+                            pos={"year": year, "x": x, "y": y},
+                            drop_source=entry.get("drop_source") or source,
+                            origin=entry.get("origin") or inst.get("origin"),
+                        )
+                    except KeyError:
+                        # If the instance disappeared, fall back to minting a fresh copy.
+                        inst = None
+                    else:
+                        record = _clone_entry(entry, source=source)
+                        record["iid"] = iid
+                        if record.get("item_id"):
+                            record["item_id"] = str(inst.get("item_id") or record.get("item_id"))
+                        else:
+                            record["item_id"] = str(inst.get("item_id") or record.get("catalog_id") or "")
+                        minted.append(record)
+                        free_slots -= 1
+                        continue
 
         minted_iids = drop_new_entries([entry], pos)
         if not minted_iids:

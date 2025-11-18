@@ -95,6 +95,46 @@ def _seed_catalogs(mods, db_path: Path) -> None:
     manager.upsert_monster_catalog(monster_id, json.dumps(monster_entry))
 
 
+def test_monster_bag_items_drop_to_ground(runtime_modules, monkeypatch):
+    mods = runtime_modules
+    db_path = Path(mods.state.STATE_ROOT) / "mutants.db"
+    _seed_catalogs(mods, db_path)
+
+    stores = mods.sqlite_store.get_stores(db_path)
+    monkeypatch.setattr(mods.storage, "get_stores", lambda: stores)
+    import mutants.registries.storage as storage_mod
+
+    monkeypatch.setattr(storage_mod, "get_stores", lambda: stores)
+
+    items_cat = mods.items_catalog.load_catalog(db_path)
+    items_reg = mods.items_instances.get()
+
+    year, x, y = 2000, 5, 5
+    owner_iid = "monster-owner"
+    payload = items_reg.mint_item(
+        item_id="Rusty Shiv", pos=None, owner_iid=owner_iid, origin="monster_native"
+    )
+    iid = payload["iid"]
+
+    import mutants.services.combat_loot as combat_loot
+    combat_loot = importlib.reload(combat_loot)
+
+    minted, vaporized = combat_loot.drop_monster_loot(
+        pos=(year, x, y),
+        bag_entries=[{"instance_id": iid}],
+        armour_entry=None,
+        bus=SimpleNamespace(push=lambda *_, **__: None),
+        catalog=items_cat,
+    )
+
+    assert vaporized == []
+    assert minted and minted[0]["iid"] == iid
+
+    dropped = mods.items_instances.get_instance(iid)
+    assert dropped["owner"] is None
+    assert (dropped["year"], dropped["x"], dropped["y"]) == (year, x, y)
+
+
 def test_spawned_items_off_ground(runtime_modules, monkeypatch):
     mods = runtime_modules
     db_path = Path(mods.state.STATE_ROOT) / "mutants.db"
