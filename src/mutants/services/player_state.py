@@ -1502,11 +1502,8 @@ def _ensure_int_map(
         fallback_value = _sanitize_class_int(fallback, default)
 
         if cls_name in normalized:
-            current_value = _sanitize_class_int(normalized[cls_name], default)
-            if has_fallback and fallback_value != current_value:
-                normalized[cls_name] = fallback_value
-            else:
-                normalized[cls_name] = current_value
+            # Trust the existing map entry; do not overwrite from fallback/legacy sources.
+            normalized[cls_name] = _sanitize_class_int(normalized[cls_name], default)
             continue
 
         if not fill_missing:
