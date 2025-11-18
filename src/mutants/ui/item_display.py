@@ -183,12 +183,19 @@ def render_ground_list(item_ids: List[str]) -> str:
 
 
 def item_label(inst, tpl, *, show_charges: bool = False) -> str:
-    """Return the display name for an item instance.
-
-    Charges are shown only when ``show_charges`` is ``True``.
-    """
+    """Return the display name for an item instance."""
+    # Fallback chain for item identifier
     item_id = tpl.get("item_id") or inst.get("item_id")
-    base = canonical_name(str(item_id)) if item_id else tpl.get("name") or "Item"
+
+    # Detect if item_id has degenerated to the instance ID (GUID)
+    iid = inst.get("iid") or inst.get("instance_id")
+    if str(item_id) == str(iid) and tpl.get("name"):
+        # If so, prefer the template name if available
+        base = tpl.get("name")
+    else:
+        # Otherwise, canonicalize the item_id as usual
+        base = canonical_name(str(item_id)) if item_id else tpl.get("name") or "Item"
+
     if show_charges and (tpl.get("uses_charges") or tpl.get("charges_max") is not None):
         ch = inst.get("charges")
         if ch is not None:
