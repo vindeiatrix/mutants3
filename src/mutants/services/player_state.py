@@ -613,31 +613,66 @@ def sync_runtime_position(ctx: MutableMapping[str, Any], pos: Iterable[Any]) -> 
     ctx["_active_view"] = {"pos": list(canonical)}
 
 
+def _sanitize_inventory_list(raw_inventory: Iterable[Any]) -> List[str]:
+    seen: set[str] = set()
+    sanitized: List[str] = []
+    for item in raw_inventory or []:
+        token = copy.deepcopy(item)
+        if token is None:
+            continue
+        try:
+            token_str = str(token)
+        except Exception:
+            continue
+        if token_str and token_str not in seen:
+            seen.add(token_str)
+            sanitized.append(token_str)
+    return sanitized
+
+
 def update_player_inventory(
     state: MutableMapping[str, Any], class_name: Any, inventory_delta: Iterable[Any]
 ) -> List[Any]:
     """Bind ``inventory_delta`` to the canonical profile for ``class_name``."""
 
     entry = _ensure_player_entry(state, class_name)
-    try:
-        raw_items = list(inventory_delta)
-    except TypeError:
-        raw_items = []
-    sanitized = [copy.deepcopy(item) for item in raw_items if item is not None]
+    sanitized = _sanitize_inventory_list(inventory_delta)
     entry["inventory"] = list(sanitized)
 
     class_token = _canonical_class_token(state, class_name)
-    bags = state.get("bags")
+    bags = state.setdefault("bags", {}) if isinstance(state, MutableMapping) else None
     if isinstance(bags, MutableMapping):
         bags[class_token] = list(sanitized)
-    else:
-        state["bags"] = {class_token: list(sanitized)}
 
     active_id = _sanitize_player_id(state.get("active_id"))
     if active_id and _sanitize_player_id(entry.get("id")) == active_id:
         state["inventory"] = list(sanitized)
 
+    active_view = state.get("active") if isinstance(state, MutableMapping) else None
+    if isinstance(active_view, MutableMapping):
+        active_view.setdefault("bags", {})
+        active_view["inventory"] = list(sanitized)
+        active_view.get("bags", {})[class_token] = list(sanitized)
+
     return list(sanitized)
+
+
+def add_item_to_active_inventory(state: dict, player: dict, iid: str) -> None:
+    """Add ``iid`` to the active player's inventory and canonical bag."""
+
+    cls = player.get("class") or get_active_class(state)
+    inv = _sanitize_inventory_list(player.get("inventory") or [])
+    if iid not in inv:
+        inv.append(iid)
+    player["inventory"] = list(inv)
+
+    bags = state.setdefault("bags", {})
+    bags.setdefault(cls, [])
+    if iid not in bags[cls]:
+        bags[cls].append(iid)
+
+    update_player_inventory(state, cls, inv)
+
 
 
 def _save_player_to_disk(state: Mapping[str, Any]) -> None:
@@ -4175,36 +4210,59 @@ def ensure_active_profile(player: Dict[str, Any], ctx: Any) -> None:
 
 
 def bind_inventory_to_active_class(player: Dict[str, Any]) -> None:
-    """Bind ``player['inventory']`` to a per-class bag under ``player['bags']``."""
+    """Bind ``player['inventory']`` to the canonical per-class bag.
+
+    Invariant: For each class ``C``, the active player's inventory for that class
+    and ``state['bags'][C]`` must contain the same item ids (excluding items we
+    intentionally hide such as equipped armour).
+    """
+
+    ctx = _current_runtime_ctx()
+    state_hint = ctx.get("player_state") if isinstance(ctx, MutableMapping) else None
+    if state_hint is None and isinstance(player, MutableMapping) and "players" in player:
+        state_hint = player
 
     active = player.get("active")
     if not isinstance(active, dict):
         active = {}
         player["active"] = active
 
-    klass_raw = active.get("class") or player.get("class") or player.get("name")
-    if isinstance(klass_raw, str) and klass_raw:
-        klass = klass_raw
-    else:
-        klass = "Thief"
+    klass = get_active_class(state_hint or player)
     active["class"] = klass
     if "class" not in player or not player.get("class"):
         player["class"] = klass
 
-    bags = player.get("bags")
-    if not isinstance(bags, dict):
-        bags = {}
-        player["bags"] = bags
+    class_token = _canonical_class_token(state_hint or player, klass)
+    bags_source = None
+    if isinstance(state_hint, Mapping):
+        bags_source = state_hint.get("bags")
+    if not isinstance(bags_source, Mapping):
+        bags_source = player.get("bags") if isinstance(player, Mapping) else None
 
-    inventory = player.get("inventory")
-    inv_list = list(inventory) if isinstance(inventory, list) else []
+    raw_bag: Iterable[Any] = []
+    if isinstance(bags_source, Mapping):
+        raw_bag = bags_source.get(class_token) or bags_source.get(klass) or []
+
+    if not raw_bag:
+        if isinstance(active, Mapping) and isinstance(active.get("inventory"), list):
+            raw_bag = active.get("inventory") or []
+        elif isinstance(player.get("inventory"), list):
+            raw_bag = player.get("inventory") or []
+
+    bag = _sanitize_inventory_list(raw_bag)
+    if isinstance(state_hint, MutableMapping):
+        bag = update_player_inventory(state_hint, klass, bag)
+    else:
+        bags = player.setdefault("bags", {})
+        if isinstance(bags, MutableMapping):
+            bags[class_token] = list(bag)
+
+    player["inventory"] = list(bag)
+    active["inventory"] = list(bag)
 
     equipped = get_equipped_armour_id(player)
     if not equipped and isinstance(active, dict):
         equipped = get_equipped_armour_id(active)
-
-    bag = bags.get(klass)
-    bag = [item for item in inv_list if item]
 
     wielded = None
     raw_wield_map = player.get("wielded_by_class")
@@ -4220,10 +4278,6 @@ def bind_inventory_to_active_class(player: Dict[str, Any]) -> None:
         wielded = _sanitize_equipped_iid(active.get("wielded"))
     if wielded and wielded not in bag:
         wielded = None
-
-    bags[klass] = bag
-    player["inventory"] = bag
-    active["inventory"] = bag
 
     equipment_map = player.setdefault("equipment_by_class", {})
     if isinstance(equipment_map, dict):
