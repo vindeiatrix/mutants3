@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict, Mapping
+from typing import Any, Dict, Mapping, MutableMapping
 
 import logging
 import os
@@ -18,19 +18,6 @@ LOG = logging.getLogger(__name__)
 WORLD_DEBUG = os.getenv("WORLD_DEBUG") == "1"
 
 DIR_WORD = {"N": "north", "S": "south", "E": "east", "W": "west"}
-
-
-def _load_canonical_state() -> Dict[str, Any]:
-    try:
-        state = pstate.load_state()
-    except Exception:
-        return {}
-
-    if isinstance(state, dict):
-        return state
-    if isinstance(state, Mapping):
-        return dict(state)
-    return {}
 
 
 def move(dir_code: str, ctx: Dict[str, Any]) -> None:
@@ -88,18 +75,22 @@ def move(dir_code: str, ctx: Dict[str, Any]) -> None:
         return
 
     dx, dy = DELTA[dir_code]
-    canonical_state = _load_canonical_state()
-    if not canonical_state:
-        if isinstance(state, Mapping):
-            canonical_state = dict(state)
-        else:
-            canonical_state = {}
+    canonical_state: MutableMapping[str, Any]
+    if isinstance(state, MutableMapping):
+        canonical_state = state
+    elif isinstance(state, Mapping):
+        canonical_state = dict(state)
+    else:
+        canonical_state = {}
+
     try:
         ions_before = pstate.get_ions_for_active(canonical_state)
     except Exception:
         ions_before = None
 
-    new_pos = pstate.move_player(canonical_state, pstate.get_active_class(canonical_state), (0, dx, dy))
+    new_pos = pstate.move_player(
+        canonical_state, pstate.get_active_class(canonical_state), (0, dx, dy)
+    )
 
     save_success = False
     try:
@@ -123,9 +114,6 @@ def move(dir_code: str, ctx: Dict[str, Any]) -> None:
         refreshed = dict(refreshed)
     if isinstance(refreshed, dict):
         pstate.normalize_player_state_inplace(refreshed)
-        active_view = pstate.build_active_view(refreshed)
-        if active_view:
-            refreshed["active"] = active_view
         ctx["player_state"] = refreshed
 
     pstate.sync_runtime_position(ctx, new_pos)

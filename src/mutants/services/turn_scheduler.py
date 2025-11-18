@@ -98,14 +98,23 @@ class TurnScheduler:
                         _ACTIVE_SNAPSHOT_WARNING_EMITTED = True
                     del p["active"]
                 # (2) Drift check: any lingering view must match canonical
-                y, x, z = pstate.canonical_player_pos(p)
-                view = self._ctx.get("_active_view", {}).get("pos") if isinstance(self._ctx, Mapping) else None
-                if view and list(view)[:3] != [y, x, z]:
-                    message = f"pos drift (view vs canonical): {view} != {[y, x, z]}"
-                    LOG.error(message)
+                canonical = pstate.canonical_player_pos(p)
+                view = (
+                    self._ctx.get("_active_view", {}).get("pos")
+                    if isinstance(self._ctx, Mapping)
+                    else None
+                )
+                canonical_pos = list(canonical)
+                if view and list(view)[:3] != canonical_pos:
+                    message = f"pos drift (view vs canonical): {view} != {canonical_pos}"
+                    LOG.warning(message)
                     state_debug.log_pos_drift(
-                        self._ctx, canonical=[y, x, z], view=view, state=p
+                        self._ctx, canonical=canonical_pos, view=view, state=p
                     )
+                    try:
+                        pstate.sync_runtime_position(self._ctx, canonical_pos)
+                    except Exception:
+                        LOG.exception("Failed to repair runtime position after drift")
                     try:
                         if pstate._pdbg_enabled():
                             raise RuntimeError(message)

@@ -158,6 +158,9 @@ def build_context() -> Dict[str, Any]:
         "peek_vm": None,
         "session": {"active_class": active_class} if active_class else {},
     }
+    if isinstance(state, Mapping):
+        canonical_pos = pstate.canonical_player_pos(state)
+        pstate.sync_runtime_position(ctx, canonical_pos)
     if spawner is not None:
         ctx["monster_spawner"] = spawner
         services_entry = ctx.setdefault("services", {})
