@@ -3263,10 +3263,20 @@ def equip_armour(iid: str) -> str:
         raise ValueError("armour slot already occupied")
 
     entry["armour"] = sanitized
-    bag_list = [item for item in bag_list if item != sanitized]
-    bags[cls] = list(bag_list)
-    normalized["inventory"] = list(bag_list)
-    active["inventory"] = list(bag_list)
+    # Keep the equipped armour in the bag to satisfy state invariants that
+    # require equipped items to be present in the class inventory. Deduplicate
+    # while preserving the original order to avoid ballooning the bag if the
+    # equip command is repeated for the same item.
+    seen: set[str] = set()
+    deduped_bag: list[str] = []
+    for item in bag_list:
+        if item in seen:
+            continue
+        seen.add(item)
+        deduped_bag.append(item)
+    bags[cls] = list(deduped_bag)
+    normalized["inventory"] = list(deduped_bag)
+    active["inventory"] = list(deduped_bag)
 
     active_equipment = active.setdefault("equipment_by_class", {})
     if isinstance(active_equipment, dict):
@@ -3287,8 +3297,8 @@ def equip_armour(iid: str) -> str:
                 is_active = idx == 0
             if not is_active:
                 continue
-            player.setdefault("bags", {})[cls] = list(bag_list)
-            player["inventory"] = list(bag_list)
+            player.setdefault("bags", {})[cls] = list(deduped_bag)
+            player["inventory"] = list(deduped_bag)
             slot_map = player.setdefault("equipment_by_class", {})
             if isinstance(slot_map, dict):
                 slot_map[cls] = {"armour": sanitized}
@@ -3314,10 +3324,20 @@ def unequip_armour() -> Optional[str]:
     bags = normalized.setdefault("bags", {})
     existing_bag = bags.get(cls)
     bag_list = [str(item) for item in existing_bag or [] if item]
-    if current in bag_list:
-        raise ValueError("armour instance already present in inventory")
+    # Ensure the unequipped armour is present exactly once in the bag.
+    if current not in bag_list:
+        bag_list.append(current)
+    else:
+        # Deduplicate while preserving order in case of unexpected duplicates.
+        seen: set[str] = set()
+        deduped_bag: list[str] = []
+        for item in bag_list:
+            if item in seen:
+                continue
+            seen.add(item)
+            deduped_bag.append(item)
+        bag_list = deduped_bag
 
-    bag_list.append(current)
     bags[cls] = list(bag_list)
     normalized["inventory"] = list(bag_list)
     active["inventory"] = list(bag_list)
