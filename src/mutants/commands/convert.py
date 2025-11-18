@@ -227,35 +227,29 @@ def convert_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
         player["ions_by_class"] = {str(klass): new_total}
 
     itemsreg.remove_instance(iid)
-    itx._save_player(ctx, player)
 
+    # Load authoritative state to preserve all players/classes
     try:
         state = pstate.load_state()
-        if pstate._pdbg_enabled():  # pragma: no cover - diagnostic hook
+        
+        # 1. Persist inventory change
+        active_class = pstate.get_active_class(player)
+        pstate.update_player_inventory(state, active_class, player["inventory"])
+        
+        # 2. Persist ion change (set_ions_for_active saves the full state)
+        pstate.set_ions_for_active(state, new_total)
+
+        if pstate._pdbg_enabled():
             pstate._pdbg_setup_file_logging()
             LOG_P.info(
-                "[playersdbg] CONVERT before class=%s ions=%s add=%s iid=%s item=%s",
-                klass,
-                before,
+                "[playersdbg] CONVERT success class=%s ions=%s add=%s",
+                active_class,
+                new_total,
                 value,
-                iid,
-                item_id,
-            )
-        if isinstance(klass, str) and klass:
-            state["ions_by_class"] = {str(klass): new_total}
-            state["_sparse_ions_by_class"] = True
-        pstate.set_ions_for_active(state, new_total)
-        if pstate._pdbg_enabled():  # pragma: no cover - diagnostic hook
-            after_state = pstate.load_state()
-            after = pstate.get_ions_for_active(after_state)
-            LOG_P.info(
-                "[playersdbg] CONVERT after  class=%s ions=%s",
-                pstate.get_active_class(after_state),
-                after,
             )
     except Exception:
-        bus.push("SYSTEM/WARN", "Failed to add ions.")
-        return {"ok": False, "reason": "ion_error"}
+        bus.push("SYSTEM/WARN", "Failed to save conversion results.")
+        return {"ok": False, "reason": "save_error"}
 
     name = _display_name(item_id, catalog)
     bus.push("SYSTEM/OK", f"The {name} vanishes with a flash!")
