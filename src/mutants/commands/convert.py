@@ -228,15 +228,16 @@ def convert_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
 
     itemsreg.remove_instance(iid)
 
-    # Load authoritative state to preserve all players/classes
+    # --- REPLACEMENT BLOCK START ---
     try:
+        # Load authoritative state to preserve all players
         state = pstate.load_state()
-        
-        # 1. Persist inventory change
+
+        # 1. Update inventory in the full state
         active_class = pstate.get_active_class(player)
         pstate.update_player_inventory(state, active_class, player["inventory"])
-        
-        # 2. Persist ion change (set_ions_for_active saves the full state)
+
+        # 2. Update ions and save everything atomically
         pstate.set_ions_for_active(state, new_total)
 
         if pstate._pdbg_enabled():
@@ -250,6 +251,7 @@ def convert_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
     except Exception:
         bus.push("SYSTEM/WARN", "Failed to save conversion results.")
         return {"ok": False, "reason": "save_error"}
+    # --- REPLACEMENT BLOCK END ---
 
     name = _display_name(item_id, catalog)
     bus.push("SYSTEM/OK", f"The {name} vanishes with a flash!")
