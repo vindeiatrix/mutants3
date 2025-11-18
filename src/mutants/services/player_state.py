@@ -722,11 +722,24 @@ def ensure_player_state(ctx: MutableMapping[str, Any]) -> Dict[str, Any]:
         return _load_player_from_disk()
 
     cached = ctx.get(_RUNTIME_PLAYER_KEY)
+    state_hint = ctx.get("player_state")
+    if isinstance(cached, MutableMapping) and isinstance(state_hint, Mapping):
+        # Drop stale runtime caches when the active player in ``state_hint``
+        # differs from the cached snapshot. This keeps session transitions
+        # (e.g., switching classes) isolated and prevents writes for the
+        # wrong character.
+        cached_id = cached.get("id")
+        hinted_id = state_hint.get("active_id")
+        cached_cls = _normalize_class_name(cached.get("class"))
+        hinted_cls = _normalize_class_name(state_hint.get("class"))
+        if (hinted_id and cached_id != hinted_id) or (hinted_cls and cached_cls != hinted_cls):
+            ctx.pop(_RUNTIME_PLAYER_KEY, None)
+            cached = None
+
     if isinstance(cached, MutableMapping):
         cached.setdefault("_dirty", False)
         return cached  # type: ignore[return-value]
 
-    state_hint = ctx.get("player_state")
     if not isinstance(state_hint, MutableMapping):
         state_hint = load_state()
         ctx["player_state"] = state_hint
@@ -3063,6 +3076,12 @@ def set_ions_for_active(state: Dict[str, Any], amount: int) -> int:
         working["Ions"] = new_total
 
     save_state(dict(working))
+    ctx = _current_runtime_ctx()
+    if isinstance(ctx, MutableMapping):
+        ctx["player_state"] = dict(working)
+        ctx.pop(_RUNTIME_PLAYER_KEY, None)
+        runtime_player = ensure_player_state(ctx)
+        bind_inventory_to_active_class(runtime_player)
     return new_total
 
 
@@ -3312,6 +3331,12 @@ def equip_armour(iid: str) -> str:
             break
 
     save_state(normalized)
+    ctx = _current_runtime_ctx()
+    if isinstance(ctx, MutableMapping):
+        ctx["player_state"] = dict(normalized)
+        ctx.pop(_RUNTIME_PLAYER_KEY, None)
+        runtime_player = ensure_player_state(ctx)
+        bind_inventory_to_active_class(runtime_player)
     return sanitized
 
 
@@ -3377,6 +3402,12 @@ def unequip_armour() -> Optional[str]:
             break
 
     save_state(normalized)
+    ctx = _current_runtime_ctx()
+    if isinstance(ctx, MutableMapping):
+        ctx["player_state"] = dict(normalized)
+        ctx.pop(_RUNTIME_PLAYER_KEY, None)
+        runtime_player = ensure_player_state(ctx)
+        bind_inventory_to_active_class(runtime_player)
     return current
 
 
