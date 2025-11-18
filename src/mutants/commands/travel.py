@@ -109,43 +109,45 @@ def _persist_pos_only(
 ) -> Optional[Dict[str, Any]]:
     """Write only the active player's position to canonical state."""
 
-    try:
-        state = pstate.load_state()
-    except Exception:
-        return None
-
-    if not isinstance(state, dict):
-        if isinstance(state, Mapping):
-            state = dict(state)
+    state = ctx.get("player_state")
+    canonical_state: MutableMapping[str, Any]
+    if isinstance(state, MutableMapping):
+        canonical_state = state
+    else:
+        try:
+            loaded = pstate.load_state()
+        except Exception:
+            loaded = None
+        if isinstance(loaded, MutableMapping):
+            canonical_state = loaded
+        elif isinstance(loaded, Mapping):
+            canonical_state = dict(loaded)
         else:
             return None
 
-    class_name = pstate.get_active_class(state)
-    new_pos = pstate.update_player_pos(state, class_name, (resolved_year, 0, 0))
+    cur_year, cur_x, cur_y = pstate.canonical_player_pos(canonical_state)
+    delta = (resolved_year - cur_year, -cur_x, -cur_y)
+    new_pos = pstate.move_player(
+        canonical_state, pstate.get_active_class(canonical_state), delta
+    )
 
     try:
-        pstate.save_state(state)
+        pstate.save_state(canonical_state, reason="time-travel")
     except Exception:
         return None
 
     try:
         refreshed = pstate.load_state()
     except Exception:
-        refreshed = state
+        refreshed = canonical_state
 
     if isinstance(refreshed, Mapping) and not isinstance(refreshed, dict):
         refreshed = dict(refreshed)
 
     if isinstance(refreshed, dict):
         pstate.normalize_player_state_inplace(refreshed)
-        active_view = pstate.build_active_view(refreshed)
-        if active_view:
-            refreshed["active"] = active_view
-
-    pstate.sync_runtime_position(ctx, new_pos)
-
-    if "_runtime_player" in ctx:
-        del ctx["_runtime_player"]
+        ctx["player_state"] = refreshed
+        pstate.sync_runtime_position(ctx, new_pos)
 
     return refreshed if isinstance(refreshed, dict) else None
 
@@ -252,9 +254,6 @@ def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
         resolved_year = _resolved_year(ctx, dest_century)
         if resolved_year is None:
             return
-        new_pos = [resolved_year, 0, 0]
-        player["pos"] = list(new_pos)
-        player["position"] = list(new_pos)
         new_state = _persist_pos_only(resolved_year, ctx)
         if isinstance(new_state, Mapping):
             ctx["player_state"] = dict(new_state)
@@ -269,7 +268,7 @@ def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
             command="travel",
             arg=arg,
             from_pos=start_pos,
-            to_pos=new_pos,
+            to_pos=[resolved_year, 0, 0],
             ions_before=ions_balance,
             ions_after=ions_balance,
         )

@@ -1,11 +1,10 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List, Mapping, Tuple
+from typing import Any, Dict, Mapping, Tuple
 
 from mutants.constants import CLASS_ORDER
-from mutants.services import player_state as pstate
-from mutants.services import player_reset
 from mutants.engine import session
+from mutants.services import player_reset, player_state as pstate
 
 
 ROW_FMT = "{idx:>2}. Mutant {cls:<7}  Level: {lvl:<2}  Year: {yr:<4}  ({x:>2} {y:>2})"
@@ -29,8 +28,29 @@ def _load_canonical_state() -> Dict[str, Any]:
     if isinstance(state, Mapping):
         state = dict(state)
     if isinstance(state, dict):
-        return pstate.ensure_class_profiles(state)
+        hydrated = pstate.ensure_class_profiles(state)
+        if isinstance(hydrated, dict):
+            pstate.normalize_player_state_inplace(hydrated)
+            return hydrated
     return {"players": [], "active_id": None}
+
+
+def _state_from_ctx(ctx: Mapping[str, Any] | None) -> Dict[str, Any]:
+    if isinstance(ctx, Mapping):
+        state_hint = ctx.get("player_state")
+    else:
+        state_hint = None
+
+    state: Dict[str, Any] = (
+        state_hint if isinstance(state_hint, dict) else _load_canonical_state()
+    )
+    ensured = pstate.ensure_class_profiles(state)
+    if isinstance(ensured, dict):
+        pstate.normalize_player_state_inplace(ensured)
+        state = ensured
+        if isinstance(ctx, dict):
+            ctx["player_state"] = state
+    return state
 
 
 def _players_by_class(state: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
@@ -50,7 +70,7 @@ def _players_by_class(state: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
 
 
 def render_menu(ctx: dict) -> None:
-    state = _load_canonical_state()
+    state = _state_from_ctx(ctx)
     players_by_class = _players_by_class(state)
     bus = ctx["feedback_bus"]
     for i, class_name in enumerate(CLASS_ORDER, start=1):
@@ -80,12 +100,7 @@ def _select_index(value: str, max_n: int) -> int | None:
 
 def handle_input(raw: str, ctx: dict) -> None:
     s = (raw or "").strip()
-    state_hint = ctx.get("player_state") if isinstance(ctx, dict) else None
-    state = (
-        pstate.ensure_class_profiles(state_hint)
-        if isinstance(state_hint, dict)
-        else _load_canonical_state()
-    )
+    state = _state_from_ctx(ctx)
     players = state.get("players", [])
     players_by_class = _players_by_class(state)
     slot_count = len(CLASS_ORDER)
@@ -139,21 +154,26 @@ def handle_input(raw: str, ctx: dict) -> None:
         bus.push("SYSTEM/ERROR", "Could not activate that player.")
         return
 
-    active_player = next(
-        (p for p in updated_state.get("players", []) if p.get("id") == target_id), None
-    )
-    resolved_class = pstate.get_active_class(updated_state)
-    active_pos = updated_state.get("pos") or [2000, 0, 0]
-    if isinstance(active_player, dict):
-        resolved_class = active_player.get("class") or resolved_class
-        active_pos = active_player.get("pos") or active_pos
+    refreshed_state: Mapping[str, Any] | None
+    try:
+        refreshed_state = pstate.load_state()
+    except Exception:
+        refreshed_state = updated_state
 
-    pstate.sync_runtime_position(ctx, active_pos)
+    if isinstance(refreshed_state, Mapping) and not isinstance(refreshed_state, dict):
+        refreshed_state = dict(refreshed_state)
 
+    if isinstance(refreshed_state, dict):
+        pstate.normalize_player_state_inplace(refreshed_state)
+        ctx["player_state"] = refreshed_state
+
+    canonical_pos = pstate.canonical_player_pos(ctx.get("player_state"))
+    pstate.sync_runtime_position(ctx, canonical_pos)
+
+    resolved_class = pstate.get_active_class(ctx.get("player_state"))
     session.set_active_class(resolved_class)
     session_ctx = ctx.setdefault("session", {})
     if isinstance(session_ctx, dict):
         session_ctx["active_class"] = resolved_class
-    ctx["player_state"] = updated_state
     ctx["mode"] = None
     ctx["render_next"] = True
