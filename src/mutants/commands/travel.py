@@ -127,21 +127,23 @@ def _persist_pos_only(
 ) -> Optional[Dict[str, Any]]:
     """Write only the active player's position to canonical state."""
 
+    try:
+        loaded = pstate.load_state()
+    except Exception:
+        loaded = None
+
     state = ctx.get("player_state")
     canonical_state: MutableMapping[str, Any]
-    if isinstance(state, MutableMapping):
+    if isinstance(loaded, MutableMapping):
+        canonical_state = loaded
+    elif isinstance(loaded, Mapping):
+        canonical_state = dict(loaded)
+    elif isinstance(state, MutableMapping):
         canonical_state = state
+    elif isinstance(state, Mapping):
+        canonical_state = dict(state)
     else:
-        try:
-            loaded = pstate.load_state()
-        except Exception:
-            loaded = None
-        if isinstance(loaded, MutableMapping):
-            canonical_state = loaded
-        elif isinstance(loaded, Mapping):
-            canonical_state = dict(loaded)
-        else:
-            return None
+        return None
 
     cur_year, cur_x, cur_y = pstate.canonical_player_pos(canonical_state)
     delta = (resolved_year - cur_year, -cur_x, -cur_y)
