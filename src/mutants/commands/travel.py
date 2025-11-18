@@ -16,6 +16,24 @@ from ..services import state_debug
 ION_COST_PER_CENTURY = 3000
 
 
+def _update_runtime_state(ctx: MutableMapping[str, Any], state: Mapping[str, Any]) -> None:
+    """Store ``state`` in ``ctx`` and rebuild the runtime player snapshot."""
+
+    ctx["player_state"] = dict(state)
+    try:
+        pstate.ensure_player_state(ctx)
+    except Exception:
+        # Runtime snapshots are best-effort; avoid crashing travel when optional
+        # context isn't available (e.g., in batch tests).
+        pass
+    # ensure_player_state can strip the transient "active" view; rebuild a
+    # fresh runtime snapshot so callers always have one.
+    active_view = pstate.build_active_view(ctx.get("player_state") or {})
+    if active_view:
+        ctx["player_state"]["active"] = active_view
+        ctx["_runtime_player"] = active_view
+
+
 def _floor_to_century(year: int) -> int:
     """Return the start of the century for ``year`` (e.g., 2314 -> 2300)."""
 
@@ -146,7 +164,7 @@ def _persist_pos_only(
 
     if isinstance(refreshed, dict):
         pstate.normalize_player_state_inplace(refreshed)
-        ctx["player_state"] = refreshed
+        _update_runtime_state(ctx, refreshed)
         pstate.sync_runtime_position(ctx, new_pos)
 
     return refreshed if isinstance(refreshed, dict) else None
@@ -256,7 +274,7 @@ def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
             return
         new_state = _persist_pos_only(resolved_year, ctx)
         if isinstance(new_state, Mapping):
-            ctx["player_state"] = dict(new_state)
+            _update_runtime_state(ctx, new_state)
             if "render_next" in ctx:
                 ctx["render_next"] = False
         bus.push(
@@ -311,7 +329,7 @@ def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
         _update_ions(new_total)
         maybe_state = _persist_pos_only(resolved_year, ctx)
         if isinstance(maybe_state, Mapping):
-            ctx["player_state"] = dict(maybe_state)
+            _update_runtime_state(ctx, maybe_state)
             if "render_next" in ctx:
                 ctx["render_next"] = False
         if pstate._pdbg_enabled():  # pragma: no cover
@@ -350,7 +368,7 @@ def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
         ions_after = _update_ions(0)
         maybe_state = _persist_pos_only(current_century, ctx)
         if isinstance(maybe_state, Mapping):
-            ctx["player_state"] = dict(maybe_state)
+            _update_runtime_state(ctx, maybe_state)
             if "render_next" in ctx:
                 ctx["render_next"] = False
         if pstate._pdbg_enabled():  # pragma: no cover
@@ -383,7 +401,7 @@ def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
     ions_after = _update_ions(0)
     maybe_state = _persist_pos_only(resolved_year, ctx)
     if isinstance(maybe_state, Mapping):
-        ctx["player_state"] = dict(maybe_state)
+        _update_runtime_state(ctx, maybe_state)
         if "render_next" in ctx:
             ctx["render_next"] = False
     state_debug.log_travel(
