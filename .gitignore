@@ -16,4 +16,5 @@ tests/*
 !tests/test_position_sync.py
 !tests/test_class_menu.py
 !tests/test_class_menu_state_persistence.py
+!tests/test_strike_rewards.py
 scripts/migrations/
