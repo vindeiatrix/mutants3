@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Any, Dict, List, Mapping, Tuple
 
 from mutants.constants import CLASS_ORDER
-from mutants.services import player_active, player_state as pstate
+from mutants.services import player_state as pstate
 from mutants.services import player_reset
 from mutants.engine import session
 
@@ -80,7 +80,12 @@ def _select_index(value: str, max_n: int) -> int | None:
 
 def handle_input(raw: str, ctx: dict) -> None:
     s = (raw or "").strip()
-    state = _load_canonical_state()
+    state_hint = ctx.get("player_state") if isinstance(ctx, dict) else None
+    state = (
+        pstate.ensure_class_profiles(state_hint)
+        if isinstance(state_hint, dict)
+        else _load_canonical_state()
+    )
     players = state.get("players", [])
     players_by_class = _players_by_class(state)
     slot_count = len(CLASS_ORDER)
@@ -126,13 +131,25 @@ def handle_input(raw: str, ctx: dict) -> None:
     if not target_id:
         bus.push("SYSTEM/ERROR", "No player id for that slot.")
         return
+
     try:
-        updated_state = player_active.set_active(str(target_id))
+        updated_state = pstate.set_active_player(state, str(target_id))
+        pstate.save_state(updated_state, reason="change-active-class")
     except Exception:
         bus.push("SYSTEM/ERROR", "Could not activate that player.")
         return
 
+    active_player = next(
+        (p for p in updated_state.get("players", []) if p.get("id") == target_id), None
+    )
     resolved_class = pstate.get_active_class(updated_state)
+    active_pos = updated_state.get("pos") or [2000, 0, 0]
+    if isinstance(active_player, dict):
+        resolved_class = active_player.get("class") or resolved_class
+        active_pos = active_player.get("pos") or active_pos
+
+    pstate.sync_runtime_position(ctx, active_pos)
+
     session.set_active_class(resolved_class)
     session_ctx = ctx.setdefault("session", {})
     if isinstance(session_ctx, dict):
