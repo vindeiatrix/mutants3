@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import logging
 import os
 import random
@@ -311,7 +312,11 @@ def _pos_from_ctx(ctx) -> tuple[int, int, int]:
 
 
 def pick_from_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
-    player = pstate.ensure_player_state(ctx)
+    state = _state_from_ctx(ctx)
+    state, player = pstate.get_active_pair(state)
+    active_class = player.get("class") or pstate.get_active_class(state)
+    if isinstance(ctx, MutableMapping):
+        ctx["player_state"] = state
     pstate.ensure_active_profile(player, ctx)
     pstate.bind_inventory_to_active_class(player)
     _ensure_inventory(player)
@@ -444,10 +449,21 @@ def pick_from_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
     actual_inst = itemsreg.get_instance(chosen_iid)
     if isinstance(actual_inst, MutableMapping):
         actual_inst["origin"] = "world"
-    inv = list(player.get("inventory", []))
-    inv.append(chosen_iid)
-    player["inventory"] = inv
-    _mark_player_dirty(player)
+
+    owner_payload = {"kind": "player", "id": player.get("id")}
+    try:
+        itemsreg.update_instance(
+            chosen_iid,
+            year=-1,
+            x=-1,
+            y=-1,
+            owner=json.dumps(owner_payload, sort_keys=True),
+        )
+    except KeyError:
+        return {"ok": False, "reason": "That item is no longer available."}
+
+    pstate.add_item_to_active_inventory(state, player, chosen_iid)
+    inv = list(state.get("bags", {}).get(active_class, player.get("inventory", [])) or [])
 
     overflow_info = None
     rng = _rng(seed)
@@ -460,9 +476,15 @@ def pick_from_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
             inv.append(swap_iid)
         itemsreg.set_position(drop_iid, year, x, y)
         inv = _remove_first(inv, drop_iid)
-        player["inventory"] = inv
-        _mark_player_dirty(player)
         overflow_info = {"inv_overflow_drop": drop_iid}
+
+    inv = pstate.update_player_inventory(state, active_class, inv)
+    player["inventory"] = list(inv)
+    _mark_player_dirty(player)
+
+    if isinstance(ctx, MutableMapping):
+        ctx["player_state"] = state
+        ctx["_runtime_player"] = player
 
     _save_player(ctx, player)
     state_debug.log_inventory_update(

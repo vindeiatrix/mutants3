@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import logging
 import os
 import time
@@ -599,13 +600,20 @@ def _store_payload_from_instance(inst: Mapping[str, Any]) -> Dict[str, Any]:
     except (TypeError, ValueError):
         y = -1
 
+    owner_value = inst.get("owner")
+    if isinstance(owner_value, Mapping):
+        try:
+            owner_value = json.dumps(owner_value, sort_keys=True)
+        except Exception:
+            owner_value = str(owner_value)
+
     payload: Dict[str, Any] = {
         "iid": str(inst.get("iid")),
         "item_id": str(inst.get("item_id")),
         "year": year,
         "x": x,
         "y": y,
-        "owner": inst.get("owner"),
+        "owner": owner_value,
         "enchant": _sanitize_enchant_level(inst.get("enchant_level")),
         "condition": _sanitize_condition(inst.get("condition")),
         "origin": inst.get("origin"),
@@ -816,6 +824,11 @@ def update_instance(iid: str, **fields: Any) -> Dict[str, Any]:
             value = fields.get(attr)
             if value is REMOVE_FIELD:
                 to_set[attr] = None
+            elif isinstance(value, Mapping):
+                try:
+                    to_set[attr] = json.dumps(value, sort_keys=True)
+                except Exception:
+                    to_set[attr] = str(value)
             elif isinstance(value, str) and value.strip():
                 to_set[attr] = value
             else:
