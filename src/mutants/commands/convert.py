@@ -237,7 +237,6 @@ def convert_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
         
         # 2. Persist ion change (set_ions_for_active saves the full state)
         pstate.set_ions_for_active(state, new_total)
-        
         # 3. Update runtime context so the game loop sees the changes!
         if "player_state" in ctx:
             ctx["player_state"] = state
