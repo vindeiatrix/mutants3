@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict, Iterable, List, Mapping
+from typing import Any, Dict, Iterable, List, Mapping, MutableMapping
 
 import logging
 import os
@@ -68,16 +68,40 @@ def build_context() -> Dict[str, Any]:
     """Build the application context."""
     info = ensure_runtime()
     state = ensure_player_state()
-    active = state.get("active") if isinstance(state, dict) else None
+    if isinstance(state, MutableMapping):
+        state = pstate.ensure_class_profiles(state)
+    if isinstance(state, dict):
+        pstate.normalize_player_state_inplace(state)
+
+    active_player = None
     active_class = None
-    if isinstance(active, dict):
-        candidate = active.get("class")
-        if isinstance(candidate, str) and candidate:
-            active_class = candidate
+    if isinstance(state, Mapping):
+        players = state.get("players")
+        active_id = state.get("active_id")
+        if isinstance(players, list):
+            for entry in players:
+                if not isinstance(entry, Mapping):
+                    continue
+                if active_id is not None and entry.get("id") == active_id:
+                    active_player = entry
+                    break
+            if active_player is None and players:
+                candidate = players[0]
+                active_player = candidate if isinstance(candidate, Mapping) else None
+
+        if isinstance(active_player, Mapping):
+            active_class = active_player.get("class") or active_player.get("name")
+            pos = active_player.get("pos") or active_player.get("position")
+            if pos is not None:
+                state["pos"] = list(pos)
+                state["position"] = list(pos)
+
     if not active_class:
         candidate = state.get("class") if isinstance(state, dict) else None
         if isinstance(candidate, str) and candidate:
             active_class = candidate
+    if isinstance(state, MutableMapping) and active_class:
+        state["class"] = active_class
     session.set_active_class(active_class)
     cfg = info.get("config", {})
     bus = FeedbackBus()

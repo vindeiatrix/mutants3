@@ -97,6 +97,33 @@ def _strip_runtime_metadata(state: Mapping[str, Any]) -> Dict[str, Any]:
     return sanitized
 
 
+def set_active_player(state: dict, player_id: str) -> dict:
+    """Mark ``player_id`` as active and align top-level fields accordingly."""
+
+    if not isinstance(state, MutableMapping):
+        return {"players": [], "active_id": None}
+
+    active_entry: Dict[str, Any] | None = None
+    players = state.get("players")
+    if isinstance(players, list):
+        for entry in players:
+            if not isinstance(entry, MutableMapping):
+                continue
+            is_match = entry.get("id") == player_id
+            entry["is_active"] = is_match
+            if is_match:
+                active_entry = entry
+
+    state["active_id"] = player_id
+
+    if active_entry:
+        state["class"] = active_entry.get("class")
+        state["pos"] = list(active_entry.get("pos") or state.get("pos") or [2000, 0, 0])
+        state["position"] = list(state.get("pos"))
+
+    return state
+
+
 def normalize_player_live_state(data: dict) -> Dict[str, Any]:
     """Normalize on-disk player live state in-place and drop snapshots."""
 
