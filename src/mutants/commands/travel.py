@@ -401,3 +401,24 @@ def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
 
 def register(dispatch, ctx) -> None:
     dispatch.register("travel", lambda arg: travel_cmd(arg, ctx))
+    
+def _persist_pos_only(
+    resolved_year: int, ctx: MutableMapping[str, Any]
+) -> Optional[Dict[str, Any]]:
+    # ... [existing code above] ...
+
+    if isinstance(refreshed, dict):
+        pstate.normalize_player_state_inplace(refreshed)
+        active_view = pstate.build_active_view(refreshed)
+        if active_view:
+            refreshed["active"] = active_view
+
+    pstate.sync_runtime_position(ctx, new_pos)
+
+    # >>> INSERT THIS BLOCK <<<
+    # Force a refresh of the runtime player object to prevent identity drift
+    if "_runtime_player" in ctx:
+        del ctx["_runtime_player"]
+    # >>> END INSERT <<<
+
+    return refreshed if isinstance(refreshed, dict) else None
