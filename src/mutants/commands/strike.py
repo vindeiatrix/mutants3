@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import logging
+import random
 from pathlib import Path
 from typing import Any, Dict, Mapping, MutableMapping, Optional, Sequence
 
@@ -21,6 +22,7 @@ MIN_BOLT_DAMAGE = 6
 
 
 LOG = logging.getLogger(__name__)
+_RNG = random.Random()
 
 
 def _load_monsters(ctx: Mapping[str, Any]) -> Any:
@@ -282,7 +284,17 @@ def _award_player_progress(
         current_ions = pstate.get_ions_for_active(state)
         pstate.set_ions_for_active(state, current_ions + ions_reward)
 
-    riblets_reward = _coerce_int(monster_payload.get("riblets"), 0)
+    riblets_min = _coerce_int(monster_payload.get("riblets_min"), 0)
+    riblets_max = monster_payload.get("riblets_max")
+    riblets_cap = max(
+        riblets_min,
+        (
+            _coerce_int(riblets_max, riblets_min)
+            if riblets_max is not None
+            else _coerce_int(monster_payload.get("riblets"), 0)
+        ),
+    )
+    riblets_reward = _RNG.randint(riblets_min, riblets_cap) if riblets_cap > 0 else 0
     if riblets_reward:
         current_riblets = pstate.get_riblets_for_active(state)
         pstate.set_riblets_for_active(state, current_riblets + riblets_reward)

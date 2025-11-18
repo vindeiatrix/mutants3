@@ -17,4 +17,5 @@ tests/*
 !tests/test_class_menu.py
 !tests/test_class_menu_state_persistence.py
 !tests/test_strike_rewards.py
+!tests/test_player_state_active_view.py
 scripts/migrations/
