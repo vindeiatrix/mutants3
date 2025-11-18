@@ -2735,18 +2735,24 @@ def _normalize_player_state(state: Dict[str, Any]) -> Dict[str, Any]:
         bag = bag_from_top
     else:
         existing_bag = bags.get(klass)
-        if bag_from_top:
+        existing_contents = [item for item in existing_bag if item is not None] if isinstance(existing_bag, list) else []
+
+        # Prefer the per-class bag when it already holds items so we do not
+        # overwrite it with the active inventory from another class. This keeps
+        # class inventories isolated when the top-level ``inventory`` still
+        # reflects the previously active character.
+        if existing_contents:
+            bag = existing_contents
+        elif bag_from_top:
             normalized_existing = [
                 [item for item in (bags.get(name) or []) if item is not None]
                 for name in bags
                 if name != klass and isinstance(bags.get(name), list)
             ]
             if bag_from_top in normalized_existing:
-                bag = [item for item in existing_bag if item is not None] if isinstance(existing_bag, list) else []
+                bag = existing_contents
             else:
                 bag = bag_from_top
-        elif isinstance(existing_bag, list):
-            bag = [item for item in existing_bag if item is not None]
         else:
             bag = []
 
