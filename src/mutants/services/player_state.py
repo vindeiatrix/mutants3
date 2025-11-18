@@ -121,6 +121,27 @@ def set_active_player(state: dict, player_id: str) -> dict:
         state["pos"] = list(active_entry.get("pos") or state.get("pos") or [2000, 0, 0])
         state["position"] = list(state.get("pos"))
 
+        # Keep the active inventory bound to the active class' bag instead of
+        # leaking whatever bag happened to be in ``state['inventory']`` when
+        # switching characters.
+        bags = state.get("bags") if isinstance(state.get("bags"), Mapping) else None
+        class_name = _normalize_class_name(active_entry.get("class")) or _normalize_class_name(
+            active_entry.get("name")
+        )
+        bag: List[str] = []
+        if isinstance(bags, MutableMapping) and class_name:
+            raw_bag = bags.get(class_name)
+            if isinstance(raw_bag, list):
+                bag = [item for item in raw_bag if item is not None]
+        if not bag:
+            raw_inv = active_entry.get("inventory")
+            if isinstance(raw_inv, list):
+                bag = [item for item in raw_inv if item is not None]
+        if isinstance(bags, MutableMapping) and class_name:
+            bags[class_name] = list(bag)
+        state["inventory"] = list(bag)
+        active_entry["inventory"] = list(bag)
+
     return state
 
 

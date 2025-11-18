@@ -134,6 +134,16 @@ class FakeItemsRegistry:
         inst["y"] = None
         return True
 
+    def update_instance(self, iid: str, *, year: int, x: int, y: int, owner: str | None = None) -> None:
+        inst = self.instances.get(iid)
+        if not inst:
+            return
+        inst["year"] = year
+        inst["x"] = x
+        inst["y"] = y
+        if owner is not None:
+            inst["owner"] = owner
+
     def set_position(self, iid: str, year: int, x: int, y: int) -> None:
         inst = self.instances.get(iid)
         if inst:

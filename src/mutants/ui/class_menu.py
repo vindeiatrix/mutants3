@@ -36,20 +36,13 @@ def _load_canonical_state() -> Dict[str, Any]:
 
 
 def _state_from_ctx(ctx: Mapping[str, Any] | None) -> Dict[str, Any]:
-    if isinstance(ctx, Mapping):
-        state_hint = ctx.get("player_state")
-    else:
-        state_hint = None
-
-    state: Dict[str, Any] = (
-        state_hint if isinstance(state_hint, dict) else _load_canonical_state()
-    )
+    state = _load_canonical_state()
     ensured = pstate.ensure_class_profiles(state)
     if isinstance(ensured, dict):
         pstate.normalize_player_state_inplace(ensured)
         state = ensured
-        if isinstance(ctx, dict):
-            ctx["player_state"] = state
+    if isinstance(ctx, dict):
+        ctx["player_state"] = state
     return state
 
 
