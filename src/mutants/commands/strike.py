@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+import json
 import logging
+from pathlib import Path
 from typing import Any, Dict, Mapping, MutableMapping, Optional, Sequence
 
 from mutants.registries import items_catalog, items_instances as itemsreg
-from mutants.registries.monsters_catalog import load_monsters_catalog
+from mutants.registries.monsters_catalog import DEFAULT_CATALOG_PATH, load_monsters_catalog
 from mutants.services.monster_leveling import exp_for as monster_exp_for
 from mutants.services import combat_loot
 from mutants.services import damage_engine, items_wear, monsters_state, player_state as pstate
@@ -250,8 +252,18 @@ def _monster_exp_bonus(monster_payload: Mapping[str, Any]) -> int:
     try:
         catalog = load_monsters_catalog()
     except FileNotFoundError:
-        return 0
+        catalog = None
     base = catalog.get(str(monster_id)) if catalog else None
+    if not isinstance(base, Mapping):
+        try:
+            text = Path(DEFAULT_CATALOG_PATH).read_text(encoding="utf-8")
+            entries = json.loads(text)
+        except Exception:
+            entries = []
+        for entry in entries:
+            if isinstance(entry, Mapping) and str(entry.get("monster_id")) == str(monster_id):
+                base = entry
+                break
     if isinstance(base, Mapping):
         return _coerce_int(base.get("exp_bonus"), 0)
     return 0
@@ -304,13 +316,18 @@ def _award_player_progress(
             armour_entry = candidate_armour
     if not bag_entries and drop_entries:
         bag_entries = list(drop_entries)
-    minted, vaporized = combat_loot.drop_monster_loot(
-        pos=pos,
-        bag_entries=bag_entries,
-        armour_entry=armour_entry,
-        bus=bus,
-        catalog=item_catalog,
-    )
+    minted: list[Mapping[str, Any]] = []
+    vaporized: list[Mapping[str, Any]] = []
+    try:
+        minted, vaporized = combat_loot.drop_monster_loot(
+            pos=pos,
+            bag_entries=bag_entries,
+            armour_entry=armour_entry,
+            bus=bus,
+            catalog=item_catalog,
+        )
+    except Exception:  # pragma: no cover - defensive guard
+        LOG.exception("Failed to mint monster drops")
     if isinstance(summary, MutableMapping):
         summary["drops_minted"] = minted
         summary["drops_vaporized"] = vaporized
