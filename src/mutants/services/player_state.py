@@ -4180,13 +4180,7 @@ def bind_inventory_to_active_class(player: Dict[str, Any]) -> None:
         equipped = get_equipped_armour_id(active)
 
     bag = bags.get(klass)
-    if isinstance(bag, list):
-        if inv_list and bag is not inv_list:
-            for item in inv_list:
-                if item and item not in bag:
-                    bag.append(item)
-    else:
-        bag = [item for item in inv_list if item]
+    bag = [item for item in inv_list if item]
 
     wielded = None
     raw_wield_map = player.get("wielded_by_class")
