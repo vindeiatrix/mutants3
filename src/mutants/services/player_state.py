@@ -813,6 +813,7 @@ def build_active_view(p: dict) -> Dict[str, Any]:
     if not isinstance(p, dict):
         return {}
 
+    active: MutableMapping[str, Any] | None = None
     aid = p.get("active_id")
     players = p.get("players")
     if isinstance(players, list):
@@ -824,7 +825,43 @@ def build_active_view(p: dict) -> Dict[str, Any]:
                 if pos:
                     y, x, z = pos
                     pl["pos"] = [int(y), int(x), int(z)]
-                return pl
+                active = pl
+                break
+
+    if not isinstance(active, MutableMapping):
+        active = {}
+
+    cls = _normalize_class_name(active.get("class")) or _normalize_class_name(active.get("name"))
+    if not cls:
+        cls = _normalize_class_name(p.get("class"))
+
+    def _coerce_from_map(source: Any) -> Optional[int]:
+        if not cls or not isinstance(source, Mapping):
+            return None
+        value = source.get(cls)
+        if value is None:
+            return None
+        try:
+            return int(value)
+        except (TypeError, ValueError):
+            return None
+
+    rib_from_map = _coerce_from_map(p.get("riblets_by_class"))
+    if rib_from_map is not None:
+        active["riblets"] = rib_from_map
+        active["Riblets"] = rib_from_map
+
+    exp_from_map = _coerce_from_map(p.get("exp_by_class"))
+    if exp_from_map is not None:
+        active["exp_points"] = exp_from_map
+
+    ions_from_map = _coerce_from_map(p.get("ions_by_class"))
+    if ions_from_map is not None:
+        active["ions"] = ions_from_map
+        active["Ions"] = ions_from_map
+
+    if active:
+        return active
 
     y, x, z = canonical_player_pos(p)
     return {"pos": [int(y), int(x), int(z)]}

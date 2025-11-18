@@ -17,6 +17,7 @@ def test_kill_rewards_stay_with_active_class(monkeypatch):
     monkeypatch.setattr(strike.combat_loot, "drop_monster_loot", _fail_drop)
     monkeypatch.setattr(strike, "load_monsters_catalog", lambda: (_ for _ in ()).throw(FileNotFoundError()))
     monkeypatch.setattr(pstate, "save_state", lambda data: None)
+    monkeypatch.setattr(strike, "_RNG", types.SimpleNamespace(randint=lambda mn, mx: mx))
 
     state = {
         "class": "Wizard",
@@ -52,6 +53,42 @@ def test_kill_rewards_stay_with_active_class(monkeypatch):
     assert summary["drops_vaporized"] == []
 
 
+def test_kill_rewards_use_riblet_range(monkeypatch):
+    monkeypatch.setattr(strike.pstate, "save_state", lambda data: None)
+    monkeypatch.setattr(strike, "monster_exp_for", lambda level, bonus: 0)
+    monkeypatch.setattr(strike, "_RNG", types.SimpleNamespace(randint=lambda mn, mx: mx))
+
+    state = {
+        "class": "Wizard",
+        "active_id": "player_wizard",
+        "players": [
+            {"id": "player_wizard", "class": "Wizard", "ions": 0, "riblets": 0, "exp_points": 0}
+        ],
+        "ions_by_class": {"Wizard": 0},
+        "riblets_by_class": {"Wizard": 0},
+        "exp_by_class": {"Wizard": 0},
+    }
+
+    monster = {
+        "monster_id": "junkyard_scrapper",
+        "level": 1,
+        "ions": 0,
+        "riblets_min": 1,
+        "riblets_max": 4,
+    }
+
+    strike._award_player_progress(
+        monster_payload=monster,
+        state=state,
+        item_catalog={},
+        summary={},
+        bus=types.SimpleNamespace(push=lambda *args, **kwargs: None),
+    )
+
+    assert state["riblets_by_class"]["Wizard"] == 4
+    assert state["ions_by_class"]["Wizard"] == 0
+
+
 def test_strike_uses_initialized_state(monkeypatch):
     # Ensure player state is injected into the context before reward resolution.
     monkeypatch.setattr(strike.pstate, "save_state", lambda data: None)
@@ -67,6 +104,7 @@ def test_strike_uses_initialized_state(monkeypatch):
     monkeypatch.setattr(strike, "_apply_armour_wear", lambda *args, **kwargs: None)
     monkeypatch.setattr(strike, "load_monsters_catalog", lambda: (_ for _ in ()).throw(FileNotFoundError()))
     monkeypatch.setattr(strike, "monster_exp_for", lambda level, bonus: 50)
+    monkeypatch.setattr(strike, "_RNG", types.SimpleNamespace(randint=lambda mn, mx: mx))
 
     state = {
         "active_id": "player_wizard",
