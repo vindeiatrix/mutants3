@@ -1,0 +1,553 @@
+Security warning
+Run only scripts that you trust. While scripts from the internet can be useful, this script can potentially harm your
+computer. If you trust this script, use the Unblock-File cmdlet to allow the script to run without this warning
+message. Do you want to run C:\Users\michael.bowman\Downloads\mutants3-main\mutants3-main\Run-Mutants.ps1?
+[D] Do not run  [R] Run once  [S] Suspend  [?] Help (default is "D"): r
+Creating SQLite database file...
+Repo: C:\Users\michael.bowman\Downloads\mutants3-main\mutants3-main
+DB:   C:\Users\michael.bowman\Downloads\mutants3-main\mutants3-main\state\mutants.db
+ENV:  MUTANTS_STATE_BACKEND=sqlite; GAME_STATE_ROOT=C:\Users\michael.bowman\Downloads\mutants3-main\mutants3-main\state
+Creating virtual environment...
+Obtaining file:///C:/Users/michael.bowman/Downloads/mutants3-main/mutants3-main
+  Installing build dependencies ... done
+  Checking if build backend supports build_editable ... done
+  Getting requirements to build editable ... done
+  Preparing editable metadata (pyproject.toml) ... done
+Building wheels for collected packages: mutants
+  Building editable for mutants (pyproject.toml) ... done
+  Created wheel for mutants: filename=mutants-0.0.0-0.editable-py3-none-any.whl size=2562 sha256=c0e5906a06f56f692e9415b2400829bd27ae797a8fd2725720e2b0be1e47ebb3
+  Stored in directory: C:\Users\michael.bowman\AppData\Local\Temp\pip-ephem-wheel-cache-way1kway\wheels\b9\2f\d6\95065e92125a512dfa6b41e0d0e70f2aba5ddc918406c25aa4
+Successfully built mutants
+Installing collected packages: mutants
+Successfully installed mutants-0.0.0
+Schema ensured at C:\Users\michael.bowman\Downloads\mutants3-main\mutants3-main\state\mutants.db
+Importing items catalog into SQLite...
+Imported 28 items into C:\Users\michael.bowman\Downloads\mutants3-main\mutants3-main\state\mutants.db
+daily_litter: triggered
+Importing monsters catalog into SQLite...
+Imported 3 monster(s) into catalog at C:\Users\michael.bowman\Downloads\mutants3-main\mutants3-main\state\mutants.db
+Monsters currently present (rows: 0).
+
+Launching game (SQLite backend)...
+2025-11-18 13:35:53,837 INFO mutants.env: state backend=sqlite db_path=C:\Users\michael.bowman\Downloads\mutants3-main\mutants3-main\state\mutants.db combat_config=C:\Users\michael.bowman\Downloads\mutants3-main\mutants3-main\state\config\combat.json rng_seed=None
+2025-11-18 13:35:53,843 INFO mutants.bootstrap.daily_litter: daily_litter 2025-11-18: already ran; skipping
+2025-11-18 13:35:53,848 WARNING mutants.services.player_state: player_state contains forbidden 'active' snapshot; stripping
+2025-11-18 13:35:54,165 INFO mutants.services.player_state: Normalized player roster to canonical classes; persisting repairs
+Mutants — classic BBS vibes.  Type 'help' for commands; 'theme mono' for no color.
+
+ 1. Mutant Thief    Level: 1   Year: 2000  ( 0  0)
+ 2. Mutant Priest   Level: 1   Year: 2000  ( 0  0)
+ 3. Mutant Wizard   Level: 1   Year: 2000  ( 0  0)
+ 4. Mutant Warrior  Level: 1   Year: 2000  ( 0  0)
+ 5. Mutant Mage     Level: 1   Year: 2000  ( 0  0)
+
+Type BURY [class number] to reset a player. Type X to exit.
+***
+Select (Bury, 1–5, ?) 1
+2025-11-18 13:35:55,710 INFO mutants.services.player_state: Normalized player roster to canonical classes; persisting repairs
+2025-11-18 13:35:55,715 INFO mutants.registries.world: [world] load_nearest_year requested=2000 chosen=2000 dir=C:\Users\michael.bowman\Downloads\mutants3-main\mutants3-main\state\world
+2025-11-18 13:35:55,721 WARNING mutants.app.context: [build_room_vm] monsters_source=MonstersState returned 0 rows ids=[]
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+> s
+2025-11-18 13:35:56,779 INFO mutants.services.turn_scheduler: TURN/TICK tick=1
+2025-11-18 13:35:56,780 INFO mutants.registries.world: [world] load_nearest_year requested=2000 chosen=2000 dir=C:\Users\michael.bowman\Downloads\mutants3-main\mutants3-main\state\world
+2025-11-18 13:35:56,833 INFO mutants.services.player_state: Normalized player roster to canonical classes; persisting repairs
+2025-11-18 13:35:56,894 INFO mutants.registries.world: [world] load_nearest_year requested=2000 chosen=2000 dir=C:\Users\michael.bowman\Downloads\mutants3-main\mutants3-main\state\world
+2025-11-18 13:35:56,895 WARNING mutants.app.context: [build_room_vm] monsters_source=MonstersState returned 0 rows ids=[]
+2025-11-18 13:35:56,902 INFO mutants.services.player_state: Normalized player roster to canonical classes; persisting repairs
+Relics of the war line the streets.
+Compass: (0E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+> e
+2025-11-18 13:35:57,327 INFO mutants.services.turn_scheduler: TURN/TICK tick=2
+2025-11-18 13:35:57,328 INFO mutants.registries.world: [world] load_nearest_year requested=2000 chosen=2000 dir=C:\Users\michael.bowman\Downloads\mutants3-main\mutants3-main\state\world
+2025-11-18 13:35:57,372 INFO mutants.services.player_state: Normalized player roster to canonical classes; persisting repairs
+2025-11-18 13:35:57,459 INFO mutants.registries.world: [world] load_nearest_year requested=2000 chosen=2000 dir=C:\Users\michael.bowman\Downloads\mutants3-main\mutants3-main\state\world
+2025-11-18 13:35:57,460 WARNING mutants.app.context: [build_room_vm] monsters_source=MonstersState returned 0 rows ids=[]
+2025-11-18 13:35:57,466 INFO mutants.services.player_state: Normalized player roster to canonical classes; persisting repairs
+The street is cracked here.
+Compass: (1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Light‑Spear.
+> get l
+2025-11-18 13:35:58,648 INFO mutants.services.turn_scheduler: TURN/TICK tick=3
+2025-11-18 13:35:58,815 WARNING mutants.services.turn_scheduler: player_state contains forbidden 'active' view; stripping
+You pick up the Light‑Spear.
+> stat
+2025-11-18 13:35:59,264 INFO mutants.services.turn_scheduler: TURN/TICK tick=4
+2025-11-18 13:35:59,272 INFO mutants.services.player_state: Normalized player roster to canonical classes; persisting repairs
+2025-11-18 13:35:59,411 INFO mutants.services.player_state: Normalized player roster to canonical classes; persisting repairs
+Name: Thief / Mutant Thief
+Exhaustion : 0
+Str:  15    Int:   9   Wis:   8
+Dex:  14    Con:  15   Cha:  16
+Hit Points  : 18 / 18
+Exp. Points : 0      Level: 1
+Riblets     : 0
+Ions        : 30000
+Wielding    : None
+Wearing Armor : None  Armour Class: 1  (Dex bonus: +1, Armour: +0)
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D. : 2000
+
+You are carrying the following items:  (Total Weight: 10 LB's)
+A Light‑Spear.
+> x
+2025-11-18 13:36:00,504 INFO mutants.services.turn_scheduler: TURN/TICK tick=5
+2025-11-18 13:36:00,537 INFO mutants.services.player_state: Normalized player roster to canonical classes; persisting repairs
+ 1. Mutant Thief    Level: 1   Year: 2000  ( 1 ‑1)
+ 2. Mutant Priest   Level: 1   Year: 2000  ( 0  0)
+ 3. Mutant Wizard   Level: 1   Year: 2000  ( 0  0)
+ 4. Mutant Warrior  Level: 1   Year: 2000  ( 0  0)
+ 5. Mutant Mage     Level: 1   Year: 2000  ( 0  0)
+
+Type BURY [class number] to reset a player. Type X to exit.
+***
+Select (Bury, 1–5, ?) 2
+2025-11-18 13:36:01,525 INFO mutants.services.player_state: Normalized player roster to canonical classes; persisting repairs
+2025-11-18 13:36:01,536 INFO mutants.registries.world: [world] load_nearest_year requested=2000 chosen=2000 dir=C:\Users\michael.bowman\Downloads\mutants3-main\mutants3-main\state\world
+2025-11-18 13:36:01,536 WARNING mutants.app.context: [build_room_vm] monsters_source=MonstersState returned 0 rows ids=[]
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+> stat
+2025-11-18 13:36:02,047 INFO mutants.services.turn_scheduler: TURN/TICK tick=6
+2025-11-18 13:36:02,051 INFO mutants.services.player_state: Normalized player roster to canonical classes; persisting repairs
+2025-11-18 13:36:02,110 INFO mutants.services.player_state: Normalized player roster to canonical classes; persisting repairs
+Name: Priest / Mutant Priest
+Exhaustion : 0
+Str:  20    Int:  12   Wis:  13
+Dex:  17    Con:  17   Cha:  14
+Hit Points  : 30 / 30
+Exp. Points : 0      Level: 1
+Riblets     : 0
+Ions        : 30000
+Wielding    : None
+Wearing Armor : None  Armour Class: 1  (Dex bonus: +1, Armour: +0)
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D. : 2000
+
+You are carrying the following items:  (Total Weight: 0 LB's)
+Nothing.
+> x
+2025-11-18 13:36:03,201 INFO mutants.services.turn_scheduler: TURN/TICK tick=7
+2025-11-18 13:36:03,226 INFO mutants.services.player_state: Normalized player roster to canonical classes; persisting repairs
+ 1. Mutant Thief    Level: 1   Year: 2000  ( 1 ‑1)
+ 2. Mutant Priest   Level: 1   Year: 2000  ( 0  0)
+ 3. Mutant Wizard   Level: 1   Year: 2000  ( 0  0)
+ 4. Mutant Warrior  Level: 1   Year: 2000  ( 0  0)
+ 5. Mutant Mage     Level: 1   Year: 2000  ( 0  0)
+
+Type BURY [class number] to reset a player. Type X to exit.
+***
+Select (Bury, 1–5, ?)
+Select (Bury, 1–5, ?) 4
+2025-11-18 13:36:04,264 INFO mutants.services.player_state: Normalized player roster to canonical classes; persisting repairs
+2025-11-18 13:36:04,305 INFO mutants.services.player_state: Normalized player roster to canonical classes; persisting repairs
+2025-11-18 13:36:04,310 INFO mutants.registries.world: [world] load_nearest_year requested=2000 chosen=2000 dir=C:\Users\michael.bowman\Downloads\mutants3-main\mutants3-main\state\world
+2025-11-18 13:36:04,310 WARNING mutants.app.context: [build_room_vm] monsters_source=MonstersState returned 0 rows ids=[]
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+> stat
+2025-11-18 13:36:04,823 INFO mutants.services.turn_scheduler: TURN/TICK tick=8
+2025-11-18 13:36:04,825 INFO mutants.services.player_state: Normalized player roster to canonical classes; persisting repairs
+2025-11-18 13:36:04,930 INFO mutants.services.player_state: Normalized player roster to canonical classes; persisting repairs
+Name: Warrior / Mutant Warrior
+Exhaustion : 0
+Str:  23    Int:  12   Wis:  14
+Dex:  20    Con:  19   Cha:   9
+Hit Points  : 40 / 40
+Exp. Points : 0      Level: 1
+Riblets     : 0
+Ions        : 30000
+Wielding    : None
+Wearing Armor : None  Armour Class: 2  (Dex bonus: +2, Armour: +0)
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D. : 2000
+
+You are carrying the following items:  (Total Weight: 0 LB's)
+Nothing.
+> e
+2025-11-18 13:36:05,375 INFO mutants.services.turn_scheduler: TURN/TICK tick=9
+2025-11-18 13:36:05,376 INFO mutants.registries.world: [world] load_nearest_year requested=2000 chosen=2000 dir=C:\Users\michael.bowman\Downloads\mutants3-main\mutants3-main\state\world
+2025-11-18 13:36:05,419 INFO mutants.services.player_state: Normalized player roster to canonical classes; persisting repairs
+2025-11-18 13:36:05,483 INFO mutants.registries.world: [world] load_nearest_year requested=2000 chosen=2000 dir=C:\Users\michael.bowman\Downloads\mutants3-main\mutants3-main\state\world
+2025-11-18 13:36:05,483 WARNING mutants.app.context: [build_room_vm] monsters_source=MonstersState returned 0 rows ids=[]
+2025-11-18 13:36:05,488 INFO mutants.services.player_state: Normalized player roster to canonical classes; persisting repairs
+The street is cracked here.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+> s
+2025-11-18 13:36:06,008 INFO mutants.services.turn_scheduler: TURN/TICK tick=10
+2025-11-18 13:36:06,009 INFO mutants.registries.world: [world] load_nearest_year requested=2000 chosen=2000 dir=C:\Users\michael.bowman\Downloads\mutants3-main\mutants3-main\state\world
+2025-11-18 13:36:06,040 INFO mutants.services.player_state: Normalized player roster to canonical classes; persisting repairs
+2025-11-18 13:36:06,101 INFO mutants.registries.world: [world] load_nearest_year requested=2000 chosen=2000 dir=C:\Users\michael.bowman\Downloads\mutants3-main\mutants3-main\state\world
+2025-11-18 13:36:06,101 WARNING mutants.app.context: [build_room_vm] monsters_source=MonstersState returned 0 rows ids=[]
+2025-11-18 13:36:06,103 INFO mutants.services.player_state: Normalized player roster to canonical classes; persisting repairs
+The street is cracked here.
+Compass: (1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+> e
+2025-11-18 13:36:06,543 INFO mutants.services.turn_scheduler: TURN/TICK tick=11
+2025-11-18 13:36:06,543 INFO mutants.registries.world: [world] load_nearest_year requested=2000 chosen=2000 dir=C:\Users\michael.bowman\Downloads\mutants3-main\mutants3-main\state\world
+2025-11-18 13:36:06,581 INFO mutants.services.player_state: Normalized player roster to canonical classes; persisting repairs
+2025-11-18 13:36:06,613 INFO mutants.registries.world: [world] load_nearest_year requested=2000 chosen=2000 dir=C:\Users\michael.bowman\Downloads\mutants3-main\mutants3-main\state\world
+2025-11-18 13:36:06,614 WARNING mutants.app.context: [build_room_vm] monsters_source=MonstersState returned 0 rows ids=[]
+2025-11-18 13:36:06,616 INFO mutants.services.player_state: Normalized player roster to canonical classes; persisting repairs
+Relics of the war line the streets.
+Compass: (2E : -1N)
+south - area continues.
+west  - area continues.
+> s
+2025-11-18 13:36:07,377 INFO mutants.services.turn_scheduler: TURN/TICK tick=12
+2025-11-18 13:36:07,378 INFO mutants.registries.world: [world] load_nearest_year requested=2000 chosen=2000 dir=C:\Users\michael.bowman\Downloads\mutants3-main\mutants3-main\state\world
+2025-11-18 13:36:07,433 INFO mutants.services.player_state: Normalized player roster to canonical classes; persisting repairs
+2025-11-18 13:36:07,524 INFO mutants.registries.world: [world] load_nearest_year requested=2000 chosen=2000 dir=C:\Users\michael.bowman\Downloads\mutants3-main\mutants3-main\state\world
+2025-11-18 13:36:07,525 WARNING mutants.app.context: [build_room_vm] monsters_source=MonstersState returned 0 rows ids=[]
+2025-11-18 13:36:07,529 INFO mutants.services.player_state: Normalized player roster to canonical classes; persisting repairs
+Broken glass covers the road.
+Compass: (2E : -2N)
+north - area continues.
+south - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear‑Decay.
+> get n
+2025-11-18 13:36:08,615 INFO mutants.services.turn_scheduler: TURN/TICK tick=13
+You pick up the Nuclear‑Decay.
+> s
+2025-11-18 13:36:09,751 INFO mutants.services.turn_scheduler: TURN/TICK tick=14
+2025-11-18 13:36:09,752 INFO mutants.registries.world: [world] load_nearest_year requested=2000 chosen=2000 dir=C:\Users\michael.bowman\Downloads\mutants3-main\mutants3-main\state\world
+2025-11-18 13:36:09,812 INFO mutants.services.player_state: Normalized player roster to canonical classes; persisting repairs
+2025-11-18 13:36:09,900 INFO mutants.registries.world: [world] load_nearest_year requested=2000 chosen=2000 dir=C:\Users\michael.bowman\Downloads\mutants3-main\mutants3-main\state\world
+2025-11-18 13:36:09,901 WARNING mutants.app.context: [build_room_vm] monsters_source=MonstersState returned 0 rows ids=[]
+2025-11-18 13:36:09,905 INFO mutants.services.player_state: Normalized player roster to canonical classes; persisting repairs
+You're in an abandoned building.
+Compass: (2E : -3N)
+north - area continues.
+east  - area continues.
+> e
+2025-11-18 13:36:10,712 INFO mutants.services.turn_scheduler: TURN/TICK tick=15
+2025-11-18 13:36:10,713 INFO mutants.registries.world: [world] load_nearest_year requested=2000 chosen=2000 dir=C:\Users\michael.bowman\Downloads\mutants3-main\mutants3-main\state\world
+2025-11-18 13:36:10,767 INFO mutants.services.player_state: Normalized player roster to canonical classes; persisting repairs
+2025-11-18 13:36:10,826 INFO mutants.registries.world: [world] load_nearest_year requested=2000 chosen=2000 dir=C:\Users\michael.bowman\Downloads\mutants3-main\mutants3-main\state\world
+2025-11-18 13:36:10,826 WARNING mutants.app.context: [build_room_vm] monsters_source=MonstersState returned 0 rows ids=[]
+2025-11-18 13:36:10,834 INFO mutants.services.player_state: Normalized player roster to canonical classes; persisting repairs
+You're in a wrecked building.
+Compass: (3E : -3N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cheese.
+> get ch
+2025-11-18 13:36:12,293 INFO mutants.services.turn_scheduler: TURN/TICK tick=16
+You pick up the Cheese.
+> x
+2025-11-18 13:36:13,337 INFO mutants.services.turn_scheduler: TURN/TICK tick=17
+2025-11-18 13:36:13,349 INFO mutants.services.player_state: Normalized player roster to canonical classes; persisting repairs
+ 1. Mutant Thief    Level: 1   Year: 2000  ( 1 ‑1)
+ 2. Mutant Priest   Level: 1   Year: 2000  ( 0  0)
+ 3. Mutant Wizard   Level: 1   Year: 2000  ( 0  0)
+ 4. Mutant Warrior  Level: 1   Year: 2000  ( 3 ‑3)
+ 5. Mutant Mage     Level: 1   Year: 2000  ( 0  0)
+
+Type BURY [class number] to reset a player. Type X to exit.
+***
+Select (Bury, 1–5, ?) 3
+2025-11-18 13:36:14,461 INFO mutants.services.player_state: Normalized player roster to canonical classes; persisting repairs
+2025-11-18 13:36:14,523 INFO mutants.services.player_state: Normalized player roster to canonical classes; persisting repairs
+2025-11-18 13:36:14,528 INFO mutants.registries.world: [world] load_nearest_year requested=2000 chosen=2000 dir=C:\Users\michael.bowman\Downloads\mutants3-main\mutants3-main\state\world
+2025-11-18 13:36:14,528 WARNING mutants.app.context: [build_room_vm] monsters_source=MonstersState returned 0 rows ids=[]
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+> stat
+2025-11-18 13:36:15,824 INFO mutants.services.turn_scheduler: TURN/TICK tick=18
+2025-11-18 13:36:15,830 INFO mutants.services.player_state: Normalized player roster to canonical classes; persisting repairs
+2025-11-18 13:36:15,920 INFO mutants.services.player_state: Normalized player roster to canonical classes; persisting repairs
+Name: Wizard / Mutant Wizard
+Exhaustion : 0
+Str:  14    Int:  17   Wis:  17
+Dex:  13    Con:  14   Cha:  15
+Hit Points  : 23 / 23
+Exp. Points : 0      Level: 1
+Riblets     : 0
+Ions        : 30000
+Wielding    : None
+Wearing Armor : None  Armour Class: 1  (Dex bonus: +1, Armour: +0)
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D. : 2000
+
+You are carrying the following items:  (Total Weight: 0 LB's)
+Nothing.
+> x
+2025-11-18 13:36:16,516 INFO mutants.services.turn_scheduler: TURN/TICK tick=19
+2025-11-18 13:36:16,541 INFO mutants.services.player_state: Normalized player roster to canonical classes; persisting repairs
+ 1. Mutant Thief    Level: 1   Year: 2000  ( 1 ‑1)
+ 2. Mutant Priest   Level: 1   Year: 2000  ( 0  0)
+ 3. Mutant Wizard   Level: 1   Year: 2000  ( 0  0)
+ 4. Mutant Warrior  Level: 1   Year: 2000  ( 3 ‑3)
+ 5. Mutant Mage     Level: 1   Year: 2000  ( 0  0)
+
+Type BURY [class number] to reset a player. Type X to exit.
+***
+Select (Bury, 1–5, ?) 1
+2025-11-18 13:36:16,879 INFO mutants.services.player_state: Normalized player roster to canonical classes; persisting repairs
+2025-11-18 13:36:16,888 INFO mutants.registries.world: [world] load_nearest_year requested=2000 chosen=2000 dir=C:\Users\michael.bowman\Downloads\mutants3-main\mutants3-main\state\world
+2025-11-18 13:36:16,889 WARNING mutants.app.context: [build_room_vm] monsters_source=MonstersState returned 0 rows ids=[]
+The street is cracked here.
+Compass: (1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+> stat
+2025-11-18 13:36:17,415 INFO mutants.services.turn_scheduler: TURN/TICK tick=20
+2025-11-18 13:36:17,417 INFO mutants.services.player_state: Normalized player roster to canonical classes; persisting repairs
+2025-11-18 13:36:17,492 INFO mutants.services.player_state: Normalized player roster to canonical classes; persisting repairs
+Name: Thief / Mutant Thief
+Exhaustion : 0
+Str:  15    Int:   9   Wis:   8
+Dex:  14    Con:  15   Cha:  16
+Hit Points  : 18 / 18
+Exp. Points : 0      Level: 1
+Riblets     : 0
+Ions        : 30000
+Wielding    : None
+Wearing Armor : None  Armour Class: 1  (Dex bonus: +1, Armour: +0)
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D. : 2000
+
+You are carrying the following items:  (Total Weight: 10 LB's)
+A Light‑Spear.
+> stat
+2025-11-18 13:36:18,648 INFO mutants.services.turn_scheduler: TURN/TICK tick=21
+2025-11-18 13:36:18,696 INFO mutants.services.player_state: Normalized player roster to canonical classes; persisting repairs
+Name: Thief / Mutant Thief
+Exhaustion : 0
+Str:  15    Int:   9   Wis:   8
+Dex:  14    Con:  15   Cha:  16
+Hit Points  : 18 / 18
+Exp. Points : 0      Level: 1
+Riblets     : 0
+Ions        : 30000
+Wielding    : None
+Wearing Armor : None  Armour Class: 1  (Dex bonus: +1, Armour: +0)
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D. : 2000
+
+You are carrying the following items:  (Total Weight: 10 LB's)
+A Light‑Spear.
+> tra 2300
+2025-11-18 13:36:21,082 INFO mutants.services.turn_scheduler: TURN/TICK tick=22
+2025-11-18 13:36:21,088 INFO mutants.services.player_state: Normalized player roster to canonical classes; persisting repairs
+2025-11-18 13:36:21,095 INFO mutants.registries.world: [world] load_nearest_year requested=2300 chosen=2300 dir=C:\Users\michael.bowman\Downloads\mutants3-main\mutants3-main\state\world
+2025-11-18 13:36:21,135 INFO mutants.services.player_state: Normalized player roster to canonical classes; persisting repairs
+2025-11-18 13:36:21,174 INFO mutants.services.player_state: Normalized player roster to canonical classes; persisting repairs
+ZAAAPPPPP!! You've been sent to the year 2300 A.D.
+> stat
+2025-11-18 13:36:21,621 INFO mutants.services.turn_scheduler: TURN/TICK tick=23
+2025-11-18 13:36:21,627 INFO mutants.services.player_state: Normalized player roster to canonical classes; persisting repairs
+2025-11-18 13:36:21,715 INFO mutants.services.player_state: Normalized player roster to canonical classes; persisting repairs
+Name: Thief / Mutant Thief
+Exhaustion : 0
+Str:  15    Int:   9   Wis:   8
+Dex:  14    Con:  15   Cha:  16
+Hit Points  : 18 / 18
+Exp. Points : 0      Level: 1
+Riblets     : 0
+Ions        : 30000
+Wielding    : None
+Wearing Armor : None  Armour Class: 1  (Dex bonus: +1, Armour: +0)
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D. : 2300
+
+You are carrying the following items:  (Total Weight: 10 LB's)
+A Light‑Spear.
+> stat
+2025-11-18 13:36:24,213 INFO mutants.services.turn_scheduler: TURN/TICK tick=24
+2025-11-18 13:36:24,295 INFO mutants.services.player_state: Normalized player roster to canonical classes; persisting repairs
+Name: Thief / Mutant Thief
+Exhaustion : 0
+Str:  15    Int:   9   Wis:   8
+Dex:  14    Con:  15   Cha:  16
+Hit Points  : 18 / 18
+Exp. Points : 0      Level: 1
+Riblets     : 0
+Ions        : 30000
+Wielding    : None
+Wearing Armor : None  Armour Class: 1  (Dex bonus: +1, Armour: +0)
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D. : 2300
+
+You are carrying the following items:  (Total Weight: 10 LB's)
+A Light‑Spear.
+> look
+2025-11-18 13:36:25,327 INFO mutants.services.turn_scheduler: TURN/TICK tick=25
+2025-11-18 13:36:25,331 INFO mutants.services.player_state: Normalized player roster to canonical classes; persisting repairs
+2025-11-18 13:36:25,382 INFO mutants.registries.world: [world] load_nearest_year requested=2300 chosen=2300 dir=C:\Users\michael.bowman\Downloads\mutants3-main\mutants3-main\state\world
+2025-11-18 13:36:25,382 WARNING mutants.app.context: [build_room_vm] monsters_source=MonstersState returned 0 rows ids=[]
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Scrap‑Armour.
+> x
+2025-11-18 13:36:28,636 INFO mutants.services.turn_scheduler: TURN/TICK tick=26
+2025-11-18 13:36:28,642 INFO mutants.services.player_state: Normalized player roster to canonical classes; persisting repairs
+ 1. Mutant Thief    Level: 1   Year: 2300  ( 0  0)
+ 2. Mutant Priest   Level: 1   Year: 2000  ( 0  0)
+ 3. Mutant Wizard   Level: 1   Year: 2000  ( 0  0)
+ 4. Mutant Warrior  Level: 1   Year: 2000  ( 3 ‑3)
+ 5. Mutant Mage     Level: 1   Year: 2000  ( 0  0)
+
+Type BURY [class number] to reset a player. Type X to exit.
+***
+Select (Bury, 1–5, ?) 1
+2025-11-18 13:36:29,723 INFO mutants.services.player_state: Normalized player roster to canonical classes; persisting repairs
+2025-11-18 13:36:29,759 INFO mutants.services.player_state: Normalized player roster to canonical classes; persisting repairs
+2025-11-18 13:36:29,763 INFO mutants.registries.world: [world] load_nearest_year requested=2300 chosen=2300 dir=C:\Users\michael.bowman\Downloads\mutants3-main\mutants3-main\state\world
+2025-11-18 13:36:29,763 WARNING mutants.app.context: [build_room_vm] monsters_source=MonstersState returned 0 rows ids=[]
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Scrap‑Armour.
+> stat
+2025-11-18 13:36:30,737 INFO mutants.services.turn_scheduler: TURN/TICK tick=27
+2025-11-18 13:36:30,742 INFO mutants.services.player_state: Normalized player roster to canonical classes; persisting repairs
+2025-11-18 13:36:30,830 INFO mutants.services.player_state: Normalized player roster to canonical classes; persisting repairs
+Name: Thief / Mutant Thief
+Exhaustion : 0
+Str:  15    Int:   9   Wis:   8
+Dex:  14    Con:  15   Cha:  16
+Hit Points  : 18 / 18
+Exp. Points : 0      Level: 1
+Riblets     : 0
+Ions        : 30000
+Wielding    : None
+Wearing Armor : None  Armour Class: 1  (Dex bonus: +1, Armour: +0)
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D. : 2300
+
+You are carrying the following items:  (Total Weight: 10 LB's)
+A Light‑Spear.
+> get sc
+2025-11-18 13:36:31,793 INFO mutants.services.turn_scheduler: TURN/TICK tick=28
+You pick up the Scrap‑Armour.
+> wear sc
+2025-11-18 13:36:33,461 INFO mutants.services.turn_scheduler: TURN/TICK tick=29
+2025-11-18 13:36:33,500 INFO mutants.services.player_state: Normalized player roster to canonical classes; persisting repairs
+2025-11-18 13:36:33,592 INFO mutants.services.player_state: Normalized player roster to canonical classes; persisting repairs
+You've just put on the Scrap Armour.
+> sat
+2025-11-18 13:36:34,772 INFO mutants.services.turn_scheduler: TURN/TICK tick=30
+Unknown command "sat" (commands require at least 3 letters).
+> stat
+2025-11-18 13:36:35,723 INFO mutants.services.turn_scheduler: TURN/TICK tick=31
+2025-11-18 13:36:35,728 INFO mutants.services.player_state: Normalized player roster to canonical classes; persisting repairs
+2025-11-18 13:36:35,806 INFO mutants.services.player_state: Normalized player roster to canonical classes; persisting repairs
+Name: Thief / Mutant Thief
+Exhaustion : 0
+Str:  15    Int:   9   Wis:   8
+Dex:  14    Con:  15   Cha:  16
+Hit Points  : 18 / 18
+Exp. Points : 0      Level: 1
+Riblets     : 0
+Ions        : 30000
+Wielding    : None
+Wearing Armor : Scrap‑Armour  Armour Class: 2  (Dex bonus: +1, Armour: +1)
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D. : 2300
+
+You are carrying the following items:  (Total Weight: 10 LB's)
+A Light‑Spear.
+> e
+2025-11-18 13:36:37,219 INFO mutants.services.turn_scheduler: TURN/TICK tick=32
+2025-11-18 13:36:37,221 INFO mutants.registries.world: [world] load_nearest_year requested=2300 chosen=2300 dir=C:\Users\michael.bowman\Downloads\mutants3-main\mutants3-main\state\world
+2025-11-18 13:36:37,285 INFO mutants.services.player_state: Normalized player roster to canonical classes; persisting repairs
+2025-11-18 13:36:37,355 INFO mutants.registries.world: [world] load_nearest_year requested=2300 chosen=2300 dir=C:\Users\michael.bowman\Downloads\mutants3-main\mutants3-main\state\world
+2025-11-18 13:36:37,355 WARNING mutants.app.context: [build_room_vm] monsters_source=MonstersState returned 0 rows ids=[]
+2025-11-18 13:36:37,357 INFO mutants.services.player_state: Normalized player roster to canonical classes; persisting repairs
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+An Ion‑Pack.
+> get i
+2025-11-18 13:36:38,576 INFO mutants.services.turn_scheduler: TURN/TICK tick=33
+You pick up the Ion‑Pack.
+> stat
+2025-11-18 13:36:39,726 INFO mutants.services.turn_scheduler: TURN/TICK tick=34
+2025-11-18 13:36:39,737 INFO mutants.services.player_state: Normalized player roster to canonical classes; persisting repairs
+2025-11-18 13:36:39,840 INFO mutants.services.player_state: Normalized player roster to canonical classes; persisting repairs
+Name: Thief / Mutant Thief
+Exhaustion : 0
+Str:  15    Int:   9   Wis:   8
+Dex:  14    Con:  15   Cha:  16
+Hit Points  : 18 / 18
+Exp. Points : 0      Level: 1
+Riblets     : 0
+Ions        : 30000
+Wielding    : None
+Wearing Armor : None  Armour Class: 1  (Dex bonus: +1, Armour: +0)
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D. : 2300
+
+You are carrying the following items:  (Total Weight: 68 LB's)
+A Light‑Spear, A Scrap‑Armour, An Ion‑Pack.
+>
