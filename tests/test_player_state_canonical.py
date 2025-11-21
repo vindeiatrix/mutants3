@@ -209,3 +209,80 @@ def test_bury_by_index_preserves_class_roster(state_root, monkeypatch):
         saved = json.load(handle)
 
     assert [entry["class"] for entry in saved["players"]] == CLASS_ORDER
+
+
+@pytest.mark.parametrize("active_class", CLASS_ORDER)
+def test_canonical_state_roundtrip_with_all_classes(state_root, active_class):
+    player_path = state_root / "playerlivestate.json"
+    coords_by_class = {
+        cls: (2000 + idx, idx * 10, idx * 10 + 1) for idx, cls in enumerate(CLASS_ORDER, start=1)
+    }
+    ions_by_class = {cls: idx * 100 for idx, cls in enumerate(CLASS_ORDER, start=1)}
+    players = [
+        {
+            "id": f"player_{cls.lower()}",
+            "class": cls,
+            "pos": [str(pos[0]), pos[1], pos[2]],
+            "inventory": [f"{cls.lower()}-loot"],
+        }
+        for cls, pos in coords_by_class.items()
+    ]
+
+    payload = {
+        "players": players,
+        "active_id": f"player_{active_class.lower()}",
+        "ions_by_class": ions_by_class,
+        "active": {
+            "id": f"player_{active_class.lower()}",
+            "class": active_class,
+            "pos": [9999, 9, 9],
+            "inventory": ["transient-item"],
+        },
+    }
+
+    player_state.save_state(payload)
+
+    with player_path.open("r", encoding="utf-8") as handle:
+        saved = json.load(handle)
+
+    assert "active" not in saved
+    roster = {entry["class"]: entry for entry in saved["players"]}
+    assert list(roster.keys()) == CLASS_ORDER
+    for cls, pos in coords_by_class.items():
+        assert roster[cls]["pos"] == [int(pos[0]), int(pos[1]), int(pos[2])]
+        assert roster[cls].get("inventory") == [f"{cls.lower()}-loot"]
+        assert saved["ions_by_class"][cls] == ions_by_class[cls]
+
+    missing_class = next(cls for cls in CLASS_ORDER if cls != active_class)
+    mutated_roster = [entry for entry in saved["players"] if entry.get("class") != missing_class]
+    mutated = dict(saved, players=mutated_roster)
+    mutated["ions_by_class"].pop(missing_class, None)
+    _write_state(player_path, mutated)
+
+    loaded = player_state.load_state()
+
+    rebuilt_roster = {entry["class"]: entry for entry in loaded["players"]}
+    assert list(rebuilt_roster.keys()) == CLASS_ORDER
+    assert loaded["active_id"] == roster[active_class]["id"]
+    assert player_state.canonical_player_pos(loaded) == tuple(int(value) for value in coords_by_class[active_class])
+
+    top_level_state = {
+        "players": [{"id": "player_top", "class": active_class, "pos": []}],
+        "active_id": "player_top",
+        "position": [
+            str(coords_by_class[active_class][0] + 50),
+            coords_by_class[active_class][1] + 50,
+            coords_by_class[active_class][2] + 50,
+        ],
+    }
+    assert player_state.canonical_player_pos(top_level_state) == (
+        coords_by_class[active_class][0] + 50,
+        coords_by_class[active_class][1] + 50,
+        coords_by_class[active_class][2] + 50,
+    )
+
+    default_state = {
+        "players": [{"id": "player_default", "class": active_class, "pos": []}],
+        "active_id": "player_default",
+    }
+    assert player_state.canonical_player_pos(default_state) == (2000, 0, 0)
