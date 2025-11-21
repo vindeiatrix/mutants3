@@ -90,7 +90,6 @@ def _save_player(ctx: Mapping[str, Any], player: Dict[str, Any]) -> Dict[str, An
     state = _state_from_ctx(ctx)
 
     _ensure_inventory(player)
-    pstate.bind_inventory_to_active_class(player)
     inv = list(player.get("inventory", []))
 
     players = state.get("players")
@@ -155,6 +154,12 @@ def _save_player(ctx: Mapping[str, Any], player: Dict[str, Any]) -> Dict[str, An
     if isinstance(ctx, MutableMapping):
         ctx["player_state"] = state
         ctx["_runtime_player"] = active_entry
+
+        # Persist immediately so subsequent commands that reload the state
+        # (e.g., ``stat``) observe the inventory mutation. Without this, a
+        # dropped item could linger in the canonical inventory view even
+        # though the runtime cache was updated.
+        pstate.save_player_state(ctx)
 
     return active_entry
 
