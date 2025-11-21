@@ -7,11 +7,11 @@ from ..registries import items_instances as itemsreg
 from ..services import item_transfer as itx
 from ..services import player_state as pstate
 from ..services import state_debug
+from ..services.combat_actions import perform_melee_attack
 from ..services.equip_debug import _edbg_enabled, _edbg_log
 from ..services.items_weight import get_effective_weight
 from ..util.textnorm import normalize_item_query
 from .convert import _choose_inventory_item, _display_name
-from .strike import strike_cmd
 from ._helpers import resolve_ready_target_in_tile
 from .wear import _bag_count, _catalog_template, _pos_repr
 
@@ -218,7 +218,7 @@ def wield_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
         resolved_ready = resolve_ready_target_in_tile(ctx)
         if resolved_ready:
             try:
-                strike_result = strike_cmd("", ctx)
+                strike_result = perform_melee_attack(ctx)
             except Exception as exc:  # pragma: no cover - defensive guard
                 strike_summary = {
                     "ok": False,

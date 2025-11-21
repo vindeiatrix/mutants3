@@ -9,17 +9,15 @@ from typing import Any, Dict, Mapping, MutableMapping, Optional, Sequence
 from mutants.registries import items_catalog, items_instances as itemsreg
 from mutants.registries.monsters_catalog import DEFAULT_CATALOG_PATH, load_monsters_catalog
 from mutants.services.monster_leveling import exp_for as monster_exp_for
-from mutants.services import combat_loot
-from mutants.services import damage_engine, items_wear, monsters_state, player_state as pstate
+from mutants.services import combat_loot, damage_engine, items_wear, monsters_state, player_state as pstate
 from mutants.bootstrap.lazyinit import ensure_player_state
 from mutants.debug import turnlog
 from mutants.ui.item_display import item_label
 
-from ._helpers import resolve_ready_target_in_tile
+from ..commands._helpers import resolve_ready_target_in_tile
 
 MIN_INNATE_DAMAGE = 6
 MIN_BOLT_DAMAGE = 6
-
 
 LOG = logging.getLogger(__name__)
 _RNG = random.Random()
@@ -373,12 +371,12 @@ def _extract_wielded_iid(payload: Any, cls: Optional[str]) -> Optional[str]:
     return None
 
 
-def strike_cmd(arg: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
+def perform_melee_attack(ctx: Dict[str, Any]) -> Dict[str, Any]:
     """Execute a combat strike using the active player and return a summary payload."""
 
     bus = ctx.get("feedback_bus")
     if bus is None:
-        raise ValueError("strike command requires feedback_bus in context")
+        raise ValueError("perform_melee_attack requires feedback_bus in context")
 
     monsters = _load_monsters(ctx)
     if monsters is None:
@@ -563,10 +561,3 @@ def strike_cmd(arg: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
             except Exception:
                 pass
     return result
-
-
-def register(dispatch, ctx) -> None:
-    dispatch.register("strike", lambda arg: strike_cmd(arg, ctx))
-    dispatch.alias("str", "strike")
-    dispatch.alias("hit", "strike")
-    dispatch.alias("att", "strike")
