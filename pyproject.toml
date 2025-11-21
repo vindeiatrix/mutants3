@@ -44,7 +44,7 @@ whitelist-regex = [
     "src/mutants/state.py",
     "src/mutants/registries/items_.*\\.py",
     "src/mutants/services/(damage_engine|combat_loot)\\.py",
-    "src/mutants/commands/strike.py",
+    "src/mutants/services/combat_actions.py",
 ]
 
 [tool.pydocstyle]

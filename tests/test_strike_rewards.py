@@ -5,7 +5,7 @@ import types
 
 sys.path.append("src")
 
-import mutants.commands.strike as strike
+from mutants.services import combat_actions
 from mutants.services import player_state as pstate
 
 
@@ -14,10 +14,10 @@ def test_kill_rewards_stay_with_active_class(monkeypatch):
     def _fail_drop(**_: object):
         raise RuntimeError("no drops in test")
 
-    monkeypatch.setattr(strike.combat_loot, "drop_monster_loot", _fail_drop)
-    monkeypatch.setattr(strike, "load_monsters_catalog", lambda: (_ for _ in ()).throw(FileNotFoundError()))
+    monkeypatch.setattr(combat_actions.combat_loot, "drop_monster_loot", _fail_drop)
+    monkeypatch.setattr(combat_actions, "load_monsters_catalog", lambda: (_ for _ in ()).throw(FileNotFoundError()))
     monkeypatch.setattr(pstate, "save_state", lambda data: None)
-    monkeypatch.setattr(strike, "_RNG", types.SimpleNamespace(randint=lambda mn, mx: mx))
+    monkeypatch.setattr(combat_actions, "_RNG", types.SimpleNamespace(randint=lambda mn, mx: mx))
 
     state = {
         "class": "Wizard",
@@ -34,7 +34,7 @@ def test_kill_rewards_stay_with_active_class(monkeypatch):
     monster = {"ions": 7, "riblets": 3, "monster_id": "junkyard_scrapper", "level": 1}
 
     summary: dict[str, object] = {}
-    strike._award_player_progress(
+    combat_actions._award_player_progress(
         monster_payload=monster,
         state=state,
         item_catalog={},
@@ -54,9 +54,9 @@ def test_kill_rewards_stay_with_active_class(monkeypatch):
 
 
 def test_kill_rewards_use_riblet_range(monkeypatch):
-    monkeypatch.setattr(strike.pstate, "save_state", lambda data: None)
-    monkeypatch.setattr(strike, "monster_exp_for", lambda level, bonus: 0)
-    monkeypatch.setattr(strike, "_RNG", types.SimpleNamespace(randint=lambda mn, mx: mx))
+    monkeypatch.setattr(combat_actions.pstate, "save_state", lambda data: None)
+    monkeypatch.setattr(combat_actions, "monster_exp_for", lambda level, bonus: 0)
+    monkeypatch.setattr(combat_actions, "_RNG", types.SimpleNamespace(randint=lambda mn, mx: mx))
 
     state = {
         "class": "Wizard",
@@ -77,7 +77,7 @@ def test_kill_rewards_use_riblet_range(monkeypatch):
         "riblets_max": 4,
     }
 
-    strike._award_player_progress(
+    combat_actions._award_player_progress(
         monster_payload=monster,
         state=state,
         item_catalog={},
@@ -91,20 +91,20 @@ def test_kill_rewards_use_riblet_range(monkeypatch):
 
 def test_strike_uses_initialized_state(monkeypatch):
     # Ensure player state is injected into the context before reward resolution.
-    monkeypatch.setattr(strike.pstate, "save_state", lambda data: None)
-    monkeypatch.setattr(strike.pstate, "get_ready_target_for_active", lambda state: "m1")
-    monkeypatch.setattr(strike.pstate, "clear_ready_target_for_active", lambda **kwargs: None)
-    monkeypatch.setattr(strike, "resolve_ready_target_in_tile", lambda ctx: "m1")
-    monkeypatch.setattr(strike.pstate, "get_wielded_weapon_id", lambda state: None)
-    monkeypatch.setattr(strike.pstate, "canonical_player_pos", lambda state: (0, 0, 0))
-    monkeypatch.setattr(strike.items_catalog, "load_catalog", lambda: {})
-    monkeypatch.setattr(strike.items_wear, "build_wear_event", lambda **_: {})
-    monkeypatch.setattr(strike.items_wear, "wear_from_event", lambda event: 0)
-    monkeypatch.setattr(strike, "_apply_weapon_wear", lambda *args, **kwargs: None)
-    monkeypatch.setattr(strike, "_apply_armour_wear", lambda *args, **kwargs: None)
-    monkeypatch.setattr(strike, "load_monsters_catalog", lambda: (_ for _ in ()).throw(FileNotFoundError()))
-    monkeypatch.setattr(strike, "monster_exp_for", lambda level, bonus: 50)
-    monkeypatch.setattr(strike, "_RNG", types.SimpleNamespace(randint=lambda mn, mx: mx))
+    monkeypatch.setattr(combat_actions.pstate, "save_state", lambda data: None)
+    monkeypatch.setattr(combat_actions.pstate, "get_ready_target_for_active", lambda state: "m1")
+    monkeypatch.setattr(combat_actions.pstate, "clear_ready_target_for_active", lambda **kwargs: None)
+    monkeypatch.setattr(combat_actions, "resolve_ready_target_in_tile", lambda ctx: "m1")
+    monkeypatch.setattr(combat_actions.pstate, "get_wielded_weapon_id", lambda state: None)
+    monkeypatch.setattr(combat_actions.pstate, "canonical_player_pos", lambda state: (0, 0, 0))
+    monkeypatch.setattr(combat_actions.items_catalog, "load_catalog", lambda: {})
+    monkeypatch.setattr(combat_actions.items_wear, "build_wear_event", lambda **_: {})
+    monkeypatch.setattr(combat_actions.items_wear, "wear_from_event", lambda event: 0)
+    monkeypatch.setattr(combat_actions, "_apply_weapon_wear", lambda *args, **kwargs: None)
+    monkeypatch.setattr(combat_actions, "_apply_armour_wear", lambda *args, **kwargs: None)
+    monkeypatch.setattr(combat_actions, "load_monsters_catalog", lambda: (_ for _ in ()).throw(FileNotFoundError()))
+    monkeypatch.setattr(combat_actions, "monster_exp_for", lambda level, bonus: 50)
+    monkeypatch.setattr(combat_actions, "_RNG", types.SimpleNamespace(randint=lambda mn, mx: mx))
 
     state = {
         "active_id": "player_wizard",
@@ -143,9 +143,9 @@ def test_strike_uses_initialized_state(monkeypatch):
             assert monster_id == "m1"
             return {"monster": monster, "drops": [], "pos": monster.get("pos")}
 
-    monkeypatch.setattr(strike, "_load_monsters", lambda ctx: DummyMonsters())
+    monkeypatch.setattr(combat_actions, "_load_monsters", lambda ctx: DummyMonsters())
     monkeypatch.setattr(
-        strike.damage_engine,
+        combat_actions.damage_engine,
         "resolve_attack",
         lambda item, active, target: types.SimpleNamespace(damage=1, source="melee"),
     )
@@ -156,9 +156,9 @@ def test_strike_uses_initialized_state(monkeypatch):
         context["player_state"] = state
         return state["active"]
 
-    monkeypatch.setattr(strike, "ensure_player_state", _ensure_player_state)
+    monkeypatch.setattr(combat_actions, "ensure_player_state", _ensure_player_state)
 
-    result = strike.strike_cmd("m1", ctx)
+    result = combat_actions.perform_melee_attack(ctx)
 
     assert result["killed"] is True
     assert state["ions_by_class"]["Wizard"] == 2

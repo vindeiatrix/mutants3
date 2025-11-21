@@ -7,9 +7,8 @@ import random
 from typing import Any, Callable, Dict, Iterable, Mapping, MutableMapping, Optional, Sequence, Tuple
 
 from mutants.commands import convert as convert_cmd
-from mutants.commands import strike
 from mutants.registries import items_catalog, items_instances as itemsreg
-from mutants.services import combat_loot
+from mutants.services import combat_actions, combat_loot
 from mutants.services import damage_engine, items_wear, monsters_state
 from mutants.services import player_death
 from mutants.services import player_state as pstate
@@ -32,8 +31,8 @@ ORIGIN_NATIVE = "native"
 ORIGIN_WORLD = "world"
 
 
-MIN_INNATE_DAMAGE = strike.MIN_INNATE_DAMAGE
-MIN_BOLT_DAMAGE = strike.MIN_BOLT_DAMAGE
+MIN_INNATE_DAMAGE = combat_actions.MIN_INNATE_DAMAGE
+MIN_BOLT_DAMAGE = combat_actions.MIN_BOLT_DAMAGE
 
 
 ActionFn = Callable[[MutableMapping[str, Any], MutableMapping[str, Any], random.Random], Any]
@@ -730,7 +729,7 @@ def _apply_player_damage(
         final_damage = max(MIN_INNATE_DAMAGE, final_damage)
     if attack.source == "bolt":
         final_damage = max(MIN_BOLT_DAMAGE, final_damage)
-    final_damage = strike._clamp_melee_damage(active, final_damage)
+    final_damage = combat_actions._clamp_melee_damage(active, final_damage)
     catalog = _load_catalog()
     bus_obj = bus if hasattr(bus, "push") else None
     weapon_label, weapon_item_id = _attack_weapon_payload(

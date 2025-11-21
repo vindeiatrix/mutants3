@@ -14,7 +14,7 @@ def register_all(dispatch: Any, ctx: dict) -> None:
     for m in pkgutil.iter_modules(pkg.__path__):  # type: ignore[attr-defined]
         name = m.name
         # Retire the 'switch' command; menu replaces it.
-        if name in {"__init__", "register_all", "switch"} or name.startswith("_"):
+        if name in {"__init__", "register_all", "switch", "strike"} or name.startswith("_"):
             continue
         modules.append(name)
 
