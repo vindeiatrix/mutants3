@@ -12,7 +12,6 @@ from ..services.equip_debug import _edbg_enabled, _edbg_log
 from ..services.items_weight import get_effective_weight
 from ..util.textnorm import normalize_item_query
 from .convert import _choose_inventory_item, _display_name
-from ._helpers import resolve_ready_target_in_tile
 from .wear import _bag_count, _catalog_template, _pos_repr
 
 
@@ -215,37 +214,35 @@ def wield_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
 
     strike_summary: Optional[Dict[str, object]] = None
     if ready_target_id and not monster_actor:
-        resolved_ready = resolve_ready_target_in_tile(ctx)
-        if resolved_ready:
-            try:
-                strike_result = perform_melee_attack(ctx)
-            except Exception as exc:  # pragma: no cover - defensive guard
-                strike_summary = {
-                    "ok": False,
-                    "reason": "auto_strike_failed",
-                    "error": str(exc),
-                }
-                if _edbg_enabled():
-                    _edbg_log(
-                        "[ equip ] auto_strike failure",
-                        cmd="wield",
-                        prefix=repr(prefix),
-                        target=resolved_ready,
-                        error=str(exc),
-                    )
+        try:
+            strike_result = perform_melee_attack(ctx)
+        except Exception as exc:  # pragma: no cover - defensive guard
+            strike_summary = {
+                "ok": False,
+                "reason": "auto_strike_failed",
+                "error": str(exc),
+            }
+            if _edbg_enabled():
+                _edbg_log(
+                    "[ equip ] auto_strike failure",
+                    cmd="wield",
+                    prefix=repr(prefix),
+                    target=ready_target_id,
+                    error=str(exc),
+                )
+        else:
+            if isinstance(strike_result, dict):
+                strike_summary = dict(strike_result)
             else:
-                if isinstance(strike_result, dict):
-                    strike_summary = dict(strike_result)
-                else:
-                    strike_summary = {"ok": False, "reason": "auto_strike_invalid"}
-                if _edbg_enabled():
-                    _edbg_log(
-                        "[ equip ] auto_strike",
-                        cmd="wield",
-                        prefix=repr(prefix),
-                        target=resolved_ready,
-                        strike_ok=strike_summary.get("ok"),
-                    )
+                strike_summary = {"ok": False, "reason": "auto_strike_invalid"}
+            if _edbg_enabled():
+                _edbg_log(
+                    "[ equip ] auto_strike",
+                    cmd="wield",
+                    prefix=repr(prefix),
+                    target=ready_target_id,
+                    strike_ok=strike_summary.get("ok"),
+                )
     if strike_summary is not None:
         result["strike"] = strike_summary
 
