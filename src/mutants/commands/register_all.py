@@ -10,16 +10,22 @@ def register_all(dispatch: Any, ctx: dict) -> None:
     pkg_name = "mutants.commands"
     pkg = importlib.import_module(pkg_name)
 
+    retired_commands = {"switch", "strike"}
     modules = []
     for m in pkgutil.iter_modules(pkg.__path__):  # type: ignore[attr-defined]
         name = m.name
         # Retire the 'switch' command; menu replaces it.
-        if name in {"__init__", "register_all", "switch", "strike"} or name.startswith("_"):
+        if name in {"__init__", "register_all"} or name.startswith("_"):
+            continue
+        # Keep the strike module (if present) for helper reuse but do not register it as a command.
+        if name in retired_commands:
             continue
         modules.append(name)
 
     for name in sorted(modules):
         mod = importlib.import_module(f"{pkg_name}.{name}")
         reg = getattr(mod, "register", None)
+        if name in retired_commands:
+            continue
         if callable(reg):
             reg(dispatch, ctx)
