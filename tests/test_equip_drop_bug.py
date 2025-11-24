@@ -88,6 +88,13 @@ def _build_command_runner():
     return ctx, run
 
 
+def _normalize(text: str) -> str:
+    normalized = text.lower().replace("\u00a0", " ")
+    for hyphen in ["\u2011", "\u2013", "\u2014", "\u2212"]:
+        normalized = normalized.replace(hyphen, "-")
+    return normalized
+
+
 def test_drop_after_remove_leaves_inventory_incorrectly(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     """Reproduce Scrap-Armour drop bug via real command loop."""
 
@@ -124,6 +131,12 @@ def test_drop_after_remove_leaves_inventory_incorrectly(tmp_path: Path, monkeypa
     stat_output = run("stat")
     look_output = run("look")
 
-    normalized_stat = stat_output.lower().replace("\u2011", "-")
+    normalized_stat = _normalize(stat_output)
+    normalized_look = _normalize(look_output)
 
-    assert "scrap-armour" not in normalized_stat and "scrap armour" not in normalized_stat
+    assert "scrap-armour" not in normalized_stat and "scrap armour" not in normalized_stat, (
+        "armour should be removed from inventory after drop"
+    )
+    assert "scrap-armour" in normalized_look or "scrap armour" in normalized_look, (
+        "armour should appear on the ground after drop"
+    )
