@@ -4,6 +4,7 @@ import contextlib
 import importlib
 import io
 import os
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -217,3 +218,143 @@ def test_drop_on_full_ground_swaps_and_remains_visible(
 
     assert "nuclear-decay" in normalized_look, "dropped item should remain visible on the ground"
     assert "ion-decay" in normalized_inv, "an existing ground item should have been swapped into inventory"
+
+
+def test_convert_consumes_item(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+    """Converting an item should pay the player and remove the item from play."""
+
+    monkeypatch.setenv("MUTANTS_STATE_BACKEND", "sqlite")
+    monkeypatch.setenv("GAME_STATE_ROOT", str(tmp_path))
+    monkeypatch.setenv("DEBUG", "1")
+
+    _reload_state_modules()
+
+    env = os.environ.copy()
+    env.update(
+        {
+            "MUTANTS_STATE_BACKEND": "sqlite",
+            "GAME_STATE_ROOT": str(tmp_path),
+            "DEBUG": "1",
+        }
+    )
+
+    _run_admin_command(["init"], env)
+    _run_admin_command(["catalog-import-items"], env)
+
+    ctx, run = _build_command_runner()
+
+    run("debug add bottle_cap")
+    run("get b")
+
+    stat_output = run("stat")
+    initial_match = re.search(r"Ions\s*:\s*(\d+)", stat_output)
+    assert initial_match, "stat output should include current ion count"
+    initial_ions = int(initial_match.group(1))
+
+    convert_output = run("convert b")
+    value_match = re.search(r"into\s+(\d+)\s+ions", convert_output, re.IGNORECASE)
+    assert value_match, "convert output should include payout amount"
+    item_value = int(value_match.group(1))
+
+    final_stat_output = run("stat")
+    final_match = re.search(r"Ions\s*:\s*(\d+)", final_stat_output)
+    assert final_match, "stat output should include updated ion count"
+    final_ions = int(final_match.group(1))
+
+    assert final_ions == initial_ions + item_value, "player should receive ions for converted item"
+
+    normalized_inv = _normalize(run("inv"))
+    normalized_look = _normalize(run("look"))
+
+    assert "bottle-cap" not in normalized_inv and "bottle cap" not in normalized_inv, (
+        "converted item should be removed from inventory"
+    )
+    assert "bottle-cap" not in normalized_look and "bottle cap" not in normalized_look, (
+        "converted item should not remain on the ground"
+    )
+
+
+def test_travel_persistence(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+    """Dropped items should stay in the original room when the player moves."""
+
+    monkeypatch.setenv("MUTANTS_STATE_BACKEND", "sqlite")
+    monkeypatch.setenv("GAME_STATE_ROOT", str(tmp_path))
+    monkeypatch.setenv("DEBUG", "1")
+
+    _reload_state_modules()
+
+    env = os.environ.copy()
+    env.update(
+        {
+            "MUTANTS_STATE_BACKEND": "sqlite",
+            "GAME_STATE_ROOT": str(tmp_path),
+            "DEBUG": "1",
+        }
+    )
+
+    _run_admin_command(["init"], env)
+    _run_admin_command(["catalog-import-items"], env)
+
+    ctx, run = _build_command_runner()
+
+    run("debug add light-spear")
+    run("get light-spear")
+    run("drop light-spear")
+
+    starting_look = _normalize(run("look"))
+    assert "light-spear" in starting_look, "dropped item should appear in the starting room"
+
+    run("w")
+    west_look = _normalize(run("look"))
+    assert "light-spear" not in west_look, "dropped item should remain in the starting room"
+
+    run("e")
+    east_look = _normalize(run("look"))
+    assert "light-spear" in east_look, "dropped item should persist in its original room"
+
+
+def test_wear_updates_status(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+    """Equipping and removing armour should update status and inventory indicators."""
+
+    monkeypatch.setenv("MUTANTS_STATE_BACKEND", "sqlite")
+    monkeypatch.setenv("GAME_STATE_ROOT", str(tmp_path))
+    monkeypatch.setenv("DEBUG", "1")
+
+    _reload_state_modules()
+
+    env = os.environ.copy()
+    env.update(
+        {
+            "MUTANTS_STATE_BACKEND": "sqlite",
+            "GAME_STATE_ROOT": str(tmp_path),
+            "DEBUG": "1",
+        }
+    )
+
+    _run_admin_command(["init"], env)
+    _run_admin_command(["catalog-import-items"], env)
+
+    ctx, run = _build_command_runner()
+
+    run("debug add scrap")
+    run("get sc")
+
+    initial_stat = _normalize(run("stat"))
+    assert "wearing armor : none" in initial_stat, "player should start with no armour equipped"
+    initial_inv = _normalize(run("inv"))
+    assert "scrap-armour" in initial_inv, "armour should begin in inventory before being worn"
+
+    run("wear sc")
+
+    equipped_stat = _normalize(run("stat"))
+    assert "wearing armor : scrap-armour" in equipped_stat, "armour should be marked as equipped in status"
+
+    equipped_inv = _normalize(run("inv"))
+    assert "scrap-armour" not in equipped_inv, "equipped armour should no longer appear in inventory listings"
+
+    run("rem")
+
+    final_stat = _normalize(run("stat"))
+    assert "wearing armor : none" in final_stat, "removing armour should clear equipped status"
+    final_inv = _normalize(run("inv"))
+    assert "scrap-armour" in final_inv, "removed armour should return to inventory"
