@@ -8,7 +8,6 @@ from typing import Any, Dict, Mapping, MutableMapping, Optional, Sequence
 
 from mutants.registries import items_catalog, items_instances as itemsreg
 from mutants.registries.monsters_catalog import DEFAULT_CATALOG_PATH, load_monsters_catalog
-from mutants.services.monster_leveling import exp_for as monster_exp_for
 from mutants.services import combat_loot, damage_engine, items_wear, monsters_state, player_state as pstate
 from mutants.bootstrap.lazyinit import ensure_player_state
 from mutants.debug import turnlog
@@ -61,11 +60,11 @@ def _is_alive(monster: Mapping[str, Any]) -> bool:
     return current > 0
 
 
-def _coerce_int(value: Any, default: int = 0) -> int:
+def _coerce_int(value: Any, default: Optional[int] = 0) -> int:
     try:
         return int(value)
     except (TypeError, ValueError):
-        return default
+        return int(default) if isinstance(default, int) else 0
 
 
 def _coerce_pos(value: Any, fallback: Optional[Sequence[int]] = None) -> Optional[tuple[int, int, int]]:
@@ -242,31 +241,58 @@ def _resolve_drop_entries(summary: Mapping[str, Any] | None) -> list[Mapping[str
     return result
 
 
-def _monster_exp_bonus(monster_payload: Mapping[str, Any]) -> int:
-    bonus = _coerce_int(monster_payload.get("exp_bonus"), 0)
-    if bonus:
-        return bonus
-    monster_id = monster_payload.get("monster_id")
-    if not monster_id:
-        return 0
+def _monster_base_from_catalog(monster_id: Any) -> Mapping[str, Any] | None:
     try:
         catalog = load_monsters_catalog()
     except FileNotFoundError:
         catalog = None
-    base = catalog.get(str(monster_id)) if catalog else None
-    if not isinstance(base, Mapping):
-        try:
-            text = Path(DEFAULT_CATALOG_PATH).read_text(encoding="utf-8")
-            entries = json.loads(text)
-        except Exception:
-            entries = []
-        for entry in entries:
-            if isinstance(entry, Mapping) and str(entry.get("monster_id")) == str(monster_id):
-                base = entry
-                break
-    if isinstance(base, Mapping):
-        return _coerce_int(base.get("exp_bonus"), 0)
-    return 0
+
+    if catalog:
+        base = catalog.get(str(monster_id))
+        if isinstance(base, Mapping):
+            return base
+
+    try:
+        text = Path(DEFAULT_CATALOG_PATH).read_text(encoding="utf-8")
+        entries = json.loads(text)
+    except Exception:
+        return None
+
+    for entry in entries:
+        if isinstance(entry, Mapping) and str(entry.get("monster_id")) == str(monster_id):
+            return entry
+    return None
+
+
+def _monster_exp_bonus(monster_payload: Mapping[str, Any]) -> int:
+    monster_id = monster_payload.get("monster_id")
+    if monster_id is not None:
+        base = _monster_base_from_catalog(monster_id)
+        if isinstance(base, Mapping):
+            return _coerce_int(base.get("exp_bonus"), 0)
+
+    return _coerce_int(monster_payload.get("exp_bonus"), 0)
+
+
+def _monster_riblet_range(monster_payload: Mapping[str, Any]) -> tuple[int, int]:
+    riblets_min: Optional[int] = None
+    riblets_max: Optional[int] = None
+
+    monster_id = monster_payload.get("monster_id")
+    if monster_id is not None:
+        base = _monster_base_from_catalog(monster_id)
+        if isinstance(base, Mapping):
+            riblets_min = _coerce_int(base.get("riblets_min"), 0)
+            riblets_max = _coerce_int(base.get("riblets_max"), riblets_min)
+
+    if riblets_min is None:
+        riblets_min = _coerce_int(monster_payload.get("riblets_min"), 0)
+    if riblets_max is None:
+        riblets_max = _coerce_int(monster_payload.get("riblets_max"), riblets_min)
+
+    rib_min_val = max(0, _coerce_int(riblets_min, 0))
+    rib_max_val = max(rib_min_val, _coerce_int(riblets_max, rib_min_val))
+    return rib_min_val, rib_max_val
 
 
 def _award_player_progress(
@@ -282,24 +308,13 @@ def _award_player_progress(
         current_ions = pstate.get_ions_for_active(state)
         pstate.set_ions_for_active(state, current_ions + ions_reward)
 
-    riblets_min = _coerce_int(monster_payload.get("riblets_min"), 0)
-    riblets_max = monster_payload.get("riblets_max")
-    riblets_cap = max(
-        riblets_min,
-        (
-            _coerce_int(riblets_max, riblets_min)
-            if riblets_max is not None
-            else _coerce_int(monster_payload.get("riblets"), 0)
-        ),
-    )
-    riblets_reward = _RNG.randint(riblets_min, riblets_cap) if riblets_cap > 0 else 0
+    riblets_min, riblets_max = _monster_riblet_range(monster_payload)
+    riblets_reward = _RNG.randint(riblets_min, riblets_max) if riblets_max > 0 else 0
     if riblets_reward:
         current_riblets = pstate.get_riblets_for_active(state)
         pstate.set_riblets_for_active(state, current_riblets + riblets_reward)
 
-    level = max(1, _coerce_int(monster_payload.get("level"), 1))
-    exp_bonus = _monster_exp_bonus(monster_payload)
-    exp_reward = monster_exp_for(level, exp_bonus)
+    exp_reward = _monster_exp_bonus(monster_payload)
     if exp_reward:
         current_exp = pstate.get_exp_for_active(state)
         pstate.set_exp_for_active(state, current_exp + exp_reward)
