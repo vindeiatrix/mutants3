@@ -783,6 +783,10 @@ def normalize_player_state_inplace(p: dict) -> dict:
     if "active" in p:
         del p["active"]
 
+    # Drop legacy wielded weapon fields; wielding is no longer persisted.
+    for key in ("wielded", "weapon", "wielded_by_class"):
+        p.pop(key, None)
+
     aid = p.get("active_id")
     players = p.get("players")
     if isinstance(players, list) and players:
@@ -803,6 +807,13 @@ def normalize_player_state_inplace(p: dict) -> dict:
             else:
                 y, x, z = canonical_player_pos(p)
             target["pos"] = [int(y), int(x), int(z)]
+
+    if isinstance(players, list):
+        for pl in players:
+            if not isinstance(pl, dict):
+                continue
+            for key in ("wielded", "weapon", "wielded_by_class"):
+                pl.pop(key, None)
 
     return p
 
@@ -1915,61 +1926,9 @@ def _ensure_wielded_map(
     class_sources: Dict[str, Dict[str, Any]],
     active: Dict[str, Any],
 ) -> Dict[str, Optional[str]]:
-    raw_map = state.get("wielded_by_class")
-    normalized: Dict[str, Optional[str]] = {}
-    if isinstance(raw_map, Mapping):
-        for name, payload in raw_map.items():
-            cls_name = _normalize_class_name(name)
-            if not cls_name:
-                continue
-            candidate: Optional[str]
-            if isinstance(payload, Mapping):
-                candidate = (
-                    _sanitize_equipped_iid(payload.get("wielded"))
-                    or _sanitize_equipped_iid(payload.get("weapon"))
-                    or _sanitize_equipped_iid(payload.get("iid"))
-                    or _sanitize_equipped_iid(payload.get("instance_id"))
-                )
-            else:
-                candidate = _sanitize_equipped_iid(payload)
-            normalized[cls_name] = candidate
-
-    for cls_name in classes:
-        key = cls_name if isinstance(cls_name, str) and cls_name else None
-        if not key:
-            continue
-        current = normalized.get(key)
-        candidate = _sanitize_equipped_iid(current)
-        if not candidate:
-            fallback: Optional[str] = None
-            for source in _source_candidates_for_class(key, class_sources, active, state):
-                if not isinstance(source, Mapping):
-                    continue
-                wmap = source.get("wielded_by_class")
-                if isinstance(wmap, Mapping):
-                    entry = wmap.get(key)
-                    fallback = _sanitize_equipped_iid(entry)
-                    if fallback:
-                        break
-                direct = source.get("wielded")
-                if not fallback:
-                    fallback = _sanitize_equipped_iid(direct)
-                if not fallback:
-                    fallback = _sanitize_equipped_iid(source.get("weapon"))
-                if fallback:
-                    break
-            candidate = fallback
-        try:
-            bags_map = state.get("bags_by_class") or state.get("bags") or {}
-            class_bag = [str(item) for item in bags_map.get(key) or [] if item]
-        except Exception:
-            class_bag = []
-        if candidate and candidate not in class_bag:
-            candidate = None
-        normalized[key] = candidate
-
-    state["wielded_by_class"] = normalized
-    return normalized
+    # Wielded weapons are no longer persisted in player state.
+    state.pop("wielded_by_class", None)
+    return {}
 
 
 def _ensure_ready_target_map(
@@ -2041,28 +2000,7 @@ def _ensure_ready_target_map(
 
 
 def _log_wield_invariants(status: str, summary: str, healed: Iterable[str]) -> None:
-    """Emit debug logs describing the outcome of wield invariant checks."""
-
-    pdgb_active = _pdbg_enabled()
-    edbg_active = _edbg_enabled()
-    if not (pdgb_active or edbg_active):
-        return
-
-    healed_list = [entry for entry in healed if entry]
-    healed_render = "|".join(healed_list)
-
-    if pdgb_active:
-        _pdbg_setup_file_logging()
-        if healed_render:
-            LOG_P.info("[playersdbg] %s wield :: %s healed=%s", status, summary, healed_render)
-        else:
-            LOG_P.info("[playersdbg] %s wield :: %s", status, summary)
-
-    if edbg_active:
-        payload: Dict[str, Any] = {"status": status, "summary": summary}
-        if healed_render:
-            payload["healed"] = healed_render
-        _edbg_log("[ equip ] state=wield-invariants", **payload)
+    return
 
 
 def _enforce_wield_invariants(
@@ -2073,66 +2011,7 @@ def _enforce_wield_invariants(
     *,
     active_class: str,
 ) -> None:
-    """Ensure wield invariants hold and emit debug logging if needed."""
-
-    if not isinstance(wield_map, dict):
-        return
-
-    class_names: set[str] = set()
-    for cls in classes:
-        if isinstance(cls, str) and cls:
-            class_names.add(cls)
-    if isinstance(active_class, str) and active_class:
-        class_names.add(active_class)
-    for cls in list(wield_map.keys()):
-        normalized = _normalize_class_name(cls)
-        if normalized:
-            class_names.add(normalized)
-
-    bags_by_class = state.get("bags_by_class")
-    bags_fallback = state.get("bags")
-    bags_map: Mapping[str, Any] = bags_by_class if isinstance(bags_by_class, Mapping) else {}
-    fallback_map: Mapping[str, Any] = bags_fallback if isinstance(bags_fallback, Mapping) else {}
-
-    healed: List[str] = []
-    summary_parts: List[str] = []
-
-    for cls_name in sorted(class_names):
-        bag_payload = bags_map.get(cls_name)
-        if not isinstance(bag_payload, list):
-            fallback_payload = fallback_map.get(cls_name)
-            bag_payload = fallback_payload if isinstance(fallback_payload, list) else []
-        bag_items = [str(item) for item in bag_payload if item is not None]
-
-        equipment_entry = equipment_map.get(cls_name)
-        armour_iid: Optional[str]
-        if isinstance(equipment_entry, Mapping):
-            armour_iid = _sanitize_equipped_iid(equipment_entry.get("armour"))
-        else:
-            armour_iid = _sanitize_equipped_iid(equipment_entry)
-
-        original_weapon = _sanitize_equipped_iid(wield_map.get(cls_name))
-        violation: Optional[str] = None
-        if original_weapon and original_weapon not in bag_items:
-            violation = "bag"
-        elif original_weapon and armour_iid and armour_iid == original_weapon:
-            violation = "armour"
-
-        final_weapon: Optional[str]
-        has_entry = cls_name in wield_map
-        if violation:
-            final_weapon = None
-            healed.append(f"{cls_name}:{violation}:{original_weapon}")
-        else:
-            final_weapon = original_weapon
-
-        if violation or has_entry:
-            wield_map[cls_name] = final_weapon
-
-        summary_parts.append(f"{cls_name}:{final_weapon or '-'}")
-
-    summary = " ".join(summary_parts) if summary_parts else "<no-classes>"
-    _log_wield_invariants("INV-OK", summary, healed)
+    return
 
 
 def _set_armour_view(payload: Dict[str, Any], armour_iid: Optional[str]) -> None:
@@ -2150,7 +2029,7 @@ def _set_armour_view(payload: Dict[str, Any], armour_iid: Optional[str]) -> None
 def _set_wield_view(payload: Dict[str, Any], weapon_iid: Optional[str]) -> None:
     if not isinstance(payload, dict):
         return
-    payload["wielded"] = weapon_iid
+    payload.pop("wielded", None)
 
 
 def _ensure_spells_map(state: Dict[str, Any], classes: Iterable[str]) -> Dict[str, Dict[str, List[str]]]:
@@ -2214,7 +2093,6 @@ def _apply_maps_to_profiles(
     hp_map: Dict[str, Dict[str, int]],
     stats_map: Dict[str, Dict[str, int]],
     equipment_map: Dict[str, Dict[str, Optional[str]]],
-    wield_map: Dict[str, Optional[str]],
     ready_map: Dict[str, Optional[str]],
     status_map: Dict[str, List[Dict[str, Any]]],
 ) -> None:
@@ -2251,12 +2129,6 @@ def _apply_maps_to_profiles(
             if isinstance(equipment, dict):
                 equipment[cls_name] = {"armour": armour_iid}
             _set_armour_view(player, armour_iid)
-
-            weapon_iid = _sanitize_equipped_iid(wield_map.get(cls_name))
-            wielded_map = player.setdefault("wielded_by_class", {})
-            if isinstance(wielded_map, dict):
-                wielded_map[cls_name] = weapon_iid
-            _set_wield_view(player, weapon_iid)
 
             ready_target = _sanitize_ready_target(ready_map.get(cls_name))
             ready_map_entry = player.setdefault("ready_target_by_class", {})
@@ -2321,13 +2193,6 @@ def _apply_maps_to_profiles(
         active_equipment[klass_name] = {"armour": armour_iid}
     _set_armour_view(active, armour_iid)
     _set_armour_view(state, armour_iid)
-
-    weapon_iid = _sanitize_equipped_iid(wield_map.get(klass_name))
-    active_wield_map = active.setdefault("wielded_by_class", {})
-    if isinstance(active_wield_map, dict):
-        active_wield_map[klass_name] = weapon_iid
-    _set_wield_view(active, weapon_iid)
-    _set_wield_view(state, weapon_iid)
 
     state["ions"] = active_ions
     state["Ions"] = active_ions
@@ -2413,17 +2278,8 @@ def _normalize_per_class_structures(
     stats_map = _ensure_stats_map(state, classes, sources, active)
 
     equipment_map = _ensure_equipment_map(state, classes, sources, active)
-    wield_map = _ensure_wielded_map(state, classes, sources, active)
     ready_map = _ensure_ready_target_map(state, classes, sources, active)
     status_map = _ensure_status_effects_map(state, classes, sources, active)
-
-    _enforce_wield_invariants(
-        state,
-        classes,
-        equipment_map,
-        wield_map,
-        active_class=klass_name,
-    )
 
     _ensure_spells_map(state, classes)
     _ensure_spell_effects_map(state, classes)
@@ -2441,7 +2297,6 @@ def _normalize_per_class_structures(
         hp_map,
         stats_map,
         equipment_map,
-        wield_map,
         ready_map,
         status_map,
     )
@@ -3242,64 +3097,7 @@ def get_equipped_armour_id(state: Dict[str, Any]) -> Optional[str]:
 def get_wielded_weapon_id(state: Dict[str, Any]) -> Optional[str]:
     """Return the wielded weapon instance id for the active class."""
 
-    if not isinstance(state, Mapping):
-        return None
-
-    cls = get_active_class(state)
-
-    def _from_payload(payload: Any) -> Optional[str]:
-        if not isinstance(payload, Mapping):
-            return None
-        wield_map = payload.get("wielded_by_class")
-        if isinstance(wield_map, Mapping):
-            entry = wield_map.get(cls)
-            if isinstance(entry, Mapping):
-                candidate = (
-                    _sanitize_equipped_iid(entry.get("wielded"))
-                    or _sanitize_equipped_iid(entry.get("weapon"))
-                    or _sanitize_equipped_iid(entry.get("iid"))
-                    or _sanitize_equipped_iid(entry.get("instance_id"))
-                )
-                if candidate:
-                    return candidate
-            else:
-                candidate = _sanitize_equipped_iid(entry)
-                if candidate:
-                    return candidate
-        candidate = _sanitize_equipped_iid(payload.get("wielded"))
-        if candidate:
-            return candidate
-        candidate = _sanitize_equipped_iid(payload.get("weapon"))
-        if candidate:
-            return candidate
-        return None
-
-    candidates: List[Mapping[str, Any]] = []
-    candidates.append(state)
-    active = state.get("active")
-    if isinstance(active, Mapping):
-        candidates.append(active)
-    players = state.get("players")
-    active_id = state.get("active_id")
-    if isinstance(players, list):
-        for idx, player in enumerate(players):
-            if not isinstance(player, Mapping):
-                continue
-            if active_id:
-                if player.get("id") != active_id:
-                    continue
-                candidates.append(player)
-                break
-            if idx == 0:
-                candidates.append(player)
-                break
-
-    for payload in candidates:
-        weapon_iid = _from_payload(payload)
-        if weapon_iid:
-            return weapon_iid
-
-    return _from_payload(state)
+    return None
 
 
 def equip_armour(iid: str) -> str:
@@ -3452,69 +3250,8 @@ def set_wielded_weapon(iid: Optional[str]) -> Optional[str]:
     """Set the wielded weapon for the active class to ``iid`` and persist."""
 
     sanitized = _sanitize_equipped_iid(iid)
-    ctx = _current_runtime_ctx()
-    runtime_mode = False
-
-    if ctx is not None:
-        state_hint = ctx.get("player_state")
-        if isinstance(state_hint, MutableMapping):
-            state: Mapping[str, Any] = state_hint
-            runtime_mode = True
-        else:
-            state = load_state()
-            runtime_mode = True
-    else:
-        state = load_state()
-
-    normalized, active, cls = _prepare_active_storage(dict(state))
-
-    bags = normalized.setdefault("bags", {})
-    bag_list = [str(item) for item in bags.get(cls) or [] if item]
-    if sanitized and sanitized not in bag_list:
-        raise ValueError("weapon iid is not present in the active inventory")
-
-    wield_map = normalized.setdefault("wielded_by_class", {})
-    if isinstance(wield_map, dict):
-        wield_map[cls] = sanitized
-    normalized["wielded_by_class"] = dict(wield_map)
-    _set_wield_view(normalized, sanitized)
-
-    active_wield = active.setdefault("wielded_by_class", {})
-    if isinstance(active_wield, dict):
-        active_wield[cls] = sanitized
-    _set_wield_view(active, sanitized)
-
-    players = normalized.get("players")
-    active_id = normalized.get("active_id")
-    if isinstance(players, list):
-        for idx, player in enumerate(players):
-            if not isinstance(player, Mapping):
-                continue
-            is_active = False
-            if active_id:
-                is_active = player.get("id") == active_id
-            else:
-                is_active = idx == 0
-            if not is_active:
-                continue
-            bags_map = player.setdefault("bags", {})
-            if isinstance(bags_map, dict):
-                bags_map.setdefault(cls, list(bag_list))
-            player_wield_map = player.setdefault("wielded_by_class", {})
-            if isinstance(player_wield_map, dict):
-                player_wield_map[cls] = sanitized
-            _set_wield_view(player, sanitized)
-            break
-
-    if runtime_mode and ctx is not None:
-        ctx["player_state"] = normalized
-        ctx.pop(_RUNTIME_PLAYER_KEY, None)
-        player_ctx = ensure_player_state(ctx)
-        bind_inventory_to_active_class(player_ctx)
-        player_ctx["_dirty"] = True
-    else:
-        save_state(normalized)
-
+    if iid is not None and sanitized is None:
+        raise ValueError("weapon iid must be a non-empty string")
     return sanitized
 
 
@@ -4379,21 +4116,6 @@ def bind_inventory_to_active_class(player: Dict[str, Any]) -> None:
     if not equipped and isinstance(active, dict):
         equipped = get_equipped_armour_id(active)
 
-    wielded = None
-    raw_wield_map = player.get("wielded_by_class")
-    if isinstance(raw_wield_map, Mapping):
-        wielded = _sanitize_equipped_iid(raw_wield_map.get(klass))
-    if not wielded and isinstance(active, Mapping):
-        active_wield_map = active.get("wielded_by_class")
-        if isinstance(active_wield_map, Mapping):
-            wielded = _sanitize_equipped_iid(active_wield_map.get(klass))
-    if not wielded:
-        wielded = _sanitize_equipped_iid(player.get("wielded"))
-    if not wielded and isinstance(active, Mapping):
-        wielded = _sanitize_equipped_iid(active.get("wielded"))
-    if wielded and wielded not in bag:
-        wielded = None
-
     equipment_map = player.setdefault("equipment_by_class", {})
     if isinstance(equipment_map, dict):
         equipment_map[klass] = {"armour": equipped}
@@ -4403,16 +4125,6 @@ def bind_inventory_to_active_class(player: Dict[str, Any]) -> None:
             active_equipment[klass] = {"armour": equipped}
     _set_armour_view(player, equipped)
     _set_armour_view(active, equipped)
-
-    player_wield_map = player.setdefault("wielded_by_class", {})
-    if isinstance(player_wield_map, dict):
-        player_wield_map[klass] = wielded
-    if isinstance(active, dict):
-        active_wield_map = active.setdefault("wielded_by_class", {})
-        if isinstance(active_wield_map, dict):
-            active_wield_map[klass] = wielded
-    _set_wield_view(player, wielded)
-    _set_wield_view(active, wielded)
 
 
 def _save_player(state: Dict[str, Any]) -> None:

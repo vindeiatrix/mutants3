@@ -72,6 +72,15 @@ def _state_from_ctx(ctx: Mapping[str, object] | MutableMapping[str, object]) -> 
     return state if isinstance(state, dict) else None
 
 
+def _combat_context(ctx: MutableMapping[str, object]) -> Dict[str, object]:
+    combat_ctx = ctx.get("active_combat") if isinstance(ctx, MutableMapping) else None
+    if not isinstance(combat_ctx, dict):
+        combat_ctx = {}
+        if isinstance(ctx, MutableMapping):
+            ctx["active_combat"] = combat_ctx
+    return combat_ctx
+
+
 def wield_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
     bus = ctx["feedback_bus"]
     prefix = (arg or "").strip()
@@ -88,7 +97,7 @@ def wield_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
         if _edbg_enabled():
             state = _state_from_ctx(ctx)
             cls_name = pstate.get_active_class(state) if state else None
-            wield_iid = pstate.get_wielded_weapon_id(state) if state else None
+            wield_iid = combat_ctx.get("weapon_iid") if isinstance(combat_ctx, Mapping) else None
             _edbg_log(
                 "[ equip ] reject=missing_argument",
                 cmd="wield",
@@ -105,7 +114,8 @@ def wield_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
 
     stats_state = _state_from_ctx(ctx)
     cls_name = pstate.get_active_class(stats_state)
-    current_iid = pstate.get_wielded_weapon_id(stats_state)
+    combat_ctx = _combat_context(ctx)
+    current_iid = combat_ctx.get("weapon_iid") if isinstance(combat_ctx, Mapping) else None
     ready_target_id = (
         pstate.get_ready_target_for_active(stats_state)
         if isinstance(stats_state, dict)
@@ -189,20 +199,14 @@ def wield_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
         bus.push("SYSTEM/WARN", "You don't have the strength to wield that!")
         return {"ok": False, "reason": "insufficient_strength"}
 
-    try:
-        pstate.set_wielded_weapon(iid)
-    except ValueError:
-        if _edbg_enabled():
-            _edbg_log(
-                "[ equip ] reject=internal_error",
-                cmd="wield",
-                prefix=repr(prefix),
-                **{"iid": iid, "item_id": repr(item_id)},
-            )
-        bus.push("SYSTEM/WARN", "You can't wield that.")
-        return {"ok": False, "reason": "wield_failed"}
-
-    bus.push("SYSTEM/OK", f"You wield the {name}.")
+    if ready_target_id:
+        combat_ctx["weapon_iid"] = iid
+        combat_ctx["weapon_item_id"] = item_id
+        bus.push("SYSTEM/OK", f"You ready the {name} for combat.")
+    else:
+        combat_ctx.pop("weapon_iid", None)
+        combat_ctx.pop("weapon_item_id", None)
+        bus.push("SYSTEM/OK", f"You swing the {name} around, testing its weight.")
 
     result: Dict[str, object] = {
         "ok": True,

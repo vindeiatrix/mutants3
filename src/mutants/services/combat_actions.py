@@ -435,9 +435,8 @@ def perform_melee_attack(ctx: Dict[str, Any]) -> Dict[str, Any]:
         catalog = {}
 
     cls_name = pstate.get_active_class(state)
-    weapon_iid = pstate.get_wielded_weapon_id(state)
-    if not weapon_iid:
-        weapon_iid = pstate.get_wielded_weapon_id(player)
+    combat_ctx = ctx.get("active_combat") if isinstance(ctx, Mapping) else None
+    weapon_iid = _coerce_iid(combat_ctx.get("weapon_iid")) if isinstance(combat_ctx, Mapping) else None
     if not weapon_iid:
         weapon_iid = _extract_wielded_iid(state, cls_name)
     if not weapon_iid:

@@ -177,11 +177,8 @@ def _inventory_snapshot(player: Mapping[str, Any] | None) -> list[dict[str, Any]
 
 
 def _equipment_snapshot(player: Mapping[str, Any] | None) -> dict[str, Any]:
-    wielded = pstate.get_wielded_weapon_id(player or {}) if isinstance(player, Mapping) else None
     armour = pstate.get_equipped_armour_id(player or {}) if isinstance(player, Mapping) else None
     details: dict[str, Any] = {}
-    if wielded:
-        details["wielded"] = _describe_iid(wielded)
     if armour:
         details["armour"] = _describe_iid(armour)
     if not details:
