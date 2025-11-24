@@ -715,6 +715,17 @@ def _current_runtime_ctx() -> MutableMapping[str, Any] | None:
     return ctx if isinstance(ctx, MutableMapping) else None
 
 
+def _refresh_runtime_player(state: Mapping[str, Any]) -> None:
+    """Refresh the runtime player cache using ``state`` when available."""
+
+    ctx = _current_runtime_ctx()
+    if isinstance(ctx, MutableMapping):
+        ctx["player_state"] = dict(state)
+        ctx.pop(_RUNTIME_PLAYER_KEY, None)
+        runtime_player = ensure_player_state(ctx)
+        bind_inventory_to_active_class(runtime_player)
+
+
 def ensure_player_state(ctx: MutableMapping[str, Any]) -> Dict[str, Any]:
     """Return the runtime player for ``ctx``, loading it if required."""
 
@@ -2968,12 +2979,7 @@ def set_ions_for_active(state: Dict[str, Any], amount: int) -> int:
         working["Ions"] = new_total
 
     save_state(dict(working))
-    ctx = _current_runtime_ctx()
-    if isinstance(ctx, MutableMapping):
-        ctx["player_state"] = dict(working)
-        ctx.pop(_RUNTIME_PLAYER_KEY, None)
-        runtime_player = ensure_player_state(ctx)
-        bind_inventory_to_active_class(runtime_player)
+    _refresh_runtime_player(working)
     return new_total
 
 
@@ -3030,6 +3036,7 @@ def set_riblets_for_active(state: Dict[str, Any], amount: int) -> int:
                 break
 
     save_state(normalized)
+    _refresh_runtime_player(normalized)
     return new_total
 
 
@@ -3296,6 +3303,7 @@ def set_exhaustion_for_active(state: Dict[str, Any], amount: int) -> int:
                 break
 
     save_state(normalized)
+    _refresh_runtime_player(normalized)
     return new_value
 
 
@@ -3336,6 +3344,7 @@ def set_exp_for_active(state: Dict[str, Any], amount: int) -> int:
                 break
 
     save_state(normalized)
+    _refresh_runtime_player(normalized)
     return new_value
 
 
