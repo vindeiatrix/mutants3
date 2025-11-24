@@ -174,3 +174,46 @@ def test_throw_item_appears_in_target_room(tmp_path: Path, monkeypatch: pytest.M
     normalized_look = _normalize(look_output)
 
     assert "light-spear" in normalized_look, "thrown item should appear in the target room after landing"
+
+
+def test_drop_on_full_ground_swaps_and_remains_visible(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+):
+    """Dropping onto a full ground should swap items and leave the drop visible."""
+
+    monkeypatch.setenv("MUTANTS_STATE_BACKEND", "sqlite")
+    monkeypatch.setenv("GAME_STATE_ROOT", str(tmp_path))
+    monkeypatch.setenv("DEBUG", "1")
+
+    _reload_state_modules()
+
+    env = os.environ.copy()
+    env.update(
+        {
+            "MUTANTS_STATE_BACKEND": "sqlite",
+            "GAME_STATE_ROOT": str(tmp_path),
+            "DEBUG": "1",
+        }
+    )
+
+    _run_admin_command(["init"], env)
+    _run_admin_command(["catalog-import-items"], env)
+
+    ctx, run = _build_command_runner()
+
+    for _ in range(6):
+        run("debug add ion_decay")
+
+    look_output = _normalize(run("look"))
+    assert look_output.count("ion-decay") >= 6, "ground should start at capacity"
+
+    run("debug add nuclear_decay")
+    run("get nuclear_decay")
+
+    run("drop nuclear_decay")
+
+    normalized_look = _normalize(run("look"))
+    normalized_inv = _normalize(run("inv"))
+
+    assert "nuclear-decay" in normalized_look, "dropped item should remain visible on the ground"
+    assert "ion-decay" in normalized_inv, "an existing ground item should have been swapped into inventory"
