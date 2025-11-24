@@ -479,7 +479,7 @@ def pick_from_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
             swap_iid = rng.choice(ground_now)
             itemsreg.clear_position(swap_iid)
             inv.append(swap_iid)
-        itemsreg.set_position(drop_iid, year, x, y)
+        itemsreg.update_instance(drop_iid, year=year, x=x, y=y, owner=None)
         inv = _remove_first(inv, drop_iid)
         overflow_info = {"inv_overflow_drop": drop_iid}
 
@@ -605,7 +605,7 @@ def drop_to_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
     if iid == _armor_iid(player):
         return {"ok": False, "reason": "armor_cannot_drop"}
     year, x, y = _pos_from_ctx(ctx)
-    itemsreg.set_position(iid, year, x, y)
+    itemsreg.update_instance(iid, year=year, x=x, y=y, owner=None)
     inv = _remove_first(inv, iid)
     player["inventory"] = inv
     overflow_info = None
@@ -619,7 +619,7 @@ def drop_to_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
         player["inventory"] = inv
         if len(inv) > INV_CAP:
             drop_iid = rng.choice(inv)
-            itemsreg.set_position(drop_iid, year, x, y)
+            itemsreg.update_instance(drop_iid, year=year, x=x, y=y, owner=None)
             inv = _remove_first(inv, drop_iid)
             player["inventory"] = inv
             overflow_info = {"ground_overflow_pick": pick, "inv_overflow_drop": drop_iid}
@@ -726,7 +726,7 @@ def throw_to_direction(ctx, direction: str, prefix: str, *, seed: Optional[int] 
                 nbr.get("base"),
                 nbr.get("gate_state"),
             )
-    itemsreg.set_position(iid, year, drop_x, drop_y)
+    itemsreg.update_instance(iid, year=year, x=drop_x, y=drop_y, owner=None)
     inv = _remove_first(inv, iid)
     player["inventory"] = inv
     _mark_player_dirty(player)
@@ -742,7 +742,7 @@ def throw_to_direction(ctx, direction: str, prefix: str, *, seed: Optional[int] 
         _mark_player_dirty(player)
         if len(inv) > INV_CAP:
             drop_iid = rng.choice(inv)
-            itemsreg.set_position(drop_iid, year, drop_x, drop_y)
+            itemsreg.update_instance(drop_iid, year=year, x=drop_x, y=drop_y, owner=None)
             inv = _remove_first(inv, drop_iid)
             player["inventory"] = inv
             _mark_player_dirty(player)
