@@ -11,13 +11,16 @@ from ...util.textnorm import normalize_item_query as normalize
 
 
 def inventory_iids_for_active_player(ctx) -> list[str]:
-    # Use runtime player—never reload from disk during a command.
-    p = ensure_player_state(ctx)
-    pstate.ensure_active_profile(p, ctx)
-    pstate.bind_inventory_to_active_class(p)
-    itx._ensure_inventory(p)
-    inv = [str(i) for i in (p.get("inventory") or []) if i]
-    equipped = pstate.get_equipped_armour_id(p)
+    # Use the canonical active player from the persisted state so inventory lookups
+    # stay in sync across different storage backends (JSON/SQLite) and contexts.
+    state = ensure_player_state(ctx)
+    state, player = pstate.get_active_pair(state)
+    pstate.ensure_active_profile(state, ctx)
+    pstate.bind_inventory_to_active_class(player)
+    itx._ensure_inventory(player)
+
+    inv = [str(i) for i in (player.get("inventory") or []) if i]
+    equipped = pstate.get_equipped_armour_id(player)
     if equipped:
         inv = [iid for iid in inv if iid != equipped]
     return inv
