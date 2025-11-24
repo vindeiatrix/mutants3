@@ -19,4 +19,5 @@ tests/*
 !tests/test_player_state_runtime_cache.py
 !tests/test_strike_rewards.py
 !tests/test_player_state_active_view.py
+!tests/test_skull_description.py
 scripts/migrations/
