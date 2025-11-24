@@ -140,3 +140,37 @@ def test_drop_after_remove_leaves_inventory_incorrectly(tmp_path: Path, monkeypa
     assert "scrap-armour" in normalized_look or "scrap armour" in normalized_look, (
         "armour should appear on the ground after drop"
     )
+
+
+def test_throw_item_appears_in_target_room(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+    """Ensure thrown items show up in the destination room."""
+
+    monkeypatch.setenv("MUTANTS_STATE_BACKEND", "sqlite")
+    monkeypatch.setenv("GAME_STATE_ROOT", str(tmp_path))
+    monkeypatch.setenv("DEBUG", "1")
+
+    _reload_state_modules()
+
+    env = os.environ.copy()
+    env.update(
+        {
+            "MUTANTS_STATE_BACKEND": "sqlite",
+            "GAME_STATE_ROOT": str(tmp_path),
+            "DEBUG": "1",
+        }
+    )
+
+    _run_admin_command(["init"], env)
+    _run_admin_command(["catalog-import-items"], env)
+
+    ctx, run = _build_command_runner()
+
+    run("debug add light-spear")
+    run("get light-spear")
+    run("throw east light-spear")
+    run("east")
+    look_output = run("look")
+
+    normalized_look = _normalize(look_output)
+
+    assert "light-spear" in normalized_look, "thrown item should appear in the target room after landing"
