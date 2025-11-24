@@ -185,6 +185,103 @@ def test_load_state_repairs_manual_edits(state_root, caplog):
     assert any("canonical classes" in message for message in caplog.messages)
 
 
+def test_set_active_player_switches_inventory_bags():
+    state = {
+        "players": [
+            {
+                "id": "player_thief",
+                "class": "Thief",
+                "pos": [2000, 0, 0],
+                "inventory": ["thief-dagger"],
+            },
+            {
+                "id": "player_mage",
+                "class": "Mage",
+                "pos": [2000, 0, 0],
+                "inventory": ["mage-orb"],
+            },
+        ],
+        "active_id": "player_thief",
+        "bags": {"thief": ["thief-dagger"], "mage": ["mage-orb"]},
+        "inventory": ["thief-dagger", "stale-item"],
+    }
+
+    player_state.set_active_player(state, "player_thief")
+    assert state["inventory"] == ["thief-dagger"]
+
+    state["inventory"] = ["cross-contamination"]
+    player_state.set_active_player(state, "player_mage")
+
+    assert state["inventory"] == ["mage-orb"]
+    assert state["players"][1]["inventory"] == ["mage-orb"]
+    assert "cross-contamination" not in state["inventory"]
+
+
+def test_normalize_player_live_state_strips_snapshot_and_resolves_active(caplog):
+    payload = {
+        "players": [
+            {"id": "player_thief", "class": "Thief", "pos": [2000, 0, 0]},
+            {"id": "player_mage", "class": "Mage", "pos": [2001, 1, 1]},
+        ],
+        "active_id": "invalid-id",
+        "active": {"id": "stale", "class": "Warrior", "pos": [2050, 5, 5]},
+    }
+
+    with caplog.at_level(logging.WARNING):
+        normalized_first = player_state.normalize_player_live_state(payload)
+        normalized_second = player_state.normalize_player_live_state(payload)
+
+    assert "active" not in normalized_first
+    assert normalized_first["active_id"] == "player_thief"
+    assert normalized_second["active_id"] == "player_thief"
+    assert len([msg for msg in caplog.messages if "forbidden 'active'" in msg]) == 1
+
+
+def test_ensure_class_profiles_fills_missing_and_prunes_unknown_ions():
+    state = {
+        "players": [
+            {"id": "player_thief", "class": "Thief", "pos": [2000, 0, 0], "ions": 111},
+            {"id": "player_spelunker", "class": "Spelunker", "pos": [2005, 5, 5], "ions": 999},
+        ],
+        "active_id": "player_thief",
+        "ions_by_class": {"Thief": 111, "Spelunker": 999, "Mage": 555},
+    }
+
+    normalized = player_state.ensure_class_profiles(state)
+
+    classes = [entry["class"] for entry in normalized["players"]]
+    assert classes == CLASS_ORDER
+    assert set(normalized["ions_by_class"].keys()) == set(CLASS_ORDER)
+    assert "Spelunker" not in normalized["ions_by_class"]
+
+    priest_entry = next(entry for entry in normalized["players"] if entry["class"] == "Priest")
+    assert priest_entry["id"].startswith("player_priest")
+
+
+def test_sanitize_player_entry_coerces_defaults():
+    used_ids: set[str] = set()
+    entry = {"id": None, "class": "Thief", "pos": "bad", "inventory": "bag"}
+
+    sanitized = player_state._sanitize_player_entry(entry, "Thief", used_ids, None)
+
+    assert sanitized["pos"] == [2000, 0, 0]
+    assert sanitized["inventory"] == []
+    assert sanitized["ions"] == player_startup.START_IONS["fresh"]
+    assert sanitized["Ions"] == player_startup.START_IONS["fresh"]
+
+
+def test_sanitize_player_entry_allocates_unique_ids():
+    used_ids: set[str] = set()
+
+    first = player_state._sanitize_player_entry({"id": "player_thief"}, "Thief", used_ids, None)
+    second = player_state._sanitize_player_entry({"id": "player_thief"}, "Thief", used_ids, None)
+    third = player_state._sanitize_player_entry({"id": ""}, "Thief", used_ids, None)
+
+    assert first["id"] == "player_thief"
+    assert second["id"] == "player_thief_2"
+    assert third["id"] == "player_thief_3"
+
+
 def test_bury_by_index_preserves_class_roster(state_root, monkeypatch):
     player_path = state_root / "playerlivestate.json"
     payload = {
