@@ -125,6 +125,10 @@ def drop_new_entries(
         if entry.get("notes") is not None:
             updates["notes"] = entry.get("notes")
 
+        for key in ("skull_monster_id", "skull_monster_name"):
+            if key in entry:
+                updates[key] = entry.get(key)
+
         entry_origin = entry.get("origin")
         if isinstance(entry_origin, str) and entry_origin:
             updates["origin"] = str(entry_origin)
@@ -194,6 +198,30 @@ def _entry_label(entry: Mapping[str, object] | None, catalog: Mapping[str, Mappi
     return item_label(entry, template or {}, show_charges=False)
 
 
+def _skull_metadata(monster: Mapping[str, object] | None) -> dict[str, object]:
+    if not isinstance(monster, Mapping):
+        return {}
+
+    monster_id = monster.get("monster_id") or monster.get("id")
+    monster_name = monster.get("name")
+
+    label: str | None
+    if isinstance(monster_name, str) and monster_name.strip():
+        label = monster_name.strip()
+    elif isinstance(monster_id, str) and monster_id.strip():
+        label = monster_id.replace("_", " ").strip().title()
+    else:
+        label = None
+
+    payload: dict[str, object] = {}
+    if monster_id:
+        payload["skull_monster_id"] = monster_id
+    if label:
+        payload["skull_monster_name"] = label
+
+    return payload
+
+
 def _clone_entry(entry: Mapping[str, object] | None, *, source: str) -> dict[str, object]:
     payload = copy.deepcopy(entry) if isinstance(entry, Mapping) else {}
     payload.setdefault("item_id", str(payload.get("item_id") or payload.get("catalog_id") or payload.get("id") or ""))
@@ -229,6 +257,7 @@ def drop_monster_loot(
     pos: tuple[int, int, int],
     bag_entries: Sequence[Mapping[str, object]] | None,
     armour_entry: Mapping[str, object] | None,
+    monster: Mapping[str, object] | None = None,
     bus=None,
     catalog: Mapping[str, Mapping[str, object]] | None = None,
     sorted_bag_entries: Sequence[Mapping[str, object]] | None = None,
@@ -245,6 +274,9 @@ def drop_monster_loot(
     sorted_bag_entries
         Optional pre-sorted sequence of bag entries. When provided it takes
         precedence over ``bag_entries`` for establishing the drop order.
+    monster
+        The monster payload being looted. Used for annotating special drops such
+        as skulls with their source monster.
     armour_entry
         Optional armour payload to drop.
     bus
@@ -271,6 +303,7 @@ def drop_monster_loot(
     for entry in bag_iterable:
         attempts.append(("bag", entry))
     skull_entry: Mapping[str, object] = {"item_id": "skull"}
+    skull_entry = {**skull_entry, **_skull_metadata(monster)}
     attempts.append(("skull", skull_entry))
     if isinstance(armour_entry, Mapping):
         attempts.append(("armour", armour_entry))

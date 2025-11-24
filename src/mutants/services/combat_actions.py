@@ -348,6 +348,7 @@ def _award_player_progress(
             pos=pos,
             bag_entries=bag_entries,
             armour_entry=armour_entry,
+            monster=monster_payload,
             bus=bus,
             catalog=item_catalog,
         )

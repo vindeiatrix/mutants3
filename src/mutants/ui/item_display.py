@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import json
 import re
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Mapping, Tuple
 
 from ..registries import items_catalog, items_instances as itemsreg
 from ..state import state_path
@@ -75,6 +75,42 @@ def _resolve_template(inst: Dict[str, Any], catalog: Any) -> Dict[str, Any]:
     return template if isinstance(template, dict) else {}
 
 
+_SKULL_TEMPLATE = (
+    "A shiver is sent down your spine as you realize this is the skull\n"
+    "of a victim that has lost in a bloody battle. Looking closer, you realize\n"
+    "this is the skull of a {article} {monster}!"
+)
+
+
+def _skull_monster_label(inst: Mapping[str, Any]) -> str:
+    if not isinstance(inst, Mapping):
+        return ""
+
+    for key in ("skull_monster_name", "monster_name"):
+        candidate = inst.get(key)
+        if isinstance(candidate, str) and candidate.strip():
+            return candidate.strip()
+
+    for key in ("skull_monster_id", "monster_id"):
+        candidate = inst.get(key)
+        if candidate is None:
+            continue
+        token = str(candidate).strip()
+        if token:
+            return token.replace("_", " ").title()
+
+    return ""
+
+
+def _describe_skull(inst: Mapping[str, Any], fallback: str) -> str:
+    monster_label = _skull_monster_label(inst)
+    if not monster_label:
+        return fallback
+
+    article = _indefinite_article_lower(monster_label)
+    return _SKULL_TEMPLATE.format(article=article, monster=monster_label)
+
+
 def describe_instance(iid: str) -> str:
     """Return a narrative description for an item instance."""
 
@@ -90,6 +126,8 @@ def describe_instance(iid: str) -> str:
         return base_description
 
     item_id = str(inst.get("item_id") or inst.get("catalog_id") or inst.get("id") or "")
+    if item_id == "skull":
+        return _describe_skull(inst, base_description)
     if item_id in {itemsreg.BROKEN_WEAPON_ID, itemsreg.BROKEN_ARMOUR_ID}:
         return base_description
 
@@ -150,6 +188,13 @@ def canonical_name(item_id: str) -> str:
 
 
 _VOWEL_RE = re.compile(r"[aeiou]", re.IGNORECASE)
+
+
+def _indefinite_article_lower(name: str) -> str:
+    first_alpha = next((ch for ch in name if ch.isalpha()), "")
+    if first_alpha and _VOWEL_RE.match(first_alpha):
+        return "an"
+    return "a"
 
 
 def with_article(name: str) -> str:
