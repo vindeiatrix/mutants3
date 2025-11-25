@@ -78,7 +78,7 @@ def _resolve_template(inst: Dict[str, Any], catalog: Any) -> Dict[str, Any]:
 _SKULL_TEMPLATE = (
     "A shiver is sent down your spine as you realize this is the skull\n"
     "of a victim that has lost in a bloody battle. Looking closer, you realize\n"
-    "this is the skull of a {article} {monster}!"
+    "this is the skull of {article} {monster}!"
 )
 
 
