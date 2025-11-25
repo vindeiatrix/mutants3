@@ -13,11 +13,11 @@ from .wake import should_wake
 from . import tracking as tracking_mod
 
 if TYPE_CHECKING:  # pragma: no cover - typing aid
-    from . import monster_actions as monster_actions_module
+    from .. import monster_actions as monster_actions_module
 
 
 def _monster_actions() -> "monster_actions_module":
-    from . import monster_actions as monster_actions_module
+    from .. import monster_actions as monster_actions_module
 
     return monster_actions_module
 
