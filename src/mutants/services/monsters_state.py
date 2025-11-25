@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import copy
 import json
-import json
 import logging
 import uuid
 from pathlib import Path
@@ -1148,16 +1147,55 @@ def _normalize_monsters(monsters: List[Dict[str, Any]], *, catalog: Mapping[str,
         else:
             monster.pop("ai_state_json", None)
 
+        bag_payload = monster.get("bag")
+        if not isinstance(bag_payload, list):
+            bag_payload = []
+            inventory_payload = monster.get("inventory")
+            if isinstance(inventory_payload, list):
+                for raw in inventory_payload:
+                    if isinstance(raw, Mapping):
+                        entry = dict(raw)
+                    elif isinstance(raw, str):
+                        if _looks_like_instance_id(raw):
+                            entry = {"iid": raw}
+                        else:
+                            entry = {"item_id": raw}
+                    else:
+                        continue
+                    if entry.get("instance_id") and not entry.get("iid"):
+                        entry["iid"] = entry.get("instance_id")
+                    if entry.get("iid") and not entry.get("item_id"):
+                        inst = items_instances.get_instance(entry.get("iid"))
+                        if isinstance(inst, Mapping):
+                            item_id = inst.get("item_id") or inst.get("catalog_id") or inst.get("id")
+                            if item_id:
+                                entry["item_id"] = str(item_id)
+                        elif not _looks_like_instance_id(entry.get("iid")):
+                            entry["item_id"] = str(entry["iid"])
+                    bag_payload.append(entry)
         bag = _resolve_bag(
-            monster.get("bag"),
+            bag_payload,
             monster_id=primary,
             seen_iids=seen_iids,
             catalog=catalog,
         )
         monster["bag"] = bag
 
+        armour_payload = monster.get("armour_slot")
+        if not isinstance(armour_payload, Mapping):
+            armour_wearing = monster.get("armour_wearing")
+            if armour_wearing:
+                if isinstance(armour_wearing, Mapping):
+                    armour_payload = armour_wearing
+                elif isinstance(armour_wearing, str):
+                    armour_payload = {"iid": armour_wearing}
+                    for entry in bag:
+                        if armour_wearing in (entry.get("iid"), entry.get("item_id")):
+                            armour_payload = dict(entry)
+                            break
+
         armour = _resolve_armour_slot(
-            monster.get("armour_slot"),
+            armour_payload,
             monster_id=primary,
             seen_iids=seen_iids,
             catalog=catalog,
