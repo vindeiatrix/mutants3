@@ -1,7 +1,7 @@
 [
   {
     "monster_id": "junkyard_scrapper",
-    "name": "Junkyard Scrapper",
+    "name": "Junkyard-Scrapper",
     "level": 1,
     "hp_max": 10,
     "armour_class": 11,
@@ -21,7 +21,7 @@
       "cha": 5
     },
     "innate_attack": {
-      "name": "Rusty Shiv",
+      "name": "Rusty-Shiv",
       "power_base": 3,
       "power_per_level": 1,
       "line": "The Junkyard Scrapper slashes you with a rusty shiv!"
@@ -33,11 +33,11 @@
     "riblets_max": 2,
     "spells": [],
     "starter_armour": [
-      "Torn Overalls"
+      "Torn-Overalls"
     ],
     "starter_items": [
-      "Rusty Shiv",
-      "Bolt Pouch"
+      "Rusty-Shiv",
+      "Bolt-Pouch"
     ],
     "ai_overrides": {
       "cascade": {
@@ -55,7 +55,7 @@
   },
   {
     "monster_id": "rad_swarm_matron",
-    "name": "Rad Swarm Matron",
+    "name": "Rad-Swarm-Matron",
     "level": 5,
     "hp_max": 32,
     "armour_class": 14,
@@ -76,7 +76,7 @@
       "cha": 6
     },
     "innate_attack": {
-      "name": "Toxic Bite",
+      "name": "Toxic-Bite",
       "power_base": 8,
       "power_per_level": 2,
       "line": "The Rad Swarm Matron sinks toxic fangs into you!"
@@ -90,11 +90,11 @@
       "Acid Spit"
     ],
     "starter_armour": [
-      "Chitin Plating"
+      "Chitin-Plating"
     ],
     "starter_items": [
-      "Acid Gland",
-      "Brood Tags"
+      "Acid-Gland",
+      "Brood-Tags"
     ],
     "ai_overrides": {
       "prefers_ranged": true,
@@ -114,7 +114,7 @@
   },
   {
     "monster_id": "titan_of_chrome",
-    "name": "Titan of Chrome",
+    "name": "Titan-of-Chrome",
     "level": 9,
     "hp_max": 70,
     "armour_class": 18,
@@ -134,7 +134,7 @@
       "cha": 9
     },
     "innate_attack": {
-      "name": "Hydraulic Slam",
+      "name": "Hydraulic-Slam",
       "power_base": 16,
       "power_per_level": 3,
       "line": "The Titan of Chrome crushes you with a hydraulic slam!"
@@ -149,11 +149,11 @@
       "Overclock"
     ],
     "starter_armour": [
-      "Chrome Plating"
+      "Chrome-Plating"
     ],
     "starter_items": [
-      "Hydraulic Fist",
-      "Power Core"
+      "Hydraulic-Fist",
+      "Power-Core"
     ],
     "ai_overrides": {
       "cascade": {
@@ -172,7 +172,7 @@
   },
   {
     "monster_id": "stormglass_hunter",
-    "name": "Stormglass Hunter",
+    "name": "Stormglass-Hunter",
     "level": 6,
     "hp_max": 40,
     "armour_class": 16,
@@ -192,7 +192,7 @@
       "cha": 8
     },
     "innate_attack": {
-      "name": "Crackling Spear",
+      "name": "Crackling-Spear",
       "power_base": 11,
       "power_per_level": 2,
       "line": "The Stormglass Hunter strikes with a crackling spear!"
@@ -204,11 +204,11 @@
     "riblets_max": 7,
     "spells": [],
     "starter_armour": [
-      "Insulated Jerkin"
+      "Insulated-Jerkin"
     ],
     "starter_items": [
-      "Stormglass Spear",
-      "Capacitor Charm"
+      "Stormglass-Spear",
+      "Capacitor-Charm"
     ],
     "ai_overrides": {
       "prefers_ranged": false,
