@@ -107,7 +107,6 @@ def drop_new_entries(
 
         enchant = max(0, _coerce_int(entry.get("enchant_level"), 0))
         updates["enchant_level"] = enchant
-        updates["enchanted"] = "yes" if enchant > 0 else "no"
 
         condition = entry.get("condition")
         if condition is None:
@@ -122,8 +121,11 @@ def drop_new_entries(
         if isinstance(tags, Iterable) and not isinstance(tags, (str, bytes)):
             updates["tags"] = [str(tag) for tag in tags if isinstance(tag, str) and tag]
 
-        if entry.get("notes") is not None:
-            updates["notes"] = entry.get("notes")
+        # SQLite-backed item instances do not persist these helper fields, so drop
+        # them before persisting updates. Keeping metadata (like skull sources)
+        # ensures descriptive item text remains intact.
+        for unsupported in ("enchanted", "notes", "tags"):
+            updates.pop(unsupported, None)
 
         for key in ("skull_monster_id", "skull_monster_name"):
             if key in entry:
@@ -203,7 +205,7 @@ def _skull_metadata(monster: Mapping[str, object] | None) -> dict[str, object]:
         return {}
 
     monster_id = monster.get("monster_id") or monster.get("id")
-    monster_name = monster.get("name")
+    monster_name = monster.get("name") or monster.get("display_name")
 
     label: str | None
     if isinstance(monster_name, str) and monster_name.strip():

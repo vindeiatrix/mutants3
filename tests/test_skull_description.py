@@ -45,6 +45,59 @@ def test_drop_monster_loot_attaches_skull_metadata(monkeypatch):
     assert captured and captured[0].get("skull_monster_id") == "rad_swarm_matron"
 
 
+def test_drop_monster_loot_uses_display_name(monkeypatch):
+    captured: list[dict[str, object]] = []
+
+    def fake_drop_new_entries(entries, pos, origin="monster_drop"):
+        captured.extend(entries)
+        return ["iid-skull"]
+
+    monkeypatch.setattr(combat_loot, "drop_new_entries", fake_drop_new_entries)
+    monkeypatch.setattr(combat_loot.itemsreg, "list_instances_at", lambda *args: [])
+    monkeypatch.setattr(combat_loot.itemsreg, "move_instance", lambda *args, **kwargs: False)
+    monkeypatch.setattr(combat_loot.itemsreg, "get_instance", lambda iid: None)
+
+    minted, vaporized = combat_loot.drop_monster_loot(
+        pos=(0, 0, 0),
+        bag_entries=[],
+        armour_entry=None,
+        monster={"monster_id": "junkyard_scrapper", "display_name": "Junkyard Scrapper"},
+        catalog={},
+    )
+
+    assert not vaporized
+    assert minted and minted[0].get("skull_monster_name") == "Junkyard Scrapper"
+    assert captured and captured[0].get("skull_monster_name") == "Junkyard Scrapper"
+
+
+def test_drop_new_entries_strips_unsupported_fields(monkeypatch):
+    captured: dict[str, object] = {}
+
+    monkeypatch.setattr(combat_loot.itemsreg, "mint_instance", lambda *args, **kwargs: "iid-skull")
+    monkeypatch.setattr(combat_loot.itemsreg, "list_instances_at", lambda *args, **kwargs: [])
+    monkeypatch.setattr(combat_loot.itemsreg, "move_instance", lambda *args, **kwargs: False)
+    monkeypatch.setattr(combat_loot.itemsreg, "get_instance", lambda iid: None)
+    monkeypatch.setattr(combat_loot.itemsreg, "mint_on_ground_with_defaults", lambda *args, **kwargs: "iid-skull")
+
+    def capture_update(_iid, **fields):
+        captured.update(fields)
+        return {"iid": _iid}
+
+    monkeypatch.setattr(combat_loot.itemsreg, "update_instance", capture_update)
+
+    monster = {"monster_id": "junkyard_scrapper", "name": "Junkyard Scrapper-777"}
+    entry = {"item_id": "skull", "enchant_level": 1, "notes": "ignored", "tags": ["a-tag"]}
+    entry.update(combat_loot._skull_metadata(monster))
+
+    combat_loot.drop_new_entries([entry], (0, 0, 0))
+
+    assert captured.get("skull_monster_name") == "Junkyard Scrapper-777"
+    assert captured.get("skull_monster_id") == "junkyard_scrapper"
+    assert "enchanted" not in captured
+    assert "notes" not in captured
+    assert "tags" not in captured
+
+
 def test_resolve_item_arg_matches_skull_without_catalog(monkeypatch):
     monkeypatch.setattr(
         item_util, "inventory_iids_for_active_player", lambda ctx: ["iid-skull"]
