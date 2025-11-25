@@ -247,18 +247,39 @@ def on_player_command(ctx: Any, *, token: str, resolved: str | None) -> None:
     config = _resolve_combat_config(ctx)
     wake_rng = _resolve_wake_rng(ctx, rng)
     wake_events = _resolve_wake_events(token, resolved)
+    actions_mod = _monster_actions()
+
+    bus = _pull(ctx, "feedback_bus")
+    mark_dirty = getattr(monsters, "mark_dirty", None)
 
     pos = (year, x, y)
     reentry_ids = tracking_mod.update_target_positions(monsters, player_id, pos)
 
     for monster in _iter_aggro_monsters(monsters, year=year, x=x, y=y):
-        if _normalize_id(monster.get("target_player_id")) != player_id:
+        target = _normalize_id(monster.get("target_player_id"))
+        if target not in (player_id, None):
             continue
         if not _is_alive(monster):
             continue
         mon_pos = _normalize_pos(monster.get("pos"))
         if mon_pos != pos:
             continue
+
+        if target is None:
+            outcome = actions_mod.roll_entry_target(
+                monster,
+                source_state,
+                rng,
+                config=config,
+                bus=bus,
+            )
+            if callable(mark_dirty) and outcome.get("target_set"):
+                try:
+                    mark_dirty()
+                except Exception:  # pragma: no cover - best effort
+                    pass
+            if _normalize_id(monster.get("target_player_id")) != player_id:
+                continue
 
         if wake_events:
             woke = False
@@ -284,7 +305,6 @@ def on_player_command(ctx: Any, *, token: str, resolved: str | None) -> None:
         if credits <= 0:
             continue
 
-        actions_mod = _monster_actions()
         for _ in range(credits):
             try:
                 actions_mod.execute_random_action(monster, ctx, rng=rng)
