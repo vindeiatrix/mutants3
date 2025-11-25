@@ -241,6 +241,49 @@ def _resolve_drop_entries(summary: Mapping[str, Any] | None) -> list[Mapping[str
     return result
 
 
+def _sorted_drop_messages(
+    entries: Sequence[Mapping[str, Any]], armour_hint: Mapping[str, Any] | None = None
+) -> list[Mapping[str, Any]]:
+    """Order drop entries so carried items precede skulls and worn armour."""
+
+    armour_iid = str(armour_hint.get("iid")) if isinstance(armour_hint, Mapping) else ""
+    armour_item = str(armour_hint.get("item_id")) if isinstance(armour_hint, Mapping) else ""
+
+    bags: list[Mapping[str, Any]] = []
+    skulls: list[Mapping[str, Any]] = []
+    armours: list[Mapping[str, Any]] = []
+
+    for entry in entries:
+        if not isinstance(entry, Mapping):
+            continue
+        item_id = str(entry.get("item_id") or entry.get("catalog_id") or entry.get("id") or "")
+        source = str(entry.get("drop_source") or "").lower()
+        slot = str(entry.get("slot") or entry.get("type") or "").lower()
+        worn_flag = str(entry.get("worn") or "").lower() == "yes" or entry.get("worn") is True
+        matches_hint = bool(
+            armour_hint
+            and (
+                (armour_iid and armour_iid == str(entry.get("iid") or entry.get("instance_id") or ""))
+                or (armour_item and armour_item == item_id)
+            )
+        )
+        is_worn_armour = bool(
+            source == "armour"
+            or worn_flag
+            or matches_hint
+            or (slot == "armour" and source not in {"bag", "inventory"})
+        )
+
+        if item_id == "skull" or source == "skull":
+            skulls.append(entry)
+        elif is_worn_armour:
+            armours.append(entry)
+        else:
+            bags.append(entry)
+
+    return bags + skulls + armours
+
+
 def _monster_base_from_catalog(monster_id: Any) -> Mapping[str, Any] | None:
     try:
         catalog = load_monsters_catalog()
@@ -302,7 +345,7 @@ def _award_player_progress(
     item_catalog: Mapping[str, Mapping[str, Any]],
     summary: Mapping[str, Any] | None,
     bus: Any,
-) -> None:
+) -> Mapping[str, Any]:
     ions_reward = _coerce_int(monster_payload.get("ions"), 0)
     if ions_reward:
         current_ions = pstate.get_ions_for_active(state)
@@ -325,22 +368,65 @@ def _award_player_progress(
     if pos is None and isinstance(state, Mapping):
         pos = _coerce_pos(pstate.canonical_player_pos(state))
     if pos is None:
-        return
+        rewards = {
+            "ions": ions_reward,
+            "riblets": riblets_reward,
+            "exp": exp_reward,
+            "drops_minted": [],
+            "drops_vaporized": [],
+        }
+        if isinstance(summary, MutableMapping):
+            summary.setdefault("drops_minted", [])
+            summary.setdefault("drops_vaporized", [])
+        return rewards
 
     drop_entries = _resolve_drop_entries(summary)
     bag_entries: list[Mapping[str, Any]] = []
     armour_entry: Mapping[str, Any] | None = None
+    candidate_armour = summary.get("armour_drop") if isinstance(summary, Mapping) else None
+    if isinstance(candidate_armour, Mapping):
+        armour_entry = dict(candidate_armour)
+    elif isinstance(monster_payload, Mapping):
+        monster_armour = _resolve_target_armour(monster_payload)
+        if monster_armour:
+            armour_entry = dict(monster_armour)
     if isinstance(summary, MutableMapping):
         raw_bag = summary.get("bag_drops")
         if isinstance(raw_bag, Sequence):
             for entry in raw_bag:
                 if isinstance(entry, Mapping):
                     bag_entries.append(entry)
-        candidate_armour = summary.get("armour_drop")
-        if isinstance(candidate_armour, Mapping):
-            armour_entry = candidate_armour
+    if armour_entry and bag_entries:
+        armour_iid = str(armour_entry.get("iid") or armour_entry.get("instance_id") or "")
+        armour_item = str(armour_entry.get("item_id") or "")
+
+        def _is_armour_candidate(entry: Mapping[str, Any]) -> bool:
+            entry_iid = str(entry.get("iid") or entry.get("instance_id") or "")
+            entry_item = str(entry.get("item_id") or "")
+            if armour_iid and armour_iid == entry_iid:
+                return True
+            return bool(not armour_iid and armour_item and armour_item == entry_item)
+
+        bag_entries = [entry for entry in bag_entries if not _is_armour_candidate(entry)]
+
     if not bag_entries and drop_entries:
-        bag_entries = list(drop_entries)
+        for entry in drop_entries:
+            if not isinstance(entry, Mapping):
+                continue
+            drop_source = str(entry.get("drop_source") or "").lower()
+            if drop_source == "armour":
+                armour_entry = dict(entry)
+                continue
+            if armour_entry:
+                armour_iid = str(armour_entry.get("iid") or armour_entry.get("instance_id") or "")
+                entry_iid = str(entry.get("iid") or entry.get("instance_id") or "")
+                armour_item = str(armour_entry.get("item_id") or "")
+                entry_item = str(entry.get("item_id") or "")
+                if armour_iid and armour_iid == entry_iid:
+                    continue
+                if not armour_iid and armour_item and armour_item == entry_item:
+                    continue
+            bag_entries.append(entry)
     minted: list[Mapping[str, Any]] = []
     vaporized: list[Mapping[str, Any]] = []
     try:
@@ -357,6 +443,14 @@ def _award_player_progress(
     if isinstance(summary, MutableMapping):
         summary["drops_minted"] = minted
         summary["drops_vaporized"] = vaporized
+
+    return {
+        "ions": ions_reward,
+        "riblets": riblets_reward,
+        "exp": exp_reward,
+        "drops_minted": minted,
+        "drops_vaporized": vaporized,
+    }
 
 
 def _coerce_iid(value: Any) -> Optional[str]:
@@ -538,10 +632,11 @@ def perform_melee_attack(ctx: Dict[str, Any]) -> Dict[str, Any]:
                 summary = finisher(target_id)
             except Exception:
                 summary = None
-        bus.push("COMBAT/KILL", f"You slay {label}!", **killer_meta)
+        bus.push("COMBAT/KILL", f"You have slain {label}!", **killer_meta)
+        reward_meta: Mapping[str, Any] | None = None
         try:
             monster_payload = _resolve_monster_payload(summary, target)
-            _award_player_progress(
+            reward_meta = _award_player_progress(
                 monster_payload=monster_payload,
                 state=state,
                 item_catalog=catalog,
@@ -549,7 +644,21 @@ def perform_melee_attack(ctx: Dict[str, Any]) -> Dict[str, Any]:
                 bus=bus,
             )
         except Exception:
-            pass
+            reward_meta = None
+        if isinstance(reward_meta, Mapping):
+            exp_reward = _coerce_int(reward_meta.get("exp"), 0)
+            riblets_reward = _coerce_int(reward_meta.get("riblets"), 0)
+            ions_reward = _coerce_int(reward_meta.get("ions"), 0)
+            if exp_reward:
+                bus.push("COMBAT/INFO", f"Your experience points are increased by {exp_reward}!")
+            if riblets_reward or ions_reward:
+                bus.push(
+                    "COMBAT/INFO",
+                    f"You collect {riblets_reward} Riblets and {ions_reward} ions from the slain body.",
+                )
+            drop_entries = reward_meta.get("drops_minted")
+        else:
+            drop_entries = None
         drops = _resolve_drop_entries(summary)
         turnlog.emit(
             ctx,
@@ -560,7 +669,22 @@ def perform_melee_attack(ctx: Dict[str, Any]) -> Dict[str, Any]:
             source="player",
         )
         pstate.clear_ready_target_for_active(reason="monster-dead")
-        bus.push("COMBAT/INFO", f"{label} crumbles to dust.")
+        drop_iterable = drop_entries if isinstance(drop_entries, Sequence) else drops
+        armour_hint = _resolve_target_armour(monster_payload)
+        if armour_hint is None:
+            base = _monster_base_from_catalog(monster_payload.get("monster_id"))
+            starter_armour = None
+            if isinstance(base, Mapping):
+                starters = base.get("starter_armour")
+                if isinstance(starters, Sequence) and starters:
+                    starter_armour = starters[0]
+            if starter_armour:
+                armour_hint = {"item_id": starter_armour}
+        sorted_drops = _sorted_drop_messages(drop_iterable or [], armour_hint)
+        for entry in sorted_drops:
+            label_text = combat_loot._entry_label(entry, catalog)
+            bus.push("COMBAT/INFO", f"A {label_text} is falling from {label}'s body!")
+        bus.push("COMBAT/INFO", f"{label} is crumbling to dust!")
         try:
             from mutants.services import monster_actions as monster_actions_mod
 
