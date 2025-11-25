@@ -768,6 +768,7 @@ def throw_to_direction(ctx, direction: str, prefix: str, *, seed: Optional[int] 
         "overflow": overflow_info,
         "inv_count": len(player.get("inventory", [])),
         "blocked": blocked,
+        "direction": direction,
     }
 
 

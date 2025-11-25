@@ -39,6 +39,11 @@ def throw_cmd(arg: str, ctx):
     run_argcmd_positional(ctx, spec, arg, action)
 
     dec = decision_holder.get("dec") or {}
+    if dec.get("ok") and not dec.get("blocked") and dec.get("direction"):
+        ctx["feedback_bus"].push(
+            "COMBAT/THROW",
+            f"You hear loud sounds of clashing metal to the {dec['direction']}.",
+        )
     if dec.get("blocked") and dec.get("display_name"):
         ctx["feedback_bus"].push(
             "COMBAT/THROW", f"{dec['display_name']} has fallen to the ground!"
