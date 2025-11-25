@@ -37,22 +37,41 @@ def _display_name(it: dict) -> str:
 
 def _resolve_item_id(raw: str, catalog):
     q = normalize_item_query(raw)
+    if not q:
+        return None, []
     q_id = q.replace("-", "_")
     if catalog.get(q_id):
         return q_id, None
     prefix = [iid for iid in catalog._by_id if iid.startswith(q_id)]
-    if len(prefix) == 1:
+    if prefix:
         return prefix[0], None
-    if len(prefix) > 1:
-        return None, prefix
     name_matches = []
     for it in catalog._items_list:
-        if normalize_item_query(_display_name(it)) == q:
+        norm_name = normalize_item_query(_display_name(it))
+        if norm_name.startswith(q):
             name_matches.append(it["item_id"])
-    if len(name_matches) == 1:
+    if name_matches:
         return name_matches[0], None
-    if len(name_matches) > 1:
-        return None, name_matches
+    return None, []
+
+
+def _resolve_monster_id(raw: str, catalog):
+    q = normalize_item_query(raw)
+    if not q:
+        return None, []
+    q_id = q.replace("-", "_")
+    if catalog.get(q_id):
+        return q_id, None
+    prefix = [mid for mid in catalog._by_id if mid.startswith(q_id)]
+    if prefix:
+        return prefix[0], None
+    name_matches = []
+    for monster in catalog._list:
+        name = monster.get("name") or monster.get("monster_id")
+        if normalize_item_query(str(name)).startswith(q):
+            name_matches.append(monster.get("monster_id"))
+    if name_matches:
+        return name_matches[0], None
     return None, []
 
 
@@ -128,6 +147,11 @@ def _debug_monster(arg: str, ctx) -> None:
         mon_cat = monsters_catalog.get()
     except FileNotFoundError:
         bus.push("SYSTEM/WARN", "Monster catalog unavailable.")
+        return
+
+    monster_id, _ = _resolve_monster_id(monster_id, mon_cat)
+    if not monster_id:
+        bus.push("SYSTEM/WARN", f"Unknown monster: {arg}")
         return
 
     item_reg = items_instances.get()
