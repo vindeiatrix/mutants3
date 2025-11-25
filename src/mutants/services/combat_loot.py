@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 import logging
+import time
 from typing import Any, Iterable, Mapping, MutableMapping, Sequence
 
 from mutants.registries import items_instances as itemsreg
@@ -235,6 +236,53 @@ def _ground_full_message(label: str) -> str:
     return f"Ground is full; {label} dissipates."
 
 
+def _sort_attempts_for_ground(
+    attempts: Sequence[tuple[str, Mapping[str, object]]],
+    armour_entry: Mapping[str, object] | None,
+    catalog: Mapping[str, Mapping[str, object]] | None,
+) -> list[tuple[str, Mapping[str, object]]]:
+    """Return attempts ordered as bags → skulls → worn armour."""
+
+    armour_iid = ""
+    armour_item_id = ""
+    if isinstance(armour_entry, Mapping):
+        armour_iid = str(armour_entry.get("iid") or armour_entry.get("instance_id") or "")
+        armour_item_id = str(armour_entry.get("item_id") or "")
+
+    bags: list[tuple[str, Mapping[str, object]]] = []
+    skulls: list[tuple[str, Mapping[str, object]]] = []
+    armours: list[tuple[str, Mapping[str, object]]] = []
+
+    for source, entry in attempts:
+        if not isinstance(entry, Mapping):
+            continue
+        item_id = str(entry.get("item_id") or entry.get("catalog_id") or entry.get("id") or "")
+        drop_source = str(entry.get("drop_source") or source or "").lower()
+        slot = str(entry.get("slot") or entry.get("type") or "").lower()
+        worn_flag = str(entry.get("worn") or "").lower() == "yes" or entry.get("worn") is True
+        entry_iid = str(entry.get("iid") or entry.get("instance_id") or "")
+        matches_hint = bool(
+            (armour_iid and armour_iid == entry_iid)
+            or (armour_item_id and armour_item_id == item_id)
+        )
+
+        try:
+            template = catalog.get(item_id) if catalog is not None else None
+        except Exception:
+            template = None
+        template_map = template if isinstance(template, Mapping) else {}
+        is_armour_template = bool(template_map.get("armour"))
+
+        if item_id == "skull" or drop_source == "skull":
+            skulls.append((source, entry))
+        elif drop_source == "armour" or slot == "armour" or worn_flag or matches_hint or is_armour_template:
+            armours.append((source, entry))
+        else:
+            bags.append((source, entry))
+
+    return bags + skulls + armours
+
+
 def describe_vaporized_entries(
     entries: Sequence[Mapping[str, object]] | None,
     *,
@@ -310,6 +358,8 @@ def drop_monster_loot(
     if isinstance(armour_entry, Mapping):
         attempts.append(("armour", armour_entry))
 
+    attempts = _sort_attempts_for_ground(attempts, armour_entry, catalog)
+
     year, x, y = pos
     ground = itemsreg.list_instances_at(year, x, y)
     free_slots = max(0, GROUND_CAP - len(ground))
@@ -318,6 +368,14 @@ def drop_monster_loot(
     vaporized: list[dict[str, object]] = []
     summary_messages: list[str] = []
     summary_attempt_order: list[str] = []
+    created_at_base = int(time.time() * 1000)
+    created_at_counter = 0
+
+    def _next_created_at() -> int:
+        nonlocal created_at_counter
+        ts = created_at_base + created_at_counter
+        created_at_counter += 1
+        return ts
 
     if free_slots <= 0 and attempts:
         LOG_DEV.info(
@@ -357,13 +415,15 @@ def drop_monster_loot(
             if inst:
                 moved = itemsreg.move_instance(iid, dest=pos)
                 if moved:
+                    created_at_value = _next_created_at()
                     try:
-                        itemsreg.update_instance(
+                        updated = itemsreg.update_instance(
                             iid,
                             owner=None,
                             pos={"year": year, "x": x, "y": y},
                             drop_source=entry.get("drop_source") or source,
                             origin=entry.get("origin") or inst.get("origin"),
+                            created_at=created_at_value,
                         )
                     except KeyError:
                         # If the instance disappeared, fall back to minting a fresh copy.
@@ -375,6 +435,11 @@ def drop_monster_loot(
                             record["item_id"] = str(inst.get("item_id") or record.get("item_id"))
                         else:
                             record["item_id"] = str(inst.get("item_id") or record.get("catalog_id") or "")
+                        record["created_at"] = (
+                            updated.get("created_at", created_at_value)
+                            if isinstance(updated, Mapping)
+                            else created_at_value
+                        )
                         minted.append(record)
                         free_slots -= 1
                         continue
@@ -390,6 +455,12 @@ def drop_monster_loot(
             inst = itemsreg.get_instance(iid)
             if inst and inst.get("item_id"):
                 record["item_id"] = str(inst.get("item_id"))
+        created_at_value = _next_created_at()
+        try:
+            updated = itemsreg.update_instance(iid, created_at=created_at_value)
+            record["created_at"] = updated.get("created_at", created_at_value) if isinstance(updated, Mapping) else created_at_value
+        except KeyError:
+            record["created_at"] = created_at_value
         minted.append(record)
         free_slots -= 1
 
