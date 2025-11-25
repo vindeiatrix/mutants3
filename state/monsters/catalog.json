@@ -5,10 +5,21 @@
     "level": 1,
     "hp_max": 10,
     "armour_class": 11,
-    "spawn_years": [2000, 2100, 2200],
+    "spawn_years": [
+      2000,
+      2100,
+      2200
+    ],
     "spawnable": true,
     "taunt": "Clank-clank... scrap's mine!",
-    "stats": { "str": 9, "int": 6, "wis": 7, "dex": 10, "con": 9, "cha": 5 },
+    "stats": {
+      "str": 9,
+      "int": 6,
+      "wis": 7,
+      "dex": 10,
+      "con": 9,
+      "cha": 5
+    },
     "innate_attack": {
       "name": "Rusty Shiv",
       "power_base": 3,
@@ -21,14 +32,25 @@
     "riblets_min": 0,
     "riblets_max": 2,
     "spells": [],
-    "starter_armour": ["Torn Overalls"],
-    "starter_items": ["Rusty Shiv", "Bolt Pouch"],
+    "starter_armour": [
+      "Torn Overalls"
+    ],
+    "starter_items": [
+      "Rusty Shiv",
+      "Bolt Pouch"
+    ],
     "ai_overrides": {
       "cascade": {
-        "flee_pct": {"add": 5},
-        "attack_pct": {"add": -5}
+        "flee_pct": {
+          "add": 5
+        },
+        "attack_pct": {
+          "add": -5
+        }
       },
-      "tags": ["scavenger"]
+      "tags": [
+        "scavenger"
+      ]
     }
   },
   {
@@ -37,10 +59,22 @@
     "level": 5,
     "hp_max": 32,
     "armour_class": 14,
-    "spawn_years": [2300, 2400, 2500, 2600],
+    "spawn_years": [
+      2300,
+      2400,
+      2500,
+      2600
+    ],
     "spawnable": true,
     "taunt": "The brood must feed.",
-    "stats": { "str": 12, "int": 8, "wis": 10, "dex": 13, "con": 14, "cha": 6 },
+    "stats": {
+      "str": 12,
+      "int": 8,
+      "wis": 10,
+      "dex": 13,
+      "con": 14,
+      "cha": 6
+    },
     "innate_attack": {
       "name": "Toxic Bite",
       "power_base": 8,
@@ -52,16 +86,30 @@
     "ions_max": 20,
     "riblets_min": 1,
     "riblets_max": 4,
-    "spells": ["Acid Spit"],
-    "starter_armour": ["Chitin Plating"],
-    "starter_items": ["Acid Gland", "Brood Tags"],
+    "spells": [
+      "Acid Spit"
+    ],
+    "starter_armour": [
+      "Chitin Plating"
+    ],
+    "starter_items": [
+      "Acid Gland",
+      "Brood Tags"
+    ],
     "ai_overrides": {
       "prefers_ranged": true,
       "cascade": {
-        "attack_pct": {"add": -5},
-        "pickup_pct": {"add": 10}
+        "attack_pct": {
+          "add": -5
+        },
+        "pickup_pct": {
+          "add": 10
+        }
       },
-      "tags": ["brood", "radiant"]
+      "tags": [
+        "brood",
+        "radiant"
+      ]
     }
   },
   {
@@ -70,10 +118,21 @@
     "level": 9,
     "hp_max": 70,
     "armour_class": 18,
-    "spawn_years": [2800, 2900, 3000],
+    "spawn_years": [
+      2800,
+      2900,
+      3000
+    ],
     "spawnable": true,
     "taunt": "You are surplus.",
-    "stats": { "str": 19, "int": 12, "wis": 12, "dex": 12, "con": 18, "cha": 9 },
+    "stats": {
+      "str": 19,
+      "int": 12,
+      "wis": 12,
+      "dex": 12,
+      "con": 18,
+      "cha": 9
+    },
     "innate_attack": {
       "name": "Hydraulic Slam",
       "power_base": 16,
@@ -85,15 +144,86 @@
     "ions_max": 60,
     "riblets_min": 3,
     "riblets_max": 10,
-    "spells": ["Shockwave", "Overclock"],
-    "starter_armour": ["Chrome Plating"],
-    "starter_items": ["Hydraulic Fist", "Power Core"],
+    "spells": [
+      "Shockwave",
+      "Overclock"
+    ],
+    "starter_armour": [
+      "Chrome Plating"
+    ],
+    "starter_items": [
+      "Hydraulic Fist",
+      "Power Core"
+    ],
     "ai_overrides": {
       "cascade": {
-        "attack_pct": {"add": 10},
-        "convert_pct": {"add": 5}
+        "attack_pct": {
+          "add": 10
+        },
+        "convert_pct": {
+          "add": 5
+        }
       },
-      "tags": ["undead", "titan"]
+      "tags": [
+        "undead",
+        "titan"
+      ]
+    }
+  },
+  {
+    "monster_id": "stormglass_hunter",
+    "name": "Stormglass Hunter",
+    "level": 6,
+    "hp_max": 40,
+    "armour_class": 16,
+    "spawn_years": [
+      2400,
+      2500,
+      2600
+    ],
+    "spawnable": true,
+    "taunt": "The storm follows my spear.",
+    "stats": {
+      "str": 14,
+      "int": 11,
+      "wis": 11,
+      "dex": 12,
+      "con": 13,
+      "cha": 8
+    },
+    "innate_attack": {
+      "name": "Crackling Spear",
+      "power_base": 11,
+      "power_per_level": 2,
+      "line": "The Stormglass Hunter strikes with a crackling spear!"
+    },
+    "exp_bonus": 24,
+    "ions_min": 10,
+    "ions_max": 34,
+    "riblets_min": 2,
+    "riblets_max": 7,
+    "spells": [],
+    "starter_armour": [
+      "Insulated Jerkin"
+    ],
+    "starter_items": [
+      "Stormglass Spear",
+      "Capacitor Charm"
+    ],
+    "ai_overrides": {
+      "prefers_ranged": false,
+      "cascade": {
+        "attack_pct": {
+          "add": 10
+        },
+        "pickup_pct": {
+          "add": 10
+        }
+      },
+      "tags": [
+        "hunter",
+        "charged"
+      ]
     }
   }
 ]

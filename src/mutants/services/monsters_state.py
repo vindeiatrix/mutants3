@@ -340,6 +340,79 @@ def _normalize_item(
     return sanitized
 
 
+def _collect_bag_entries(
+    monster: Mapping[str, Any],
+    *,
+    catalog: Mapping[str, Any] | None,
+    seen_iids: set[str],
+) -> List[Dict[str, Any]]:
+    monster_id = (
+        str(monster.get("id"))
+        or str(monster.get("instance_id") or "")
+        or str(monster.get("monster_id") or "")
+    )
+
+    bag_payload: list[Any] = []
+
+    def _coerce_entry(raw: Any) -> Optional[Dict[str, Any]]:
+        if isinstance(raw, Mapping):
+            entry: Dict[str, Any] = dict(raw)
+        elif isinstance(raw, str):
+            if _looks_like_instance_id(raw):
+                entry = {"iid": raw}
+            else:
+                entry = {"item_id": raw}
+        else:
+            return None
+
+        if entry.get("instance_id") and not entry.get("iid"):
+            entry["iid"] = entry.get("instance_id")
+
+        if entry.get("iid") and not entry.get("item_id"):
+            inst = items_instances.get_instance(entry.get("iid"))
+            if isinstance(inst, Mapping):
+                item_id = inst.get("item_id") or inst.get("catalog_id") or inst.get("id")
+                if item_id:
+                    entry["item_id"] = str(item_id)
+            elif not _looks_like_instance_id(entry.get("iid")):
+                entry["item_id"] = str(entry["iid"])
+
+        return entry
+
+    existing_iids: set[str] = set()
+    bag_entries = monster.get("bag")
+    if isinstance(bag_entries, list):
+        for raw in bag_entries:
+            entry = _coerce_entry(raw)
+            if not entry:
+                continue
+            if entry.get("iid"):
+                existing_iids.add(str(entry["iid"]))
+            bag_payload.append(entry)
+
+    inventory_payload = monster.get("inventory")
+    if isinstance(inventory_payload, list):
+        for raw in inventory_payload:
+            entry = _coerce_entry(raw)
+            if not entry:
+                continue
+            entry_iid = str(entry.get("iid")) if entry.get("iid") else None
+            if entry_iid and entry_iid in existing_iids:
+                continue
+            if entry_iid:
+                existing_iids.add(entry_iid)
+            bag_payload.append(entry)
+
+    bag = _resolve_bag(
+        bag_payload,
+        monster_id=monster_id,
+        seen_iids=seen_iids,
+        catalog=catalog,
+    )
+
+    return bag
+
+
 def _resolve_bag(
     bag: Iterable[Any] | None,
     *,
@@ -990,6 +1063,13 @@ class MonstersState:
         if not monster:
             return {"monster": None, "drops": [], "pos": None}
 
+        try:
+            catalog = items_catalog.load_catalog()
+        except FileNotFoundError:
+            catalog = {}
+
+        monster["bag"] = _collect_bag_entries(monster, catalog=catalog, seen_iids=set())
+
         for idx, entry in enumerate(self._monsters):
             if entry is monster or entry.get("id") == monster_id:
                 del self._monsters[idx]
@@ -1147,38 +1227,7 @@ def _normalize_monsters(monsters: List[Dict[str, Any]], *, catalog: Mapping[str,
         else:
             monster.pop("ai_state_json", None)
 
-        bag_payload = monster.get("bag")
-        if not isinstance(bag_payload, list):
-            bag_payload = []
-            inventory_payload = monster.get("inventory")
-            if isinstance(inventory_payload, list):
-                for raw in inventory_payload:
-                    if isinstance(raw, Mapping):
-                        entry = dict(raw)
-                    elif isinstance(raw, str):
-                        if _looks_like_instance_id(raw):
-                            entry = {"iid": raw}
-                        else:
-                            entry = {"item_id": raw}
-                    else:
-                        continue
-                    if entry.get("instance_id") and not entry.get("iid"):
-                        entry["iid"] = entry.get("instance_id")
-                    if entry.get("iid") and not entry.get("item_id"):
-                        inst = items_instances.get_instance(entry.get("iid"))
-                        if isinstance(inst, Mapping):
-                            item_id = inst.get("item_id") or inst.get("catalog_id") or inst.get("id")
-                            if item_id:
-                                entry["item_id"] = str(item_id)
-                        elif not _looks_like_instance_id(entry.get("iid")):
-                            entry["item_id"] = str(entry["iid"])
-                    bag_payload.append(entry)
-        bag = _resolve_bag(
-            bag_payload,
-            monster_id=primary,
-            seen_iids=seen_iids,
-            catalog=catalog,
-        )
+        bag = _collect_bag_entries(monster, catalog=catalog, seen_iids=seen_iids)
         monster["bag"] = bag
 
         armour_payload = monster.get("armour_slot")
