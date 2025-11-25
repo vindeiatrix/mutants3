@@ -70,6 +70,71 @@ def test_drop_monster_loot_uses_display_name(monkeypatch):
     assert captured and captured[0].get("skull_monster_name") == "Junkyard Scrapper"
 
 
+def test_drop_monster_loot_sets_monotonic_created_times(monkeypatch):
+    minted_sequence = iter(["bag-iid", "skull-iid", "armour-iid"])
+    created_updates: list[tuple[str, int]] = []
+
+    monkeypatch.setattr(combat_loot.itemsreg, "mint_instance", lambda *args, **kwargs: next(minted_sequence))
+    monkeypatch.setattr(combat_loot.itemsreg, "list_instances_at", lambda *args, **kwargs: [])
+    monkeypatch.setattr(combat_loot.itemsreg, "move_instance", lambda *args, **kwargs: False)
+    monkeypatch.setattr(combat_loot.itemsreg, "get_instance", lambda *args, **kwargs: None)
+    monkeypatch.setattr(combat_loot.itemsreg, "mint_on_ground_with_defaults", lambda *args, **kwargs: "fallback")
+
+    def capture_created_at(iid, **fields):
+        if "created_at" in fields:
+            created_updates.append((iid, fields["created_at"]))
+        return {"iid": iid, **fields}
+
+    monkeypatch.setattr(combat_loot.itemsreg, "update_instance", capture_created_at)
+
+    minted, vaporized = combat_loot.drop_monster_loot(
+        pos=(0, 0, 0),
+        bag_entries=[{"item_id": "bolt_pouch"}],
+        armour_entry={"item_id": "torn_overalls"},
+        monster={},
+        catalog={},
+    )
+
+    assert not vaporized
+    assert [entry["iid"] for entry in minted] == ["bag-iid", "skull-iid", "armour-iid"]
+    assert [entry[0] for entry in created_updates] == ["bag-iid", "skull-iid", "armour-iid"]
+    assert all(a[1] < b[1] for a, b in zip(created_updates, created_updates[1:]))
+
+
+def test_drop_monster_loot_orders_skull_before_armour(monkeypatch):
+    minted_sequence = iter(["bag-iid", "skull-iid", "armour-iid"])
+    created_updates: list[tuple[str, int]] = []
+
+    monkeypatch.setattr(combat_loot.itemsreg, "mint_instance", lambda *args, **kwargs: next(minted_sequence))
+    monkeypatch.setattr(combat_loot.itemsreg, "list_instances_at", lambda *args, **kwargs: [])
+    monkeypatch.setattr(combat_loot.itemsreg, "move_instance", lambda *args, **kwargs: False)
+    monkeypatch.setattr(combat_loot.itemsreg, "get_instance", lambda *args, **kwargs: None)
+    monkeypatch.setattr(combat_loot.itemsreg, "mint_on_ground_with_defaults", lambda *args, **kwargs: "fallback")
+
+    def capture_created_at(iid, **fields):
+        if "created_at" in fields:
+            created_updates.append((iid, fields["created_at"]))
+        return {"iid": iid, **fields}
+
+    monkeypatch.setattr(combat_loot.itemsreg, "update_instance", capture_created_at)
+
+    minted, vaporized = combat_loot.drop_monster_loot(
+        pos=(0, 0, 0),
+        bag_entries=[
+            {"item_id": "rusty_shiv", "drop_source": "bag"},
+            {"item_id": "torn_overalls", "drop_source": "armour", "worn": True},
+        ],
+        armour_entry=None,
+        monster={},
+        catalog={},
+    )
+
+    assert not vaporized
+    assert [entry["iid"] for entry in minted] == ["bag-iid", "skull-iid", "armour-iid"]
+    assert [entry[0] for entry in created_updates] == ["bag-iid", "skull-iid", "armour-iid"]
+    assert all(a[1] < b[1] for a, b in zip(created_updates, created_updates[1:]))
+
+
 def test_drop_new_entries_strips_unsupported_fields(monkeypatch):
     captured: dict[str, object] = {}
 
