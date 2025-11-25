@@ -136,6 +136,81 @@ def _command_catalog_import_items(args: argparse.Namespace) -> None:
     _with_connection(args, import_catalog)
 
 
+def _command_catalog_import_monsters(args: argparse.Namespace) -> None:
+    """Import the monsters catalog JSON into the SQLite database."""
+
+    catalog_path = PROJECT_ROOT / "state" / "monsters" / "catalog.json"
+
+    def import_catalog(conn: sqlite3.Connection, manager: SQLiteConnectionManager) -> None:
+        if not catalog_path.exists():
+            raise FileNotFoundError(f"Catalog JSON not found: {catalog_path}")
+
+        with catalog_path.open("r", encoding="utf-8") as fh:
+            payload = json.load(fh)
+
+        if not isinstance(payload, list):
+            raise ValueError("Catalog JSON must be a list of objects")
+
+        records: list[dict[str, object]] = []
+        for entry in payload:
+            if not isinstance(entry, dict):
+                raise ValueError("Catalog JSON entries must be objects")
+            monster_id = entry.get("monster_id")
+            if not monster_id:
+                raise ValueError("Catalog JSON entries must include 'monster_id'")
+
+            record = {
+                "monster_id": str(monster_id),
+                "name": str(entry.get("name") or monster_id),
+                "level": int(entry.get("level") or 0),
+                "hp_max": int(entry.get("hp_max") or 0),
+                "armour_class": int(entry.get("armour_class") or 0),
+                "spawn_years": json.dumps(entry.get("spawn_years") or []),
+                "spawnable": 1 if entry.get("spawnable") else 0,
+                "taunt": entry.get("taunt") or "",
+                "stats_json": json.dumps(entry.get("stats") or {}, ensure_ascii=False, sort_keys=True),
+                "innate_attack_json": json.dumps(
+                    entry.get("innate_attack") or {}, ensure_ascii=False, sort_keys=True
+                ),
+                "exp_bonus": entry.get("exp_bonus"),
+                "ions_min": entry.get("ions_min"),
+                "ions_max": entry.get("ions_max"),
+                "riblets_min": entry.get("riblets_min"),
+                "riblets_max": entry.get("riblets_max"),
+                "spells_json": json.dumps(entry.get("spells") or []),
+                "starter_armour_json": json.dumps(entry.get("starter_armour") or []),
+                "starter_items_json": json.dumps(entry.get("starter_items") or []),
+            }
+            records.append(record)
+
+        if not records:
+            print("No monsters to import from catalog JSON")
+            return
+
+        sql = (
+            "INSERT INTO monsters_catalog (monster_id, name, level, hp_max, armour_class, "
+            "spawn_years, spawnable, taunt, stats_json, innate_attack_json, exp_bonus, ions_min, ions_max, "
+            "riblets_min, riblets_max, spells_json, starter_armour_json, starter_items_json) "
+            "VALUES (:monster_id, :name, :level, :hp_max, :armour_class, :spawn_years, :spawnable, :taunt, "
+            ":stats_json, :innate_attack_json, :exp_bonus, :ions_min, :ions_max, :riblets_min, :riblets_max, :spells_json, "
+            ":starter_armour_json, :starter_items_json) "
+            "ON CONFLICT(monster_id) DO UPDATE SET name=excluded.name, level=excluded.level, hp_max=excluded.hp_max, "
+            "armour_class=excluded.armour_class, spawn_years=excluded.spawn_years, spawnable=excluded.spawnable, "
+            "taunt=excluded.taunt, stats_json=excluded.stats_json, innate_attack_json=excluded.innate_attack_json, "
+            "exp_bonus=excluded.exp_bonus, ions_min=excluded.ions_min, ions_max=excluded.ions_max, "
+            "riblets_min=excluded.riblets_min, riblets_max=excluded.riblets_max, spells_json=excluded.spells_json, "
+            "starter_armour_json=excluded.starter_armour_json, starter_items_json=excluded.starter_items_json"
+        )
+
+        with conn:
+            conn.execute("BEGIN IMMEDIATE")
+            conn.executemany(sql, records)
+
+        print(f"Imported {len(records)} monsters into {manager.path}")
+
+    _with_connection(args, import_catalog)
+
+
 def _command_litter_run_now(args: argparse.Namespace) -> None:
     """Run the daily litter job immediately."""
 
@@ -191,6 +266,12 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Load the items catalog JSON into the database.",
     )
     catalog_import_items_parser.set_defaults(func=_command_catalog_import_items)
+
+    catalog_import_monsters_parser = subparsers.add_parser(
+        "catalog-import-monsters",
+        help="Load the monsters catalog JSON into the database.",
+    )
+    catalog_import_monsters_parser.set_defaults(func=_command_catalog_import_monsters)
 
     litter_run_parser = subparsers.add_parser(
         "litter-run-now", help="Run daily litter immediately (idempotent)."
