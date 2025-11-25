@@ -5,6 +5,7 @@ sys.path.append("src")
 from mutants.services import combat_loot
 from mutants.ui import item_display
 from mutants.commands._util import items as item_util
+from mutants.registries import sqlite_store
 
 
 def test_describe_instance_skull_uses_monster_name(monkeypatch):
@@ -80,3 +81,19 @@ def test_resolve_item_arg_survives_catalog_errors(monkeypatch):
     resolved = item_util.resolve_item_arg({}, "sk")
 
     assert resolved == "iid-skull"
+
+
+def test_sqlite_store_persists_skull_metadata(tmp_path):
+    db_path = tmp_path / "mutants.db"
+    manager = sqlite_store.SQLiteConnectionManager(db_path)
+    store = sqlite_store.SQLiteItemsInstanceStore(manager)
+
+    store.mint({"iid": "iid-1", "item_id": "skull", "year": 0, "x": 0, "y": 0, "created_at": 0})
+    store.update_fields(
+        "iid-1", skull_monster_id="junkyard_scrapper", skull_monster_name="Junkyard Scrapper"
+    )
+
+    record = store.get_by_iid("iid-1")
+
+    assert record["skull_monster_id"] == "junkyard_scrapper"
+    assert record["skull_monster_name"] == "Junkyard Scrapper"

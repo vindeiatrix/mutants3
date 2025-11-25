@@ -384,6 +384,7 @@ class SQLiteConnectionManager:
                 (4, self._migrate_to_v4),
                 (5, self._migrate_to_v5),
                 (6, self._migrate_to_v6),
+                (7, self._migrate_to_v7),
             )
 
             for target_version, migration in migrations:
@@ -538,6 +539,8 @@ class SQLiteConnectionManager:
                 charges INTEGER DEFAULT 0,
                 origin TEXT,
                 drop_source TEXT,
+                skull_monster_id TEXT,
+                skull_monster_name TEXT,
                 created_at INTEGER NOT NULL CHECK(created_at >= 0)
             )
             """
@@ -792,6 +795,16 @@ class SQLiteConnectionManager:
             """
         )
 
+    def _migrate_to_v7(self, conn: sqlite3.Connection) -> None:
+        cur = conn.execute("PRAGMA table_info(items_instances)")
+        existing = {row[1] for row in cur.fetchall() if len(row) > 1}
+
+        for column in ("skull_monster_id", "skull_monster_name"):
+            if column not in existing:
+                conn.execute(
+                    f"ALTER TABLE items_instances ADD COLUMN {column} TEXT"
+                )
+
 
 class SQLiteItemsInstanceStore:
     """SQLite-backed implementation of :class:`ItemsInstanceStore`."""
@@ -810,6 +823,8 @@ class SQLiteItemsInstanceStore:
         "charges",
         "origin",
         "drop_source",
+        "skull_monster_id",
+        "skull_monster_name",
         "created_at",
     )
 
@@ -824,9 +839,9 @@ class SQLiteItemsInstanceStore:
 
     def snapshot(self) -> Iterable[Dict[str, Any]]:
         conn = self._connection()
+        columns = ", ".join(self._COLUMNS)
         cur = conn.execute(
-            "SELECT iid, item_id, year, x, y, owner, enchant, condition, charges, origin, drop_source, created_at "
-            "FROM items_instances ORDER BY created_at ASC, iid ASC"
+            f"SELECT {columns} FROM items_instances ORDER BY created_at ASC, iid ASC"
         )
         return [self._row_to_dict(row) for row in cur.fetchall()]
 
@@ -916,6 +931,8 @@ class SQLiteItemsInstanceStore:
         payload["origin"] = str(origin) if origin is not None else None
         drop_source = record.get("drop_source")
         payload["drop_source"] = str(drop_source) if drop_source is not None else None
+        payload["skull_monster_id"] = record.get("skull_monster_id")
+        payload["skull_monster_name"] = record.get("skull_monster_name")
         payload["created_at"] = _normalize_created_at(
             record.get("created_at"), default=default_created
         )
@@ -923,9 +940,9 @@ class SQLiteItemsInstanceStore:
 
     def get_by_iid(self, iid: str) -> Optional[Dict[str, Any]]:
         conn = self._connection()
+        columns = ", ".join(self._COLUMNS)
         cur = conn.execute(
-            "SELECT iid, item_id, year, x, y, owner, enchant, condition, charges, origin, drop_source, created_at "
-            "FROM items_instances WHERE iid = ?",
+            f"SELECT {columns} FROM items_instances WHERE iid = ?",
             (str(iid),),
         )
         row = cur.fetchone()
@@ -935,9 +952,9 @@ class SQLiteItemsInstanceStore:
 
     def list_at(self, year: int, x: int, y: int) -> Iterable[Dict[str, Any]]:
         conn = self._connection()
+        columns = ", ".join(self._COLUMNS)
         sql = (
-            "SELECT iid, item_id, year, x, y, owner, enchant, condition, charges, origin, drop_source, created_at "
-            "FROM items_instances WHERE year = ? AND x = ? AND y = ? "
+            f"SELECT {columns} FROM items_instances WHERE year = ? AND x = ? AND y = ? "
             "ORDER BY created_at ASC, iid ASC"
         )
         params: Tuple[int, int, int] = (year, x, y)
@@ -947,9 +964,9 @@ class SQLiteItemsInstanceStore:
 
     def list_by_owner(self, owner: str) -> Iterable[Dict[str, Any]]:
         conn = self._connection()
+        columns = ", ".join(self._COLUMNS)
         sql = (
-            "SELECT iid, item_id, year, x, y, owner, enchant, condition, charges, origin, drop_source, created_at "
-            "FROM items_instances WHERE owner = ? ORDER BY created_at ASC, iid ASC"
+            f"SELECT {columns} FROM items_instances WHERE owner = ? ORDER BY created_at ASC, iid ASC"
         )
         params = (str(owner),)
         _debug_query_plan(conn, sql, params)
