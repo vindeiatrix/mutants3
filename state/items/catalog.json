@@ -300,7 +300,7 @@
   },
   {
     "item_id": "gate_key_a",
-    "name": "Gate-Key A",
+    "name": "Gate-Key-A",
     "weight": 1,
     "ion_value": 5000,
     "riblet_value": 500,
@@ -323,7 +323,7 @@
   },
   {
     "item_id": "gate_key_b",
-    "name": "Gate-Key B",
+    "name": "Gate-Key-B",
     "weight": 1,
     "ion_value": 5000,
     "riblet_value": 500,
@@ -346,7 +346,7 @@
   },
   {
     "item_id": "lightning-rod",
-    "name": "Lightning Rod",
+    "name": "Lightning-Rod",
     "weight": 1,
     "ion_value": 14000,
     "riblet_value": 10000,
@@ -371,7 +371,7 @@
   },
   {
     "item_id": "flare-wand",
-    "name": "Flare Wand",
+    "name": "Flare-Wand",
     "description": "A simple wand that fires a bright flare.",
     "weight": 1,
     "ion_value": 5000,
@@ -396,7 +396,7 @@
   },
   {
     "item_id": "short_sword",
-    "name": "Short Sword",
+    "name": "Short-Sword",
     "description": "A compact blade with enough bite to test melee flows.",
     "weight": 5,
     "ion_value": 15000,
@@ -419,7 +419,7 @@
   },
   {
     "item_id": "scrap_armour",
-    "name": "Scrap Armour",
+    "name": "Scrap-Armour",
     "description": "Rattling plates and scavenged straps; edit saves to slot it for AC.",
     "weight": 8,
     "ion_value": 10000,
@@ -442,7 +442,7 @@
   },
   {
     "item_id": "broken_weapon",
-    "name": "Broken Weapon",
+    "name": "Broken-Weapon",
     "description": "Half a handle and splinters\u2014a spawn-disabled prop for edge cases.",
     "weight": 4,
     "ion_value": 100,
@@ -465,7 +465,7 @@
   },
   {
     "item_id": "broken_armour",
-    "name": "Broken Armour",
+    "name": "Broken-Armour",
     "description": "Twisted plates and shredded padding; exists only for descriptive flows.",
     "weight": 7,
     "ion_value": 100,
@@ -487,8 +487,8 @@
     "poison_bolt": false
   },
   {
-    "item_id": "Torn Overalls",
-    "name": "Torn Overalls",
+    "item_id": "Torn-Overalls",
+    "name": "Torn-Overalls",
     "weight": 8,
     "ion_value": 100,
     "riblet_value": 50,
@@ -510,8 +510,8 @@
     "poison_bolt": false
   },
   {
-    "item_id": "Rusty Shiv",
-    "name": "Rusty Shiv",
+    "item_id": "Rusty-Shiv",
+    "name": "Rusty-Shiv",
     "weight": 2,
     "ion_value": 50,
     "riblet_value": 10,
@@ -533,8 +533,8 @@
     "poison_bolt": false
   },
   {
-    "item_id": "Bolt Pouch",
-    "name": "Bolt Pouch",
+    "item_id": "Bolt-Pouch",
+    "name": "Bolt-Pouch",
     "weight": 1,
     "ion_value": 10,
     "riblet_value": 5,
@@ -556,8 +556,8 @@
     "poison_bolt": false
   },
   {
-    "item_id": "Thick Hide",
-    "name": "Thick Hide",
+    "item_id": "Thick-Hide",
+    "name": "Thick-Hide",
     "weight": 15,
     "ion_value": 200,
     "riblet_value": 150,
@@ -579,8 +579,8 @@
     "poison_bolt": false
   },
   {
-    "item_id": "Radioactive Fang",
-    "name": "Radioactive Fang",
+    "item_id": "Radioactive-Fang",
+    "name": "Radioactive-Fang",
     "weight": 1,
     "ion_value": 300,
     "riblet_value": 50,
@@ -602,8 +602,8 @@
     "poison_bolt": false
   },
   {
-    "item_id": "Tattered Cloths",
-    "name": "Tattered Cloths",
+    "item_id": "Tattered-Cloths",
+    "name": "Tattered-Cloths",
     "weight": 3,
     "ion_value": 20,
     "riblet_value": 5,
@@ -625,8 +625,8 @@
     "poison_bolt": false
   },
   {
-    "item_id": "Ion Beamer",
-    "name": "Ion Beamer",
+    "item_id": "Ion-Beamer",
+    "name": "Ion-Beamer",
     "weight": 7,
     "ion_value": 1500,
     "riblet_value": 500,
@@ -650,8 +650,8 @@
     "charges_max": 10
   },
   {
-    "item_id": "Insulated Jerkin",
-    "name": "Insulated Jerkin",
+    "item_id": "Insulated-Jerkin",
+    "name": "Insulated-Jerkin",
     "weight": 5,
     "ion_value": 110,
     "riblet_value": 40,
@@ -673,8 +673,8 @@
     "poison_bolt": false
   },
   {
-    "item_id": "Stormglass Spear",
-    "name": "Stormglass Spear",
+    "item_id": "Stormglass-Spear",
+    "name": "Stormglass-Spear",
     "weight": 6,
     "ion_value": 140,
     "riblet_value": 45,
@@ -696,8 +696,8 @@
     "poison_bolt": false
   },
   {
-    "item_id": "Capacitor Charm",
-    "name": "Capacitor Charm",
+    "item_id": "Capacitor-Charm",
+    "name": "Capacitor-Charm",
     "weight": 1,
     "ion_value": 70,
     "riblet_value": 30,
@@ -719,8 +719,8 @@
     "poison_bolt": false
   },
   {
-    "item_id": "Acid Gland",
-    "name": "Acid Gland",
+    "item_id": "Acid-Gland",
+    "name": "Acid-Gland",
     "weight": 3,
     "ion_value": 160,
     "riblet_value": 70,
@@ -742,8 +742,8 @@
     "poison_bolt": false
   },
   {
-    "item_id": "Brood Tags",
-    "name": "Brood Tags",
+    "item_id": "Brood-Tags",
+    "name": "Brood-Tags",
     "weight": 1,
     "ion_value": 120,
     "riblet_value": 55,
@@ -765,8 +765,8 @@
     "poison_bolt": false
   },
   {
-    "item_id": "Hydraulic Fist",
-    "name": "Hydraulic Fist",
+    "item_id": "Hydraulic-Fist",
+    "name": "Hydraulic-Fist",
     "weight": 12,
     "ion_value": 260,
     "riblet_value": 120,
@@ -788,8 +788,8 @@
     "poison_bolt": false
   },
   {
-    "item_id": "Power Core",
-    "name": "Power Core",
+    "item_id": "Power-Core",
+    "name": "Power-Core",
     "weight": 10,
     "ion_value": 320,
     "riblet_value": 150,
@@ -811,8 +811,8 @@
     "poison_bolt": false
   },
   {
-    "item_id": "Chitin Plating",
-    "name": "Chitin Plating",
+    "item_id": "Chitin-Plating",
+    "name": "Chitin-Plating",
     "weight": 14,
     "ion_value": 180,
     "riblet_value": 90,
@@ -834,8 +834,8 @@
     "poison_bolt": false
   },
   {
-    "item_id": "Chrome Plating",
-    "name": "Chrome Plating",
+    "item_id": "Chrome-Plating",
+    "name": "Chrome-Plating",
     "weight": 22,
     "ion_value": 360,
     "riblet_value": 160,
