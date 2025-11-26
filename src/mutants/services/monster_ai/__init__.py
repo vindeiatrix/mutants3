@@ -208,6 +208,33 @@ def _iter_aggro_monsters(monsters: Any, *, year: int, x: int, y: int) -> Iterabl
     return result
 
 
+def _iter_targeted_monsters(
+    monsters: Any, *, year: int, player_id: str
+) -> Iterable[Mapping[str, Any]]:
+    if monsters is None:
+        return []
+    list_all = getattr(monsters, "list_all", None)
+    if not callable(list_all):
+        return []
+    try:
+        entries = list_all()
+    except Exception:
+        return []
+
+    result: list[Mapping[str, Any]] = []
+    for entry in entries:
+        if not isinstance(entry, Mapping):
+            continue
+        target = _normalize_id(entry.get("target_player_id"))
+        if target != player_id:
+            continue
+        pos = _normalize_pos(entry.get("pos"))
+        if pos is None or int(pos[0]) != int(year):
+            continue
+        result.append(entry)
+    return result
+
+
 def on_player_command(ctx: Any, *, token: str, resolved: str | None) -> None:
     """Advance monster turns after a player command."""
 
@@ -255,17 +282,24 @@ def on_player_command(ctx: Any, *, token: str, resolved: str | None) -> None:
     pos = (year, x, y)
     reentry_ids = tracking_mod.update_target_positions(monsters, player_id, pos)
 
-    for monster in _iter_aggro_monsters(monsters, year=year, x=x, y=y):
+    processed: set[str] = set()
+
+    def _process_monster(monster: Mapping[str, Any], *, allow_target_roll: bool, require_wake: bool) -> None:
         target = _normalize_id(monster.get("target_player_id"))
         if target not in (player_id, None):
-            continue
+            return
         if not _is_alive(monster):
-            continue
+            return
         mon_pos = _normalize_pos(monster.get("pos"))
-        if mon_pos != pos:
-            continue
+        if mon_pos is None:
+            return
+        if int(mon_pos[0]) != int(year):
+            return
 
-        if target is None:
+        monster_id = _monster_id(monster)
+        processed.add(monster_id)
+
+        if allow_target_roll and target is None:
             outcome = actions_mod.roll_entry_target(
                 monster,
                 source_state,
@@ -279,20 +313,22 @@ def on_player_command(ctx: Any, *, token: str, resolved: str | None) -> None:
                 except Exception:  # pragma: no cover - best effort
                     pass
             if _normalize_id(monster.get("target_player_id")) != player_id:
-                continue
+                return
 
-        if wake_events:
+        if require_wake and wake_events:
             woke = False
             for event_name in wake_events:
                 if should_wake(monster, event_name, wake_rng, config):
                     woke = True
                     break
             if not woke:
-                continue
+                return
 
-        monster_id = _monster_id(monster)
         reentry = monster_id in reentry_ids
+        separated_from_player = mon_pos != pos
         credits = _roll_credits(rng, weights)
+        if separated_from_player and target == player_id and credits <= 0:
+            credits = 1
         if reentry and credits <= 0:
             credits = 1
             turnlog.emit(
@@ -303,7 +339,7 @@ def on_player_command(ctx: Any, *, token: str, resolved: str | None) -> None:
             )
         _log_tick(ctx, monster, credits)
         if credits <= 0:
-            continue
+            return
 
         for _ in range(credits):
             try:
@@ -311,4 +347,15 @@ def on_player_command(ctx: Any, *, token: str, resolved: str | None) -> None:
             except Exception:  # pragma: no cover - defensive
                 LOG.exception("Monster action execution failed", extra={"monster": _monster_id(monster)})
                 break
+
+    for monster in _iter_targeted_monsters(monsters, year=year, player_id=player_id):
+        _process_monster(monster, allow_target_roll=False, require_wake=False)
+
+    for monster in _iter_aggro_monsters(monsters, year=year, x=x, y=y):
+        monster_id = _monster_id(monster)
+        if monster_id in processed:
+            continue
+        if _normalize_pos(monster.get("pos")) != pos:
+            continue
+        _process_monster(monster, allow_target_roll=True, require_wake=True)
 

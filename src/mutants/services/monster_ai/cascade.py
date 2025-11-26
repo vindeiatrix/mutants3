@@ -10,8 +10,10 @@ from typing import Any, Iterable, Mapping, Sequence, Collection
 
 from mutants.debug import turnlog
 from mutants.registries import items_instances as itemsreg
+from mutants.services import combat_loot
 from mutants.services.combat_config import CombatConfig
 from mutants.services.monster_ai import heal as heal_mod
+from mutants.services.monster_ai import tracking as tracking_mod
 from mutants.services import monster_entities
 
 LOG = logging.getLogger(__name__)
@@ -262,6 +264,23 @@ def _has_convertible_loot(
     return False
 
 
+def _sanitize_player_id(value: Any) -> str | None:
+    if value is None:
+        return None
+    if isinstance(value, str):
+        token = value.strip()
+        return token or None
+    try:
+        token = str(value).strip()
+    except Exception:
+        return None
+    return token or None
+
+
+def _coerce_pos(value: Any) -> tuple[int, int, int] | None:
+    return combat_loot.coerce_pos(value)
+
+
 def _sanitize_ground_items(raw: Any) -> list[Mapping[str, Any]]:
     if isinstance(raw, Sequence) and not isinstance(raw, (str, bytes)):
         result: list[Mapping[str, Any]] = []
@@ -444,6 +463,17 @@ def evaluate_cascade(monster: Any, ctx: Any) -> ActionResult:
     cracked = _is_wielded_cracked(monster, bag)
     convertible = _has_convertible_loot(bag, tracked_pickups)
     pickup_ready = _has_pickup_candidate(monster, ctx)
+    monster_pos = _coerce_pos(monster.get("pos"))
+    target_id = _sanitize_player_id(monster.get("target_player_id"))
+    target_pos: tuple[int, int, int] | None = None
+    target_collocated = False
+    if target_id:
+        target_pos, target_collocated = tracking_mod.get_target_position(monster, target_id)
+    same_year_target = (
+        target_pos is not None
+        and monster_pos is not None
+        and int(monster_pos[0]) == int(target_pos[0])
+    )
 
     base_flee_pct = _apply_cascade_modifier(config.flee_pct, cascade_overrides.get("flee_pct"))
     flee_threshold = _clamp_pct(base_flee_pct + (config.cracked_flee_bonus if cracked else 0))
@@ -493,6 +523,11 @@ def evaluate_cascade(monster: Any, ctx: Any) -> ActionResult:
         data_common["prefers_ranged_override"] = bool(prefers_ranged_override)
     if species_tags:
         data_common["species_tags"] = species_tags
+    if monster_pos is not None:
+        data_common["monster_pos"] = monster_pos
+    if target_pos is not None:
+        data_common["target_pos"] = target_pos
+        data_common["target_collocated"] = target_collocated
 
     failures: list[Mapping[str, Any]] = []
 
@@ -529,6 +564,27 @@ def evaluate_cascade(monster: Any, ctx: Any) -> ActionResult:
                 data={**data_common, "failures": failures, "flee_mode": mode},
             )
         _record_failure("FLEE", reason)
+
+    if (
+        same_year_target
+        and monster_pos is not None
+        and target_pos is not None
+        and (monster_pos[1] != target_pos[1] or monster_pos[2] != target_pos[2])
+    ):
+        dx = int(target_pos[1]) - int(monster_pos[1])
+        dy = int(target_pos[2]) - int(monster_pos[2])
+        reason = f"target_offset dx={dx} dy={dy}"
+        return _gate_result(
+            monster,
+            ctx,
+            gate="PURSUE",
+            action="pursue",
+            roll=None,
+            threshold=None,
+            reason=reason,
+            triggered=True,
+            data={**data_common, "failures": failures},
+        )
 
     # HEAL gate
     ions_sufficient = ions >= heal_cost

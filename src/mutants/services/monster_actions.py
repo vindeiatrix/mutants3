@@ -1187,6 +1187,40 @@ def _flee_stub(
     return {"ok": True, "fled": False}
 
 
+def _pursue_action(
+    monster: MutableMapping[str, Any],
+    ctx: MutableMapping[str, Any],
+    rng: random.Random,
+) -> Any:
+    if not isinstance(monster, MutableMapping):
+        return {"ok": False, "reason": "invalid_monster"}
+
+    target_id = _sanitize_player_id(monster.get("target_player_id"))
+    if not target_id:
+        return {"ok": False, "reason": "no_target"}
+
+    target_pos, target_collocated = tracking_mod.get_target_position(monster, target_id)
+    if target_pos is None:
+        return {"ok": False, "reason": "missing_target_pos"}
+
+    monster_pos = combat_loot.coerce_pos(monster.get("pos"))
+    if monster_pos is None:
+        return {"ok": False, "reason": "invalid_monster_pos"}
+
+    if int(monster_pos[0]) != int(target_pos[0]):
+        return {"ok": False, "reason": "cross_year"}
+
+    if (monster_pos[1], monster_pos[2]) == (target_pos[1], target_pos[2]):
+        return {"ok": False, "reason": "already_collocated", "co_located": target_collocated}
+
+    config = ctx.get("combat_config") if isinstance(ctx, Mapping) else None
+    config_obj = config if isinstance(config, CombatConfig) else None
+    success = attempt_pursuit(monster, target_pos, rng, ctx=ctx, config=config_obj)
+    if success:
+        _mark_monsters_dirty(ctx)
+    return {"ok": success, "pursued": success, "target_pos": target_pos}
+
+
 def _cast_action(
     monster: MutableMapping[str, Any],
     ctx: MutableMapping[str, Any],
@@ -1312,6 +1346,7 @@ _ACTION_TABLE: dict[str, ActionFn] = {
     "remove_armour": _remove_broken_armour,
     "heal": _heal_action,
     "flee": _flee_stub,
+    "pursue": _pursue_action,
     "cast": _cast_action,
     "emote": emote_mod.cascade_emote_action,
     "idle": _idle_stub,

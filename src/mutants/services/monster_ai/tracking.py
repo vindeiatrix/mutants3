@@ -8,6 +8,7 @@ from mutants.services import combat_loot
 
 __all__ = [
     "record_target_position",
+    "get_target_position",
     "update_target_positions",
 ]
 
@@ -99,6 +100,25 @@ def record_target_position(
     }
 
     return bool(previous) and (not was_collocated) and co_located
+
+
+def get_target_position(
+    monster: MutableMapping[str, Any], player_id: str
+) -> tuple[tuple[int, int, int] | None, bool]:
+    """Return the last known position for ``player_id`` and co-location flag."""
+
+    target_id = _normalize_player_id(player_id)
+    if target_id is None:
+        return None, False
+
+    mapping = _target_positions_map(monster)
+    record = mapping.get(target_id)
+    if not isinstance(record, Mapping):
+        return None, False
+
+    pos = _normalize_pos(record.get("pos"))
+    co_located = bool(record.get("co_located"))
+    return pos, co_located
 
 
 def _iter_monsters(monsters: Any) -> Iterable[MutableMapping[str, Any]]:
