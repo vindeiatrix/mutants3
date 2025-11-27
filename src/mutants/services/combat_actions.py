@@ -12,6 +12,7 @@ from mutants.services import combat_loot, damage_engine, items_wear, monsters_st
 from mutants.bootstrap.lazyinit import ensure_player_state
 from mutants.debug import turnlog
 from mutants.ui.item_display import item_label
+from mutants.util import directions
 
 from ..commands._helpers import resolve_ready_target_in_tile
 
@@ -74,6 +75,48 @@ def _coerce_pos(value: Any, fallback: Optional[Sequence[int]] = None) -> Optiona
     if fallback is None:
         return None
     return combat_loot.coerce_pos(fallback)
+
+
+def _validate_ranged_alignment(
+    direction: str,
+    player_pos: tuple[int, int, int],
+    target_pos: Optional[tuple[int, int, int]],
+    max_range: int,
+) -> Mapping[str, Any]:
+    if target_pos is None:
+        return {"ok": True, "distance": 0}
+
+    _, px, py = player_pos
+    _, tx, ty = target_pos
+    dx, dy = int(tx) - int(px), int(ty) - int(py)
+    dist = abs(dx) + abs(dy)
+    if dist == 0:
+        return {"ok": True, "distance": 0}
+
+    dir_vec = directions.vec(direction)
+    dx_vec, dy_vec = dir_vec
+    if dx_vec == 0 and dy_vec == 0:
+        return {"ok": False, "reason": "invalid_direction"}
+
+    if dx_vec != 0:
+        if dy != 0:
+            return {"ok": False, "reason": "off_axis"}
+        if dx * dx_vec <= 0:
+            return {"ok": False, "reason": "wrong_direction"}
+        if abs(dx) > max_range:
+            return {"ok": False, "reason": "too_far", "distance": abs(dx)}
+        return {"ok": True, "distance": abs(dx)}
+
+    if dy_vec != 0:
+        if dx != 0:
+            return {"ok": False, "reason": "off_axis"}
+        if dy * dy_vec <= 0:
+            return {"ok": False, "reason": "wrong_direction"}
+        if abs(dy) > max_range:
+            return {"ok": False, "reason": "too_far", "distance": abs(dy)}
+        return {"ok": True, "distance": abs(dy)}
+
+    return {"ok": False, "reason": "invalid_direction"}
 
 
 def _resolve_target_armour(monster: Mapping[str, Any]) -> Optional[MutableMapping[str, Any]]:
@@ -699,4 +742,224 @@ def perform_melee_attack(ctx: Dict[str, Any]) -> Dict[str, Any]:
                 marker()
             except Exception:
                 pass
+    return result
+
+
+def perform_ranged_attack(
+    *,
+    ctx: Dict[str, Any],
+    direction: str,
+    weapon_iid: str,
+    max_range: int = 4,
+) -> Dict[str, Any]:
+    """Execute a ranged attack with ``weapon_iid`` in ``direction``.
+
+    The attack respects the ready target, requires the target to be in the same
+    timeline, and enforces a straight-line distance limit of ``max_range``
+    tiles.
+    """
+
+    bus = ctx.get("feedback_bus")
+    if bus is None:
+        raise ValueError("perform_ranged_attack requires feedback_bus in context")
+
+    monsters = _load_monsters(ctx)
+    if monsters is None:
+        bus.push("SYSTEM/WARN", "No monsters are available to strike.")
+        return {"ok": False, "reason": "no_monsters"}
+
+    player = ensure_player_state(ctx)
+    state = ctx.get("player_state") if isinstance(ctx, MutableMapping) else None
+    if not isinstance(state, MutableMapping):
+        state = {}
+
+    target_id = pstate.get_ready_target_for_active(state)
+    if not target_id:
+        bus.push("SYSTEM/WARN", "You're not ready to combat anyone!")
+        return {"ok": False, "reason": "no_target"}
+
+    target = monsters.get(target_id) if hasattr(monsters, "get") else None
+    if target is None:
+        bus.push("SYSTEM/WARN", "Your target is nowhere to be found.")
+        pstate.clear_ready_target_for_active(reason="target-missing")
+        return {"ok": False, "reason": "target_missing"}
+
+    if not _is_alive(target):
+        bus.push("SYSTEM/WARN", "Your target is already dead.")
+        pstate.clear_ready_target_for_active(reason="target-dead")
+        return {"ok": False, "reason": "target_dead"}
+
+    pos = _coerce_pos(target.get("pos")) or _coerce_pos(target.get("position"))
+    year, px, py = pstate.canonical_player_pos(state or player)
+    player_pos = (int(year), int(px), int(py))
+
+    if pos is not None and int(pos[0]) != int(year):
+        bus.push("SYSTEM/WARN", "Your target is nowhere to be found.")
+        pstate.clear_ready_target_for_active(reason="target-missing")
+        return {"ok": False, "reason": "target_missing"}
+
+    alignment = _validate_ranged_alignment(direction, player_pos, pos, max_range)
+    if not alignment.get("ok"):
+        reason = alignment.get("reason") or "invalid_direction"
+        if reason == "too_far":
+            bus.push("SYSTEM/WARN", "Your bolt can't reach that far.")
+        elif reason in {"off_axis", "wrong_direction"}:
+            bus.push("SYSTEM/WARN", "Your target isn't in that direction.")
+        else:
+            bus.push("SYSTEM/WARN", "Nothing happens.")
+        return {"ok": False, "reason": reason}
+
+    weapon = str(weapon_iid) if weapon_iid else {}
+    attack = damage_engine.resolve_attack(weapon, player, target, source="bolt")
+    try:
+        final_damage = max(0, int(attack.damage))
+    except (TypeError, ValueError):
+        final_damage = 0
+    if attack.source == "bolt":
+        final_damage = max(MIN_BOLT_DAMAGE, final_damage)
+
+    final_damage = _clamp_melee_damage(target, final_damage)
+
+    wear_event = items_wear.build_wear_event(actor="player", source=str(attack.source), damage=final_damage)
+    wear_amount = items_wear.wear_from_event(wear_event)
+
+    weapon_wear: Mapping[str, Any] | None = None
+    armour_wear: Mapping[str, Any] | None = None
+    catalog = items_catalog.load_catalog() or {}
+    if final_damage > 0:
+        weapon_wear = _apply_weapon_wear(weapon_iid, wear_amount, catalog, bus)
+        if isinstance(target, MutableMapping):
+            armour_wear = _apply_armour_wear(target, wear_amount, catalog, bus)
+
+    current_hp, max_hp = _sanitize_hp(target)
+    new_hp = max(0, current_hp - final_damage)
+    hp_block = target.setdefault("hp", {})
+    if isinstance(hp_block, MutableMapping):
+        hp_block["current"] = new_hp
+        if "max" not in hp_block:
+            hp_block["max"] = max_hp
+
+    result: Dict[str, Any] = {
+        "ok": True,
+        "damage": final_damage,
+        "target_id": target_id,
+        "remaining_hp": new_hp,
+    }
+
+    label = _monster_display_name(target, target_id)
+    bus.push("COMBAT/HIT", f"You strike {label} for {final_damage} damage.")
+
+    if weapon_wear and weapon_wear.get("cracked"):
+        turnlog.emit(
+            ctx,
+            "ITEM/CRACK",
+            owner="player",
+            item_id=weapon_wear.get("item_id"),
+            item_name=weapon_wear.get("item_name"),
+            iid=weapon_iid,
+            source="weapon",
+        )
+    if armour_wear and armour_wear.get("cracked"):
+        turnlog.emit(
+            ctx,
+            "ITEM/CRACK",
+            owner="monster",
+            target=target_id,
+            item_id=armour_wear.get("item_id"),
+            item_name=armour_wear.get("item_name"),
+            iid=armour_wear.get("iid"),
+            source="armour",
+        )
+
+    strike_meta = {
+        "actor": "player",
+        "target": target_id,
+        "target_name": label,
+        "damage": final_damage,
+        "remaining_hp": new_hp,
+        "weapon_iid": weapon_iid,
+    }
+
+    killed = final_damage > 0 and new_hp <= 0
+    strike_meta["killed"] = killed
+    turnlog.emit(ctx, "COMBAT/STRIKE", **strike_meta)
+    if killed:
+        killer_id = str(player.get("id") or state.get("active_id") or "player")
+        killer_label = pstate.get_active_class(state)
+        killer_meta = {"killer_id": killer_id, "killer_class": killer_label, "victim_id": target_id}
+        finisher = getattr(monsters, "kill_monster", None)
+        summary: Mapping[str, Any] | None = None
+        if callable(finisher):
+            try:
+                summary = finisher(target_id)
+            except Exception:
+                summary = None
+        bus.push("COMBAT/KILL", f"You have slain {label}!", **killer_meta)
+        reward_meta: Mapping[str, Any] | None = None
+        try:
+            monster_payload = _resolve_monster_payload(summary, target)
+            reward_meta = _award_player_progress(
+                monster_payload=monster_payload,
+                state=state,
+                item_catalog=catalog,
+                summary=summary,
+                bus=bus,
+            )
+        except Exception:
+            reward_meta = None
+        if isinstance(reward_meta, Mapping):
+            exp_reward = _coerce_int(reward_meta.get("exp"), 0)
+            riblets_reward = _coerce_int(reward_meta.get("riblets"), 0)
+            ions_reward = _coerce_int(reward_meta.get("ions"), 0)
+            if exp_reward:
+                bus.push("COMBAT/INFO", f"Your experience points are increased by {exp_reward}!")
+            if riblets_reward or ions_reward:
+                bus.push(
+                    "COMBAT/INFO",
+                    f"You collect {riblets_reward} Riblets and {ions_reward} ions from the slain body.",
+                )
+            drop_entries = reward_meta.get("drops_minted")
+        else:
+            drop_entries = None
+        drops = _resolve_drop_entries(summary)
+        turnlog.emit(
+            ctx,
+            "COMBAT/KILL",
+            actor=killer_id,
+            victim=target_id,
+            drops=len(drops),
+            source="player",
+        )
+        pstate.clear_ready_target_for_active(reason="monster-dead")
+        drop_iterable = drop_entries if isinstance(drop_entries, Sequence) else drops
+        armour_hint = _resolve_target_armour(monster_payload)
+        if armour_hint is None:
+            base = _monster_base_from_catalog(monster_payload.get("monster_id"))
+            starter_armour = None
+            if isinstance(base, Mapping):
+                starters = base.get("starter_armour")
+                if isinstance(starters, Sequence) and starters:
+                    starter_armour = starters[0]
+            if starter_armour:
+                armour_hint = {"item_id": starter_armour}
+        sorted_drops = _sorted_drop_messages(drop_iterable or [], armour_hint)
+        for entry in sorted_drops:
+            label_text = combat_loot._entry_label(entry, catalog)
+            bus.push("COMBAT/INFO", f"A {label_text} is falling from {label}'s body!")
+        bus.push("COMBAT/INFO", f"{label} is crumbling to dust!")
+        try:
+            from mutants.services import monster_actions as monster_actions_mod
+
+            monster_actions_mod.notify_monster_death(summary or target, ctx=ctx)
+        except Exception:  # pragma: no cover - defensive
+            LOG.exception("Failed to notify monster spawner after kill")
+        result["killed"] = True
+    else:
+        marker = getattr(monsters, "mark_dirty", None)
+        if callable(marker):
+            try:
+                marker()
+            except Exception:
+                pass
+
     return result
