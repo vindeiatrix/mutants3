@@ -91,16 +91,12 @@ def statistics_cmd(arg: str, ctx) -> None:
     ready_target_label = "NO ONE"
     ready_target_id = pstate.get_ready_target_for_active(state)
     if ready_target_id:
+        ready_target_label = str(ready_target_id)
         monsters_state = ctx.get("monsters")
         target_record: Mapping[str, object] | None = None
-        if monsters_state and hasattr(monsters_state, "list_at"):
+        if monsters_state and hasattr(monsters_state, "get"):
             try:
-                for mon in monsters_state.list_at(year, pos_x, pos_y):  # type: ignore[attr-defined]
-                    mid_raw = mon.get("id") or mon.get("instance_id") or mon.get("monster_id")
-                    mid = str(mid_raw) if mid_raw else ""
-                    if mid == ready_target_id:
-                        target_record = mon
-                        break
+                target_record = monsters_state.get(ready_target_id)  # type: ignore[attr-defined]
             except Exception:
                 target_record = None
         if target_record:
@@ -119,12 +115,45 @@ def statistics_cmd(arg: str, ctx) -> None:
                 )
             else:
                 pstate.clear_ready_target_for_active(reason="stats-target-dead")
+                pstate.clear_ready_target_for(
+                    ready_target_id, reason="stats-target-dead"
+                )
+                if isinstance(state, dict):
+                    for key in (
+                        "ready_target_by_class",
+                        "target_monster_id_by_class",
+                    ):
+                        mapping = state.get(key)
+                        if isinstance(mapping, dict):
+                            for map_key in list(mapping.keys()):
+                                mapping[map_key] = None
+                    for scalar_key in ("ready_target", "target_monster_id"):
+                        state[scalar_key] = None
+                    active_block = state.get("active")
+                    if isinstance(active_block, dict):
+                        for field in ("ready_target", "target_monster_id"):
+                            active_block[field] = None
+                    players_block = state.get("players")
+                    if isinstance(players_block, list):
+                        for player_entry in players_block:
+                            if not isinstance(player_entry, dict):
+                                continue
+                            for field in ("ready_target", "target_monster_id"):
+                                player_entry[field] = None
+                            for map_key in (
+                                "ready_target_by_class",
+                                "target_monster_id_by_class",
+                            ):
+                                player_map = player_entry.get(map_key)
+                                if isinstance(player_map, dict):
+                                    for class_key in list(player_map.keys()):
+                                        player_map[class_key] = None
+                    pstate.save_state(state)
+                    ctx_state = ctx.get("player_state")
+                    if isinstance(ctx_state, dict):
+                        ctx["player_state"] = pstate.load_state()
+                ready_target_label = "NO ONE"
                 ready_target_id = None
-        elif monsters_state:
-            pstate.clear_ready_target_for_active(reason="stats-target-missing")
-            ready_target_id = None
-        if ready_target_id and ready_target_label == "NO ONE":
-            ready_target_label = ready_target_id
     bus.push("SYSTEM/OK", f"Ready to Combat: {ready_target_label}")
     bus.push("SYSTEM/OK", "Readied Spell  : No spell memorized.")
     bus.push("SYSTEM/OK", f"Year A.D. : {year}")

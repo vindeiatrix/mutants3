@@ -21,4 +21,5 @@ tests/*
 !tests/test_player_state_active_view.py
 !tests/test_skull_description.py
 !tests/test_monster_loot_drops.py
+!tests/test_statistics_ready_target.py
 scripts/migrations/
