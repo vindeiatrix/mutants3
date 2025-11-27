@@ -2,7 +2,7 @@ from __future__ import annotations
 from .argcmd import coerce_direction
 from ._util.items import resolve_item_arg
 from ..registries import items_catalog, items_instances as itemsreg
-from ..services import items_ranged
+from ..services import combat_actions, items_ranged
 
 
 def point_cmd(arg: str, ctx):
@@ -34,6 +34,12 @@ def point_cmd(arg: str, ctx):
 
     items_ranged.consume_charge(iid, charges=charges)
     bus.push("COMBAT/POINT", f"You fire the {name} to the {d.title()}.")
+
+    try:
+        combat_actions.perform_ranged_attack(ctx=ctx, direction=d, weapon_iid=iid)
+    except Exception:
+        # Defensive: keep feedback consistent with existing behavior even if combat fails.
+        bus.push("SYSTEM/WARN", "Your bolt fizzles out.")
 
 
 def register(dispatch, ctx) -> None:
