@@ -99,7 +99,9 @@ def move(dir_code: str, ctx: Dict[str, Any]) -> None:
         LOG.exception("Failed to autosave position after move.")
     else:
         if save_success:
-            pstate.clear_ready_target_for_active(reason="player-moved")
+            # Preserve the ready target across movement; it should only be cleared
+            # when explicitly reset (e.g. on death or exit).
+            pass
 
     refreshed: Mapping[str, Any] | None = None
     ions_after = ions_before
