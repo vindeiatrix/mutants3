@@ -28,6 +28,9 @@ def fix_cmd(arg: str, ctx):
         current = int(inst.get("charges", 0) or 0)
     except (TypeError, ValueError):
         current = 0
+    if current < 1:
+        bus.push("SYSTEM/WARN", "I can't fix that!")
+        return
     already_full = current >= max_ch
     try:
         itemsreg.recharge_full(iid)
