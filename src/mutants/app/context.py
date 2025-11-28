@@ -220,7 +220,6 @@ def build_room_vm(
 
     monsters_here: List[Dict[str, str]] = []
     seen_monster_ids: set[str] = set()
-    monster_ids: set[str] = set()
 
     # Always use the authoritative cache unless a specific source is supplied.
     monsters_source = monsters
@@ -239,7 +238,6 @@ def build_room_vm(
                 type(monsters_source).__name__,
                 exc_info=True,
             )
-            monster_ids.clear()
             mons_iter = []
         else:
             ids_logged: List[Any] = []
@@ -299,12 +297,9 @@ def build_room_vm(
         if mid:
             entry["id"] = mid
         monsters_here.append(entry)
-        if mid and is_alive:
-            monster_ids.add(mid)
-    try:
-        pstate.ensure_active_ready_target_in(monster_ids, reason="tile-mismatch")
-    except Exception:
-        pass
+
+    # Preserve the ready target even when the monster moves away from the player.
+    # Combat commands will validate proximity as needed.
 
     ground_ids: List[str] = []
     if items and hasattr(items, "list_ids_at"):
