@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, MutableMapping, Optional
 
 from mutants.registries.world import load_nearest_year
-from mutants.services import monsters_state, player_state as pstate
+from mutants.services import player_state as pstate
 from mutants.state import state_path
 from ..services import item_transfer as itx
 from ..services import state_debug
@@ -174,19 +174,6 @@ def _persist_pos_only(
 
 def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
     bus = ctx["feedback_bus"]
-
-    def _clear_monster_targets() -> None:
-        """Drop monster aggro when jumping between centuries."""
-
-        try:
-            monsters_obj = None
-            if isinstance(ctx, Mapping):
-                candidate = ctx.get("monsters")
-                if hasattr(candidate, "list_all"):
-                    monsters_obj = candidate
-            monsters_state.clear_all_targets(monsters_obj)
-        except Exception:  # pragma: no cover - defensive guard
-            LOG.exception("Failed to clear monster targets after time travel")
 
     year_raw = _parse_year(arg or "")
     if year_raw is None:
@@ -369,7 +356,6 @@ def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
             ions_before=ions,
             ions_after=ions_after,
         )
-        _clear_monster_targets()
         bus.push(
             "SYSTEM/OK",
             f"ZAAAPPPPP!! You've been sent to the year {resolved_year} A.D.",
@@ -430,7 +416,6 @@ def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
         ions_before=ions,
         ions_after=ions_after,
     )
-    _clear_monster_targets()
     bus.push(
         "SYSTEM/WARN",
         "ZAAAPPPP!!!! You suddenly feel something has gone terribly wrong!",
