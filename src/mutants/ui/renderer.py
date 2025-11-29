@@ -311,6 +311,19 @@ def render_token_lines(
             first = False
         return out
 
+    def _append_with_separators(
+        out_lines: List[SegmentLine], new_lines: List[SegmentLine]
+    ) -> List[SegmentLine]:
+        if not new_lines:
+            return out_lines
+        if out_lines:
+            out_lines.append(list(sep_line))
+        for idx, seg in enumerate(new_lines):
+            out_lines.append(seg)
+            if idx < len(new_lines) - 1:
+                out_lines.append(list(sep_line))
+        return out_lines
+
     def _is_separator(line: SegmentLine) -> bool:
         return len(line) == 1 and line[0][0] == "" and line[0][1] == UC.SEPARATOR_LINE
 
@@ -341,8 +354,8 @@ def render_token_lines(
 
     events = vm.get("events", [])
     if events:
-        for ev in events:
-            lines.append([("", ev)])
+        event_lines = [[("", ev)] for ev in events]
+        lines = _append_with_separators(lines, event_lines)
 
     shadows = vm.get("shadows", [])
     shadow_line = fmt.format_shadows(shadows)
@@ -350,6 +363,7 @@ def render_token_lines(
         lines.append(shadow_line)
 
     if feedback_events:
+        fb_lines: List[SegmentLine] = []
         for ev in feedback_events:
             enriched = _with_player_display_name(ev, player_display_name)
             if isinstance(enriched, Mapping):
@@ -358,7 +372,8 @@ def render_token_lines(
             else:
                 token = _feedback_token("")
                 text = resolve_feedback_text(ev)
-            lines.append([(token, text)])
+            fb_lines.append([(token, text)])
+        lines = _append_with_separators(lines, fb_lines)
 
     return lines
 
@@ -501,6 +516,19 @@ def render(
             first = False
         return out
 
+    def _append_with_separators_str(
+        out_lines: list[str], new_lines: list[str]
+    ) -> list[str]:
+        if not new_lines:
+            return out_lines
+        if out_lines:
+            out_lines.append(UC.SEPARATOR_LINE)
+        for idx, line in enumerate(new_lines):
+            out_lines.append(line)
+            if idx < len(new_lines) - 1:
+                out_lines.append(UC.SEPARATOR_LINE)
+        return out_lines
+
     def _assert_no_sep_violations(out_lines: list[str]) -> list[str]:
         if not out_lines:
             return out_lines
@@ -529,12 +557,14 @@ def render(
     lines = _assert_no_sep_violations(lines)
 
     if feedback_events:
+        fb_lines: list[str] = []
         for ev in feedback_events:
             enriched = _with_player_display_name(ev, player_display_name)
             if isinstance(enriched, Mapping):
-                lines.append(resolve_feedback_text(enriched))
+                fb_lines.append(resolve_feedback_text(enriched))
             else:
-                lines.append(resolve_feedback_text(ev))
+                fb_lines.append(resolve_feedback_text(ev))
+        lines = _append_with_separators_str(lines, fb_lines)
 
     return lines
 
