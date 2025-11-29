@@ -80,6 +80,7 @@ def render_menu(ctx: dict) -> None:
         "SYSTEM/OK",
         "Type BURY [class number] to reset a player. Type X to exit.",
     )
+    bus.push("SYSTEM/OK", "***")
 
 
 def _select_index(value: str, max_n: int) -> int | None:
