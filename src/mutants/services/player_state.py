@@ -3719,11 +3719,28 @@ def clear_target(*, reason: Optional[str] = None) -> Optional[str]:
 
     save_state(normalized)
 
-    player_id = _sanitize_player_id(active.get("id") if isinstance(active, Mapping) else None)
-    if player_id is None and isinstance(normalized, Mapping):
-        player_id = _sanitize_player_id(normalized.get("active_id"))
+    player_ids: set[str] = set()
+    active_player_id = _sanitize_player_id(
+        active.get("id") if isinstance(active, Mapping) else None
+    )
+    if active_player_id:
+        player_ids.add(active_player_id)
 
-    if player_id is None:
+    if isinstance(normalized, Mapping):
+        normalized_active_id = _sanitize_player_id(normalized.get("active_id"))
+        if normalized_active_id:
+            player_ids.add(normalized_active_id)
+
+        players = normalized.get("players")
+        if isinstance(players, list):
+            for player in players:
+                if not isinstance(player, Mapping):
+                    continue
+                player_id = _sanitize_player_id(player.get("id"))
+                if player_id:
+                    player_ids.add(player_id)
+
+    if not player_ids:
         return previous
 
     try:
@@ -3736,7 +3753,7 @@ def clear_target(*, reason: Optional[str] = None) -> Optional[str]:
         if not isinstance(record, Mapping):
             continue
         target_token = _sanitize_player_id(record.get("target_player_id"))
-        if target_token != player_id:
+        if target_token not in player_ids:
             continue
         monster_id = (
             record.get("id")
@@ -3748,7 +3765,7 @@ def clear_target(*, reason: Optional[str] = None) -> Optional[str]:
         monster = monsters.get(str(monster_id))
         if not isinstance(monster, MutableMapping):
             continue
-        if _sanitize_player_id(monster.get("target_player_id")) != player_id:
+        if _sanitize_player_id(monster.get("target_player_id")) != target_token:
             continue
         monster["target_player_id"] = None
         try:

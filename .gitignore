@@ -24,4 +24,5 @@ tests/*
 !tests/test_statistics_ready_target.py
 !tests/test_context_ready_target.py
 !tests/test_fix_command.py
+!tests/test_player_state_clear_target.py
 scripts/migrations/
