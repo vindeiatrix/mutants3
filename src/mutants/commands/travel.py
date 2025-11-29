@@ -390,7 +390,6 @@ def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
             ions_before=ions,
             ions_after=ions_after,
         )
-        _clear_monster_targets()
         bus.push(
             "SYSTEM/WARN",
             "ZAAAPPPP!!!! You suddenly feel something has gone terribly wrong!",
