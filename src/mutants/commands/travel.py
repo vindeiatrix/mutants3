@@ -179,7 +179,6 @@ def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
         """Drop monster aggro when jumping between centuries."""
 
         try:
-            pstate.clear_target(reason="time-travel")
             monsters_obj = None
             if isinstance(ctx, Mapping):
                 candidate = ctx.get("monsters")

@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from collections.abc import Mapping
+
 import logging
 
 from mutants.services import monsters_state, player_state as pstate
