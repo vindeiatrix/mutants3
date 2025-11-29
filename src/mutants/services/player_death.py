@@ -291,6 +291,11 @@ def handle_player_death(
         LOG.warning("player_death.handle_player_death: missing mutable state")
         return state_obj
 
+    try:
+        pstate.clear_target(reason="player-death")
+    except Exception:  # pragma: no cover - defensive guard
+        LOG.exception("Failed to clear ready target after player death")
+
     if player_id:
         players = state_obj.get("players")
         if isinstance(players, list):

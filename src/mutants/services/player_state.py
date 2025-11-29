@@ -3657,20 +3657,71 @@ def clear_ready_target_for_active(*, reason: Optional[str] = None) -> Optional[s
     return previous
 
 
+def _clear_ready_targets_for_all_classes(normalized: MutableMapping[str, Any]) -> None:
+    """Zero out ready-target fields across all class scopes in ``normalized``."""
+
+    ready_map = normalized.get("ready_target_by_class")
+    if isinstance(ready_map, MutableMapping):
+        for key in list(ready_map.keys()):
+            ready_map[key] = None
+        normalized["ready_target_by_class"] = dict(ready_map)
+
+    target_map = normalized.get("target_monster_id_by_class")
+    if isinstance(target_map, MutableMapping):
+        for key in list(target_map.keys()):
+            target_map[key] = None
+        normalized["target_monster_id_by_class"] = dict(target_map)
+
+    normalized["ready_target"] = None
+    normalized["target_monster_id"] = None
+
+    scopes: list[MutableMapping[str, Any]] = []
+    active = normalized.get("active")
+    if isinstance(active, MutableMapping):
+        scopes.append(active)
+    players = normalized.get("players")
+    if isinstance(players, list):
+        scopes.extend(
+            player for player in players if isinstance(player, MutableMapping)
+        )
+
+    for scope in scopes:
+        scope["ready_target"] = None
+        scope["target_monster_id"] = None
+        for map_key in ("ready_target_by_class", "target_monster_id_by_class"):
+            map_payload = scope.get(map_key)
+            if not isinstance(map_payload, MutableMapping):
+                continue
+            for entry in list(map_payload.keys()):
+                map_payload[entry] = None
+
+
 def clear_target(*, reason: Optional[str] = None) -> Optional[str]:
     """Clear the active ready target and monster aggro references."""
 
     try:
-        state, active = get_active_pair()
+        state = load_state()
     except Exception:
-        state, active = get_active_pair()
+        state = {}
 
+    normalized, active, _cls = _prepare_active_storage(state)
     reason_token = reason or "clear-target"
-    previous = clear_ready_target_for_active(reason=reason_token)
+    previous = get_ready_target_for_active(normalized)
+
+    _clear_ready_targets_for_all_classes(normalized)
+
+    ctx = _current_runtime_ctx()
+    if isinstance(ctx, MutableMapping):
+        ctx["player_state"] = normalized
+        ctx.pop(_RUNTIME_PLAYER_KEY, None)
+        runtime_player = ensure_player_state(ctx)
+        runtime_player["_dirty"] = True
+
+    save_state(normalized)
 
     player_id = _sanitize_player_id(active.get("id") if isinstance(active, Mapping) else None)
-    if player_id is None and isinstance(state, Mapping):
-        player_id = _sanitize_player_id(state.get("active_id"))
+    if player_id is None and isinstance(normalized, Mapping):
+        player_id = _sanitize_player_id(normalized.get("active_id"))
 
     if player_id is None:
         return previous

@@ -2,9 +2,13 @@ from __future__ import annotations
 
 from typing import Any, Dict, Mapping, Tuple
 
+import logging
+
 from mutants.constants import CLASS_ORDER
 from mutants.engine import session
 from mutants.services import player_reset, player_state as pstate
+
+LOG = logging.getLogger(__name__)
 
 
 ROW_FMT = "{idx:>2}. Mutant {cls:<7}  Level: {lvl:<2}  Year: {yr:<4}  ({x:>2} {y:>2})"
@@ -108,6 +112,10 @@ def handle_input(raw: str, ctx: dict) -> None:
         )
         return
     if lowered == "x":
+        try:
+            pstate.clear_target(reason="quit-from-class-menu")
+        except Exception:  # pragma: no cover - defensive guard
+            LOG.exception("Failed to clear ready target when quitting from class menu")
         raise SystemExit(0)
     if lowered.startswith("bury"):
         parts = lowered.split()
