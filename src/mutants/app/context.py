@@ -16,7 +16,6 @@ from mutants.registries.world import load_nearest_year
 from mutants.state import state_path
 from mutants.world import vision
 from mutants.ui import renderer
-from mutants.ui import uicontract as UC
 from mutants.ui.textutils import resolve_feedback_text
 from mutants.debug.turnlog import TurnObserver
 from mutants.debug import items_probe
@@ -356,7 +355,6 @@ def render_frame(ctx: Dict[str, Any]) -> None:
         palette=ctx["theme"].palette,
         width=ctx["theme"].width,
     )
-    lines = _prepend_leading_separator(lines)
     for line in lines:
         print(line)
     # Also log the human-facing ground list that was rendered.
@@ -376,28 +374,7 @@ def flush_feedback(ctx: Dict[str, Any]) -> None:
     if not events:
         return
     palette = ctx["theme"].palette
-    lines = _format_feedback_events(events, palette)
-    lines = _prepend_leading_separator(lines)
-    for line in lines:
-        print(line)
-
-
-def _format_feedback_events(
-    events: list[dict], palette: dict[str, str]
-) -> list[str]:
-    lines: list[str] = []
-    for idx, ev in enumerate(events):
+    for ev in events:
         token = renderer._feedback_token(ev.get("kind", ""))
         line = st.resolve_segments([(token, resolve_feedback_text(ev))], palette)
-        if idx > 0:
-            lines.append(UC.SEPARATOR_LINE)
-        lines.append(line)
-    return lines
-
-
-def _prepend_leading_separator(lines: list[str]) -> list[str]:
-    if not lines:
-        return lines
-    if lines[0] != UC.SEPARATOR_LINE:
-        return [UC.SEPARATOR_LINE, *lines]
-    return lines
+        print(line)
