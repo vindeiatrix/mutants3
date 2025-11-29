@@ -1358,6 +1358,42 @@ def invalidate_cache() -> None:
     _CACHE_SIGNATURE = None
 
 
+def clear_all_targets(monsters: MonstersState | None = None) -> bool:
+    """Remove any ``target_player_id`` bindings from monster instances.
+
+    Returns ``True`` when at least one monster was modified.
+    """
+
+    try:
+        state = monsters if monsters is not None else load_state()
+    except Exception:
+        return False
+
+    cleared = False
+    for record in state.list_all():
+        if not isinstance(record, MutableMapping):
+            continue
+        if record.get("target_player_id") is None:
+            continue
+        record["target_player_id"] = None
+        cleared = True
+        try:
+            state.mark_dirty()
+        except Exception:
+            try:
+                state._track_dirty(str(record.get("id")))  # type: ignore[attr-defined]
+            except Exception:
+                pass
+
+    if cleared:
+        try:
+            state.save()
+        except Exception:
+            pass
+
+    return cleared
+
+
 def normalize_records(
     records: Iterable[Mapping[str, Any]],
     *,

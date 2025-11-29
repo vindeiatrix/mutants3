@@ -4,7 +4,7 @@ from typing import Any
 
 import logging
 
-from mutants.services import player_state as pstate
+from mutants.services import monsters_state, player_state as pstate
 from mutants.ui.class_menu import render_menu
 
 
@@ -14,6 +14,8 @@ LOG = logging.getLogger(__name__)
 def open_menu(ctx: dict[str, Any]) -> None:
     try:
         pstate.clear_target(reason="class-menu")
+        monsters_obj = ctx.get("monsters") if isinstance(ctx, Mapping) else None
+        monsters_state.clear_all_targets(monsters_obj)
     except Exception:  # pragma: no cover - defensive guard
         LOG.exception("Failed to clear ready target when entering class menu")
     ctx["mode"] = "class_select"
