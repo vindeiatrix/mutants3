@@ -242,6 +242,15 @@ def on_player_command(ctx: Any, *, token: str, resolved: str | None) -> None:
     if monsters is None:
         return
 
+    # Some player commands should never wake/aggro monsters or even grant them a turn.
+    # - "menu"/"x": completely safe; skip monster processing.
+    # - "travel": monsters that already target the player still get a turn, but
+    #             new aggro/wake rolls must not happen on arrival.
+    cmd = (resolved or token or "").strip().lower()
+    if cmd == "menu" or cmd == "x":
+        return
+    suppress_aggro = cmd == "travel"
+
     player_state = _pull(ctx, "player_state")
     if isinstance(player_state, Mapping):
         try:
@@ -350,6 +359,9 @@ def on_player_command(ctx: Any, *, token: str, resolved: str | None) -> None:
 
     for monster in _iter_targeted_monsters(monsters, year=year, player_id=player_id):
         _process_monster(monster, allow_target_roll=False, require_wake=False)
+
+    if suppress_aggro:
+        return
 
     for monster in _iter_aggro_monsters(monsters, year=year, x=x, y=y):
         monster_id = _monster_id(monster)
