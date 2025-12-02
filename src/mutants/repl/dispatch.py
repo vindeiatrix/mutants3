@@ -39,12 +39,14 @@ class Dispatch:
         else:
             print(msg, file=sys.stderr)
 
-    def _post_command(self, token: str, resolved: Optional[str], *, skip_ai: bool = False) -> None:
+    def _post_command(
+        self, token: str, resolved: Optional[str], arg: Optional[str], *, skip_ai: bool = False
+    ) -> None:
         if self._ctx is None:
             return
         if not skip_ai:
             try:
-                monster_ai.on_player_command(self._ctx, token=token, resolved=resolved)
+                monster_ai.on_player_command(self._ctx, token=token, resolved=resolved, arg=arg)
             except Exception:  # pragma: no cover - defensive
                 self._log.exception("Monster AI turn tick failed")
         observer = turnlog.get_observer(self._ctx)
@@ -148,12 +150,12 @@ class Dispatch:
             resolved = name
             result_token = name
 
-            def _player_action() -> tuple[str, Optional[str]]:
+            def _player_action() -> tuple[str, Optional[str], str]:
                 if observer:
                     observer.begin_turn(self._ctx, token, resolved)
                 self._inject_session_context()
                 fn(arg)
-                return token, resolved
+                return token, resolved, arg
 
             if scheduler is not None:
                 scheduler.tick(_player_action)
@@ -177,6 +179,6 @@ class Dispatch:
             _dispatch_command(name)
             return result_token
         finally:
-            self._post_command(token, resolved, skip_ai=skip_ai)
+            self._post_command(token, resolved, arg, skip_ai=skip_ai)
 
         return result_token

@@ -9,6 +9,7 @@ from typing import Any, Dict, Mapping, MutableMapping, Optional, Sequence
 from mutants.registries import items_catalog, items_instances as itemsreg
 from mutants.registries.monsters_catalog import DEFAULT_CATALOG_PATH, load_monsters_catalog
 from mutants.services import combat_loot, damage_engine, items_wear, monsters_state, player_state as pstate
+from mutants.services.monster_ai import tracking as tracking_mod
 from mutants.bootstrap.lazyinit import ensure_player_state
 from mutants.debug import turnlog
 from mutants.ui.item_display import item_label
@@ -508,6 +509,56 @@ def _coerce_iid(value: Any) -> Optional[str]:
     return None
 
 
+def _force_monster_aggro(
+    monster: MutableMapping[str, Any] | None,
+    state: Mapping[str, Any] | None,
+    ctx: Mapping[str, Any] | MutableMapping[str, Any],
+) -> None:
+    """Bind *monster* to the active player and record their location."""
+
+    if not isinstance(monster, MutableMapping):
+        return
+
+    player_id = None
+    if isinstance(state, Mapping):
+        raw_id = state.get("active_id")
+        if isinstance(raw_id, str):
+            token = raw_id.strip()
+            player_id = token or None
+    if not player_id and isinstance(state, Mapping):
+        players = state.get("players")
+        if isinstance(players, Sequence) and players:
+            first = players[0]
+            if isinstance(first, Mapping):
+                raw_id = first.get("id")
+                if isinstance(raw_id, str) and raw_id.strip():
+                    player_id = raw_id.strip()
+
+    if not player_id:
+        return
+
+    monster["target_player_id"] = player_id
+    try:
+        pos = pstate.canonical_player_pos(state)
+    except Exception:
+        pos = None
+    if pos is not None:
+        tracking_mod.record_target_position(monster, player_id, pos)
+
+    monsters_state_obj = ctx.get("monsters") if isinstance(ctx, Mapping) else None
+    if monsters_state_obj is None and hasattr(ctx, "monsters"):
+        try:
+            monsters_state_obj = getattr(ctx, "monsters")
+        except Exception:
+            monsters_state_obj = None
+    marker = getattr(monsters_state_obj, "mark_dirty", None)
+    if callable(marker):
+        try:
+            marker()
+        except Exception:
+            pass
+
+
 def _extract_wielded_iid(payload: Any, cls: Optional[str]) -> Optional[str]:
     if not isinstance(payload, Mapping):
         return None
@@ -580,6 +631,8 @@ def perform_melee_attack(ctx: Dict[str, Any]) -> Dict[str, Any]:
         bus.push("SYSTEM/WARN", "Your target is already dead.")
         pstate.clear_ready_target_for_active(reason="target-dead")
         return {"ok": False, "reason": "target_dead"}
+
+    _force_monster_aggro(target, state, ctx)
 
     catalog = {}  # type: Dict[str, Mapping[str, Any]]
     try:
@@ -808,6 +861,8 @@ def perform_ranged_attack(
         else:
             bus.push("SYSTEM/WARN", "Nothing happens.")
         return {"ok": False, "reason": reason}
+
+    _force_monster_aggro(target, state, ctx)
 
     weapon = str(weapon_iid) if weapon_iid else {}
     attack = damage_engine.resolve_attack(weapon, player, target, source="bolt")

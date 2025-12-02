@@ -235,7 +235,7 @@ def _iter_targeted_monsters(
     return result
 
 
-def on_player_command(ctx: Any, *, token: str, resolved: str | None) -> None:
+def on_player_command(ctx: Any, *, token: str, resolved: str | None, arg: str | None = None) -> None:
     """Advance monster turns after a player command."""
 
     monsters = _pull(ctx, "monsters")
@@ -249,7 +249,13 @@ def on_player_command(ctx: Any, *, token: str, resolved: str | None) -> None:
     cmd = (resolved or token or "").strip().lower()
     if cmd == "menu" or cmd == "x":
         return
-    suppress_aggro = cmd == "travel"
+    is_travel = cmd == "travel"
+    arg_token = (arg or "").strip().lower()
+    is_look = cmd == "look" and not arg_token
+    is_move = cmd in {"north", "south", "east", "west", "n", "s", "e", "w"}
+
+    allow_new_aggro = not is_travel and (is_move or is_look)
+    suppress_aggro = not allow_new_aggro
 
     player_state = _pull(ctx, "player_state")
     if isinstance(player_state, Mapping):
@@ -282,7 +288,12 @@ def on_player_command(ctx: Any, *, token: str, resolved: str | None) -> None:
     weights = _resolve_weights(ctx)
     config = _resolve_combat_config(ctx)
     wake_rng = _resolve_wake_rng(ctx, rng)
-    wake_events = _resolve_wake_events(token, resolved)
+    if is_move:
+        wake_events = ("ENTRY",)
+    elif is_look:
+        wake_events = ("LOOK",)
+    else:
+        wake_events = ()
     actions_mod = _monster_actions()
 
     bus = _pull(ctx, "feedback_bus")
@@ -324,7 +335,9 @@ def on_player_command(ctx: Any, *, token: str, resolved: str | None) -> None:
             if _normalize_id(monster.get("target_player_id")) != player_id:
                 return
 
-        if require_wake and wake_events:
+        if require_wake:
+            if not wake_events:
+                return
             woke = False
             for event_name in wake_events:
                 if should_wake(monster, event_name, wake_rng, config):
