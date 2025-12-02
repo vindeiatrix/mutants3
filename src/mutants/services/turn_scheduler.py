@@ -59,8 +59,8 @@ class TurnScheduler:
 
         raw_token = "" if token is None else str(token)
 
-        def _noop_action() -> tuple[str, Optional[str]]:
-            return raw_token, resolved
+        def _noop_action() -> tuple[str, Optional[str], Optional[str]]:
+            return raw_token, resolved, None
 
         self.tick(_noop_action)
 
@@ -75,8 +75,8 @@ class TurnScheduler:
 
         try:
             result = player_action()
-            token, resolved = self._normalize_result(result)
-            self._run_monster_turns(token, resolved)
+            token, resolved, arg = self._normalize_result(result)
+            self._run_monster_turns(token, resolved, arg)
             self._run_status_tick()
             self._run_free_actions(rng)
             self._run_monster_spawner()
@@ -150,9 +150,10 @@ class TurnScheduler:
                 LOG.exception("Failed to persist runtime player at end of command")
 
     # Internal helpers -------------------------------------------------
-    def _normalize_result(self, result: Any) -> tuple[str, Optional[str]]:
+    def _normalize_result(self, result: Any) -> tuple[str, Optional[str], Optional[str]]:
         token = ""
         resolved: Optional[str] = None
+        arg: Optional[str] = None
 
         if isinstance(result, tuple):
             if result:
@@ -163,17 +164,24 @@ class TurnScheduler:
                 raw_resolved = result[1]
                 if raw_resolved is not None:
                     resolved = str(raw_resolved)
+            if len(result) > 2:
+                raw_arg = result[2]
+                if raw_arg is not None:
+                    arg = str(raw_arg)
         elif isinstance(result, Mapping):
             raw_token = result.get("token")
             raw_resolved = result.get("resolved")
+            raw_arg = result.get("arg")
             if raw_token is not None:
                 token = str(raw_token)
             if raw_resolved is not None:
                 resolved = str(raw_resolved)
+            if raw_arg is not None:
+                arg = str(raw_arg)
         elif result is not None:
             token = str(result)
 
-        return token, resolved
+        return token, resolved, arg
 
     def _inject_rng(self, rng: Any) -> tuple[str, object]:
         ctx = self._ctx
@@ -251,11 +259,11 @@ class TurnScheduler:
         else:
             return
 
-    def _run_monster_turns(self, token: str, resolved: Optional[str]) -> None:
+    def _run_monster_turns(self, token: str, resolved: Optional[str], arg: Optional[str]) -> None:
         try:
             from mutants.services import monster_ai
 
-            monster_ai.on_player_command(self._ctx, token=token, resolved=resolved)
+            monster_ai.on_player_command(self._ctx, token=token, resolved=resolved, arg=arg)
         except Exception:  # pragma: no cover - defensive
             LOG.exception("Monster AI turn tick failed")
 
