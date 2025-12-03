@@ -837,6 +837,7 @@ def roll_entry_target(
     *,
     config: CombatConfig | None = None,
     bus: Any | None = None,
+    woke: bool | None = None,
 ) -> Dict[str, Any]:
     try:
         state, active = pstate.get_active_pair(player_state)
@@ -877,16 +878,14 @@ def roll_entry_target(
         return {"ok": True, "target_set": False, "taunt": None, "woke": True}
 
     config_obj = config if isinstance(config, CombatConfig) else _ENTRY_DEFAULT_CONFIG
-    woke = _should_wake(monster, "ENTRY", rng, config_obj)
+    woke_result = _should_wake(monster, "ENTRY", rng, config_obj) if woke is None else bool(woke)
 
-    # Always bind the monster to the active player when they share a tile so
-    # subsequent AI ticks can consider actions, even if the wake roll fails.
+    if not woke_result:
+        return {"ok": True, "target_set": False, "taunt": None, "woke": False}
+
     monster["target_player_id"] = player_id
     if player_pos is not None:
         tracking_mod.record_target_position(monster, player_id, player_pos)
-
-    if not woke:
-        return {"ok": True, "target_set": True, "taunt": None, "woke": False}
 
     raw_taunt = monster.get("taunt")
     taunt = raw_taunt.strip() if isinstance(raw_taunt, str) else None
