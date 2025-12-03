@@ -319,22 +319,7 @@ def on_player_command(ctx: Any, *, token: str, resolved: str | None, arg: str | 
         monster_id = _monster_id(monster)
         processed.add(monster_id)
 
-        if allow_target_roll and target is None:
-            outcome = actions_mod.roll_entry_target(
-                monster,
-                source_state,
-                rng,
-                config=config,
-                bus=bus,
-            )
-            if callable(mark_dirty) and outcome.get("target_set"):
-                try:
-                    mark_dirty()
-                except Exception:  # pragma: no cover - best effort
-                    pass
-            if _normalize_id(monster.get("target_player_id")) != player_id:
-                return
-
+        woke = True
         if require_wake:
             if not wake_events:
                 return
@@ -344,6 +329,24 @@ def on_player_command(ctx: Any, *, token: str, resolved: str | None, arg: str | 
                     woke = True
                     break
             if not woke:
+                return
+
+        if allow_target_roll and target is None:
+            outcome = actions_mod.roll_entry_target(
+                monster,
+                source_state,
+                rng,
+                config=config,
+                bus=bus,
+                woke=woke if require_wake else None,
+            )
+            if callable(mark_dirty) and outcome.get("target_set"):
+                try:
+                    mark_dirty()
+                except Exception:  # pragma: no cover - best effort
+                    pass
+            target = _normalize_id(monster.get("target_player_id"))
+            if target != player_id:
                 return
 
         reentry = monster_id in reentry_ids
