@@ -5,8 +5,8 @@ from typing import Any, Mapping
 
 from mutants.services.combat_config import CombatConfig
 
-_DEFAULT_WAKE_ON_LOOK = 15
-_DEFAULT_WAKE_ON_ENTRY = 10
+_DEFAULT_WAKE_ON_LOOK = 30
+_DEFAULT_WAKE_ON_ENTRY = 50
 
 _WAKE_EVENT_LOOK = "LOOK"
 _WAKE_EVENT_ENTRY = "ENTRY"

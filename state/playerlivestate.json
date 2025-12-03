@@ -159,23 +159,20 @@
       "class": "Warrior",
       "is_active": true,
       "pos": [
-        2100,
+        2000,
         0,
         0
       ],
-      "ions": 955007,
-      "inventory": [
-        "ecddf268439741519dab62f91f9ec110",
-        "9e6d40e3828a4058ad02d4effcf62738"
-      ],
-      "Ions": 955007,
-      "riblets": 12,
-      "Riblets": 12,
-      "exp_points": 100,
+      "ions": 30000,
+      "inventory": [],
+      "Ions": 30000,
+      "riblets": 0,
+      "Riblets": 0,
+      "exp_points": 118,
       "exhaustion": 0,
       "level": 1,
       "hp": {
-        "current": 14,
+        "current": 25,
         "max": 40
       },
       "stats": {
@@ -265,21 +262,21 @@
     "Thief": 30000,
     "Priest": 30000,
     "Wizard": 30000,
-    "Warrior": 955007,
+    "Warrior": 30000,
     "Mage": 30000
   },
   "riblets_by_class": {
     "Thief": 0,
     "Priest": 0,
     "Wizard": 0,
-    "Warrior": 12,
+    "Warrior": 0,
     "Mage": 0
   },
   "exp_by_class": {
     "Thief": 0,
     "Priest": 0,
     "Wizard": 0,
-    "Warrior": 100,
+    "Warrior": 118,
     "Mage": 0
   },
   "level_by_class": {
@@ -303,7 +300,7 @@
       "max": 23
     },
     "Warrior": {
-      "current": 14,
+      "current": 25,
       "max": 40
     },
     "Mage": {
@@ -360,15 +357,15 @@
     "Warrior": 0,
     "Mage": 0
   },
-  "ions": 955007,
-  "Ions": 955007,
-  "riblets": 12,
-  "Riblets": 12,
+  "ions": 30000,
+  "Ions": 30000,
+  "riblets": 0,
+  "Riblets": 0,
   "exhaustion": 0,
-  "exp_points": 100,
+  "exp_points": 118,
   "level": 1,
   "hp": {
-    "current": 14,
+    "current": 25,
     "max": 40
   },
   "stats": {
@@ -381,23 +378,17 @@
   },
   "class": "Warrior",
   "pos": [
-    2100,
+    2000,
     0,
     0
   ],
   "bags": {
     "Thief": [],
-    "Warrior": [
-      "ecddf268439741519dab62f91f9ec110",
-      "9e6d40e3828a4058ad02d4effcf62738"
-    ],
+    "Warrior": [],
     "Priest": [],
     "Mage": []
   },
-  "inventory": [
-    "ecddf268439741519dab62f91f9ec110",
-    "9e6d40e3828a4058ad02d4effcf62738"
-  ],
+  "inventory": [],
   "equipment_by_class": {
     "Thief": {
       "armour": null
@@ -482,7 +473,7 @@
   },
   "name": "Warrior",
   "position": [
-    2100,
+    2000,
     0,
     0
   ],

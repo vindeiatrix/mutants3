@@ -53,20 +53,20 @@ class CombatRNGSeeds:
 class CombatConfig:
     """Container for combat configuration knobs."""
 
-    wake_on_look: int = 15
-    wake_on_entry: int = 10
+    wake_on_look: int = 30
+    wake_on_entry: int = 50
     flee_hp_pct: int = 25
     flee_pct: int = 10
-    heal_at_pct: int = 80
-    heal_pct: int = 20
-    heal_cost: int = 200
-    convert_pct: int = 20
-    low_ion_pct: int = 50
-    cast_pct: int = 25
-    attack_pct: int = 35
-    pickup_pct: int = 15
-    emote_pct: int = 10
-    spell_cost: int = 10
+    heal_at_pct: int = 85
+    heal_pct: int = 35
+    heal_cost: int = 150
+    convert_pct: int = 35
+    low_ion_pct: int = 70
+    cast_pct: int = 30
+    attack_pct: int = 70
+    pickup_pct: int = 20
+    emote_pct: int = 5
+    spell_cost: int = 8
     spell_success_pct: int = 75
     cracked_pickup_bonus: int = 10
     cracked_flee_bonus: int = 5
