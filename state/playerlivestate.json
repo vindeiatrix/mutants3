@@ -106,7 +106,7 @@
       "id": "player_wizard",
       "name": "Wizard",
       "class": "Wizard",
-      "is_active": true,
+      "is_active": false,
       "pos": [
         2000,
         0,
@@ -117,8 +117,8 @@
       "Ions": 30000,
       "riblets": 0,
       "Riblets": 0,
-      "exp_points": 0,
       "exhaustion": 0,
+      "exp_points": 0,
       "level": 1,
       "hp": {
         "current": 23,
@@ -151,14 +151,13 @@
       "status_effects_by_class": {
         "Wizard": []
       },
-      "status_effects": [],
-      "_dirty": true
+      "status_effects": []
     },
     {
       "id": "player_warrior",
       "name": "Warrior",
       "class": "Warrior",
-      "is_active": false,
+      "is_active": true,
       "pos": [
         2000,
         0,
@@ -171,11 +170,10 @@
       "Riblets": 0,
       "exp_points": 118,
       "exhaustion": 0,
-      "exp_points": 100,
       "level": 1,
       "hp": {
-        "current": 25,
-        "max": 40
+        "current": 3770,
+        "max": 4000
       },
       "stats": {
         "str": 23,
@@ -204,7 +202,8 @@
       "status_effects_by_class": {
         "Warrior": []
       },
-      "status_effects": []
+      "status_effects": [],
+      "_dirty": true
     },
     {
       "id": "player_mage",
@@ -258,7 +257,7 @@
       "status_effects": []
     }
   ],
-  "active_id": "player_wizard",
+  "active_id": "player_warrior",
   "ions_by_class": {
     "Thief": 30000,
     "Priest": 30000,
@@ -301,8 +300,8 @@
       "max": 23
     },
     "Warrior": {
-      "current": 25,
-      "max": 40
+      "current": 3770,
+      "max": 4000
     },
     "Mage": {
       "current": 0,
@@ -366,18 +365,18 @@
   "exp_points": 118,
   "level": 1,
   "hp": {
-    "current": 25,
-    "max": 40
+    "current": 3770,
+    "max": 4000
   },
   "stats": {
-    "str": 14,
-    "int": 17,
-    "wis": 17,
-    "dex": 13,
-    "con": 14,
-    "cha": 15
+    "str": 23,
+    "int": 12,
+    "wis": 14,
+    "dex": 20,
+    "con": 19,
+    "cha": 9
   },
-  "class": "Wizard",
+  "class": "Warrior",
   "pos": [
     2000,
     0,
@@ -450,7 +449,7 @@
   "world_tile_effects": {},
   "armour": {
     "wearing": null,
-    "armour_class": 1
+    "armour_class": 2
   },
   "ready_target_by_class": {
     "Thief": null,
@@ -473,7 +472,7 @@
     "Warrior": [],
     "Mage": []
   },
-  "name": "Wizard",
+  "name": "Warrior",
   "position": [
     2000,
     0,
