@@ -377,27 +377,6 @@ def drop_monster_loot(
         created_at_counter += 1
         return ts
 
-    if free_slots <= 0 and attempts:
-        LOG_DEV.info(
-            "[playersdbg] MON-DROP-VAP pos=%s reason=ground-full attempts=%s",
-            list(pos),
-            len(attempts),
-        )
-        for source, entry in attempts:
-            vaporized.append(_clone_entry(entry, source=source))
-            summary_attempt_order.append(source)
-        summary_messages.extend(describe_vaporized_entries(vaporized, catalog=catalog))
-        if summary_messages and hasattr(bus, "push"):
-            for message in summary_messages:
-                bus.push("COMBAT/INFO", message)
-        if isinstance(drop_summary, MutableMapping):
-            drop_summary["pos"] = {"year": year, "x": x, "y": y}
-            drop_summary["attempt_order"] = summary_attempt_order
-            drop_summary["minted"] = minted
-            drop_summary["vaporized"] = vaporized
-            drop_summary["messages"] = summary_messages
-        return minted, vaporized
-
     for source, entry in attempts:
         summary_attempt_order.append(source)
         if free_slots <= 0:
