@@ -141,6 +141,53 @@ def _reset_fields_from_template(
         target_bags[cls_name] = []
 
 
+def _reset_player_profile(
+    player: Dict[str, Any],
+    template: Dict[str, Any],
+    *,
+    state: Dict[str, Any],
+    active: Dict[str, Any],
+) -> None:
+    """Reset a single player entry and mirror state/active snapshots."""
+
+    player_id = str(player.get("id") or "")
+    _purge_player_items(player_id)
+
+    _reset_fields_from_template(
+        player,
+        template,
+        reason="buried",
+        state=state,
+    )
+
+    if (
+        isinstance(active, dict)
+        and active is not player
+        and player_id
+        and state.get("active_id") == player_id
+    ):
+        _reset_fields_from_template(
+            active,
+            template,
+            reason="buried",
+            state=state,
+        )
+
+    root_class = state.get("class") or state.get("name")
+    player_class = player.get("class") or template.get("class")
+    if (
+        isinstance(root_class, str)
+        and isinstance(player_class, str)
+        and root_class.strip().lower() == player_class.strip().lower()
+    ):
+        _reset_fields_from_template(
+            state,
+            template,
+            reason="buried",
+            state=state,
+        )
+
+
 def _purge_player_items(player_id: str) -> int:
     if not player_id:
         LOG.info("Removed 0 item rows for <unknown> during bury")
@@ -206,43 +253,9 @@ def bury_class(class_name: str) -> Dict[str, Any]:
     if player is None:
         raise KeyError(f"No player profile for class: {normalized_cls}")
 
-    player_id = str(player.get("id") or "")
-    _purge_player_items(player_id)
-
     templates = _load_templates()
     template = _template_for(normalized_cls, templates)
-    _reset_fields_from_template(
-        player,
-        template,
-        reason="buried",
-        state=state,
-    )
-    active_id = state.get("active_id")
-    if (
-        isinstance(active, dict)
-        and active is not player
-        and player_id
-        and active_id == player_id
-    ):
-        _reset_fields_from_template(
-            active,
-            template,
-            reason="buried",
-            state=state,
-        )
-    root_class = state.get("class") or state.get("name")
-    player_class = player.get("class") or template.get("class")
-    if (
-        isinstance(root_class, str)
-        and isinstance(player_class, str)
-        and root_class.strip().lower() == player_class.strip().lower()
-    ):
-        _reset_fields_from_template(
-            state,
-            template,
-            reason="buried",
-            state=state,
-        )
+    _reset_player_profile(player, template, state=state, active=active)
 
     pstate.ensure_class_profiles(state)
     pstate.save_state(state)
@@ -257,3 +270,39 @@ def bury_by_index(index_0: int) -> Dict[str, Any]:
 
     class_name = CLASS_ORDER[index_0]
     return bury_class(class_name)
+
+
+def bury_all() -> Dict[str, Any]:
+    """Reset all player classes to their starting templates."""
+
+    state, active = pstate.get_active_pair()
+    if isinstance(state, dict):
+        pstate.ensure_class_profiles(state)
+        state, active = pstate.get_active_pair(state)
+
+    players = state.get("players", [])
+    templates = _load_templates()
+
+    if not isinstance(players, list):
+        return state
+
+    for class_name in CLASS_ORDER:
+        normalized_cls = pstate.normalize_class_name(class_name) or "Thief"
+        player = None
+        for entry in players:
+            if not isinstance(entry, dict):
+                continue
+            entry_class = pstate.normalize_class_name(entry.get("class")) or pstate.normalize_class_name(
+                entry.get("name")
+            )
+            if entry_class == normalized_cls:
+                player = entry
+                break
+        if player is None:
+            continue
+        template = _template_for(normalized_cls, templates)
+        _reset_player_profile(player, template, state=state, active=active)
+
+    pstate.ensure_class_profiles(state)
+    pstate.save_state(state)
+    return state

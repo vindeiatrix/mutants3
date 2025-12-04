@@ -373,6 +373,76 @@ def test_bury_resets_progress_to_template(state_root, monkeypatch):
     assert reloaded.get("ready_target") is None
 
 
+def test_bury_all_resets_every_class(state_root, monkeypatch):
+    player_path = state_root / "playerlivestate.json"
+    players = []
+    for cls in CLASS_ORDER:
+        players.append(
+            {
+                "id": f"player_{cls.lower()}",
+                "class": cls,
+                "pos": [2100, 1, 1],
+                "ions": 999,
+                "hp": {"current": 1, "max": 1},
+                "stats": {"str": 1, "int": 1, "wis": 1, "dex": 1, "con": 1, "cha": 1},
+            }
+        )
+    payload = {
+        "players": players,
+        "active_id": "player_mage",
+        "ions_by_class": {cls: 999 for cls in CLASS_ORDER},
+        "exp_by_class": {cls: 99 for cls in CLASS_ORDER},
+        "level_by_class": {cls: 9 for cls in CLASS_ORDER},
+        "hp_by_class": {cls: {"current": 1, "max": 1} for cls in CLASS_ORDER},
+        "stats_by_class": {cls: {"str": 1, "int": 1, "wis": 1, "dex": 1, "con": 1, "cha": 1} for cls in CLASS_ORDER},
+        "riblets_by_class": {cls: 55 for cls in CLASS_ORDER},
+        "exhaustion_by_class": {cls: 7 for cls in CLASS_ORDER},
+        "ready_target_by_class": {cls: "target" for cls in CLASS_ORDER},
+        "class": "Mage",
+    }
+    _write_state(player_path, payload)
+    monkeypatch.setattr(player_reset, "_purge_player_items", lambda player_id: 0)
+
+    player_reset.bury_all()
+
+    reloaded = player_state.load_state()
+    templates = player_reset._load_templates()
+    for cls in CLASS_ORDER:
+        template = player_reset._template_for(cls, templates)
+        expected_hp_max = int(template.get("hp_max_start", 0) or 0)
+        expected_hp = {"current": expected_hp_max, "max": expected_hp_max}
+        expected_stats = {
+            "str": int(template["base_stats"]["str"]),
+            "int": int(template["base_stats"]["int"]),
+            "wis": int(template["base_stats"]["wis"]),
+            "dex": int(template["base_stats"]["dex"]),
+            "con": int(template["base_stats"]["con"]),
+            "cha": int(template["base_stats"]["cha"]),
+        }
+        expected_exp = int(template.get("exp_start", 0) or 0)
+        expected_level = int(template.get("level_start", 1) or 1)
+        expected_riblets = int(template.get("riblets_start", 0) or 0)
+        expected_exhaustion = int(template.get("exhaustion_start", 0) or 0)
+
+        assert reloaded["ions_by_class"][cls] == player_startup.START_IONS["buried"]
+        assert reloaded["exp_by_class"][cls] == expected_exp
+        assert reloaded["level_by_class"][cls] == expected_level
+        assert reloaded["riblets_by_class"][cls] == expected_riblets
+        assert reloaded["exhaustion_by_class"][cls] == expected_exhaustion
+        assert reloaded["hp_by_class"][cls] == expected_hp
+        assert reloaded["stats_by_class"][cls] == expected_stats
+        assert reloaded["ready_target_by_class"][cls] is None
+
+    # Active/root snapshot should mirror the active class (Mage).
+    mage_template = player_reset._template_for("Mage", templates)
+    mage_hp_max = int(mage_template.get("hp_max_start", 0) or 0)
+    assert reloaded["class"] == "Mage"
+    assert reloaded["hp"] == {"current": mage_hp_max, "max": mage_hp_max}
+    assert reloaded["level"] == int(mage_template.get("level_start", 1) or 1)
+    assert reloaded["exp_points"] == int(mage_template.get("exp_start", 0) or 0)
+    assert reloaded["ions"] == player_startup.START_IONS["buried"]
+
+
 @pytest.mark.parametrize("active_class", CLASS_ORDER)
 def test_canonical_state_roundtrip_with_all_classes(state_root, active_class):
     player_path = state_root / "playerlivestate.json"
