@@ -837,6 +837,7 @@ def roll_entry_target(
     *,
     config: CombatConfig | None = None,
     bus: Any | None = None,
+    woke: bool | None = None,
 ) -> Dict[str, Any]:
     try:
         state, active = pstate.get_active_pair(player_state)
@@ -877,7 +878,10 @@ def roll_entry_target(
         return {"ok": True, "target_set": False, "taunt": None, "woke": True}
 
     config_obj = config if isinstance(config, CombatConfig) else _ENTRY_DEFAULT_CONFIG
-    woke = _should_wake(monster, "ENTRY", rng, config_obj)
+    woke_result = _should_wake(monster, "ENTRY", rng, config_obj) if woke is None else bool(woke)
+
+    if not woke_result:
+        return {"ok": True, "target_set": False, "taunt": None, "woke": False}
 
     if not woke:
         return {"ok": True, "target_set": False, "taunt": None, "woke": False}
