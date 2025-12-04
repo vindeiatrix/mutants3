@@ -308,6 +308,71 @@ def test_bury_by_index_preserves_class_roster(state_root, monkeypatch):
     assert [entry["class"] for entry in saved["players"]] == CLASS_ORDER
 
 
+def test_bury_resets_progress_to_template(state_root, monkeypatch):
+    player_path = state_root / "playerlivestate.json"
+    payload = {
+        "players": [
+            {
+                "id": "player_thief",
+                "class": "Thief",
+                "pos": [2000, 0, 0],
+                "ions": 999,
+                "hp": {"current": 2, "max": 99},
+                "stats": {"str": 5, "int": 4, "wis": 3, "dex": 2, "con": 1, "cha": 0},
+            },
+            {"id": "player_priest", "class": "Priest", "pos": [2000, 0, 0], "ions": 123},
+        ],
+        "active_id": "player_thief",
+        "ions_by_class": {"Thief": 999, "Priest": 123},
+        "exp_by_class": {"Thief": 9876},
+        "level_by_class": {"Thief": 9},
+        "hp_by_class": {"Thief": {"current": 2, "max": 99}},
+        "stats_by_class": {"Thief": {"str": 5, "int": 4, "wis": 3, "dex": 2, "con": 1, "cha": 0}},
+        "riblets_by_class": {"Thief": 77},
+        "exhaustion_by_class": {"Thief": 5},
+        "ready_target_by_class": {"Thief": "monster-1"},
+    }
+    _write_state(player_path, payload)
+    monkeypatch.setattr(player_reset, "_purge_player_items", lambda player_id: 0)
+
+    player_reset.bury_by_index(0)
+
+    reloaded = player_state.load_state()
+    templates = player_reset._load_templates()
+    thief_template = player_reset._template_for("Thief", templates)
+    expected_hp_max = int(thief_template.get("hp_max_start", 0) or 0)
+    expected_hp = {"current": expected_hp_max, "max": expected_hp_max}
+    expected_stats = {
+        "str": int(thief_template["base_stats"]["str"]),
+        "int": int(thief_template["base_stats"]["int"]),
+        "wis": int(thief_template["base_stats"]["wis"]),
+        "dex": int(thief_template["base_stats"]["dex"]),
+        "con": int(thief_template["base_stats"]["con"]),
+        "cha": int(thief_template["base_stats"]["cha"]),
+    }
+    expected_exp = int(thief_template.get("exp_start", 0) or 0)
+    expected_level = int(thief_template.get("level_start", 1) or 1)
+    expected_riblets = int(thief_template.get("riblets_start", 0) or 0)
+    expected_exhaustion = int(thief_template.get("exhaustion_start", 0) or 0)
+
+    assert reloaded["exp_by_class"]["Thief"] == expected_exp
+    assert reloaded["level_by_class"]["Thief"] == expected_level
+    assert reloaded["riblets_by_class"]["Thief"] == expected_riblets
+    assert reloaded["exhaustion_by_class"]["Thief"] == expected_exhaustion
+    assert reloaded["hp_by_class"]["Thief"] == expected_hp
+    assert reloaded["stats_by_class"]["Thief"] == expected_stats
+    assert reloaded["ions_by_class"]["Thief"] == player_startup.START_IONS["buried"]
+    assert reloaded["ready_target_by_class"]["Thief"] is None
+    assert reloaded["hp"] == expected_hp
+    assert reloaded["stats"] == expected_stats
+    assert reloaded["exp_points"] == expected_exp
+    assert reloaded["level"] == expected_level
+    assert reloaded["riblets"] == expected_riblets
+    assert reloaded["exhaustion"] == expected_exhaustion
+    assert reloaded["ions"] == player_startup.START_IONS["buried"]
+    assert reloaded.get("ready_target") is None
+
+
 @pytest.mark.parametrize("active_class", CLASS_ORDER)
 def test_canonical_state_roundtrip_with_all_classes(state_root, active_class):
     player_path = state_root / "playerlivestate.json"

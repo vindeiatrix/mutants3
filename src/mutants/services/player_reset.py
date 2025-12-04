@@ -5,7 +5,7 @@ import logging
 import sqlite3
 from importlib import resources
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, MutableMapping
 
 from mutants import env
 from mutants.bootstrap.lazyinit import compute_ac_from_dex
@@ -38,6 +38,18 @@ def _template_for(cls_name: str, templates: List[Dict[str, Any]]) -> Dict[str, A
     raise KeyError(f"No starting template for class: {cls_name}")
 
 
+def _set_class_map_entry(
+    target: MutableMapping[str, Any] | None, map_name: str, cls_name: str, value: Any
+) -> None:
+    if not isinstance(target, MutableMapping):
+        return
+    mapping = target.get(map_name)
+    if not isinstance(mapping, MutableMapping):
+        mapping = {}
+        target[map_name] = mapping
+    mapping[cls_name] = value
+
+
 def _reset_fields_from_template(
     player: Dict[str, Any],
     template: Dict[str, Any],
@@ -48,9 +60,13 @@ def _reset_fields_from_template(
     stats = template.get("base_stats", {}) or {}
     dex = int(stats.get("dex", 0) or 0)
     hp_max = int(template.get("hp_max_start", 0) or 0)
+    level_start = int(template.get("level_start", 1) or 1)
+    exp_start = int(template.get("exp_start", 0) or 0)
+    riblets_start = int(template.get("riblets_start", 0) or 0)
+    exhaustion_start = int(template.get("exhaustion_start", 0) or 0)
 
     player["pos"] = list(template.get("start_pos", [2000, 0, 0]))
-    player["stats"] = {
+    stats_block = {
         "str": int(stats.get("str", 0) or 0),
         "int": int(stats.get("int", 0) or 0),
         "wis": int(stats.get("wis", 0) or 0),
@@ -58,11 +74,13 @@ def _reset_fields_from_template(
         "con": int(stats.get("con", 0) or 0),
         "cha": int(stats.get("cha", 0) or 0),
     }
-    player["hp"] = {"current": hp_max, "max": hp_max}
-    player["exhaustion"] = int(template.get("exhaustion_start", 0) or 0)
-    player["exp_points"] = int(template.get("exp_start", 0) or 0)
-    player["level"] = int(template.get("level_start", 1) or 1)
-    player["riblets"] = int(template.get("riblets_start", 0) or 0)
+    player["stats"] = stats_block
+    hp_block = {"current": hp_max, "max": hp_max}
+    player["hp"] = hp_block
+    player["exhaustion"] = exhaustion_start
+    player["exp_points"] = exp_start
+    player["level"] = level_start
+    player["riblets"] = riblets_start
     player["armour"] = {
         "wearing": template.get("armour_start", None),
         "armour_class": compute_ac_from_dex(dex),
@@ -77,6 +95,7 @@ def _reset_fields_from_template(
     player["readied_spell"] = template.get("readied_spell_start", None)
     player["ready_target"] = None
     player["target_monster_id"] = None
+    player["status_effects"] = []
     player["inventory"] = []
     player["carried_weight"] = 0
     bags = player.get("bags")
@@ -90,11 +109,36 @@ def _reset_fields_from_template(
         "ion_starving": False,
     }
 
+    ions_amount = int(template.get("ions_start", 0) or 0)
     if reason:
-        player_startup.grant_starting_ions(player, reason, state=state)
+        ions_amount = player_startup.grant_starting_ions(player, reason, state=state)
     else:
-        player["ions"] = int(template.get("ions_start", 0) or 0)
-        player["Ions"] = player["ions"]
+        player["ions"] = ions_amount
+        player["Ions"] = ions_amount
+
+    map_targets: List[MutableMapping[str, Any]] = []
+    if isinstance(player, MutableMapping):
+        map_targets.append(player)
+    if isinstance(state, MutableMapping) and state is not player:
+        map_targets.append(state)
+    for target in map_targets:
+        _set_class_map_entry(target, "ions_by_class", cls_name, ions_amount)
+        _set_class_map_entry(target, "riblets_by_class", cls_name, riblets_start)
+        _set_class_map_entry(target, "exhaustion_by_class", cls_name, exhaustion_start)
+        _set_class_map_entry(target, "exp_by_class", cls_name, exp_start)
+        _set_class_map_entry(target, "level_by_class", cls_name, level_start)
+        _set_class_map_entry(target, "hp_by_class", cls_name, dict(hp_block))
+        _set_class_map_entry(target, "stats_by_class", cls_name, dict(stats_block))
+        _set_class_map_entry(target, "ready_target_by_class", cls_name, None)
+        _set_class_map_entry(target, "target_monster_id_by_class", cls_name, None)
+        _set_class_map_entry(target, "status_effects_by_class", cls_name, [])
+        _set_class_map_entry(target, "equipment_by_class", cls_name, {"armour": None})
+
+        target_bags = target.get("bags")
+        if not isinstance(target_bags, MutableMapping):
+            target_bags = {}
+            target["bags"] = target_bags
+        target_bags[cls_name] = []
 
 
 def _purge_player_items(player_id: str) -> int:
