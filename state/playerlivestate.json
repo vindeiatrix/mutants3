@@ -167,13 +167,14 @@
       "ions": 30000,
       "inventory": [],
       "Ions": 30000,
-      "riblets": 12,
-      "Riblets": 12,
+      "riblets": 0,
+      "Riblets": 0,
+      "exp_points": 118,
       "exhaustion": 0,
       "exp_points": 100,
       "level": 1,
       "hp": {
-        "current": 14,
+        "current": 25,
         "max": 40
       },
       "stats": {
@@ -269,14 +270,14 @@
     "Thief": 0,
     "Priest": 0,
     "Wizard": 0,
-    "Warrior": 12,
+    "Warrior": 0,
     "Mage": 0
   },
   "exp_by_class": {
     "Thief": 0,
     "Priest": 0,
     "Wizard": 0,
-    "Warrior": 100,
+    "Warrior": 118,
     "Mage": 0
   },
   "level_by_class": {
@@ -300,7 +301,7 @@
       "max": 23
     },
     "Warrior": {
-      "current": 14,
+      "current": 25,
       "max": 40
     },
     "Mage": {
@@ -362,11 +363,11 @@
   "riblets": 0,
   "Riblets": 0,
   "exhaustion": 0,
-  "exp_points": 0,
+  "exp_points": 118,
   "level": 1,
   "hp": {
-    "current": 23,
-    "max": 23
+    "current": 25,
+    "max": 40
   },
   "stats": {
     "str": 14,
@@ -475,7 +476,7 @@
   "name": "Wizard",
   "position": [
     2000,
-    -1,
+    0,
     0
   ],
   "ready_target": null,

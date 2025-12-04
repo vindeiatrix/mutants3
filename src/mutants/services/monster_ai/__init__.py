@@ -27,8 +27,8 @@ LOG = logging.getLogger(__name__)
 # a tick. The distribution favours zero or one action while still allowing
 # occasional bursts, matching the "sometimes nothing, sometimes bursty" brief.
 DEFAULT_CREDIT_WEIGHTS: tuple[float, float, float, float] = (
-    0.5,
-    0.3,
+    0.25,
+    0.55,
     0.15,
     0.05,
 )
@@ -315,6 +315,7 @@ def on_player_command(ctx: Any, *, token: str, resolved: str | None, arg: str | 
             return
         if int(mon_pos[0]) != int(year):
             return
+        collocated = mon_pos == pos
 
         monster_id = _monster_id(monster)
         processed.add(monster_id)
@@ -350,10 +351,9 @@ def on_player_command(ctx: Any, *, token: str, resolved: str | None, arg: str | 
                 return
 
         reentry = monster_id in reentry_ids
-        separated_from_player = mon_pos != pos
         credits = _roll_credits(rng, weights)
-        if separated_from_player and target == player_id and credits <= 0:
-            credits = 1
+        if not collocated:
+            credits = min(credits, 1)
         if reentry and credits <= 0:
             credits = 1
             turnlog.emit(
@@ -362,13 +362,18 @@ def on_player_command(ctx: Any, *, token: str, resolved: str | None, arg: str | 
                 monster=monster_id,
                 player=player_id,
             )
+        if collocated and credits <= 0:
+            credits = 1
         _log_tick(ctx, monster, credits)
         if credits <= 0:
             return
 
+        cast_guard = {"cast_used": False}
         for _ in range(credits):
             try:
-                actions_mod.execute_random_action(monster, ctx, rng=rng)
+                result = actions_mod.execute_random_action(monster, ctx, rng=rng, cast_guard=cast_guard)
+                if isinstance(result, Mapping) and result.get("stop_turn"):
+                    break
             except Exception:  # pragma: no cover - defensive
                 LOG.exception("Monster action execution failed", extra={"monster": _monster_id(monster)})
                 break

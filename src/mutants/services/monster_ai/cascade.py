@@ -486,11 +486,19 @@ def evaluate_cascade(monster: Any, ctx: Any) -> ActionResult:
     convert_threshold = _apply_cascade_modifier(config.convert_pct, cascade_overrides.get("convert_pct"))
     base_pickup_pct = _apply_cascade_modifier(config.pickup_pct, cascade_overrides.get("pickup_pct"))
     pickup_threshold = _clamp_pct(base_pickup_pct + (config.cracked_pickup_bonus if cracked else 0))
+    if not monster.get("wielded"):
+        pickup_threshold = _clamp_pct(pickup_threshold + 10)
 
     if low_ions:
         convert_threshold = _clamp_pct(convert_threshold + 10)
         heal_threshold = math.floor(heal_threshold * 0.6)
         cast_threshold = math.floor(cast_threshold * 0.6)
+    if hp_pct < 50:
+        heal_threshold = _clamp_pct(heal_threshold + 10)
+    if hp_pct < 30:
+        heal_threshold = _clamp_pct(heal_threshold + 10)
+    if convertible:
+        convert_threshold = _clamp_pct(convert_threshold + 15)
 
     allow_heal = True
     if isinstance(ctx, Mapping):
@@ -672,7 +680,7 @@ def evaluate_cascade(monster: Any, ctx: Any) -> ActionResult:
     base_attack_pct = _apply_cascade_modifier(config.attack_pct, cascade_overrides.get("attack_pct"))
     attack_threshold_value = base_attack_pct
     if cracked:
-        attack_threshold_value = math.floor(attack_threshold_value * 0.5)
+        attack_threshold_value = math.floor(attack_threshold_value * 0.75)
     attack_threshold = _clamp_pct(attack_threshold_value)
     if attack_threshold > 0:
         roll = int(rng.randrange(100))

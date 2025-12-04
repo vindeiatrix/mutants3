@@ -883,6 +883,9 @@ def roll_entry_target(
     if not woke_result:
         return {"ok": True, "target_set": False, "taunt": None, "woke": False}
 
+    if not woke:
+        return {"ok": True, "target_set": False, "taunt": None, "woke": False}
+
     monster["target_player_id"] = player_id
     if player_pos is not None:
         tracking_mod.record_target_position(monster, player_id, player_pos)
@@ -1351,7 +1354,7 @@ _ACTION_TABLE: dict[str, ActionFn] = {
     "idle": _idle_stub,
 }
 
-def execute_random_action(monster: Any, ctx: Any, *, rng: Any | None = None) -> None:
+def execute_random_action(monster: Any, ctx: Any, *, rng: Any | None = None, cast_guard: MutableMapping[str, Any] | None = None) -> Any:
     if not isinstance(monster, MutableMapping):
         return None
     if not isinstance(ctx, MutableMapping):
@@ -1376,6 +1379,14 @@ def execute_random_action(monster: Any, ctx: Any, *, rng: Any | None = None) -> 
             action_name = None
     if not action_name:
         return None
+    if cast_guard is None:
+        cast_guard = {}
+    cast_used = bool(cast_guard.get("cast_used"))
+    if action_name == "cast" and cast_used:
+        return {"ok": False, "cast_skipped": True, "stop_turn": False}
+    if action_name == "cast":
+        cast_guard["cast_used"] = True
+    stop_after = action_name == "pursue"
     action = _ACTION_TABLE.get(action_name)
     if not action:
         LOG.debug("No action handler for gate %s", cascade_result.gate)
@@ -1387,13 +1398,21 @@ def execute_random_action(monster: Any, ctx: Any, *, rng: Any | None = None) -> 
         if isinstance(result, Mapping):
             payload = dict(result)
             success = bool(payload.get("ok", True))
+            if action_name == "cast":
+                payload.setdefault("casted", True)
         else:
             success = bool(result)
         if not success:
             payload.setdefault("monster", _monster_id(monster))
             payload.setdefault("success", False)
             turnlog.emit(ctx, f"AI/ACT/{action_name.upper()}", **payload)
+        if stop_after:
+            if isinstance(payload, dict):
+                payload["stop_turn"] = True
+            else:
+                payload = {"stop_turn": True}
+            return payload
     except Exception:  # pragma: no cover - defensive guard
         LOG.exception("Monster action %s failed", action_name)
-    return None
+    return payload if isinstance(payload, Mapping) else None
 

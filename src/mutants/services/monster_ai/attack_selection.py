@@ -211,7 +211,7 @@ def _apply_cracked_penalty(weight: int, entry: Mapping[str, Any] | None) -> int:
         return weight
     if not _is_cracked_entry(entry):
         return weight
-    adjusted = weight // 2
+    adjusted = int(weight * 0.75)
     if weight > 0 and adjusted <= 0:
         return 1
     return adjusted
