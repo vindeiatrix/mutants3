@@ -26,11 +26,11 @@
       "power_per_level": 1,
       "line": "The Junkyard Scrapper slashes you with a rusty shiv!"
     },
-    "exp_bonus": 5,
-    "ions_min": 1,
-    "ions_max": 8,
-    "riblets_min": 0,
-    "riblets_max": 2,
+    "exp_bonus": 30,
+    "ions_min": 3000,
+    "ions_max": 8000,
+    "riblets_min": 8,
+    "riblets_max": 16,
     "spells": [],
     "starter_armour": [
       "Torn-Overalls"
@@ -81,11 +81,11 @@
       "power_per_level": 2,
       "line": "The Rad Swarm Matron sinks toxic fangs into you!"
     },
-    "exp_bonus": 18,
-    "ions_min": 6,
-    "ions_max": 20,
-    "riblets_min": 1,
-    "riblets_max": 4,
+    "exp_bonus": 120,
+    "ions_min": 12000,
+    "ions_max": 22000,
+    "riblets_min": 14,
+    "riblets_max": 30,
     "spells": [
       "Acid Spit"
     ],
@@ -140,10 +140,10 @@
       "line": "The Titan of Chrome crushes you with a hydraulic slam!"
     },
     "exp_bonus": 50,
-    "ions_min": 25,
-    "ions_max": 60,
-    "riblets_min": 3,
-    "riblets_max": 10,
+    "ions_min": 22000,
+    "ions_max": 45000,
+    "riblets_min": 30,
+    "riblets_max": 70,
     "spells": [
       "Shockwave",
       "Overclock"
@@ -197,11 +197,11 @@
       "power_per_level": 2,
       "line": "The Stormglass Hunter strikes with a crackling spear!"
     },
-    "exp_bonus": 24,
-    "ions_min": 10,
-    "ions_max": 34,
-    "riblets_min": 2,
-    "riblets_max": 7,
+    "exp_bonus": 150,
+    "ions_min": 14000,
+    "ions_max": 26000,
+    "riblets_min": 18,
+    "riblets_max": 40,
     "spells": [],
     "starter_armour": [
       "Insulated-Jerkin"

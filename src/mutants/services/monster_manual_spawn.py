@@ -139,6 +139,8 @@ def _build_instance_payload(
         "armour_class": template.armour_class or 0,
         "level": template.level or 1,
         "ions": _RNG.randint(ions_min, ions_max),
+        # Track a max so AI can decide when to convert pickup loot into ions.
+        "ions_max": ions_max,
         "riblets": _RNG.randint(rib_min, rib_max),
         "inventory": [],
         "armour_wearing": None,

@@ -226,6 +226,13 @@ def _ensure_ai_state(monster: MutableMapping[str, Any]) -> MutableMapping[str, A
     ledger["riblets"] = ledger_riblets
     monster["ions"] = top_ions
     monster["riblets"] = top_riblets
+    if monster.get("ions_max") is None:
+        # Default a missing ions_max to the current ions so AI can reason about
+        # ion percentage and trigger convert/heal behaviour.
+        try:
+            monster["ions_max"] = int(monster.get("ions", 0))
+        except Exception:
+            monster["ions_max"] = 0
     monster["_ai_state"] = state
     return state
 
