@@ -62,7 +62,7 @@ class CombatConfig:
     heal_cost: int = 150
     convert_pct: int = 35
     low_ion_pct: int = 70
-    cast_pct: int = 30
+    cast_pct: int = 1
     attack_pct: int = 70
     pickup_pct: int = 20
     emote_pct: int = 5
