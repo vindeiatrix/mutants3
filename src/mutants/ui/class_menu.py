@@ -119,7 +119,16 @@ def handle_input(raw: str, ctx: dict) -> None:
         raise SystemExit(0)
     if lowered.startswith("bury"):
         parts = lowered.split()
-        if len(parts) != 2 or not parts[1].isdigit():
+        if len(parts) != 2:
+            bus.push("SYSTEM/ERROR", "Usage: BURY [class number]")
+            return
+        if parts[1] == "all":
+            player_reset.bury_all()
+            ctx["player_state"] = _load_canonical_state()
+            bus.push("SYSTEM/OK", "Player reset.")
+            render_menu(ctx)
+            return
+        if not parts[1].isdigit():
             bus.push("SYSTEM/ERROR", "Usage: BURY [class number]")
             return
         idx_n = int(parts[1])

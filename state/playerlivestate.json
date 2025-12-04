@@ -55,7 +55,7 @@
       "id": "player_priest",
       "name": "Priest",
       "class": "Priest",
-      "is_active": false,
+      "is_active": true,
       "pos": [
         2000,
         0,
@@ -66,8 +66,8 @@
       "Ions": 30000,
       "riblets": 0,
       "Riblets": 0,
-      "exhaustion": 0,
       "exp_points": 0,
+      "exhaustion": 0,
       "level": 1,
       "hp": {
         "current": 30,
@@ -100,7 +100,8 @@
       "status_effects_by_class": {
         "Priest": []
       },
-      "status_effects": []
+      "status_effects": [],
+      "_dirty": true
     },
     {
       "id": "player_wizard",
@@ -208,7 +209,7 @@
       "id": "player_mage",
       "name": "Mage",
       "class": "Mage",
-      "is_active": true,
+      "is_active": false,
       "pos": [
         2000,
         0,
@@ -219,8 +220,8 @@
       "Ions": 30000,
       "riblets": 0,
       "Riblets": 0,
-      "exp_points": 0,
       "exhaustion": 0,
+      "exp_points": 0,
       "level": 1,
       "hp": {
         "current": 28,
@@ -253,11 +254,10 @@
       "status_effects_by_class": {
         "Mage": []
       },
-      "status_effects": [],
-      "_dirty": true
+      "status_effects": []
     }
   ],
-  "active_id": "player_mage",
+  "active_id": "player_priest",
   "ions_by_class": {
     "Thief": 30000,
     "Priest": 30000,
@@ -365,18 +365,18 @@
   "exp_points": 0,
   "level": 1,
   "hp": {
-    "current": 28,
-    "max": 28
+    "current": 30,
+    "max": 30
   },
   "stats": {
-    "str": 18,
-    "int": 23,
-    "wis": 20,
-    "dex": 16,
-    "con": 15,
-    "cha": 20
+    "str": 20,
+    "int": 12,
+    "wis": 13,
+    "dex": 17,
+    "con": 17,
+    "cha": 14
   },
-  "class": "Mage",
+  "class": "Priest",
   "pos": [
     2000,
     0,
@@ -472,7 +472,7 @@
     "Warrior": [],
     "Mage": []
   },
-  "name": "Mage",
+  "name": "Priest",
   "position": [
     2000,
     0,

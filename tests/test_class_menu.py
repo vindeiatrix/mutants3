@@ -92,3 +92,21 @@ def test_class_menu_uses_canonical_state(monkeypatch: pytest.MonkeyPatch, ctx: d
     refreshed_lines = [msg for channel, msg in ctx["feedback_bus"].messages if channel == "SYSTEM/OK"]
     thief_line = next(line for line in refreshed_lines if "Mutant Thief" in line)
     assert "Year: 2200" in thief_line
+
+
+def test_class_menu_accepts_bury_all(monkeypatch: pytest.MonkeyPatch, ctx: dict[str, Any]) -> None:
+    called = {"bury_all": 0}
+
+    def _fake_bury_all() -> None:
+        called["bury_all"] += 1
+
+    def _fake_load_state() -> dict[str, Any]:
+        return player_state.ensure_class_profiles({"players": [], "active_id": None})
+
+    monkeypatch.setattr(class_menu.player_reset, "bury_all", _fake_bury_all)
+    monkeypatch.setattr(class_menu, "_load_canonical_state", _fake_load_state)
+
+    class_menu.handle_input("bury all", ctx)
+
+    assert called["bury_all"] == 1
+    assert any(msg == ("SYSTEM/OK", "Player reset.") for msg in ctx["feedback_bus"].messages)
