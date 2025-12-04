@@ -651,6 +651,45 @@ def evaluate_cascade(monster: Any, ctx: Any) -> ActionResult:
             f"low_ions={low_ions} convertible={convertible} threshold={convert_threshold}",
         )
 
+    # PICKUP gate (now before cast/attack to give loot a chance)
+    if bonus.active and bonus.force_pickup and pickup_ready:
+        reason = (
+            f"bonus-force pickup_ready={pickup_ready} threshold={pickup_threshold}"
+        )
+        return _gate_result(
+            monster,
+            ctx,
+            gate="PICKUP",
+            action="pickup",
+            roll=0,
+            threshold=pickup_threshold,
+            reason=reason,
+            triggered=True,
+            data={**data_common, "failures": failures, "bonus_forced_gate": "PICKUP"},
+        )
+
+    if pickup_ready and pickup_threshold > 0:
+        roll = int(rng.randrange(100))
+        reason = f"pickup_ready={pickup_ready} roll={roll} threshold={pickup_threshold}"
+        if roll < pickup_threshold:
+            return _gate_result(
+                monster,
+                ctx,
+                gate="PICKUP",
+                action="pickup",
+                roll=roll,
+                threshold=pickup_threshold,
+                reason=reason,
+                triggered=True,
+                data={**data_common, "failures": failures},
+            )
+        _record_failure("PICKUP", reason)
+    else:
+        _record_failure(
+            "PICKUP",
+            f"pickup_ready={pickup_ready} threshold={pickup_threshold}",
+        )
+
     # CAST gate
     if ions >= config.spell_cost and cast_threshold > 0:
         roll = int(rng.randrange(100))
@@ -700,45 +739,6 @@ def evaluate_cascade(monster: Any, ctx: Any) -> ActionResult:
         _record_failure("ATTACK", reason)
     else:
         _record_failure("ATTACK", f"threshold={attack_threshold}")
-
-    # PICKUP gate
-    if bonus.active and bonus.force_pickup and pickup_ready:
-        reason = (
-            f"bonus-force pickup_ready={pickup_ready} threshold={pickup_threshold}"
-        )
-        return _gate_result(
-            monster,
-            ctx,
-            gate="PICKUP",
-            action="pickup",
-            roll=0,
-            threshold=pickup_threshold,
-            reason=reason,
-            triggered=True,
-            data={**data_common, "failures": failures, "bonus_forced_gate": "PICKUP"},
-        )
-
-    if pickup_ready and pickup_threshold > 0:
-        roll = int(rng.randrange(100))
-        reason = f"pickup_ready={pickup_ready} roll={roll} threshold={pickup_threshold}"
-        if roll < pickup_threshold:
-            return _gate_result(
-                monster,
-                ctx,
-                gate="PICKUP",
-                action="pickup",
-                roll=roll,
-                threshold=pickup_threshold,
-                reason=reason,
-                triggered=True,
-                data={**data_common, "failures": failures},
-            )
-        _record_failure("PICKUP", reason)
-    else:
-        _record_failure(
-            "PICKUP",
-            f"pickup_ready={pickup_ready} threshold={pickup_threshold}",
-        )
 
     # EMOTE gate
     emote_threshold = _clamp_pct(_apply_cascade_modifier(config.emote_pct, cascade_overrides.get("emote_pct")))

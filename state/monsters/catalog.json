@@ -225,5 +225,187 @@
         "charged"
       ]
     }
+  },
+  {
+    "monster_id": "ion_archivist",
+    "name": "Ion-Archivist",
+    "level": 8,
+    "hp_max": 68,
+    "armour_class": 17,
+    "spawn_years": [
+      2400,
+      2500,
+      2600,
+      2700
+    ],
+    "spawnable": true,
+    "taunt": "Knowledge is voltage. You are unshielded.",
+    "stats": {
+      "str": 13,
+      "int": 17,
+      "wis": 15,
+      "dex": 12,
+      "con": 14,
+      "cha": 9
+    },
+    "innate_attack": {
+      "name": "Data-Lash",
+      "power_base": 14,
+      "power_per_level": 2,
+      "line": "The Ion Archivist whips you with a crackling data-lash!"
+    },
+    "exp_bonus": 32,
+    "ions_min": 8000,
+    "ions_max": 15000,
+    "riblets_min": 6,
+    "riblets_max": 12,
+    "spells": [
+      "Overclock",
+      "Shockwave"
+    ],
+    "starter_armour": [
+      "Data-Cowl"
+    ],
+    "starter_items": [
+      "Archivist-Focus",
+      "Capacitor-Charm"
+    ],
+    "ai_overrides": {
+      "prefers_ranged": true,
+      "cascade": {
+        "pickup_pct": {
+          "add": 25
+        },
+        "convert_pct": {
+          "add": 20
+        },
+        "heal_pct": {
+          "add": 10
+        }
+      },
+      "tags": [
+        "archivist",
+        "charged"
+      ]
+    }
+  },
+  {
+    "monster_id": "waste_mauler",
+    "name": "Waste-Mauler",
+    "level": 7,
+    "hp_max": 62,
+    "armour_class": 16,
+    "spawn_years": [
+      2300,
+      2400,
+      2500
+    ],
+    "spawnable": true,
+    "taunt": "The wastes made me. Now I break you.",
+    "stats": {
+      "str": 18,
+      "int": 9,
+      "wis": 9,
+      "dex": 11,
+      "con": 16,
+      "cha": 7
+    },
+    "innate_attack": {
+      "name": "Rebar-Smash",
+      "power_base": 13,
+      "power_per_level": 2,
+      "line": "The Waste Mauler swings a rebar club into your ribs!"
+    },
+    "exp_bonus": 28,
+    "ions_min": 6000,
+    "ions_max": 12000,
+    "riblets_min": 4,
+    "riblets_max": 9,
+    "spells": [],
+    "starter_armour": [
+      "Spiked-Plating"
+    ],
+    "starter_items": [
+      "Rebar-Maul",
+      "Radioactive-Fang"
+    ],
+    "ai_overrides": {
+      "cascade": {
+        "pickup_pct": {
+          "add": 15
+        },
+        "attack_pct": {
+          "add": 5
+        },
+        "flee_pct": {
+          "add": -5
+        }
+      },
+      "tags": [
+        "brute",
+        "wasteborn"
+      ]
+    }
+  },
+  {
+    "monster_id": "gate_warden",
+    "name": "Gate-Warden",
+    "level": 10,
+    "hp_max": 85,
+    "armour_class": 19,
+    "spawn_years": [
+      2500,
+      2600,
+      2700,
+      2800
+    ],
+    "spawnable": true,
+    "taunt": "None pass without tribute.",
+    "stats": {
+      "str": 17,
+      "int": 14,
+      "wis": 13,
+      "dex": 14,
+      "con": 17,
+      "cha": 12
+    },
+    "innate_attack": {
+      "name": "Gate-Slam",
+      "power_base": 18,
+      "power_per_level": 3,
+      "line": "The Gate Warden slams you with a reinforced gate beam!"
+    },
+    "exp_bonus": 40,
+    "ions_min": 12000,
+    "ions_max": 20000,
+    "riblets_min": 8,
+    "riblets_max": 16,
+    "spells": [
+      "Shockwave"
+    ],
+    "starter_armour": [
+      "Gate-Mail"
+    ],
+    "starter_items": [
+      "Gate-Halberd",
+      "Warden-Seal"
+    ],
+    "ai_overrides": {
+      "cascade": {
+        "pickup_pct": {
+          "add": 20
+        },
+        "attack_pct": {
+          "add": 5
+        },
+        "heal_pct": {
+          "add": 10
+        }
+      },
+      "tags": [
+        "gate",
+        "elite"
+      ]
+    }
   }
 ]
