@@ -475,7 +475,7 @@
   "inventory": [],
   "position": [
     2100,
-    -2,
+    2,
     0
   ],
   "ready_target": null,
