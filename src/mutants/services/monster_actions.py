@@ -342,12 +342,13 @@ def _remove_picked_up(monster: MutableMapping[str, Any], iid: str) -> None:
 
 def _load_catalog() -> Mapping[str, Mapping[str, Any]]:
     try:
-        catalog = items_catalog.load_catalog()
+        # `items_catalog.load_catalog` returns an `ItemsCatalog` wrapper (not a
+        # `Mapping` subclass), but it still exposes `.get`/`.require`, which is
+        # what the callers in this module expect. Returning it directly keeps the
+        # full catalog contents available to pickup/convert logic.
+        return items_catalog.load_catalog()
     except FileNotFoundError:
-        catalog = None
-    if isinstance(catalog, Mapping):
-        return catalog
-    return {}
+        return {}
 
 
 def _resolve_item_id(inst: Mapping[str, Any]) -> str:
@@ -952,6 +953,9 @@ def _pickup_from_ground(
     _refresh_monster(monster)
     _mark_monsters_dirty(ctx)
     bus = _feedback_bus(ctx)
+    name = None
+    if isinstance(entry, Mapping):
+        name = entry.get("item_id")
     if hasattr(bus, "push"):
         tpl = catalog.get(entry.get("item_id", "")) or {}
         inst = {"item_id": entry.get("item_id"), "iid": iid_str}

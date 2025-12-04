@@ -43,13 +43,11 @@ def _state_logger() -> logging.Logger | None:
 
     log_path = state_path("logs", "game.log")
     Path(log_path).parent.mkdir(parents=True, exist_ok=True)
-    handler = RotatingFileHandler(
-        log_path,
-        maxBytes=_LOG_MAX_BYTES,
-        backupCount=_LOG_BACKUPS,
-        encoding="utf-8",
-        delay=True,
-    )
+    # Use a plain FileHandler to avoid Windows rename/lock conflicts with the
+    # primary game logger. This intentionally mirrors the main logger in
+    # ``__main__.py`` and skips rotation to keep the file writable while the
+    # game is running.
+    handler = logging.FileHandler(log_path, encoding="utf-8", delay=True)
     handler.setFormatter(logging.Formatter("%(asctime)s STATE %(message)s"))
     logger.addHandler(handler)
 

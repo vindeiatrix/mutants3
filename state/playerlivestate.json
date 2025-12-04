@@ -474,8 +474,8 @@
   },
   "inventory": [],
   "position": [
-    2100,
-    -2,
+    2000,
+    0,
     0
   ],
   "ready_target": null,

@@ -262,6 +262,14 @@ def _normalize_item(
     sanitized: Dict[str, Any] = {}
 
     raw_item_id = item.get("item_id") or item.get("id") or item.get("catalog_id")
+    if not raw_item_id:
+        # Armour payloads created during monster spawning only carry an instance id.
+        iid_lookup = item.get("iid") or item.get("instance_id")
+        if iid_lookup:
+            inst = items_instances.get_instance(str(iid_lookup))
+            if isinstance(inst, Mapping):
+                raw_item_id = inst.get("item_id") or inst.get("catalog_id") or inst.get("id")
+
     item_id = str(raw_item_id) if raw_item_id else ""
     if not item_id:
         return None
