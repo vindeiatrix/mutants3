@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 import shlex
-from typing import Mapping, Sequence
+from typing import Mapping, MutableMapping, Sequence
 
 from mutants.env import debug_commands_enabled
 from mutants.services import monster_manual_spawn, player_state as pstate
@@ -259,6 +259,37 @@ def _set_currency_for_active(ctx, currency: str, amount: int) -> None:
     bus.push("SYSTEM/OK", f"Set {currency} for {cls_name} to {after}.")
 
 
+def _set_hp_for_active(ctx, amount: int) -> None:
+    """Set both current and max HP for the active player to ``amount``."""
+
+    bus = ctx["feedback_bus"]
+    state = pstate.load_state()
+    cls_name = pstate.get_active_class(state)
+    new_hp = max(0, int(amount))
+    pstate._check_invariants_and_log(state, "before debug hp")
+
+    hp_block = {"current": new_hp, "max": new_hp}
+    updated = pstate.set_hp_for_active(state, hp_block)
+
+    state_after = pstate.load_state()
+    pstate._check_invariants_and_log(state_after, "after debug hp")
+
+    # Keep the live ctx in sync so subsequent actions use the new HP values.
+    if isinstance(ctx, MutableMapping):
+        ctx["player_state"] = state_after
+        runtime = ctx.get(pstate._RUNTIME_PLAYER_KEY)  # type: ignore[attr-defined]
+        if isinstance(runtime, MutableMapping):
+            runtime["hp"] = dict(updated)
+            runtime["_dirty"] = True
+        state_hint = ctx.get("player_state")
+        if isinstance(state_hint, MutableMapping):
+            state_hint["hp"] = dict(updated)
+            hp_by = state_hint.setdefault("hp_by_class", {})
+            hp_by[pstate.get_active_class(state_after)] = dict(updated)
+
+    bus.push("SYSTEM/OK", f"Set HP for {cls_name} to {updated['current']} / {updated['max']}.")
+
+
 def debug_add_cmd(arg: str, ctx):
     parts = shlex.split(arg.strip())
     bus = ctx["feedback_bus"]
@@ -310,7 +341,7 @@ def debug_cmd(arg: str, ctx):
         ctx["feedback_bus"].push(
             "SYSTEM/INFO",
             "Usage: debug add <item_id> [qty] | debug monster <monster_id> | "
-            "debug where | debug count | debug ions <amount> | debug riblets <amount>",
+            "debug where | debug count | debug ions <amount> | debug riblets <amount> | debug hp <amount>",
         )
         return
 
@@ -363,10 +394,26 @@ def debug_cmd(arg: str, ctx):
         _set_currency_for_active(ctx, "riblets", amount)
         return
 
+    if parts[0] == "hp":
+        if len(parts) < 2:
+            ctx["feedback_bus"].push(
+                "SYSTEM/INFO", "Usage: debug hp <amount>"
+            )
+            return
+        try:
+            amount = int(parts[1])
+        except ValueError:
+            ctx["feedback_bus"].push(
+                "SYSTEM/WARN", "HP amount must be an integer (e.g. 1000)."
+            )
+            return
+        _set_hp_for_active(ctx, amount)
+        return
+
     ctx["feedback_bus"].push(
         "SYSTEM/INFO",
         "Usage: debug add <item_id> [qty] | debug monster <monster_id> | "
-        "debug where | debug count | debug ions <amount> | debug riblets <amount>",
+        "debug where | debug count | debug ions <amount> | debug riblets <amount> | debug hp <amount>",
     )
 
 
@@ -377,6 +424,7 @@ _DEBUG_HELP_ENTRIES: Sequence[str] = (
     "debug count",
     "debug ions <amount>",
     "debug riblets <amount>",
+    "debug hp <amount>",
 )
 
 
