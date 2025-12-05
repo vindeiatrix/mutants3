@@ -40,17 +40,15 @@
       "Bolt-Pouch"
     ],
     "ai_overrides": {
+      "prefers_innate": false,
       "cascade": {
-        "flee_pct": {
-          "add": 5
-        },
-        "attack_pct": {
-          "add": -5
-        }
+        "heal_pct": { "add": 5 },
+        "pickup_pct": { "add": 15 },
+        "convert_pct": { "add": 10 },
+        "attack_pct": { "add": -10 },
+        "flee_pct": { "add": 5 }
       },
-      "tags": [
-        "scavenger"
-      ]
+      "tags": [ "scavenger" ]
     }
   },
   {
@@ -98,18 +96,15 @@
     ],
     "ai_overrides": {
       "prefers_ranged": true,
+      "prefers_innate": false,
       "cascade": {
-        "attack_pct": {
-          "add": -5
-        },
-        "pickup_pct": {
-          "add": 10
-        }
+        "heal_pct": { "add": 15 },
+        "pickup_pct": { "add": 12 },
+        "convert_pct": { "add": 8 },
+        "attack_pct": { "add": -10 },
+        "flee_pct": { "add": 5 }
       },
-      "tags": [
-        "brood",
-        "radiant"
-      ]
+      "tags": [ "brood", "radiant" ]
     }
   },
   {
@@ -156,18 +151,17 @@
       "Power-Core"
     ],
     "ai_overrides": {
+      "prefers_innate": true,
+      "prefers_ranged": false,
       "cascade": {
-        "attack_pct": {
-          "add": 10
-        },
-        "convert_pct": {
-          "add": 5
-        }
+        "heal_pct": { "add": 12 },
+        "pickup_pct": { "add": 8 },
+        "convert_pct": { "add": 15 },
+        "attack_pct": { "add": 5 },
+        "flee_pct": { "add": -5 },
+        "emote_pct": { "add": -2 }
       },
-      "tags": [
-        "undead",
-        "titan"
-      ]
+      "tags": [ "undead", "titan" ]
     }
   },
   {
@@ -212,18 +206,14 @@
     ],
     "ai_overrides": {
       "prefers_ranged": false,
+      "prefers_innate": false,
       "cascade": {
-        "attack_pct": {
-          "add": 10
-        },
-        "pickup_pct": {
-          "add": 10
-        }
+        "heal_pct": { "add": 10 },
+        "pickup_pct": { "add": 10 },
+        "convert_pct": { "add": 5 },
+        "attack_pct": { "add": 5 }
       },
-      "tags": [
-        "hunter",
-        "charged"
-      ]
+      "tags": [ "hunter", "charged" ]
     }
   },
   {
@@ -272,21 +262,15 @@
     ],
     "ai_overrides": {
       "prefers_ranged": true,
+      "prefers_innate": false,
       "cascade": {
-        "pickup_pct": {
-          "add": 25
-        },
-        "convert_pct": {
-          "add": 20
-        },
-        "heal_pct": {
-          "add": 10
-        }
+        "heal_pct": { "add": 15 },
+        "pickup_pct": { "add": 20 },
+        "convert_pct": { "add": 25 },
+        "attack_pct": { "add": -5 },
+        "emote_pct": { "add": 5 }
       },
-      "tags": [
-        "archivist",
-        "charged"
-      ]
+      "tags": [ "archivist", "charged" ]
     }
   },
   {
@@ -330,21 +314,16 @@
       "Radioactive-Fang"
     ],
     "ai_overrides": {
+      "prefers_innate": true,
+      "prefers_ranged": false,
       "cascade": {
-        "pickup_pct": {
-          "add": 15
-        },
-        "attack_pct": {
-          "add": 5
-        },
-        "flee_pct": {
-          "add": -5
-        }
+        "heal_pct": { "add": 5 },
+        "pickup_pct": { "add": 18 },
+        "convert_pct": { "add": 6 },
+        "attack_pct": { "add": 10 },
+        "flee_pct": { "add": -8 }
       },
-      "tags": [
-        "brute",
-        "wasteborn"
-      ]
+      "tags": [ "brute", "wasteborn" ]
     }
   },
   {
@@ -391,21 +370,16 @@
       "Warden-Seal"
     ],
     "ai_overrides": {
+      "prefers_innate": false,
+      "prefers_ranged": false,
       "cascade": {
-        "pickup_pct": {
-          "add": 20
-        },
-        "attack_pct": {
-          "add": 5
-        },
-        "heal_pct": {
-          "add": 10
-        }
+        "heal_pct": { "add": 20 },
+        "pickup_pct": { "add": 15 },
+        "convert_pct": { "add": 8 },
+        "attack_pct": { "add": 5 },
+        "emote_pct": { "add": -2 }
       },
-      "tags": [
-        "gate",
-        "elite"
-      ]
+      "tags": [ "gate", "elite" ]
     }
   }
 ]
