@@ -199,17 +199,47 @@ def _melee_power(entry: Mapping[str, Any] | None, catalog: Mapping[str, Mapping[
         return 0
 
 
+def _ranged_power(entry: Mapping[str, Any] | None, catalog: Mapping[str, Mapping[str, Any]]) -> int:
+    if not entry:
+        return 0
+    derived = entry.get("derived")
+    if isinstance(derived, Mapping) and derived.get("base_damage") is not None:
+        try:
+            return max(0, int(derived.get("base_damage", 0)))
+        except (TypeError, ValueError):
+            return 0
+    template = _entry_template(entry, catalog)
+    try:
+        return max(0, int(template.get("base_power_bolt", 0)))
+    except (TypeError, ValueError):
+        return 0
+
+
 def _innate_power(monster: Mapping[str, Any]) -> int:
     innate = monster.get("innate_attack")
     if not isinstance(innate, Mapping):
         return 0
-    for key in ("base_power", "base_damage", "base_power_melee"):
+    for key in ("base_power", "base_damage", "base_power_melee", "power_base"):
         if key in innate:
             try:
                 return max(0, int(innate.get(key, 0)))
             except (TypeError, ValueError):
                 return 0
     return 0
+
+
+def _resolve_prefers_innate(monster: Mapping[str, Any], ctx: Any) -> bool:
+    overrides = monster.get("ai_overrides")
+    if isinstance(overrides, Mapping):
+        flag = overrides.get("prefers_innate")
+        if isinstance(flag, bool):
+            return flag
+    state = monster.get("_ai_state")
+    if isinstance(state, Mapping):
+        flag = state.get("prefers_innate")
+        if isinstance(flag, bool):
+            return flag
+    return False
 
 
 def _entry_token(entry: Mapping[str, Any] | None, fallback: str | None = None) -> str | None:
@@ -253,35 +283,45 @@ def _build_weight_table(
     has_innate: bool,
     prefers_ranged: bool,
     melee_power: int,
+    ranged_power: int,
     innate_power: int,
+    prefers_innate: bool,
+    melee_is_skull: bool,
 ) -> dict[str, int]:
-    weights: dict[str, int] = {"melee": 0, "bolt": 0, "innate": 0}
-    if melee_entry and ranged_entry:
-        if prefers_ranged:
-            weights["melee"] = 20
-            weights["bolt"] = 70
+    melee_w = max(0, melee_power)
+    ranged_w = max(0, ranged_power)
+    innate_w = max(0, innate_power if has_innate else 0)
+
+    if melee_is_skull and innate_w > 0:
+        melee_w = min(melee_w, max(1, melee_w // 5))
+        innate_w = max(innate_w, 90)
+
+    if melee_w > 0 and ranged_w > 0:
+        if prefers_ranged or ranged_w > melee_w * 1.1:
+            melee_w = max(10, melee_w)
+            ranged_w = max(20, ranged_w)
         else:
-            weights["melee"] = 70
-            weights["bolt"] = 20
-        if has_innate:
-            weights["innate"] = 10
-    elif melee_entry:
-        weights["melee"] = 95
-        if has_innate:
-            weights["innate"] = 5
-    elif ranged_entry:
-        weights["bolt"] = 95 if prefers_ranged else 90
-        if has_innate:
-            weights["innate"] = 5 if prefers_ranged else 10
-    else:
-        if has_innate:
-            weights["innate"] = 100
-    if has_innate and melee_entry:
-        # If the melee option is notably weaker than innate, favour innate.
+            melee_w = max(20, melee_w)
+            ranged_w = max(10, ranged_w)
+    elif melee_w > 0:
+        melee_w = max(20, melee_w * 2)
+    elif ranged_w > 0:
+        ranged_w = max(20, ranged_w * 2)
+
+    if prefers_ranged and ranged_w > 0:
+        ranged_w = int(ranged_w * 1.2)
+    if prefers_innate and innate_w > 0:
+        innate_w = int(innate_w * 1.3)
+
+    if has_innate and melee_w > 0 and innate_w > 0:
         if melee_power < max(1, int(innate_power * 0.75)):
-            weights["innate"] = max(weights["innate"], 90)
-            weights["melee"] = min(weights["melee"], 10)
-    return weights
+            innate_w = max(innate_w, 90)
+            melee_w = min(melee_w, 10)
+
+    if melee_w == 0 and ranged_w == 0 and innate_w == 0 and has_innate:
+        innate_w = 100
+
+    return {"melee": melee_w, "bolt": ranged_w, "innate": innate_w}
 
 
 def select_attack(monster: Mapping[str, Any], ctx: Any) -> AttackPlan:
@@ -291,21 +331,37 @@ def select_attack(monster: Mapping[str, Any], ctx: Any) -> AttackPlan:
     catalog = _load_catalog()
     wielded_entry = _find_wielded_entry(monster, bag)
 
-    melee_entry = _find_entry(
-        bag,
-        lambda entry: _is_weapon_entry(entry, catalog) and not _is_ranged_entry(entry, catalog),
-        preferred=wielded_entry if wielded_entry and not _is_ranged_entry(wielded_entry, catalog) else None,
-    )
-    ranged_entry = _find_entry(
-        bag,
-        lambda entry: _is_weapon_entry(entry, catalog) and _is_ranged_entry(entry, catalog),
-        preferred=wielded_entry if wielded_entry and _is_ranged_entry(wielded_entry, catalog) else None,
-    )
+    melee_entry = None
+    ranged_entry = None
+    best_melee_score = -1
+    best_ranged_score = -1
+    wielded_iid = _normalize_token(wielded_entry.get("iid") or wielded_entry.get("instance_id")) if wielded_entry else None
+
+    for entry in bag:
+        if not isinstance(entry, Mapping):
+            continue
+        if _is_weapon_entry(entry, catalog) and not _is_ranged_entry(entry, catalog):
+            score = _melee_power(entry, catalog)
+            score = _apply_cracked_penalty(score, entry)
+            preferred = wielded_iid and _normalize_token(entry.get("iid") or entry.get("instance_id")) == wielded_iid
+            if score > best_melee_score or (score == best_melee_score and preferred):
+                best_melee_score = score
+                melee_entry = entry
+        if _is_weapon_entry(entry, catalog) and _is_ranged_entry(entry, catalog):
+            score = _ranged_power(entry, catalog)
+            score = _apply_cracked_penalty(score, entry)
+            preferred = wielded_iid and _normalize_token(entry.get("iid") or entry.get("instance_id")) == wielded_iid
+            if score > best_ranged_score or (score == best_ranged_score and preferred):
+                best_ranged_score = score
+                ranged_entry = entry
 
     has_innate = _has_innate(monster)
     prefers_ranged = _resolve_prefers_ranged(monster, ctx)
-    melee_power = _melee_power(melee_entry, catalog)
+    prefers_innate = _resolve_prefers_innate(monster, ctx)
+    melee_power = max(0, best_melee_score)
+    ranged_power = max(0, best_ranged_score)
     innate_power = _innate_power(monster)
+    melee_is_skull = _resolve_item_id(melee_entry or {}) == "skull"
 
     weights = _build_weight_table(
         melee_entry=melee_entry,
@@ -313,11 +369,11 @@ def select_attack(monster: Mapping[str, Any], ctx: Any) -> AttackPlan:
         has_innate=has_innate,
         prefers_ranged=prefers_ranged,
         melee_power=melee_power,
+        ranged_power=ranged_power,
         innate_power=innate_power,
+        prefers_innate=prefers_innate,
+        melee_is_skull=melee_is_skull,
     )
-
-    weights["melee"] = _apply_cracked_penalty(weights["melee"], melee_entry)
-    weights["bolt"] = _apply_cracked_penalty(weights["bolt"], ranged_entry)
 
     weighted_sources: list[tuple[str, int]] = []
     for source in ("melee", "bolt", "innate"):

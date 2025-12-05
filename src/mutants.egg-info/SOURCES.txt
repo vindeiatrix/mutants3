@@ -118,6 +118,7 @@ tests/test_fix_command.py
 tests/test_monster_loot_drops.py
 tests/test_monster_spawn.py
 tests/test_monster_target_persistence.py
+tests/test_monster_wake_targeting.py
 tests/test_move_ready_target.py
 tests/test_player_state_active_view.py
 tests/test_player_state_canonical.py
