@@ -160,22 +160,20 @@
       "is_active": true,
       "pos": [
         2000,
-        1,
+        0,
         0
       ],
-      "ions": 42153,
-      "inventory": [
-        "d4f3190b6dfa4370bac4122bcb86f4e5"
-      ],
-      "Ions": 42153,
-      "riblets": 10,
-      "Riblets": 10,
-      "exp_points": 32,
+      "ions": 30000,
+      "inventory": [],
+      "Ions": 30000,
+      "riblets": 0,
+      "Riblets": 0,
+      "exp_points": 0,
       "exhaustion": 0,
       "level": 1,
       "hp": {
-        "current": 23232153,
-        "max": 23232323
+        "current": 40,
+        "max": 40
       },
       "stats": {
         "str": 23,
@@ -264,21 +262,21 @@
     "Thief": 30000,
     "Priest": 30000,
     "Wizard": 30000,
-    "Warrior": 42153,
+    "Warrior": 30000,
     "Mage": 30000
   },
   "riblets_by_class": {
     "Thief": 0,
     "Priest": 0,
     "Wizard": 0,
-    "Warrior": 10,
+    "Warrior": 0,
     "Mage": 0
   },
   "exp_by_class": {
     "Thief": 0,
     "Priest": 0,
     "Wizard": 0,
-    "Warrior": 32,
+    "Warrior": 0,
     "Mage": 0
   },
   "level_by_class": {
@@ -302,8 +300,8 @@
       "max": 23
     },
     "Warrior": {
-      "current": 23232153,
-      "max": 23232323
+      "current": 40,
+      "max": 40
     },
     "Mage": {
       "current": 28,
@@ -441,16 +439,16 @@
     "wearing": null,
     "armour_class": 2
   },
-  "ions": 42153,
-  "Ions": 42153,
-  "riblets": 10,
-  "Riblets": 10,
+  "ions": 30000,
+  "Ions": 30000,
+  "riblets": 0,
+  "Riblets": 0,
   "exhaustion": 0,
-  "exp_points": 32,
+  "exp_points": 0,
   "level": 1,
   "hp": {
-    "current": 23232153,
-    "max": 23232323
+    "current": 40,
+    "max": 40
   },
   "stats": {
     "str": 23,
@@ -464,25 +462,21 @@
   "name": "Warrior",
   "pos": [
     2000,
-    1,
+    0,
     0
   ],
   "bags": {
     "Thief": [],
-    "Warrior": [
-      "d4f3190b6dfa4370bac4122bcb86f4e5"
-    ],
+    "Warrior": [],
     "Priest": [],
     "Wizard": [],
     "Mage": []
   },
-  "inventory": [
-    "d4f3190b6dfa4370bac4122bcb86f4e5"
-  ],
+  "inventory": [],
   "position": [
-    2000,
-    1,
-    0
+    2500,
+    4,
+    -1
   ],
   "ready_target": null,
   "target_monster_id": null,

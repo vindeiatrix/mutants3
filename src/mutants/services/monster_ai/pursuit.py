@@ -44,6 +44,13 @@ def _monster_id(monster: Mapping[str, Any]) -> str:
     return "?"
 
 
+def _monster_display_name(monster: Mapping[str, Any]) -> str:
+    name = monster.get("name") or monster.get("monster_id")
+    if isinstance(name, str) and name.strip():
+        return name
+    return _monster_id(monster)
+
+
 def _bag_entries(monster: Mapping[str, Any]) -> list[Mapping[str, Any]]:
     bag = monster.get("bag")
     if isinstance(bag, Sequence) and not isinstance(bag, (str, bytes)):
@@ -184,6 +191,71 @@ def _log(ctx: Any, monster: Mapping[str, Any], *, success: bool, reason: str, **
         LOG.info("AI/PURSUIT success=%s reason=%s meta=%s", success, reason, {k: meta[k] for k in sorted(meta)})
     else:
         LOG.debug("AI/PURSUIT success=%s reason=%s meta=%s", success, reason, {k: meta[k] for k in sorted(meta)})
+
+
+def _emit_arrival_and_noise(
+    ctx: Any,
+    monster_pos: Iterable[int] | None,
+    player_pos: Iterable[int] | None,
+    *,
+    movement: tuple[int, int] | None,
+    flee_mode: bool,
+    arrived_dir: str | None = None,
+) -> None:
+    """Emit arrival/noise cues tuned for flee mode."""
+
+    if not flee_mode:
+        try:
+            audio_cues.emit_sound(monster_pos, player_pos, kind="footsteps", ctx=ctx, movement=movement)
+        except Exception:  # pragma: no cover - defensive guard
+            LOG.debug("Failed to emit audio cue for pursuit", exc_info=True)
+        return
+
+    mon = combat_loot.coerce_pos(monster_pos)
+    ply = combat_loot.coerce_pos(player_pos)
+    if mon is None or ply is None or len(mon) != 3 or len(ply) != 3:
+        return
+    my, mx, myy = mon  # keep tuple unpack simple
+    py, px, pyy = ply
+    if int(my) != int(py):
+        return
+    dx = int(mx) - int(px)
+    dy = int(myy) - int(pyy)
+    direction = None
+    if abs(dx) + abs(dy) == 1:
+        if dx == 1:
+            direction = "east"
+        elif dx == -1:
+            direction = "west"
+        elif dy == 1:
+            direction = "north"
+        elif dy == -1:
+            direction = "south"
+    bus = ctx.get("feedback_bus") if isinstance(ctx, Mapping) else getattr(ctx, "feedback_bus", None)
+    if not hasattr(bus, "push"):
+        return
+
+    try:
+        if arrived_dir:
+            bus.push("COMBAT/INFO", f"You see shadows to the {arrived_dir}.")
+            bus.push("COMBAT/INFO", f"You hear loud sounds of yelling and screaming to the {arrived_dir}.")
+            return
+        if direction:
+            bus.push("COMBAT/INFO", f"You see shadows to the {direction}.")
+            bus.push("COMBAT/INFO", f"You hear loud sounds of yelling and screaming to the {direction}.")
+        else:
+            # Not adjacent: provide a loud directional cue based on movement vector if known.
+            if movement:
+                mdx, mdy = movement
+                if abs(mdx) + abs(mdy) > 0:
+                    if abs(mdx) >= abs(mdy):
+                        direction = "east" if mdx > 0 else "west"
+                    else:
+                        direction = "north" if mdy > 0 else "south"
+            if direction:
+                bus.push("COMBAT/INFO", f"You hear loud sounds of yelling and screaming to the {direction}.")
+    except Exception:
+        LOG.debug("Failed to push flee noise cues", exc_info=True)
 
 
 def _apply_movement(
@@ -337,10 +409,27 @@ def attempt_pursuit(
                     movement = (mx, my)
         except Exception:  # pragma: no cover - defensive guard
             movement = None
-        try:
-            audio_cues.emit_sound(monster_pos, target, kind="footsteps", ctx=ctx, movement=movement)
-        except Exception:  # pragma: no cover - defensive guard
-            LOG.debug("Failed to emit audio cue for pursuit", exc_info=True)
+        _emit_arrival_and_noise(ctx, monster_pos, target, movement=movement, flee_mode=False)
+        # Arrival cue when entering player tile.
+        player_pos = combat_loot.coerce_pos(target)
+        monster_pos_norm = combat_loot.coerce_pos(monster_pos)
+        if player_pos and monster_pos_norm and int(player_pos[0]) == int(monster_pos_norm[0]):
+            dx = int(monster_pos_norm[1]) - int(player_pos[1])
+            dy = int(monster_pos_norm[2]) - int(player_pos[2])
+            if abs(dx) + abs(dy) == 0 and movement:
+                dir_token = None
+                mdx, mdy = movement
+                if abs(mdx) >= abs(mdy):
+                    dir_token = "east" if mdx > 0 else "west"
+                else:
+                    dir_token = "north" if mdy > 0 else "south"
+                bus = ctx.get("feedback_bus") if isinstance(ctx, Mapping) else getattr(ctx, "feedback_bus", None)
+                name = _monster_display_name(monster)
+                if dir_token and hasattr(bus, "push"):
+                    try:
+                        bus.push("COMBAT/INFO", f"{name} has just arrived from the {dir_token}.")
+                    except Exception:
+                        LOG.debug("Failed to push arrival cue", exc_info=True)
         return True
 
     meta.update(details)
@@ -407,10 +496,38 @@ def attempt_flee_step(
                     movement = (int(step[0]) - int(sx), int(step[1]) - int(sy))
             except Exception:
                 movement = None
-            try:
-                audio_cues.emit_sound(monster_pos, away or pos, kind="footsteps", ctx=ctx, movement=movement)
-            except Exception:
-                LOG.debug("Failed to emit audio cue for flee step", exc_info=True)
+            _emit_arrival_and_noise(ctx, monster_pos, away, movement=movement, flee_mode=True)
+            # If the monster just moved adjacent to or into player, emit arrival direction.
+            monster_pos = combat_loot.coerce_pos(monster_pos)
+            player_pos = combat_loot.coerce_pos(away)
+            if monster_pos and player_pos and int(monster_pos[0]) == int(player_pos[0]):
+                dx = int(monster_pos[1]) - int(player_pos[1])
+                dy = int(monster_pos[2]) - int(player_pos[2])
+                if abs(dx) + abs(dy) == 1:
+                    dir_token = None
+                    if dx == 1:
+                        dir_token = "east"
+                    elif dx == -1:
+                        dir_token = "west"
+                    elif dy == 1:
+                        dir_token = "north"
+                    elif dy == -1:
+                        dir_token = "south"
+                    bus = ctx.get("feedback_bus") if isinstance(ctx, Mapping) else getattr(ctx, "feedback_bus", None)
+                    name = _monster_display_name(monster)
+                    if dir_token and hasattr(bus, "push"):
+                        try:
+                            bus.push("COMBAT/INFO", f"{name} has just arrived from the {dir_token}.")
+                            _emit_arrival_and_noise(
+                                ctx,
+                                monster_pos,
+                                player_pos,
+                                movement=movement,
+                                flee_mode=True,
+                                arrived_dir=dir_token,
+                            )
+                        except Exception:
+                            LOG.debug("Failed to push arrival cue", exc_info=True)
             return True
 
     _log(ctx, monster, success=False, reason="blocked", attempts=len(candidates), away=away)

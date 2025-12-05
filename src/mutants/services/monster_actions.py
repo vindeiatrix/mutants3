@@ -1215,11 +1215,19 @@ def _flee_statement_action(
     ctx: MutableMapping[str, Any],
     rng: random.Random,
 ) -> Any:
+    monster_id = _monster_id(monster)
+    label = _monster_display_name(monster)
     turnlog.emit(
         ctx,
         "AI/ACT/FLEE_STATEMENT",
-        monster=_monster_id(monster),
+        monster=monster_id,
     )
+    bus = _feedback_bus(ctx)
+    if hasattr(bus, "push"):
+        try:
+            bus.push("COMBAT/INFO", f"{label} yells: Get away from me!")
+        except Exception:
+            LOG.debug("Failed to push flee yell for %s", monster_id, exc_info=True)
     return {"ok": True, "flee_statement": True, "stop_turn": False}
 
 
