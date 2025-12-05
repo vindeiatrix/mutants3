@@ -6,7 +6,7 @@ import logging
 import math
 import random
 from dataclasses import dataclass, field
-from typing import Any, Iterable, Mapping, Sequence, Collection
+from typing import Any, Iterable, Mapping, MutableMapping, Sequence, Collection
 
 from mutants.debug import turnlog
 from mutants.registries import items_instances as itemsreg
@@ -19,6 +19,7 @@ from mutants.services import monster_entities
 LOG = logging.getLogger(__name__)
 
 ORIGIN_WORLD = "world"
+_FLEE_HP_THRESHOLD = 15
 
 
 @dataclass(frozen=True)
@@ -343,6 +344,42 @@ def _has_pickup_candidate(monster: Mapping[str, Any], ctx: Any) -> bool:
     return False
 
 
+def _is_flee_mode(monster: Mapping[str, Any]) -> bool:
+    state = monster.get("_ai_state") if isinstance(monster, Mapping) else None
+    if isinstance(state, Mapping):
+        flag = state.get("flee_mode")
+        if isinstance(flag, bool):
+            return flag
+        if flag is not None:
+            return bool(flag)
+    if isinstance(monster, Mapping):
+        top_level = monster.get("flee_mode")
+        if isinstance(top_level, bool):
+            return top_level
+        if top_level is not None:
+            return bool(top_level)
+    return False
+
+
+def _set_flee_mode(monster: Any, active: bool) -> None:
+    if not isinstance(monster, MutableMapping):
+        return
+    state = monster.get("_ai_state")
+    if isinstance(state, MutableMapping):
+        state["flee_mode"] = bool(active)
+        if active:
+            state["flee_announced"] = False
+        return
+    if isinstance(state, Mapping):
+        state = dict(state)
+    else:
+        state = {}
+    state["flee_mode"] = bool(active)
+    if active:
+        state["flee_announced"] = False
+    monster["_ai_state"] = state
+
+
 def _clamp_pct(value: int) -> int:
     return max(0, min(100, value))
 
@@ -424,6 +461,48 @@ def _gate_result(
     )
 
 
+def _evaluate_flee_cascade(
+    monster: Mapping[str, Any],
+    ctx: Any,
+    *,
+    hp_pct: int,
+    data_common: Mapping[str, Any],
+) -> ActionResult | None:
+    """Dedicated flee cascade for monsters already in flee mode."""
+
+    state = monster.get("_ai_state") if isinstance(monster, MutableMapping) else None
+    announced = False
+    if isinstance(state, Mapping):
+        announced = bool(state.get("flee_announced"))
+    if not announced and isinstance(state, MutableMapping):
+        state["flee_announced"] = True
+        reason = f"flee_mode_active hp_pct={hp_pct}"
+        return _gate_result(
+            monster,
+            ctx,
+            gate="FLEE_STATEMENT",
+            action="flee_statement",
+            roll=None,
+            threshold=None,
+            reason=reason,
+            triggered=True,
+            data=data_common,
+        )
+
+    reason = f"flee_mode_move hp_pct={hp_pct}"
+    return _gate_result(
+        monster,
+        ctx,
+        gate="FLEE_MOVE",
+        action="flee_move",
+        roll=None,
+        threshold=None,
+        reason=reason,
+        triggered=True,
+        data=data_common,
+    )
+
+
 def evaluate_cascade(monster: Any, ctx: Any) -> ActionResult:
     """Evaluate the monster action cascade and return the chosen gate."""
 
@@ -469,6 +548,12 @@ def evaluate_cascade(monster: Any, ctx: Any) -> ActionResult:
     target_collocated = False
     if target_id:
         target_pos, target_collocated = tracking_mod.get_target_position(monster, target_id)
+    flee_mode = _is_flee_mode(monster)
+    flee_capable = hp_pct < _FLEE_HP_THRESHOLD
+    if flee_capable and not flee_mode:
+        _set_flee_mode(monster, True)
+        flee_mode = True
+    flee_rolls_enabled = flee_mode or flee_capable
     same_year_target = (
         target_pos is not None
         and monster_pos is not None
@@ -476,11 +561,7 @@ def evaluate_cascade(monster: Any, ctx: Any) -> ActionResult:
     )
 
     base_flee_pct = _apply_cascade_modifier(config.flee_pct, cascade_overrides.get("flee_pct"))
-    flee_threshold = _clamp_pct(base_flee_pct + (config.cracked_flee_bonus if cracked else 0))
-    if level_delta >= 5:
-        flee_threshold = _clamp_pct(flee_threshold + 5)
-    elif level_delta <= -5:
-        flee_threshold = _clamp_pct(flee_threshold - 5)
+    flee_threshold = _clamp_pct(base_flee_pct)
     heal_threshold = _apply_cascade_modifier(config.heal_pct, cascade_overrides.get("heal_pct"))
     cast_threshold = _apply_cascade_modifier(config.cast_pct, cascade_overrides.get("cast_pct"))
     convert_threshold = _apply_cascade_modifier(config.convert_pct, cascade_overrides.get("convert_pct"))
@@ -524,6 +605,9 @@ def evaluate_cascade(monster: Any, ctx: Any) -> ActionResult:
         "level_delta": level_delta,
         "bonus_action": bonus.active,
         "bonus_force_pickup": bonus.active and bonus.force_pickup,
+        "flee_capable": flee_capable,
+        "flee_chance": flee_threshold,
+        "flee_mode_active": flee_mode,
     }
     if overrides:
         data_common["species_overrides"] = overrides
@@ -542,36 +626,18 @@ def evaluate_cascade(monster: Any, ctx: Any) -> ActionResult:
     def _record_failure(name: str, reason: str) -> None:
         failures.append({"gate": name, "reason": reason})
 
-    # FLEE gate
-    flee_checks: list[str] = []
-    if flee_threshold > 0:
-        if hp_pct < config.flee_hp_pct:
-            flee_checks.append("hp")
-        else:
-            _record_failure("FLEE", f"hp_pct={hp_pct} threshold={flee_threshold}")
-        if cracked and level_delta >= 5:
-            flee_checks.append("panic")
-    else:
-        _record_failure("FLEE", f"hp_pct={hp_pct} threshold={flee_threshold}")
-
-    for mode in flee_checks:
-        roll = int(rng.randrange(100))
-        reason = (
-            f"mode={mode} hp_pct={hp_pct} delta={level_delta} roll={roll} threshold={flee_threshold}"
+    # Early flee rolls (statement then movement); fall through to cascade on failures.
+    if flee_mode:
+        return _evaluate_flee_cascade(
+            monster,
+            ctx,
+            hp_pct=hp_pct,
+            data_common={**data_common, "failures": failures},
         )
-        if roll < flee_threshold:
-            return _gate_result(
-                monster,
-                ctx,
-                gate="FLEE",
-                action="flee",
-                roll=roll,
-                threshold=flee_threshold,
-                reason=reason,
-                triggered=True,
-                data={**data_common, "failures": failures, "flee_mode": mode},
-            )
-        _record_failure("FLEE", reason)
+    else:
+        reason = f"flee_capable={flee_capable} flee_mode={flee_mode} threshold={flee_threshold}"
+        _record_failure("FLEE_STATEMENT", reason)
+        _record_failure("FLEE_MOVE", reason)
 
     if (
         same_year_target
