@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 import random
-from typing import TYPE_CHECKING, Any, Iterable, List, Mapping, Sequence, Tuple
+from typing import TYPE_CHECKING, Any, Iterable, List, Mapping, MutableMapping, Sequence, Tuple
 
 from mutants.services import player_state as pstate
 from mutants.debug import turnlog
@@ -73,6 +73,34 @@ def _normalize_pos(value: Any) -> tuple[int, int, int] | None:
     except (TypeError, ValueError):
         return None
     return year, x, y
+
+
+def _ensure_ai_state(monster: MutableMapping[str, Any]) -> MutableMapping[str, Any]:
+    state = monster.get("_ai_state")
+    if isinstance(state, MutableMapping):
+        return state
+    if isinstance(state, Mapping):
+        state = dict(state)
+    else:
+        state = {}
+    monster["_ai_state"] = state
+    return state
+
+
+def _is_flee_mode(monster: Mapping[str, Any]) -> bool:
+    state = monster.get("_ai_state") if isinstance(monster, Mapping) else None
+    if isinstance(state, Mapping):
+        flag = state.get("flee_mode")
+        if isinstance(flag, bool):
+            return flag
+        if flag is not None:
+            return bool(flag)
+    top_level = monster.get("flee_mode") if isinstance(monster, Mapping) else None
+    if isinstance(top_level, bool):
+        return top_level
+    if top_level is not None:
+        return bool(top_level)
+    return False
 
 
 def _is_alive(monster: Mapping[str, Any]) -> bool:
@@ -317,6 +345,13 @@ def on_player_command(ctx: Any, *, token: str, resolved: str | None, arg: str | 
             return
         collocated = mon_pos == pos
 
+        if not collocated and not _is_flee_mode(monster) and isinstance(monster, MutableMapping):
+            try:
+                state_block = _ensure_ai_state(monster)
+                state_block["pending_pursuit"] = [int(pos[0]), int(pos[1]), int(pos[2])]
+            except Exception:
+                pass
+
         monster_id = _monster_id(monster)
         processed.add(monster_id)
 
@@ -354,6 +389,10 @@ def on_player_command(ctx: Any, *, token: str, resolved: str | None, arg: str | 
         credits = _roll_credits(rng, weights)
         if not collocated:
             credits = min(credits, 1)
+            if credits <= 0:
+                credits = 1
+        if _is_flee_mode(monster) and credits < 2:
+            credits = 2
         if reentry and credits <= 0:
             credits = 1
             turnlog.emit(

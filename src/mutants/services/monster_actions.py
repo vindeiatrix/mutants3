@@ -21,7 +21,7 @@ from mutants.services.monster_ai import casting as casting_mod
 from mutants.services.monster_ai import emote as emote_mod
 from mutants.services.monster_ai import taunt as taunt_mod
 from mutants.services.monster_ai import tracking as tracking_mod
-from mutants.services.monster_ai.pursuit import attempt_pursuit
+from mutants.services.monster_ai.pursuit import attempt_pursuit, attempt_flee_step
 from mutants.debug import turnlog
 from mutants.ui import item_display, textutils
 
@@ -258,6 +258,23 @@ def _ai_state(monster: MutableMapping[str, Any]) -> MutableMapping[str, Any]:
     if not isinstance(pickups, list):
         payload["picked_up"] = []
     return payload
+
+
+def _is_flee_mode(monster: Mapping[str, Any]) -> bool:
+    state = monster.get("_ai_state") if isinstance(monster, Mapping) else None
+    if isinstance(state, Mapping):
+        flag = state.get("flee_mode")
+        if isinstance(flag, bool):
+            return flag
+        if flag is not None:
+            return bool(flag)
+    if isinstance(monster, Mapping):
+        top_level = monster.get("flee_mode")
+        if isinstance(top_level, bool):
+            return top_level
+        if top_level is not None:
+            return bool(top_level)
+    return False
 
 
 def _ledger_state(monster: MutableMapping[str, Any]) -> MutableMapping[str, int]:
@@ -1193,6 +1210,35 @@ def _flee_stub(
     return {"ok": True, "fled": False}
 
 
+def _flee_statement_action(
+    monster: MutableMapping[str, Any],
+    ctx: MutableMapping[str, Any],
+    rng: random.Random,
+) -> Any:
+    turnlog.emit(
+        ctx,
+        "AI/ACT/FLEE_STATEMENT",
+        monster=_monster_id(monster),
+    )
+    return {"ok": True, "flee_statement": True, "stop_turn": False}
+
+
+def _flee_move_action(
+    monster: MutableMapping[str, Any],
+    ctx: MutableMapping[str, Any],
+    rng: random.Random,
+) -> Any:
+    target_pos = None
+    target_id = _sanitize_player_id(monster.get("target_player_id"))
+    if target_id:
+        target_pos, _ = tracking_mod.get_target_position(monster, target_id)
+
+    success = attempt_flee_step(monster, target_pos, rng, ctx=ctx)
+    if success:
+        _mark_monsters_dirty(ctx)
+    return {"ok": success, "flee_move": True, "stop_turn": True}
+
+
 def _pursue_action(
     monster: MutableMapping[str, Any],
     ctx: MutableMapping[str, Any],
@@ -1352,6 +1398,8 @@ _ACTION_TABLE: dict[str, ActionFn] = {
     "remove_armour": _remove_broken_armour,
     "heal": _heal_action,
     "flee": _flee_stub,
+    "flee_statement": _flee_statement_action,
+    "flee_move": _flee_move_action,
     "pursue": _pursue_action,
     "cast": _cast_action,
     "emote": emote_mod.cascade_emote_action,
@@ -1368,8 +1416,12 @@ def execute_random_action(monster: Any, ctx: Any, *, rng: Any | None = None, cas
     else:
         random_obj = random.Random()
     ctx["monster_ai_rng"] = random_obj
+    flee_mode = _is_flee_mode(monster)
     inventory_mod.process_pending_drops(monster, ctx, random_obj)
     pursuit_target = _pop_pending_pursuit(monster, ctx)
+    if flee_mode and pursuit_target is not None:
+        # Discard pending pursuits while fleeing.
+        pursuit_target = None
     if pursuit_target is not None:
         success = attempt_pursuit(monster, pursuit_target, random_obj, ctx=ctx)
         if success:
@@ -1390,7 +1442,7 @@ def execute_random_action(monster: Any, ctx: Any, *, rng: Any | None = None, cas
         return {"ok": False, "cast_skipped": True, "stop_turn": False}
     if action_name == "cast":
         cast_guard["cast_used"] = True
-    stop_after = action_name == "pursue"
+    stop_after = action_name in {"pursue", "flee_move"}
     action = _ACTION_TABLE.get(action_name)
     if not action:
         LOG.debug("No action handler for gate %s", cascade_result.gate)
@@ -1399,18 +1451,21 @@ def execute_random_action(monster: Any, ctx: Any, *, rng: Any | None = None, cas
         result = action(monster, ctx, random_obj)
         success = False
         payload: Dict[str, Any] = {}
+        stop_turn = False
         if isinstance(result, Mapping):
             payload = dict(result)
             success = bool(payload.get("ok", True))
             if action_name == "cast":
                 payload.setdefault("casted", True)
+            stop_turn = bool(payload.get("stop_turn"))
         else:
             success = bool(result)
+            stop_turn = False
         if not success:
             payload.setdefault("monster", _monster_id(monster))
             payload.setdefault("success", False)
             turnlog.emit(ctx, f"AI/ACT/{action_name.upper()}", **payload)
-        if stop_after:
+        if stop_after or stop_turn:
             if isinstance(payload, dict):
                 payload["stop_turn"] = True
             else:

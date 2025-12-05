@@ -348,4 +348,73 @@ def attempt_pursuit(
     return False
 
 
-__all__ = ["attempt_pursuit"]
+def attempt_flee_step(
+    monster: MutableMapping[str, Any],
+    away_from_pos: Iterable[int] | Mapping[str, Any] | None,
+    rng: Any,
+    *,
+    ctx: Any | None = None,
+) -> bool:
+    """Try to take a single step strictly away from ``away_from_pos``."""
+
+    pos = combat_loot.coerce_pos(monster.get("pos"))
+    away = combat_loot.coerce_pos(away_from_pos) if away_from_pos is not None else None
+    if pos is None or away is None:
+        _log(ctx, monster, success=False, reason="invalid-pos", pos=pos, away=away)
+        return False
+
+    year, sx, sy = pos
+    if int(away[0]) != int(year):
+        _log(ctx, monster, success=False, reason="cross-year", pos=pos, away=away)
+        return False
+
+    current_distance = abs(int(sx) - int(away[1])) + abs(int(sy) - int(away[2]))
+
+    directions = list(_DIRECTIONS.keys())
+    try:
+        rng.shuffle(directions)
+    except Exception:
+        pass
+
+    candidates: list[tuple[int, tuple[int, int]]] = []
+    for dx, dy in directions:
+        step = (int(sx) + int(dx), int(sy) + int(dy))
+        step_distance = abs(step[0] - int(away[1])) + abs(step[1] - int(away[2]))
+        if step_distance <= current_distance:
+            continue
+        candidates.append((step_distance, step))
+
+    if not candidates:
+        _log(ctx, monster, success=False, reason="no-away-step", pos=pos, away=away)
+        return False
+
+    # Prefer steps that maximize distance
+    candidates.sort(key=lambda value: value[0], reverse=True)
+
+    for _, step in candidates:
+        success, details = _apply_movement(monster, int(year), (int(sx), int(sy)), step, ctx)
+        if success:
+            meta = {"from": (int(sx), int(sy)), "step": step, "away": away}
+            meta.update(details)
+            _log(ctx, monster, success=True, reason="flee-step", **meta)
+            try:
+                monster_pos = monster.get("pos")
+            except Exception:  # pragma: no cover - defensive
+                monster_pos = None
+            movement: tuple[int, int] | None = None
+            try:
+                if isinstance(step, tuple) and len(step) == 2:
+                    movement = (int(step[0]) - int(sx), int(step[1]) - int(sy))
+            except Exception:
+                movement = None
+            try:
+                audio_cues.emit_sound(monster_pos, away or pos, kind="footsteps", ctx=ctx, movement=movement)
+            except Exception:
+                LOG.debug("Failed to emit audio cue for flee step", exc_info=True)
+            return True
+
+    _log(ctx, monster, success=False, reason="blocked", attempts=len(candidates), away=away)
+    return False
+
+
+__all__ = ["attempt_pursuit", "attempt_flee_step"]
