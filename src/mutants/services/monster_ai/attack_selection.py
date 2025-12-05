@@ -183,6 +183,35 @@ def _has_innate(monster: Mapping[str, Any]) -> bool:
     return bool(innate)
 
 
+def _melee_power(entry: Mapping[str, Any] | None, catalog: Mapping[str, Mapping[str, Any]]) -> int:
+    if not entry:
+        return 0
+    derived = entry.get("derived")
+    if isinstance(derived, Mapping) and derived.get("base_damage") is not None:
+        try:
+            return max(0, int(derived.get("base_damage", 0)))
+        except (TypeError, ValueError):
+            return 0
+    template = _entry_template(entry, catalog)
+    try:
+        return max(0, int(template.get("base_power_melee", 0)))
+    except (TypeError, ValueError):
+        return 0
+
+
+def _innate_power(monster: Mapping[str, Any]) -> int:
+    innate = monster.get("innate_attack")
+    if not isinstance(innate, Mapping):
+        return 0
+    for key in ("base_power", "base_damage", "base_power_melee"):
+        if key in innate:
+            try:
+                return max(0, int(innate.get(key, 0)))
+            except (TypeError, ValueError):
+                return 0
+    return 0
+
+
 def _entry_token(entry: Mapping[str, Any] | None, fallback: str | None = None) -> str | None:
     if entry is None:
         return fallback
@@ -223,6 +252,8 @@ def _build_weight_table(
     ranged_entry: Mapping[str, Any] | None,
     has_innate: bool,
     prefers_ranged: bool,
+    melee_power: int,
+    innate_power: int,
 ) -> dict[str, int]:
     weights: dict[str, int] = {"melee": 0, "bolt": 0, "innate": 0}
     if melee_entry and ranged_entry:
@@ -245,6 +276,11 @@ def _build_weight_table(
     else:
         if has_innate:
             weights["innate"] = 100
+    if has_innate and melee_entry:
+        # If the melee option is notably weaker than innate, favour innate.
+        if melee_power < max(1, int(innate_power * 0.75)):
+            weights["innate"] = max(weights["innate"], 90)
+            weights["melee"] = min(weights["melee"], 10)
     return weights
 
 
@@ -268,12 +304,16 @@ def select_attack(monster: Mapping[str, Any], ctx: Any) -> AttackPlan:
 
     has_innate = _has_innate(monster)
     prefers_ranged = _resolve_prefers_ranged(monster, ctx)
+    melee_power = _melee_power(melee_entry, catalog)
+    innate_power = _innate_power(monster)
 
     weights = _build_weight_table(
         melee_entry=melee_entry,
         ranged_entry=ranged_entry,
         has_innate=has_innate,
         prefers_ranged=prefers_ranged,
+        melee_power=melee_power,
+        innate_power=innate_power,
     )
 
     weights["melee"] = _apply_cracked_penalty(weights["melee"], melee_entry)
