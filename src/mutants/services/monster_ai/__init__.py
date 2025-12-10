@@ -345,7 +345,11 @@ def on_player_command(ctx: Any, *, token: str, resolved: str | None, arg: str | 
             return
         collocated = mon_pos == pos
 
-        if not collocated and not _is_flee_mode(monster) and isinstance(monster, MutableMapping):
+        if (
+            not collocated
+            and not _is_flee_mode(monster)
+            and isinstance(monster, MutableMapping)
+        ):
             try:
                 state_block = _ensure_ai_state(monster)
                 state_block["pending_pursuit"] = [int(pos[0]), int(pos[1]), int(pos[2])]
@@ -386,23 +390,31 @@ def on_player_command(ctx: Any, *, token: str, resolved: str | None, arg: str | 
                 return
 
         reentry = monster_id in reentry_ids
-        credits = _roll_credits(rng, weights)
-        if not collocated:
+        has_target = target == player_id
+        # Wake ticks should behave like the reference: taunt once, then exactly one action.
+        wake_tick = require_wake and woke
+        credits = 1 if wake_tick else _roll_credits(rng, weights)
+
+        if not has_target:
             credits = min(credits, 1)
-            if credits <= 0:
+
+        if not wake_tick:
+            if not collocated:
+                credits = min(credits, 1)
+                if credits <= 0:
+                    credits = 1
+            if _is_flee_mode(monster) and credits < 2:
+                credits = 2
+            if reentry and credits <= 0:
                 credits = 1
-        if _is_flee_mode(monster) and credits < 2:
-            credits = 2
-        if reentry and credits <= 0:
-            credits = 1
-            turnlog.emit(
-                ctx,
-                "AI/REENTRY",
-                monster=monster_id,
-                player=player_id,
-            )
-        if collocated and credits <= 0:
-            credits = 1
+                turnlog.emit(
+                    ctx,
+                    "AI/REENTRY",
+                    monster=monster_id,
+                    player=player_id,
+                )
+            if collocated and credits <= 0 and has_target:
+                credits = 1
         _log_tick(ctx, monster, credits)
         if credits <= 0:
             return

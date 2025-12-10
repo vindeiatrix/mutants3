@@ -33,6 +33,13 @@ def main() -> None:
     ctx["feedback_bus"].push("SYSTEM/INFO", startup_banner(ctx))
 
     # Enter class selection menu at startup; suppress any pending room render.
+    try:
+        monsters_obj = ctx.get("monsters")
+        from mutants.services import monsters_state
+
+        monsters_state.clear_all_targets(monsters_obj)
+    except Exception:  # pragma: no cover - best effort
+        LOG.debug("Failed to clear monster targets on startup", exc_info=True)
     ctx["mode"] = "class_select"
     ctx["render_next"] = False
     render_menu(ctx)

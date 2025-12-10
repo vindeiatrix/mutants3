@@ -467,8 +467,16 @@ def _evaluate_flee_cascade(
     *,
     hp_pct: int,
     data_common: Mapping[str, Any],
+    flee_threshold: int,
+    failures: list[Mapping[str, Any]],
+    rng: Any,
 ) -> ActionResult | None:
-    """Dedicated flee cascade for monsters already in flee mode."""
+    """Dedicated flee cascade for monsters already in flee mode.
+
+    First time in flee mode: always announce. Thereafter, roll independently
+    for another statement and for a flee move; on double failure, fall through
+    to the normal cascade so monsters can still act (attack/pickup/heal/etc.).
+    """
 
     state = monster.get("_ai_state") if isinstance(monster, MutableMapping) else None
     announced = False
@@ -489,18 +497,45 @@ def _evaluate_flee_cascade(
             data=data_common,
         )
 
-    reason = f"flee_mode_move hp_pct={hp_pct}"
-    return _gate_result(
-        monster,
-        ctx,
-        gate="FLEE_MOVE",
-        action="flee_move",
-        roll=None,
-        threshold=None,
-        reason=reason,
-        triggered=True,
-        data=data_common,
-    )
+    if flee_threshold > 0:
+        roll = int(rng.randrange(100))
+        reason = f"roll={roll} threshold={flee_threshold} hp_pct={hp_pct}"
+        if roll < flee_threshold:
+            return _gate_result(
+                monster,
+                ctx,
+                gate="FLEE_STATEMENT",
+                action="flee_statement",
+                roll=roll,
+                threshold=flee_threshold,
+                reason=reason,
+                triggered=True,
+                data=data_common,
+            )
+        failures.append({"gate": "FLEE_STATEMENT", "reason": reason})
+    else:
+        failures.append({"gate": "FLEE_STATEMENT", "reason": f"threshold={flee_threshold}"})
+
+    if flee_threshold > 0:
+        roll = int(rng.randrange(100))
+        reason = f"roll={roll} threshold={flee_threshold} hp_pct={hp_pct}"
+        if roll < flee_threshold:
+            return _gate_result(
+                monster,
+                ctx,
+                gate="FLEE_MOVE",
+                action="flee_move",
+                roll=roll,
+                threshold=flee_threshold,
+                reason=reason,
+                triggered=True,
+                data=data_common,
+            )
+        failures.append({"gate": "FLEE_MOVE", "reason": reason})
+    else:
+        failures.append({"gate": "FLEE_MOVE", "reason": f"threshold={flee_threshold}"})
+
+    return None
 
 
 def evaluate_cascade(monster: Any, ctx: Any) -> ActionResult:
@@ -628,12 +663,17 @@ def evaluate_cascade(monster: Any, ctx: Any) -> ActionResult:
 
     # Early flee rolls (statement then movement); fall through to cascade on failures.
     if flee_mode:
-        return _evaluate_flee_cascade(
+        result = _evaluate_flee_cascade(
             monster,
             ctx,
             hp_pct=hp_pct,
             data_common={**data_common, "failures": failures},
+            flee_threshold=flee_threshold,
+            failures=failures,
+            rng=rng,
         )
+        if result is not None:
+            return result
     else:
         reason = f"flee_capable={flee_capable} flee_mode={flee_mode} threshold={flee_threshold}"
         _record_failure("FLEE_STATEMENT", reason)
@@ -641,6 +681,7 @@ def evaluate_cascade(monster: Any, ctx: Any) -> ActionResult:
 
     if (
         same_year_target
+        and not flee_mode
         and monster_pos is not None
         and target_pos is not None
         and (monster_pos[1] != target_pos[1] or monster_pos[2] != target_pos[2])

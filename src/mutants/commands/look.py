@@ -30,6 +30,19 @@ def look_cmd(arg: str, ctx: Dict[str, Any]) -> None:
         ctx["render_next"] = True
         return
 
+    # Prefer inventory lookup first so ambiguous prefixes like "n" hit items before directions.
+    iid = find_inventory_item_by_prefix(ctx, token)
+    if iid:
+        inst = itemsreg.get_instance(iid) or {}
+        cat = items_catalog.load_catalog()
+        tpl = cat.get(inst.get("item_id")) or {}
+        desc = describe_instance(iid)
+        if tpl.get("uses_charges") or tpl.get("charges_max") is not None:
+            ch = int(inst.get("charges", 0))
+            desc = f"{desc}  Charges: {ch}."
+        ctx["feedback_bus"].push("SYSTEM/OK", desc)
+        return
+
     dir_full = coerce_direction(token)
     if dir_full:
         dir_code = DIR_CODE[dir_full]
@@ -58,18 +71,6 @@ def look_cmd(arg: str, ctx: Dict[str, Any]) -> None:
         )
         ctx["peek_vm"] = vm
         ctx["render_next"] = True
-        return
-
-    iid = find_inventory_item_by_prefix(ctx, token)
-    if iid:
-        inst = itemsreg.get_instance(iid) or {}
-        cat = items_catalog.load_catalog()
-        tpl = cat.get(inst.get("item_id")) or {}
-        desc = describe_instance(iid)
-        if tpl.get("uses_charges") or tpl.get("charges_max") is not None:
-            ch = int(inst.get("charges", 0))
-            desc = f"{desc}  Charges: {ch}."
-        ctx["feedback_bus"].push("SYSTEM/OK", desc)
         return
 
     ctx["feedback_bus"].push("LOOK/BAD_DIR", "Try north, south, east, or west.")
