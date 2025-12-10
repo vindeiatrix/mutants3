@@ -999,14 +999,9 @@ def perform_ranged_attack(
             if starter_armour:
                 armour_hint = {"item_id": starter_armour}
         sorted_drops = _sorted_drop_messages(drop_iterable or [], armour_hint)
-        if sorted_drops:
-            bus.push("COMBAT/INFO", "***")
-            for idx, entry in enumerate(sorted_drops):
-                label_text = combat_loot._entry_label(entry, catalog)
-                bus.push("COMBAT/INFO", f"A {label_text} is falling from {label}'s body!")
-                if idx < len(sorted_drops) - 1:
-                    bus.push("COMBAT/INFO", "***")
-            bus.push("COMBAT/INFO", "***")
+        for entry in sorted_drops or []:
+            label_text = combat_loot._entry_label(entry, catalog)
+            bus.push("COMBAT/INFO", f"A {label_text} is falling from {label}'s body!")
         bus.push("COMBAT/INFO", f"{label} is crumbling to dust!")
         try:
             from mutants.services import monster_actions as monster_actions_mod

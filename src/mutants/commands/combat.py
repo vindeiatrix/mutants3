@@ -89,7 +89,7 @@ def combat_cmd(arg: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
     target_monster, target_id = matches[0]
     sanitized = pstate.set_ready_target_for_active(target_id)
     label = _display_name(target_monster, sanitized or target_id)
-    bus.push("SYSTEM/OK", f"You ready yourself against {label}.")
+    bus.push("COMBAT/READY", f"You ready yourself against {label}.")
     return {"ok": True, "target_id": sanitized or target_id, "target_name": label}
 
 

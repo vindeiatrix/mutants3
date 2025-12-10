@@ -1,0 +1,59 @@
+1
+debug hp 1000000
+debug add gold_chunk
+debug add gold_chunk
+debug add gold_chunk
+debug add gold_chunk
+debug add gold_chunk
+get g
+debug monster j
+debug monster j
+look
+look
+look
+look
+look
+look
+look
+look
+look
+look
+look
+look
+look
+look
+look
+look
+look
+look
+look
+look
+w
+e
+w
+e
+w
+e
+w
+e
+w
+e
+look
+look
+look
+look
+look
+com j
+wie g
+wie g
+look
+look
+look
+look
+look
+look
+look
+look
+look
+look
+

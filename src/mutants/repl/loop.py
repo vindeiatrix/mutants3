@@ -6,8 +6,11 @@ from mutants.repl.dispatch import Dispatch
 from mutants.commands.register_all import register_all
 from mutants.repl.prompt import make_prompt
 from mutants.repl.help import startup_banner
+from mutants.ui import styles as st
+from mutants.ui import groups as UG
 from mutants.ui.class_menu import handle_input, render_menu
 from mutants.services import player_state as pstate
+import sys
 
 
 LOG = logging.getLogger(__name__)
@@ -21,6 +24,11 @@ def _clear_target_on_exit(reason: str = "shutdown") -> None:
 
 
 def main() -> None:
+    try:  # Ensure UTF-8 output so non-ASCII glyphs don't render as '?' on Windows.
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
     ctx = build_context()
     dispatch = Dispatch()
     dispatch.set_feedback_bus(ctx["feedback_bus"])
@@ -54,6 +62,12 @@ def main() -> None:
             break
 
         try:
+            if not raw.strip():
+                # Empty submission: show assistance hint, do not advance turn.
+                hint = st.colorize_text("Type ? if you need assistance.", group=UG.FEEDBACK_WARN)
+                print("***")
+                print(hint)
+                continue
             if ctx.get("mode") == "class_select":
                 handle_input(raw, ctx)
             else:

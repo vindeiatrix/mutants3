@@ -2,6 +2,8 @@ from __future__ import annotations
 from mutants.registries import items_catalog, items_instances as itemsreg
 from mutants.services import player_state as pstate
 from mutants.services.items_weight import get_effective_weight
+from ..ui import styles as st
+from ..ui import groups as UG
 from ..ui.item_display import item_label, number_duplicates, with_article
 from ..ui import wrap as uwrap
 from ..ui.textutils import harden_final_display
@@ -56,16 +58,18 @@ def inv_cmd(arg: str, ctx):
     numbered = number_duplicates(names)
     display = [harden_final_display(with_article(n)) for n in numbered]
     bus = ctx["feedback_bus"]
-    # Header must read exactly as specified; note the two spaces before '('
-    bus.push(
-        "SYSTEM/OK",
+    header = st.colorize_text(
         f"You are carrying the following items:  (Total Weight: {total_weight} LB's)",
+        group=UG.HEADER,
     )
+    body_lines = []
     if not display:
-        bus.push("SYSTEM/OK", "Nothing.")
-        return
-    for ln in uwrap.wrap_list(display):
-        bus.push("SYSTEM/OK", ln)
+        body_lines.append("Nothing.")
+    else:
+        for ln in uwrap.wrap_list(display):
+            body_lines.append(st.colorize_text(ln, group=UG.ITEM_LINE))
+    block = "\n".join([header, *body_lines])
+    bus.push("SYSTEM/OK", block)
 
 
 def register(dispatch, ctx) -> None:

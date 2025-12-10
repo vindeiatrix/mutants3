@@ -382,7 +382,13 @@ def render_token_lines(
             lines.append([("", ev)])
 
     if feedback_events:
-        for ev in feedback_events:
+        sep_line: SegmentLine = [("", UC.SEPARATOR_LINE)]
+        # Ensure a separator between the room/monsters block and the first event.
+        if lines and not _is_separator(lines[-1]):
+            lines.append(sep_line)
+        for idx, ev in enumerate(feedback_events):
+            if idx > 0:
+                lines.append(sep_line)
             enriched = _with_player_display_name(ev, player_display_name)
             if isinstance(enriched, Mapping):
                 token = _feedback_token(str(enriched.get("kind", "")))
@@ -390,6 +396,7 @@ def render_token_lines(
             else:
                 token = _feedback_token("")
                 text = resolve_feedback_text(ev)
+            # Resolve to plain strings immediately to preserve separator checks downstream.
             lines.append([(token, text)])
 
     return lines
@@ -564,7 +571,12 @@ def render(
     lines = _assert_no_sep_violations(lines)
 
     if feedback_events:
-        for ev in feedback_events:
+        sep = UC.SEPARATOR_LINE
+        if lines and lines[-1] != sep:
+            lines.append(sep)
+        for idx, ev in enumerate(feedback_events):
+            if idx > 0:
+                lines.append(sep)
             enriched = _with_player_display_name(ev, player_display_name)
             if isinstance(enriched, Mapping):
                 kind = str(enriched.get("kind", ""))

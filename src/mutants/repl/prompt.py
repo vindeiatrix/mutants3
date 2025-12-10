@@ -8,5 +8,5 @@ def make_prompt(ctx) -> str:
     """
 
     if ctx.get("mode") == "class_select":
-        return "\x1b[33mSelect (Bury, 1–5, ?)\x1b[0m "
+        return "\x1b[33mSelect (Bury, 1-5, ?)\x1b[0m "
     return "> "

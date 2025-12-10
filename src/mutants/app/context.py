@@ -372,25 +372,40 @@ def render_frame(ctx: Dict[str, Any]) -> None:
 
 def flush_feedback(ctx: Dict[str, Any]) -> None:
     try:
-        sys.stdout.reconfigure(errors="replace")
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     except Exception:
         pass
     events = ctx["feedback_bus"].drain()
     if not events:
         return
     palette = ctx["theme"].palette
+    in_class_menu = ctx.get("mode") == "class_select"
+    last_was_kill_info = False
     for ev in events:
         kind = ev.get("kind", "") if isinstance(ev, Mapping) else ""
-        prefixed = any(
-            str(kind).startswith(prefix) for prefix in ("COMBAT", "LOOT", "MOVE", "SPELL")
-        )
-        if prefixed:
-            print("***")
         group = renderer._feedback_group(str(kind)) if hasattr(renderer, "_feedback_group") else None
         if group:
-            line = st.colorize_text(resolve_feedback_text(ev), group=group)
-            print(line)
+            text = resolve_feedback_text(ev)
+            if text == "":
+                print("")
+                continue
+            is_kill_info = text.startswith("You have slain") or text.startswith(
+                "Your experience points"
+            ) or text.startswith("You collect ")
+            if not in_class_menu:
+                if not (is_kill_info and last_was_kill_info):
+                    print("***")
+            print(st.colorize_text(text, group=group))
+            last_was_kill_info = is_kill_info
+            if not is_kill_info:
+                last_was_kill_info = False
         else:
             token = renderer._feedback_token(str(kind))
-            line = st.resolve_segments([(token, resolve_feedback_text(ev))], palette)
-            print(line)
+            text = resolve_feedback_text(ev)
+            if text == "":
+                print("")
+                continue
+            if not in_class_menu:
+                print("***")
+            print(st.resolve_segments([(token, text)], palette))
+            last_was_kill_info = False
