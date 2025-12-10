@@ -7,6 +7,7 @@ from . import constants as c
 from . import formatters as fmt
 from . import uicontract as UC
 from . import styles as st
+from . import groups as UG
 from .viewmodels import RoomVM
 from .wrap import wrap_list, WRAP_DEBUG_OPTS
 from . import item_display as idisp
@@ -169,6 +170,37 @@ def _feedback_token(kind: str) -> str:
     return ""
 
 
+def _feedback_group(kind: str) -> str:
+    """Map feedback kind to a semantic color group."""
+
+    mapping = {
+        "SYSTEM/OK": UG.LOG_LINE,
+        "SYSTEM/WARN": UG.FEEDBACK_WARN,
+        "SYSTEM/ERR": UG.FEEDBACK_ERR,
+        "MOVE/OK": UG.FEEDBACK_INFO,
+        "MOVE/BLOCKED": UG.FEEDBACK_WARN,
+        "COMBAT/HIT": UG.FEEDBACK_WARN,
+        "COMBAT/CRIT": UG.FEEDBACK_ERR,
+        "COMBAT/KILL": UG.FEEDBACK_ERR,
+        "COMBAT/INFO": UG.FEEDBACK_ERR,
+        "COMBAT/TAUNT": UG.FEEDBACK_WARN,
+        "COMBAT/READY": UG.FEEDBACK_WARN,
+        "COMBAT/HEAL": UG.FEEDBACK_WARN,
+        "COMBAT/HEAL_MONSTER": UG.FEEDBACK_WARN,
+        "COMBAT/SPELL": UG.FEEDBACK_ERR,
+        "COMBAT/POINT": UG.FEEDBACK_WARN,
+        "LOOT/PICKUP": UG.HEADER,
+        "LOOT/DROP": UG.HEADER,
+        "SPELL/CAST": UG.FEEDBACK_ERR,
+        "SPELL/FAIL": UG.FEEDBACK_WARN,
+        "DEBUG": UG.LOG_LINE,
+    }
+    for prefix, group in mapping.items():
+        if kind.startswith(prefix):
+            return group
+    return UG.FEEDBACK_INFO
+
+
 def render_token_lines(
     vm: RoomVM, feedback_events: Optional[List[dict]] = None, width: int = c.WIDTH
 ) -> List[SegmentLine]:
@@ -298,6 +330,11 @@ def render_token_lines(
             if idx < len(cues) - 1:
                 block_cues.append(list(sep_line))
 
+    # Shadows as cues to keep separator layout consistent with reference.
+    shadow_line = fmt.format_shadows(vm.get("shadows", []))
+    if shadow_line:
+        block_cues.append(shadow_line)
+
     # ---- Join blocks with separators between non-empty blocks only ----
     def _join_with_separators(blocks: List[List[SegmentLine]]) -> List[SegmentLine]:
         out: List[SegmentLine] = []
@@ -343,11 +380,6 @@ def render_token_lines(
     if events:
         for ev in events:
             lines.append([("", ev)])
-
-    shadows = vm.get("shadows", [])
-    shadow_line = fmt.format_shadows(shadows)
-    if shadow_line:
-        lines.append(shadow_line)
 
     if feedback_events:
         for ev in feedback_events:
@@ -487,6 +519,9 @@ def render(
             block_cues.append(fmt.format_cue_line(cue))
             if idx < len(cues) - 1:
                 block_cues.append(UC.SEPARATOR_LINE)
+    shadow_line = fmt.format_shadows(vm.get("shadows", []))
+    if shadow_line:
+        block_cues.append(st.resolve_segments(shadow_line, {}))
 
     # ---- Join blocks with separators between non-empty blocks only ----
     def _join_with_separators(blocks: list[list[str]]) -> list[str]:
@@ -532,9 +567,11 @@ def render(
         for ev in feedback_events:
             enriched = _with_player_display_name(ev, player_display_name)
             if isinstance(enriched, Mapping):
-                lines.append(resolve_feedback_text(enriched))
+                kind = str(enriched.get("kind", ""))
+                group = _feedback_group(kind)
+                lines.append(st.colorize_text(resolve_feedback_text(enriched), group=group))
             else:
-                lines.append(resolve_feedback_text(ev))
+                lines.append(st.colorize_text(resolve_feedback_text(ev), group=_feedback_group("")))
 
     return lines
 

@@ -257,8 +257,9 @@ def convert_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
         return {"ok": False, "reason": "save_error"}
 
     name = _display_name(item_id, catalog)
-    bus.push("SYSTEM/OK", f"The {name} vanishes with a flash!")
-    bus.push("SYSTEM/OK", f"You convert the {name} into {value} ions.")
+    bus.push("COMBAT/INFO", "***")
+    bus.push("COMBAT/INFO", f"The {name} vanishes with a flash!")
+    bus.push("COMBAT/INFO", f"You convert the {name} into {value} ions.")
     turnlog.emit(
         ctx,
         "ITEM/CONVERT",

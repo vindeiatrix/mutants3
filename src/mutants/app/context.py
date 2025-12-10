@@ -17,6 +17,7 @@ from mutants.state import state_path
 from mutants.world import vision
 from mutants.ui import renderer
 from mutants.ui.textutils import resolve_feedback_text
+import sys
 from mutants.debug.turnlog import TurnObserver
 from mutants.debug import items_probe
 from mutants.ui.feedback import FeedbackBus
@@ -370,11 +371,26 @@ def render_frame(ctx: Dict[str, Any]) -> None:
 
 
 def flush_feedback(ctx: Dict[str, Any]) -> None:
+    try:
+        sys.stdout.reconfigure(errors="replace")
+    except Exception:
+        pass
     events = ctx["feedback_bus"].drain()
     if not events:
         return
     palette = ctx["theme"].palette
     for ev in events:
-        token = renderer._feedback_token(ev.get("kind", ""))
-        line = st.resolve_segments([(token, resolve_feedback_text(ev))], palette)
-        print(line)
+        kind = ev.get("kind", "") if isinstance(ev, Mapping) else ""
+        prefixed = any(
+            str(kind).startswith(prefix) for prefix in ("COMBAT", "LOOT", "MOVE", "SPELL")
+        )
+        if prefixed:
+            print("***")
+        group = renderer._feedback_group(str(kind)) if hasattr(renderer, "_feedback_group") else None
+        if group:
+            line = st.colorize_text(resolve_feedback_text(ev), group=group)
+            print(line)
+        else:
+            token = renderer._feedback_token(str(kind))
+            line = st.resolve_segments([(token, resolve_feedback_text(ev))], palette)
+            print(line)

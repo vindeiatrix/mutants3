@@ -33,7 +33,7 @@ def point_cmd(arg: str, ctx):
         return
 
     items_ranged.consume_charge(iid, charges=charges)
-    bus.push("COMBAT/POINT", f"You fire the {name} to the {d.title()}.")
+    bus.push("COMBAT/HIT", f"You release the {name} {d.lower()}!")
 
     try:
         combat_actions.perform_ranged_attack(ctx=ctx, direction=d, weapon_iid=iid)

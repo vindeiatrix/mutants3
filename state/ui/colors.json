@@ -4,19 +4,20 @@
     "compass.line": "green",
     "compass.*": "green",
 
-    "room.title": "blue",
-    "room.desc": "white",
+    "room.title": "red",
+    "room.desc": "red",
 
-    "dir.open": "yellow",
+    "dir.open": "cyan",
     "dir.blocked": "red",
 
-    "header": "blue",
+    "header": "yellow",
     "footer": "white",
 
-    "feedback.info": "white",
+    "feedback.info": "yellow",
     "feedback.warn": "yellow",
     "feedback.err": "red",
 
-    "log.line": "white"
+    "log.line": "white",
+    "item.line": "cyan"
   }
 }

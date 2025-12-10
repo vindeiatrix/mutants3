@@ -10,6 +10,8 @@ from mutants.services.combat_calc import (
     armour_class_from_equipped,
     dex_bonus_for_active,
 )
+from mutants.ui import styles as st
+from mutants.ui import groups as UG
 from mutants.ui.item_display import item_label
 
 from . import inv as inv_cmd_mod
@@ -69,24 +71,27 @@ def statistics_cmd(arg: str, ctx) -> None:
             if wearing is not None:
                 armour_status = str(wearing)
 
-    bus.push("SYSTEM/OK", f"Name: {name} / Mutant {cls}")
-    bus.push("SYSTEM/OK", f"Exhaustion : {exhaustion}")
+    def _line(label: str, value: str) -> str:
+        return st.colorize_text(label, group=UG.DIR_OPEN) + st.colorize_text(value, group=UG.FEEDBACK_INFO)
 
-    bus.push("SYSTEM/OK", f"Str: {STR:>3}    Int: {INT:>3}   Wis: {WIS:>3}")
-    bus.push("SYSTEM/OK", f"Dex: {DEX:>3}    Con: {CON:>3}   Cha: {CHA:>3}")
+    bus.push("SYSTEM/OK", _line("Name: ", f"{name} / Mutant {cls}"))
+    bus.push("SYSTEM/OK", _line("Exhaustion : ", f"{exhaustion}"))
 
-    bus.push("SYSTEM/OK", f"Hit Points  : {hp_cur} / {hp_max}")
-    bus.push("SYSTEM/OK", f"Exp. Points : {exp_pts:<6} Level: {level}")
-    bus.push("SYSTEM/OK", f"Riblets     : {riblets}")
-    bus.push("SYSTEM/OK", f"Ions        : {ions}")
+    bus.push("SYSTEM/OK", _line("Str: ", f"{STR:>3}") + "    " + _line("Int: ", f"{INT:>3}") + "   " + _line("Wis: ", f"{WIS:>3}"))
+    bus.push("SYSTEM/OK", _line("Dex: ", f"{DEX:>3}") + "    " + _line("Con: ", f"{CON:>3}") + "   " + _line("Cha: ", f"{CHA:>3}"))
+
+    bus.push("SYSTEM/OK", _line("Hit Points  : ", f"{hp_cur} / {hp_max}"))
+    bus.push("SYSTEM/OK", _line("Exp. Points : ", f"{exp_pts:<6}") + " " + _line("Level: ", f"{level}"))
+    bus.push("SYSTEM/OK", _line("Riblets     : ", f"{riblets}"))
+    bus.push("SYSTEM/OK", _line("Ions        : ", f"{ions}"))
     armour_class = armour_class_for_active(state)
     dex_bonus = dex_bonus_for_active(state)
     armour_bonus = armour_class_from_equipped(state)
     bus.push(
         "SYSTEM/OK",
-        "Wearing Armor : "
-        f"{armour_status}  Armour Class: {armour_class}  "
-        f"(Dex bonus: +{dex_bonus}, Armour: +{armour_bonus})",
+        _line("Wearing Armor : ", f"{armour_status}  ")
+        + _line("Armour Class: ", f"{armour_class}  ")
+        + _line("(Dex bonus: +", f"{dex_bonus}, Armour: +{armour_bonus})"),
     )
     ready_target_label = "NO ONE"
     ready_target_id = pstate.get_ready_target_for_active(state)
@@ -154,9 +159,9 @@ def statistics_cmd(arg: str, ctx) -> None:
                         ctx["player_state"] = pstate.load_state()
                 ready_target_label = "NO ONE"
                 ready_target_id = None
-    bus.push("SYSTEM/OK", f"Ready to Combat: {ready_target_label}")
-    bus.push("SYSTEM/OK", "Readied Spell  : No spell memorized.")
-    bus.push("SYSTEM/OK", f"Year A.D. : {year}")
+    bus.push("SYSTEM/OK", _line("Ready to Combat: ", f"{ready_target_label}"))
+    bus.push("SYSTEM/OK", _line("Readied Spell  : ", "No spell memorized."))
+    bus.push("SYSTEM/OK", _line("Year A.D. : ", f"{year}"))
     bus.push("SYSTEM/OK", "")
 
     inv_cmd_mod.inv_cmd("", ctx)
