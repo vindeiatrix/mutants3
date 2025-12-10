@@ -11,7 +11,7 @@ from mutants.services import player_reset, player_state as pstate
 LOG = logging.getLogger(__name__)
 
 
-ROW_FMT = "{idx:>2}. Mutant {cls:<7}  Level: {lvl:<2}  Year: {yr:<4}  ({x:>2} {y:>2})"
+ROW_FMT = "{idx:>2}. Mutant {cls:<7}  Level: {lvl:<2}  Year: {yr:<4}  ({x} {y})"
 
 
 def _coerce_pos(player) -> Tuple[int, int, int]:
@@ -73,10 +73,12 @@ def render_menu(ctx: dict) -> None:
     for i, class_name in enumerate(CLASS_ORDER, start=1):
         player = players_by_class.get(class_name, {})
         yr, x, y = _coerce_pos(player)
+        xs = str(int(x))
+        ys = str(int(y))
         lvl = int(player.get("level", 1) or 1)
         bus.push(
             "SYSTEM/OK",
-            ROW_FMT.format(idx=i, cls=class_name, lvl=lvl, yr=yr, x=x, y=y),
+            ROW_FMT.format(idx=i, cls=class_name, lvl=lvl, yr=yr, x=xs, y=ys),
         )
     # Blank line between the list and the hint line.
     bus.push("SYSTEM/OK", "")
@@ -133,7 +135,7 @@ def handle_input(raw: str, ctx: dict) -> None:
             return
         idx_n = int(parts[1])
         if not (1 <= idx_n <= slot_count):
-            bus.push("SYSTEM/ERROR", f"Choose a number 1–{slot_count}")
+            bus.push("SYSTEM/ERROR", f"Choose a number 1-{slot_count}")
             return
         player_reset.bury_by_index(idx_n - 1)
         ctx["player_state"] = _load_canonical_state()
@@ -144,7 +146,7 @@ def handle_input(raw: str, ctx: dict) -> None:
     if idx is None:
         bus.push(
             "SYSTEM/ERROR",
-            f"Please enter a number (1–{slot_count}), 'bury <n>', or '?'.",
+            f"Please enter a number (1-{slot_count}), 'bury <n>', or '?'.",
         )
         return
     class_name = CLASS_ORDER[idx - 1]

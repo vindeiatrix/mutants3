@@ -1,0 +1,12 @@
+﻿[33mMutants ΓÇö classic BBS vibes.  Type 'help' for commands; 'theme mono' for no color.
+[0m
+[37m 1. Mutant Thief    Level: 1   Year: 2100  (2 0)[0m
+[37m 2. Mutant Priest   Level: 1   Year: 2200  (0 0)[0m
+[37m 3. Mutant Wizard   Level: 1   Year: 2200  (ΓÇæ5 2)[0m
+[37m 4. Mutant Warrior  Level: 1   Year: 2000  (ΓÇæ3 0)[0m
+[37m 5. Mutant Mage     Level: 1   Year: 2000  (ΓÇæ2 2)[0m
+
+[37mType BURY [class number] to reset a player. Type X to exit.[0m
+[37m***[0m
+[33mSelect (Bury, 1-5, ?)[0m [31mPlease enter a number (1ΓÇæ5), 'bury <n>', or '?'.[0m
+[33mSelect (Bury, 1-5, ?)[0m [33mSelect (Bury, 1-5, ?)[0m 

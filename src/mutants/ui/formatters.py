@@ -25,6 +25,8 @@ from . import uicontract as UC
 from . import item_display as idisp
 from .textutils import harden_final_display
 from ..world import vision as world_vision
+from . import groups as UG
+from . import styles as st
 
 Segments: TypeAlias = list[Segment]
 
@@ -127,7 +129,9 @@ def format_direction_line(dir_key: str, edge: dict) -> str:
     else:
         desc = edge.get("desc", "")
         group = UG.DIR_BLOCKED
-    return st.colorize_text(UC.DIR_LINE_FMT.format(word, desc), group=group)
+    prefix = st.colorize_text(f"{word:<5} - ", group=UG.HEADER)
+    desc_colored = st.colorize_text(desc, group=group)
+    return prefix + desc_colored
 
 
 def format_ground_header() -> str:
@@ -161,7 +165,7 @@ def format_ground_items(item_ids: list[str]) -> list[str]:
             f'opts={json.dumps(WRAP_DEBUG_OPTS, sort_keys=True)} '
             f'lines={json.dumps(lines, ensure_ascii=False)}',
         )
-    return lines
+    return [st.colorize_text(line, group=UG.ITEM_LINE) for line in lines]
 
 
 def format_monsters_here(names: list[str]) -> str:
@@ -185,7 +189,7 @@ def format_monsters_here(names: list[str]) -> str:
         text = f"{clean[0]}, and {clean[1]} are here with you."
     else:
         text = f"{', '.join(clean[:-1])}, and {clean[-1]} are here with you."
-    return st.colorize_text(text, group=UG.FEEDBACK_INFO)
+    return st.colorize_text(text, group=UG.LOG_LINE)
 
 
 def format_cue_line(text: str) -> str:

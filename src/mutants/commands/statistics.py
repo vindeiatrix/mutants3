@@ -10,7 +10,12 @@ from mutants.services.combat_calc import (
     armour_class_from_equipped,
     dex_bonus_for_active,
 )
-from mutants.ui.item_display import item_label
+from mutants.services.items_weight import get_effective_weight
+from mutants.ui import styles as st
+from mutants.ui import groups as UG
+from mutants.ui.item_display import item_label, number_duplicates, with_article
+from mutants.ui import wrap as uwrap
+from mutants.ui.textutils import harden_final_display
 
 from . import inv as inv_cmd_mod
 
@@ -20,6 +25,17 @@ def _int(value: object, default: int = 0) -> int:
         return int(value) if value is not None else default
     except (TypeError, ValueError):
         return default
+
+
+def _coerce_weight(value):
+    if value is None:
+        return None
+    if isinstance(value, (int, float)):
+        return int(value)
+    try:
+        return int(float(value))
+    except (TypeError, ValueError):
+        return None
 
 
 def statistics_cmd(arg: str, ctx) -> None:
@@ -69,24 +85,26 @@ def statistics_cmd(arg: str, ctx) -> None:
             if wearing is not None:
                 armour_status = str(wearing)
 
-    bus.push("SYSTEM/OK", f"Name: {name} / Mutant {cls}")
-    bus.push("SYSTEM/OK", f"Exhaustion : {exhaustion}")
+    def _line(label: str, value: str) -> str:
+        return st.colorize_text(label, group=UG.DIR_OPEN) + st.colorize_text(value, group=UG.FEEDBACK_INFO)
 
-    bus.push("SYSTEM/OK", f"Str: {STR:>3}    Int: {INT:>3}   Wis: {WIS:>3}")
-    bus.push("SYSTEM/OK", f"Dex: {DEX:>3}    Con: {CON:>3}   Cha: {CHA:>3}")
-
-    bus.push("SYSTEM/OK", f"Hit Points  : {hp_cur} / {hp_max}")
-    bus.push("SYSTEM/OK", f"Exp. Points : {exp_pts:<6} Level: {level}")
-    bus.push("SYSTEM/OK", f"Riblets     : {riblets}")
-    bus.push("SYSTEM/OK", f"Ions        : {ions}")
+    lines = [
+        _line("Name: ", f"{name} / Mutant {cls}"),
+        _line("Exhaustion : ", f"{exhaustion}"),
+        _line("Str: ", f"{STR:>3}") + "    " + _line("Int: ", f"{INT:>3}") + "   " + _line("Wis: ", f"{WIS:>3}"),
+        _line("Dex: ", f"{DEX:>3}") + "    " + _line("Con: ", f"{CON:>3}") + "   " + _line("Cha: ", f"{CHA:>3}"),
+        _line("Hit Points  : ", f"{hp_cur} / {hp_max}"),
+        _line("Exp. Points : ", f"{exp_pts:<6}") + " " + _line("Level: ", f"{level}"),
+        _line("Riblets     : ", f"{riblets}"),
+        _line("Ions        : ", f"{ions}"),
+    ]
     armour_class = armour_class_for_active(state)
     dex_bonus = dex_bonus_for_active(state)
     armour_bonus = armour_class_from_equipped(state)
-    bus.push(
-        "SYSTEM/OK",
-        "Wearing Armor : "
-        f"{armour_status}  Armour Class: {armour_class}  "
-        f"(Dex bonus: +{dex_bonus}, Armour: +{armour_bonus})",
+    lines.append(
+        _line("Wearing Armor : ", f"{armour_status}  ")
+        + _line("Armour Class: ", f"{armour_class}  ")
+        + _line("(Dex bonus: +", f"{dex_bonus}, Armour: +{armour_bonus})")
     )
     ready_target_label = "NO ONE"
     ready_target_id = pstate.get_ready_target_for_active(state)
@@ -154,12 +172,47 @@ def statistics_cmd(arg: str, ctx) -> None:
                         ctx["player_state"] = pstate.load_state()
                 ready_target_label = "NO ONE"
                 ready_target_id = None
-    bus.push("SYSTEM/OK", f"Ready to Combat: {ready_target_label}")
-    bus.push("SYSTEM/OK", "Readied Spell  : No spell memorized.")
-    bus.push("SYSTEM/OK", f"Year A.D. : {year}")
-    bus.push("SYSTEM/OK", "")
+    lines.append(_line("Ready to Combat: ", f"{ready_target_label}"))
+    lines.append(_line("Readied Spell  : ", "No spell memorized."))
+    lines.append(_line("Year A.D. : ", f"{year}"))
 
-    inv_cmd_mod.inv_cmd("", ctx)
+    bus.push("SYSTEM/OK", "\n".join(lines))
+
+    # Inline inventory block (single event) to avoid extra separators between lines.
+    inv_state, inv_player = pstate.get_active_pair()
+    pstate.bind_inventory_to_active_class(inv_player)
+    inventory = [str(i) for i in (inv_player.get("inventory") or []) if i]
+    equipped = pstate.get_equipped_armour_id(inv_state) or pstate.get_equipped_armour_id(inv_player)
+    if equipped:
+        inventory = [iid for iid in inventory if iid != equipped]
+    cat = items_catalog.load_catalog()
+    names = []
+    total_weight = 0
+    for iid in inventory:
+        inst = itemsreg.get_instance(iid)
+        if not inst:
+            names.append(str(iid))
+            continue
+        tpl_id = inst.get("item_id") or inst.get("catalog_id") or inst.get("id")
+        tpl = cat.get(str(tpl_id)) if tpl_id and cat else {}
+        names.append(item_label(inst, tpl or {}, show_charges=False))
+        weight = _coerce_weight(get_effective_weight(inst, tpl or {}))
+        if weight is not None:
+            total_weight += max(0, weight)
+
+    numbered = number_duplicates(names)
+    display = [harden_final_display(with_article(n)) for n in numbered]
+    inv_lines = [
+        st.colorize_text(
+            f"You are carrying the following items:  (Total Weight: {total_weight} LB's)",
+            group=UG.HEADER,
+        )
+    ]
+    if not display:
+        inv_lines.append("Nothing.")
+    else:
+        inv_lines.extend([st.colorize_text(ln, group=UG.ITEM_LINE) for ln in uwrap.wrap_list(display)])
+    bus.push("SYSTEM/OK", "\n".join(inv_lines))
 
 
 def register(dispatch, ctx) -> None:

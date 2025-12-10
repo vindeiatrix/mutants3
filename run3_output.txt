@@ -1,0 +1,1279 @@
+﻿[33mMutants ΓÇö classic BBS vibes.  Type 'help' for commands; 'theme mono' for no color.
+[0m
+[37m 1. Mutant Thief    Level: 1   Year: 2000  (0 0)[0m
+[37m 2. Mutant Priest   Level: 1   Year: 2000  (0 0)[0m
+[37m 3. Mutant Wizard   Level: 1   Year: 2000  (0 0)[0m
+[37m 4. Mutant Warrior  Level: 1   Year: 2000  (ΓÇæ3 0)[0m
+[37m 5. Mutant Mage     Level: 1   Year: 2000  (ΓÇæ2 2)[0m
+
+[37mType BURY [class number] to reset a player. Type X to exit.[0m
+[37m***[0m
+[33mSelect (Bury, 1-5, ?)[0m [31mThe street is cracked here.[0m
+[32mCompass: (0E : 0N)[0m
+[33mnorth - [0m[36marea continues.[0m
+[33msouth - [0m[36marea continues.[0m
+[33meast  - [0m[36marea continues.[0m
+[33mwest  - [0m[36marea continues.[0m
+***
+[33mOn the ground lies:[0m
+[36mA┬áBrokenΓÇæWeapon, A┬áBrokenΓÇæWeapon (1), A┬áBrokenΓÇæWeapon (2).[0m
+***
+[37mJunkyard-Scrapper-511, Junkyard-Scrapper-514, Junkyard-Scrapper-518, Junkyard-Scrapper-520, and Junkyard-Scrapper-525 are here with you.[0m
+> ***
+[37mSet HP for Thief to 1000000 / 1000000.[0m
+> ***
+[37mspawned 5 x gold_chunk at (2000, 0, 0) [54876c92101a48d3b44f9b891108b1cf, 20ee6eddb59446b8915e2097ce2bfedf, 09931df2f76a4d4cacb4226a524a7b4c, d123b3181392415da05334d2c5d1a210, 95a48c072a754bbcbe12f9e94cf5e324][0m
+> ***
+[33mYou pick up the GoldΓÇæChunk.[0m
+> [31mThe street is cracked here.[0m
+[32mCompass: (0E : 0N)[0m
+[33mnorth - [0m[36marea continues.[0m
+[33msouth - [0m[36marea continues.[0m
+[33meast  - [0m[36marea continues.[0m
+[33mwest  - [0m[36marea continues.[0m
+***
+[33mOn the ground lies:[0m
+[36mA┬áBrokenΓÇæWeapon, A┬áBrokenΓÇæWeapon (1), A┬áBrokenΓÇæWeapon (2), A┬áGoldΓÇæChunk,[0m
+[36mA┬áGoldΓÇæChunk (1), A┬áGoldΓÇæChunk (2), A┬áGoldΓÇæChunk (3).[0m
+***
+[37mJunkyard-Scrapper-511, Junkyard-Scrapper-514, Junkyard-Scrapper-518, Junkyard-Scrapper-520, Junkyard-Scrapper-525, and Junkyard-Scrapper-527 are here with you.[0m
+[37mSpawned JunkyardΓÇæScrapperΓÇæ527 at your location.[0m
+> [31mThe street is cracked here.[0m
+[32mCompass: (0E : 0N)[0m
+[33mnorth - [0m[36marea continues.[0m
+[33msouth - [0m[36marea continues.[0m
+[33meast  - [0m[36marea continues.[0m
+[33mwest  - [0m[36marea continues.[0m
+***
+[33mOn the ground lies:[0m
+[36mA┬áBrokenΓÇæWeapon, A┬áBrokenΓÇæWeapon (1), A┬áBrokenΓÇæWeapon (2), A┬áGoldΓÇæChunk,[0m
+[36mA┬áGoldΓÇæChunk (1), A┬áGoldΓÇæChunk (2), A┬áGoldΓÇæChunk (3).[0m
+***
+[37mJunkyard-Scrapper-511, Junkyard-Scrapper-514, Junkyard-Scrapper-518, Junkyard-Scrapper-520, Junkyard-Scrapper-525, Junkyard-Scrapper-527, and Junkyard-Scrapper-529 are here with you.[0m
+[37mSpawned JunkyardΓÇæScrapperΓÇæ529 at your location.[0m
+> [31mThe street is cracked here.[0m
+[32mCompass: (0E : 0N)[0m
+[33mnorth - [0m[36marea continues.[0m
+[33msouth - [0m[36marea continues.[0m
+[33meast  - [0m[36marea continues.[0m
+[33mwest  - [0m[36marea continues.[0m
+***
+[33mOn the ground lies:[0m
+[36mA┬áBrokenΓÇæWeapon, A┬áBrokenΓÇæWeapon (1), A┬áBrokenΓÇæWeapon (2), A┬áGoldΓÇæChunk,[0m
+[36mA┬áGoldΓÇæChunk (1).[0m
+***
+[37mJunkyard-Scrapper-511, Junkyard-Scrapper-514, Junkyard-Scrapper-518, Junkyard-Scrapper-520, Junkyard-Scrapper-525, Junkyard-Scrapper-527, and Junkyard-Scrapper-529 are here with you.[0m
+[33mClankΓÇæclank... scrap's mine![0m
+[33mJunkyardΓÇæScrapperΓÇæ511 has hit you with his RustyΓÇæShiv![0m
+[33mClankΓÇæclank... scrap's mine![0m
+[31mJunkyardΓÇæScrapperΓÇæ520 picks up GoldΓÇæChunk.[0m
+[33mClankΓÇæclank... scrap's mine![0m
+[31mJunkyardΓÇæScrapperΓÇæ529 picks up GoldΓÇæChunk.[0m
+> [31mThe street is cracked here.[0m
+[32mCompass: (0E : 0N)[0m
+[33mnorth - [0m[36marea continues.[0m
+[33msouth - [0m[36marea continues.[0m
+[33meast  - [0m[36marea continues.[0m
+[33mwest  - [0m[36marea continues.[0m
+***
+[33mOn the ground lies:[0m
+[36mA┬áBrokenΓÇæWeapon, A┬áBrokenΓÇæWeapon (1), A┬áBrokenΓÇæWeapon (2), A┬áGoldΓÇæChunk,[0m
+[36mA┬áGoldΓÇæChunk (1).[0m
+***
+[37mJunkyard-Scrapper-511, Junkyard-Scrapper-514, Junkyard-Scrapper-518, Junkyard-Scrapper-520, Junkyard-Scrapper-525, Junkyard-Scrapper-527, and Junkyard-Scrapper-529 are here with you.[0m
+[31mA┬áblinding white flash erupts around JunkyardΓÇæScrapperΓÇæ520![0m
+[31mJunkyardΓÇæScrapperΓÇæ520 converts loot worth 25000 ions.[0m
+[33mClankΓÇæclank... scrap's mine![0m
+[33mClankΓÇæclank... scrap's mine![0m
+[33mJunkyardΓÇæScrapperΓÇæ518 has hit you with his RustyΓÇæShiv![0m
+[33mClankΓÇæclank... scrap's mine![0m
+[33mJunkyardΓÇæScrapperΓÇæ527 has hit you with his RustyΓÇæShiv![0m
+[31mJunkyardΓÇæScrapperΓÇæ511 mutters about the weather.[0m
+[31mJunkyardΓÇæScrapperΓÇæ529 is making strange noises.[0m
+[31mJunkyardΓÇæScrapperΓÇæ514 whispers something unintelligible.[0m
+> [31mThe street is cracked here.[0m
+[32mCompass: (0E : 0N)[0m
+[33mnorth - [0m[36marea continues.[0m
+[33msouth - [0m[36marea continues.[0m
+[33meast  - [0m[36marea continues.[0m
+[33mwest  - [0m[36marea continues.[0m
+***
+[33mOn the ground lies:[0m
+[36mA┬áBrokenΓÇæWeapon, A┬áBrokenΓÇæWeapon (1), A┬áBrokenΓÇæWeapon (2).[0m
+***
+[37mJunkyard-Scrapper-511, Junkyard-Scrapper-514, Junkyard-Scrapper-518, Junkyard-Scrapper-520, Junkyard-Scrapper-525, Junkyard-Scrapper-527, and Junkyard-Scrapper-529 are here with you.[0m
+[31mJunkyardΓÇæScrapperΓÇæ511 picks up GoldΓÇæChunk.[0m
+[31mJunkyardΓÇæScrapperΓÇæ520 picks up GoldΓÇæChunk.[0m
+[33mJunkyardΓÇæScrapperΓÇæ527 has hit you with his RustyΓÇæShiv![0m
+[31mA┬áblinding white flash erupts around JunkyardΓÇæScrapperΓÇæ529![0m
+[31mJunkyardΓÇæScrapperΓÇæ529 converts loot worth 25000 ions.[0m
+[33mJunkyardΓÇæScrapperΓÇæ529 has hit you with his RustyΓÇæShiv![0m
+[31mJunkyardΓÇæScrapperΓÇæ511 bounces on their heels.[0m
+[31mJunkyardΓÇæScrapperΓÇæ514 stares into the distance.[0m
+[31mJunkyardΓÇæScrapperΓÇæ514 adjusts their helmet.[0m
+[31mJunkyardΓÇæScrapperΓÇæ518 is wondering what you're doing.[0m
+> [31mThe street is cracked here.[0m
+[32mCompass: (0E : 0N)[0m
+[33mnorth - [0m[36marea continues.[0m
+[33msouth - [0m[36marea continues.[0m
+[33meast  - [0m[36marea continues.[0m
+[33mwest  - [0m[36marea continues.[0m
+***
+[33mOn the ground lies:[0m
+[36mA┬áBrokenΓÇæWeapon, A┬áBrokenΓÇæWeapon (1), A┬áBrokenΓÇæWeapon (2).[0m
+***
+[37mJunkyard-Scrapper-511, Junkyard-Scrapper-514, Junkyard-Scrapper-518, Junkyard-Scrapper-520, Junkyard-Scrapper-525, Junkyard-Scrapper-527, and Junkyard-Scrapper-529 are here with you.[0m
+[33mJunkyardΓÇæScrapperΓÇæ511 has hit you with his GoldΓÇæChunk![0m
+[33mJunkyardΓÇæScrapperΓÇæ520 has hit you with his GoldΓÇæChunk![0m
+[33mJunkyardΓÇæScrapperΓÇæ529 has hit you with his RustyΓÇæShiv![0m
+[31mJunkyardΓÇæScrapperΓÇæ514 pats their pockets for supplies.[0m
+[31mJunkyardΓÇæScrapperΓÇæ518 is trying to make friends with you.[0m
+[31mJunkyardΓÇæScrapperΓÇæ520 is singing a strange song.[0m
+[31mJunkyardΓÇæScrapperΓÇæ527 looks at you.[0m
+> [31mThe street is cracked here.[0m
+[32mCompass: (0E : 0N)[0m
+[33mnorth - [0m[36marea continues.[0m
+[33msouth - [0m[36marea continues.[0m
+[33meast  - [0m[36marea continues.[0m
+[33mwest  - [0m[36marea continues.[0m
+***
+[33mOn the ground lies:[0m
+[36mA┬áBrokenΓÇæWeapon, A┬áBrokenΓÇæWeapon (1), A┬áBrokenΓÇæWeapon (2).[0m
+***
+[37mJunkyard-Scrapper-511, Junkyard-Scrapper-514, Junkyard-Scrapper-518, Junkyard-Scrapper-520, Junkyard-Scrapper-525, Junkyard-Scrapper-527, and Junkyard-Scrapper-529 are here with you.[0m
+[33mJunkyardΓÇæScrapperΓÇæ511 has hit you with his GoldΓÇæChunk![0m
+[33mJunkyardΓÇæScrapperΓÇæ518 has hit you with his RustyΓÇæShiv![0m
+[33mJunkyardΓÇæScrapperΓÇæ529 has hit you with his RustyΓÇæShiv![0m
+[31mJunkyardΓÇæScrapperΓÇæ514 looks at you.[0m
+[31mJunkyardΓÇæScrapperΓÇæ520 sharpens their claws.[0m
+[31mJunkyardΓÇæScrapperΓÇæ527 pats their pockets for supplies.[0m
+> [31mThe street is cracked here.[0m
+[32mCompass: (0E : 0N)[0m
+[33mnorth - [0m[36marea continues.[0m
+[33msouth - [0m[36marea continues.[0m
+[33meast  - [0m[36marea continues.[0m
+[33mwest  - [0m[36marea continues.[0m
+***
+[33mOn the ground lies:[0m
+[36mA┬áBrokenΓÇæWeapon, A┬áBrokenΓÇæWeapon (1), A┬áBrokenΓÇæWeapon (2).[0m
+***
+[37mJunkyard-Scrapper-511, Junkyard-Scrapper-514, Junkyard-Scrapper-518, Junkyard-Scrapper-520, Junkyard-Scrapper-525, Junkyard-Scrapper-527, and Junkyard-Scrapper-529 are here with you.[0m
+[33mJunkyardΓÇæScrapperΓÇæ518 has hit you with his RustyΓÇæShiv![0m
+[33mJunkyardΓÇæScrapperΓÇæ520 has hit you with his GoldΓÇæChunk![0m
+[33mJunkyardΓÇæScrapperΓÇæ527 has hit you with his RustyΓÇæShiv![0m
+[33mClankΓÇæclank... scrap's mine![0m
+[31mJunkyardΓÇæScrapperΓÇæ511 is wondering what you're doing.[0m
+[31mJunkyardΓÇæScrapperΓÇæ514 pleads with you.[0m
+[31mJunkyardΓÇæScrapperΓÇæ514 whispers something unintelligible.[0m
+[31mJunkyardΓÇæScrapperΓÇæ514 hums a battle hymn.[0m
+[31mJunkyardΓÇæScrapperΓÇæ529 pleads with you.[0m
+[31mJunkyardΓÇæScrapperΓÇæ525 draws a sigil in the dust.[0m
+> [31mThe street is cracked here.[0m
+[32mCompass: (0E : 0N)[0m
+[33mnorth - [0m[36marea continues.[0m
+[33msouth - [0m[36marea continues.[0m
+[33meast  - [0m[36marea continues.[0m
+[33mwest  - [0m[36marea continues.[0m
+***
+[33mOn the ground lies:[0m
+[36mA┬áBrokenΓÇæWeapon, A┬áBrokenΓÇæWeapon (1), A┬áBrokenΓÇæWeapon (2).[0m
+***
+[37mJunkyard-Scrapper-511, Junkyard-Scrapper-514, Junkyard-Scrapper-518, Junkyard-Scrapper-520, Junkyard-Scrapper-525, Junkyard-Scrapper-527, and Junkyard-Scrapper-529 are here with you.[0m
+[33mJunkyardΓÇæScrapperΓÇæ511 has hit you with his GoldΓÇæChunk![0m
+[33mJunkyardΓÇæScrapperΓÇæ514 has hit you with his RustyΓÇæShiv![0m
+[33mJunkyardΓÇæScrapperΓÇæ520 has hit you with his GoldΓÇæChunk![0m
+[33mJunkyardΓÇæScrapperΓÇæ529 has hit you with his RustyΓÇæShiv![0m
+[31mJunkyardΓÇæScrapperΓÇæ514 is looking awfully sad.[0m
+[31mJunkyardΓÇæScrapperΓÇæ518 is wondering what you're doing.[0m
+[31mJunkyardΓÇæScrapperΓÇæ520 hums a battle hymn.[0m
+[31mJunkyardΓÇæScrapperΓÇæ520 is singing a strange song.[0m
+[31mJunkyardΓÇæScrapperΓÇæ525 pleads with you.[0m
+[31mJunkyardΓÇæScrapperΓÇæ527 draws a sigil in the dust.[0m
+> [31mThe street is cracked here.[0m
+[32mCompass: (0E : 0N)[0m
+[33mnorth - [0m[36marea continues.[0m
+[33msouth - [0m[36marea continues.[0m
+[33meast  - [0m[36marea continues.[0m
+[33mwest  - [0m[36marea continues.[0m
+***
+[33mOn the ground lies:[0m
+[36mA┬áBrokenΓÇæWeapon, A┬áBrokenΓÇæWeapon (1), A┬áBrokenΓÇæWeapon (2).[0m
+***
+[37mJunkyard-Scrapper-511, Junkyard-Scrapper-514, Junkyard-Scrapper-518, Junkyard-Scrapper-520, Junkyard-Scrapper-525, Junkyard-Scrapper-527, and Junkyard-Scrapper-529 are here with you.[0m
+[33mJunkyardΓÇæScrapperΓÇæ525 has hit you with his RustyΓÇæShiv![0m
+[33mJunkyardΓÇæScrapperΓÇæ527 has hit you with his RustyΓÇæShiv![0m
+[33mJunkyardΓÇæScrapperΓÇæ527 has hit you with his RustyΓÇæShiv![0m
+[33mJunkyardΓÇæScrapperΓÇæ527 has hit you with his RustyΓÇæShiv![0m
+[31mJunkyardΓÇæScrapperΓÇæ511 adjusts their helmet.[0m
+[31mJunkyardΓÇæScrapperΓÇæ514 is making strange noises.[0m
+[31mJunkyardΓÇæScrapperΓÇæ518 is wondering what you're doing.[0m
+[31mJunkyardΓÇæScrapperΓÇæ520 practices a victory pose.[0m
+[31mJunkyardΓÇæScrapperΓÇæ520 takes a deep, steadying breath.[0m
+[31mJunkyardΓÇæScrapperΓÇæ529 is making strange noises.[0m
+> [31mThe street is cracked here.[0m
+[32mCompass: (0E : 0N)[0m
+[33mnorth - [0m[36marea continues.[0m
+[33msouth - [0m[36marea continues.[0m
+[33meast  - [0m[36marea continues.[0m
+[33mwest  - [0m[36marea continues.[0m
+***
+[33mOn the ground lies:[0m
+[36mA┬áBrokenΓÇæWeapon, A┬áBrokenΓÇæWeapon (1), A┬áBrokenΓÇæWeapon (2).[0m
+***
+[37mJunkyard-Scrapper-511, Junkyard-Scrapper-514, Junkyard-Scrapper-518, Junkyard-Scrapper-520, Junkyard-Scrapper-525, Junkyard-Scrapper-527, and Junkyard-Scrapper-529 are here with you.[0m
+[33mJunkyardΓÇæScrapperΓÇæ529 has hit you with his RustyΓÇæShiv![0m
+[31mJunkyardΓÇæScrapperΓÇæ511 bounces on their heels.[0m
+[31mJunkyardΓÇæScrapperΓÇæ514 bounces on their heels.[0m
+[31mJunkyardΓÇæScrapperΓÇæ518 pats their pockets for supplies.[0m
+[31mJunkyardΓÇæScrapperΓÇæ520 is wondering what you're doing.[0m
+[31mJunkyardΓÇæScrapperΓÇæ525 is looking awfully sad.[0m
+[31mJunkyardΓÇæScrapperΓÇæ527 pleads with you.[0m
+> [31mThe street is cracked here.[0m
+[32mCompass: (0E : 0N)[0m
+[33mnorth - [0m[36marea continues.[0m
+[33msouth - [0m[36marea continues.[0m
+[33meast  - [0m[36marea continues.[0m
+[33mwest  - [0m[36marea continues.[0m
+***
+[33mOn the ground lies:[0m
+[36mA┬áBrokenΓÇæWeapon, A┬áBrokenΓÇæWeapon (1), A┬áBrokenΓÇæWeapon (2).[0m
+***
+[37mJunkyard-Scrapper-511, Junkyard-Scrapper-514, Junkyard-Scrapper-518, Junkyard-Scrapper-520, Junkyard-Scrapper-525, Junkyard-Scrapper-527, and Junkyard-Scrapper-529 are here with you.[0m
+[33mJunkyardΓÇæScrapperΓÇæ518 has hit you with his RustyΓÇæShiv![0m
+[33mJunkyardΓÇæScrapperΓÇæ520 has hit you with his GoldΓÇæChunk![0m
+[33mJunkyardΓÇæScrapperΓÇæ525 has hit you with his RustyΓÇæShiv![0m
+[31mJunkyardΓÇæScrapperΓÇæ511 adjusts their helmet.[0m
+[31mJunkyardΓÇæScrapperΓÇæ514 is wondering what you're doing.[0m
+[31mJunkyardΓÇæScrapperΓÇæ527 is looking awfully sad.[0m
+[31mJunkyardΓÇæScrapperΓÇæ527 mutters about the weather.[0m
+[31mJunkyardΓÇæScrapperΓÇæ529 checks the horizon for danger.[0m
+> [31mThe street is cracked here.[0m
+[32mCompass: (0E : 0N)[0m
+[33mnorth - [0m[36marea continues.[0m
+[33msouth - [0m[36marea continues.[0m
+[33meast  - [0m[36marea continues.[0m
+[33mwest  - [0m[36marea continues.[0m
+***
+[33mOn the ground lies:[0m
+[36mA┬áBrokenΓÇæWeapon, A┬áBrokenΓÇæWeapon (1), A┬áBrokenΓÇæWeapon (2).[0m
+***
+[37mJunkyard-Scrapper-511, Junkyard-Scrapper-514, Junkyard-Scrapper-518, Junkyard-Scrapper-520, Junkyard-Scrapper-525, Junkyard-Scrapper-527, and Junkyard-Scrapper-529 are here with you.[0m
+[33mJunkyardΓÇæScrapperΓÇæ514 has hit you with his RustyΓÇæShiv![0m
+[33mJunkyardΓÇæScrapperΓÇæ518 has hit you with his RustyΓÇæShiv![0m
+[33mJunkyardΓÇæScrapperΓÇæ527 has hit you with his RustyΓÇæShiv![0m
+[33mJunkyardΓÇæScrapperΓÇæ527 has hit you with his RustyΓÇæShiv![0m
+[33mJunkyardΓÇæScrapperΓÇæ529 has hit you with his RustyΓÇæShiv![0m
+[31mJunkyardΓÇæScrapperΓÇæ511 pleads with you.[0m
+[31mJunkyardΓÇæScrapperΓÇæ520 is trying to make friends with you.[0m
+[31mJunkyardΓÇæScrapperΓÇæ525 takes a deep, steadying breath.[0m
+[31mJunkyardΓÇæScrapperΓÇæ525 is making strange noises.[0m
+> [31mThe street is cracked here.[0m
+[32mCompass: (0E : 0N)[0m
+[33mnorth - [0m[36marea continues.[0m
+[33msouth - [0m[36marea continues.[0m
+[33meast  - [0m[36marea continues.[0m
+[33mwest  - [0m[36marea continues.[0m
+***
+[33mOn the ground lies:[0m
+[36mA┬áBrokenΓÇæWeapon, A┬áBrokenΓÇæWeapon (1), A┬áBrokenΓÇæWeapon (2).[0m
+***
+[37mJunkyard-Scrapper-511, Junkyard-Scrapper-514, Junkyard-Scrapper-518, Junkyard-Scrapper-520, Junkyard-Scrapper-525, Junkyard-Scrapper-527, and Junkyard-Scrapper-529 are here with you.[0m
+[33mJunkyardΓÇæScrapperΓÇæ511 has hit you with his GoldΓÇæChunk![0m
+[33mJunkyardΓÇæScrapperΓÇæ518 has hit you with his RustyΓÇæShiv![0m
+[33mJunkyardΓÇæScrapperΓÇæ520 has hit you with his GoldΓÇæChunk![0m
+[33mJunkyardΓÇæScrapperΓÇæ525 has hit you with his RustyΓÇæShiv![0m
+[33mJunkyardΓÇæScrapperΓÇæ527 has hit you with his RustyΓÇæShiv![0m
+[31mJunkyardΓÇæScrapperΓÇæ514 is trying to make friends with you.[0m
+[31mJunkyardΓÇæScrapperΓÇæ525 practices a victory pose.[0m
+[31mJunkyardΓÇæScrapperΓÇæ529 looks at you.[0m
+> [31mThe street is cracked here.[0m
+[32mCompass: (0E : 0N)[0m
+[33mnorth - [0m[36marea continues.[0m
+[33msouth - [0m[36marea continues.[0m
+[33meast  - [0m[36marea continues.[0m
+[33mwest  - [0m[36marea continues.[0m
+***
+[33mOn the ground lies:[0m
+[36mA┬áBrokenΓÇæWeapon, A┬áBrokenΓÇæWeapon (1), A┬áBrokenΓÇæWeapon (2).[0m
+***
+[37mJunkyard-Scrapper-511, Junkyard-Scrapper-514, Junkyard-Scrapper-518, Junkyard-Scrapper-520, Junkyard-Scrapper-525, Junkyard-Scrapper-527, and Junkyard-Scrapper-529 are here with you.[0m
+[33mJunkyardΓÇæScrapperΓÇæ525 has hit you with his RustyΓÇæShiv![0m
+[31mJunkyardΓÇæScrapperΓÇæ511 practices a victory pose.[0m
+[31mJunkyardΓÇæScrapperΓÇæ514 is wondering what you're doing.[0m
+[31mJunkyardΓÇæScrapperΓÇæ518 draws a sigil in the dust.[0m
+[31mJunkyardΓÇæScrapperΓÇæ520 pleads with you.[0m
+[31mJunkyardΓÇæScrapperΓÇæ520 is making strange noises.[0m
+[31mJunkyardΓÇæScrapperΓÇæ520 checks the horizon for danger.[0m
+[31mJunkyardΓÇæScrapperΓÇæ527 stares into the distance.[0m
+[31mJunkyardΓÇæScrapperΓÇæ529 mutters about the weather.[0m
+> [31mThe street is cracked here.[0m
+[32mCompass: (0E : 0N)[0m
+[33mnorth - [0m[36marea continues.[0m
+[33msouth - [0m[36marea continues.[0m
+[33meast  - [0m[36marea continues.[0m
+[33mwest  - [0m[36marea continues.[0m
+***
+[33mOn the ground lies:[0m
+[36mA┬áBrokenΓÇæWeapon, A┬áBrokenΓÇæWeapon (1), A┬áBrokenΓÇæWeapon (2).[0m
+***
+[37mJunkyard-Scrapper-511, Junkyard-Scrapper-514, Junkyard-Scrapper-518, Junkyard-Scrapper-520, Junkyard-Scrapper-525, Junkyard-Scrapper-527, and Junkyard-Scrapper-529 are here with you.[0m
+[33mJunkyardΓÇæScrapperΓÇæ514 has hit you with his RustyΓÇæShiv![0m
+[33mJunkyardΓÇæScrapperΓÇæ520 has hit you with his GoldΓÇæChunk![0m
+[33mJunkyardΓÇæScrapperΓÇæ525 has hit you with his RustyΓÇæShiv![0m
+[33mJunkyardΓÇæScrapperΓÇæ527 has hit you with his RustyΓÇæShiv![0m
+[33mJunkyardΓÇæScrapperΓÇæ529 has hit you with his RustyΓÇæShiv![0m
+[31mJunkyardΓÇæScrapperΓÇæ511 mutters about the weather.[0m
+[31mJunkyardΓÇæScrapperΓÇæ518 practices a victory pose.[0m
+> [31mThe street is cracked here.[0m
+[32mCompass: (0E : 0N)[0m
+[33mnorth - [0m[36marea continues.[0m
+[33msouth - [0m[36marea continues.[0m
+[33meast  - [0m[36marea continues.[0m
+[33mwest  - [0m[36marea continues.[0m
+***
+[33mOn the ground lies:[0m
+[36mA┬áBrokenΓÇæWeapon, A┬áBrokenΓÇæWeapon (1), A┬áBrokenΓÇæWeapon (2).[0m
+***
+[37mJunkyard-Scrapper-511, Junkyard-Scrapper-514, Junkyard-Scrapper-518, Junkyard-Scrapper-520, Junkyard-Scrapper-525, Junkyard-Scrapper-527, and Junkyard-Scrapper-529 are here with you.[0m
+[33mJunkyardΓÇæScrapperΓÇæ518 has hit you with his RustyΓÇæShiv![0m
+[33mJunkyardΓÇæScrapperΓÇæ525 has hit you with his RustyΓÇæShiv![0m
+[33mJunkyardΓÇæScrapperΓÇæ527 has hit you with his RustyΓÇæShiv![0m
+[31mJunkyardΓÇæScrapperΓÇæ511 sharpens their claws.[0m
+[31mJunkyardΓÇæScrapperΓÇæ514 is trying to make friends with you.[0m
+[31mJunkyardΓÇæScrapperΓÇæ520 flexes ominously.[0m
+[31mJunkyardΓÇæScrapperΓÇæ525 mutters about the weather.[0m
+[31mJunkyardΓÇæScrapperΓÇæ527 practices a victory pose.[0m
+[31mJunkyardΓÇæScrapperΓÇæ529 is wondering what you're doing.[0m
+> [31mThe street is cracked here.[0m
+[32mCompass: (0E : 0N)[0m
+[33mnorth - [0m[36marea continues.[0m
+[33msouth - [0m[36marea continues.[0m
+[33meast  - [0m[36marea continues.[0m
+[33mwest  - [0m[36marea continues.[0m
+***
+[33mOn the ground lies:[0m
+[36mA┬áBrokenΓÇæWeapon, A┬áBrokenΓÇæWeapon (1), A┬áBrokenΓÇæWeapon (2).[0m
+***
+[37mJunkyard-Scrapper-511, Junkyard-Scrapper-514, Junkyard-Scrapper-518, Junkyard-Scrapper-520, Junkyard-Scrapper-525, Junkyard-Scrapper-527, and Junkyard-Scrapper-529 are here with you.[0m
+[33mJunkyardΓÇæScrapperΓÇæ518 has hit you with his RustyΓÇæShiv![0m
+[33mJunkyardΓÇæScrapperΓÇæ520 has hit you with his GoldΓÇæChunk![0m
+[33mJunkyardΓÇæScrapperΓÇæ525 has hit you with his RustyΓÇæShiv![0m
+[33mJunkyardΓÇæScrapperΓÇæ527 has hit you with his RustyΓÇæShiv![0m
+[33mJunkyardΓÇæScrapperΓÇæ529 has hit you with his RustyΓÇæShiv![0m
+[31mJunkyardΓÇæScrapperΓÇæ511 is looking awfully sad.[0m
+[31mJunkyardΓÇæScrapperΓÇæ511 is wondering what you're doing.[0m
+[31mJunkyardΓÇæScrapperΓÇæ514 is looking awfully sad.[0m
+[31mJunkyardΓÇæScrapperΓÇæ518 checks the horizon for danger.[0m
+[31mJunkyardΓÇæScrapperΓÇæ525 is wondering what you're doing.[0m
+[31mJunkyardΓÇæScrapperΓÇæ527 adjusts their helmet.[0m
+> [31mThe street is cracked here.[0m
+[32mCompass: (0E : 0N)[0m
+[33mnorth - [0m[36marea continues.[0m
+[33msouth - [0m[36marea continues.[0m
+[33meast  - [0m[36marea continues.[0m
+[33mwest  - [0m[36marea continues.[0m
+***
+[33mOn the ground lies:[0m
+[36mA┬áBrokenΓÇæWeapon, A┬áBrokenΓÇæWeapon (1), A┬áBrokenΓÇæWeapon (2).[0m
+***
+[37mJunkyard-Scrapper-511, Junkyard-Scrapper-514, Junkyard-Scrapper-518, Junkyard-Scrapper-520, Junkyard-Scrapper-525, Junkyard-Scrapper-527, and Junkyard-Scrapper-529 are here with you.[0m
+[33mJunkyardΓÇæScrapperΓÇæ511 has hit you with his GoldΓÇæChunk![0m
+[33mJunkyardΓÇæScrapperΓÇæ514 has hit you with his RustyΓÇæShiv![0m
+[33mJunkyardΓÇæScrapperΓÇæ518 has hit you with his RustyΓÇæShiv![0m
+[33mJunkyardΓÇæScrapperΓÇæ525 has hit you with his RustyΓÇæShiv![0m
+[33mJunkyardΓÇæScrapperΓÇæ527 has hit you with his RustyΓÇæShiv![0m
+[31mJunkyardΓÇæScrapperΓÇæ520 whispers something unintelligible.[0m
+[31mJunkyardΓÇæScrapperΓÇæ529 checks the horizon for danger.[0m
+> [31mThe street is cracked here.[0m
+[32mCompass: (0E : 0N)[0m
+[33mnorth - [0m[36marea continues.[0m
+[33msouth - [0m[36marea continues.[0m
+[33meast  - [0m[36marea continues.[0m
+[33mwest  - [0m[36marea continues.[0m
+***
+[33mOn the ground lies:[0m
+[36mA┬áBrokenΓÇæWeapon, A┬áBrokenΓÇæWeapon (1), A┬áBrokenΓÇæWeapon (2).[0m
+***
+[37mJunkyard-Scrapper-511, Junkyard-Scrapper-514, Junkyard-Scrapper-518, Junkyard-Scrapper-520, Junkyard-Scrapper-525, Junkyard-Scrapper-527, and Junkyard-Scrapper-529 are here with you.[0m
+[33mJunkyardΓÇæScrapperΓÇæ514 has hit you with his RustyΓÇæShiv![0m
+[33mJunkyardΓÇæScrapperΓÇæ514 has hit you with his RustyΓÇæShiv![0m
+[31mJunkyardΓÇæScrapperΓÇæ511 hums a battle hymn.[0m
+[31mJunkyardΓÇæScrapperΓÇæ518 is trying to make friends with you.[0m
+[31mJunkyardΓÇæScrapperΓÇæ520 whispers something unintelligible.[0m
+[31mJunkyardΓÇæScrapperΓÇæ525 is making strange noises.[0m
+[31mJunkyardΓÇæScrapperΓÇæ527 pleads with you.[0m
+[31mJunkyardΓÇæScrapperΓÇæ529 is trying to make friends with you.[0m
+> [31mThe street is cracked here.[0m
+[32mCompass: (0E : 0N)[0m
+[33mnorth - [0m[36marea continues.[0m
+[33msouth - [0m[36marea continues.[0m
+[33meast  - [0m[36marea continues.[0m
+[33mwest  - [0m[36marea continues.[0m
+***
+[33mOn the ground lies:[0m
+[36mA┬áBrokenΓÇæWeapon, A┬áBrokenΓÇæWeapon (1), A┬áBrokenΓÇæWeapon (2).[0m
+***
+[37mJunkyard-Scrapper-511, Junkyard-Scrapper-514, Junkyard-Scrapper-518, Junkyard-Scrapper-520, Junkyard-Scrapper-525, Junkyard-Scrapper-527, and Junkyard-Scrapper-529 are here with you.[0m
+[33mJunkyardΓÇæScrapperΓÇæ514 has hit you with his RustyΓÇæShiv![0m
+[33mJunkyardΓÇæScrapperΓÇæ518 has hit you with his RustyΓÇæShiv![0m
+[31mJunkyardΓÇæScrapperΓÇæ520 begins casting Arcane Burst...[0m
+[31mJunkyardΓÇæScrapperΓÇæ520's spell fizzles out.[0m
+[33mJunkyardΓÇæScrapperΓÇæ525 has hit you with his RustyΓÇæShiv![0m
+[33mJunkyardΓÇæScrapperΓÇæ527 has hit you with his RustyΓÇæShiv![0m
+[31mJunkyardΓÇæScrapperΓÇæ511 takes a deep, steadying breath.[0m
+[31mJunkyardΓÇæScrapperΓÇæ520 is wondering what you're doing.[0m
+[31mJunkyardΓÇæScrapperΓÇæ525 mutters about the weather.[0m
+[31mJunkyardΓÇæScrapperΓÇæ527 is making strange noises.[0m
+[31mJunkyardΓÇæScrapperΓÇæ529 bounces on their heels.[0m
+> [31mThe street is cracked here.[0m
+[32mCompass: (0E : 0N)[0m
+[33mnorth - [0m[36marea continues.[0m
+[33msouth - [0m[36marea continues.[0m
+[33meast  - [0m[36marea continues.[0m
+[33mwest  - [0m[36marea continues.[0m
+***
+[33mOn the ground lies:[0m
+[36mA┬áBrokenΓÇæWeapon, A┬áBrokenΓÇæWeapon (1), A┬áBrokenΓÇæWeapon (2).[0m
+***
+[37mJunkyard-Scrapper-511, Junkyard-Scrapper-514, Junkyard-Scrapper-518, Junkyard-Scrapper-520, Junkyard-Scrapper-525, Junkyard-Scrapper-527, and Junkyard-Scrapper-529 are here with you.[0m
+[31mA┬áblinding white flash erupts around JunkyardΓÇæScrapperΓÇæ520![0m
+[31mJunkyardΓÇæScrapperΓÇæ520 converts loot worth 25000 ions.[0m
+[31mJunkyardΓÇæScrapperΓÇæ511 pleads with you.[0m
+[31mJunkyardΓÇæScrapperΓÇæ514 sharpens their claws.[0m
+[31mJunkyardΓÇæScrapperΓÇæ518 hums a battle hymn.[0m
+[31mJunkyardΓÇæScrapperΓÇæ525 hums a battle hymn.[0m
+[31mJunkyardΓÇæScrapperΓÇæ527 draws a sigil in the dust.[0m
+[31mJunkyardΓÇæScrapperΓÇæ529 practices a victory pose.[0m
+> [31mAn eerie calm settles in the distance.[0m
+[32mCompass: (-1E : 0N)[0m
+[33mnorth - [0m[36marea continues.[0m
+[33msouth - [0m[36marea continues.[0m
+[33meast  - [0m[36marea continues.[0m
+[33mwest  - [0m[36marea continues.[0m
+***
+[37mJunkyard-Scrapper-511, Junkyard-Scrapper-514, Junkyard-Scrapper-518, Junkyard-Scrapper-520, Junkyard-Scrapper-525, Junkyard-Scrapper-527, and Junkyard-Scrapper-529 are here with you.[0m
+***
+[33mYou hear footsteps right next to you to the east.[0m
+***
+[33mYou hear footsteps right next to you to the east.[0m
+***
+[33mYou hear footsteps right next to you to the east.[0m
+***
+[33mYou hear footsteps right next to you to the east.[0m
+***
+[33mYou hear footsteps right next to you to the east.[0m
+***
+[33mYou hear footsteps right next to you to the east.[0m
+***
+[33mYou hear footsteps right next to you to the east.[0m
+[31mJunkyardΓÇæScrapperΓÇæ511 has just arrived from the west.[0m
+[31mJunkyardΓÇæScrapperΓÇæ514 has just arrived from the west.[0m
+[31mJunkyardΓÇæScrapperΓÇæ518 has just arrived from the west.[0m
+[31mJunkyardΓÇæScrapperΓÇæ520 has just arrived from the west.[0m
+[31mJunkyardΓÇæScrapperΓÇæ525 has just arrived from the west.[0m
+[31mJunkyardΓÇæScrapperΓÇæ527 has just arrived from the west.[0m
+[31mJunkyardΓÇæScrapperΓÇæ529 has just arrived from the west.[0m
+> [31mThe street is cracked here.[0m
+[32mCompass: (0E : 0N)[0m
+[33mnorth - [0m[36marea continues.[0m
+[33msouth - [0m[36marea continues.[0m
+[33meast  - [0m[36marea continues.[0m
+[33mwest  - [0m[36marea continues.[0m
+***
+[33mOn the ground lies:[0m
+[36mA┬áBrokenΓÇæWeapon, A┬áBrokenΓÇæWeapon (1), A┬áBrokenΓÇæWeapon (2).[0m
+***
+[37mJunkyard-Scrapper-511, Junkyard-Scrapper-514, Junkyard-Scrapper-520, Junkyard-Scrapper-525, Junkyard-Scrapper-527, and Junkyard-Scrapper-529 are here with you.[0m
+***
+[33mYou hear footsteps right next to you to the west.[0m
+***
+[33mYou hear footsteps right next to you to the west.[0m
+***
+[33mYou hear footsteps right next to you to the west.[0m
+***
+[33mYou hear footsteps right next to you to the west.[0m
+***
+[33mYou hear footsteps right next to you to the west.[0m
+***
+[33mYou hear footsteps right next to you to the west.[0m
+[31mJunkyardΓÇæScrapperΓÇæ511 has just arrived from the east.[0m
+[31mJunkyardΓÇæScrapperΓÇæ514 has just arrived from the east.[0m
+[31mJunkyardΓÇæScrapperΓÇæ520 has just arrived from the east.[0m
+[31mJunkyardΓÇæScrapperΓÇæ525 has just arrived from the east.[0m
+[31mJunkyardΓÇæScrapperΓÇæ527 has just arrived from the east.[0m
+[31mJunkyardΓÇæScrapperΓÇæ529 has just arrived from the east.[0m
+> [31mAn eerie calm settles in the distance.[0m
+[32mCompass: (-1E : 0N)[0m
+[33mnorth - [0m[36marea continues.[0m
+[33msouth - [0m[36marea continues.[0m
+[33meast  - [0m[36marea continues.[0m
+[33mwest  - [0m[36marea continues.[0m
+***
+[37mJunkyard-Scrapper-511, Junkyard-Scrapper-514, Junkyard-Scrapper-518, Junkyard-Scrapper-520, Junkyard-Scrapper-525, Junkyard-Scrapper-527, and Junkyard-Scrapper-529 are here with you.[0m
+***
+[33mYou hear footsteps right next to you to the east.[0m
+***
+[33mYou hear footsteps right next to you to the east.[0m
+***
+[33mYou hear footsteps right next to you to the east.[0m
+***
+[33mYou hear footsteps right next to you to the east.[0m
+***
+[33mYou hear footsteps right next to you to the east.[0m
+***
+[33mYou hear footsteps right next to you to the east.[0m
+[31mJunkyardΓÇæScrapperΓÇæ511 has just arrived from the west.[0m
+[31mJunkyardΓÇæScrapperΓÇæ514 has just arrived from the west.[0m
+[33mJunkyardΓÇæScrapperΓÇæ518 has hit you with his RustyΓÇæShiv![0m
+[31mJunkyardΓÇæScrapperΓÇæ520 has just arrived from the west.[0m
+[31mJunkyardΓÇæScrapperΓÇæ525 has just arrived from the west.[0m
+[31mJunkyardΓÇæScrapperΓÇæ527 has just arrived from the west.[0m
+[31mJunkyardΓÇæScrapperΓÇæ529 has just arrived from the west.[0m
+> [31mThe street is cracked here.[0m
+[32mCompass: (0E : 0N)[0m
+[33mnorth - [0m[36marea continues.[0m
+[33msouth - [0m[36marea continues.[0m
+[33meast  - [0m[36marea continues.[0m
+[33mwest  - [0m[36marea continues.[0m
+***
+[33mOn the ground lies:[0m
+[36mA┬áBrokenΓÇæWeapon, A┬áBrokenΓÇæWeapon (1), A┬áBrokenΓÇæWeapon (2).[0m
+***
+[37mJunkyard-Scrapper-511, Junkyard-Scrapper-518, Junkyard-Scrapper-520, Junkyard-Scrapper-525, Junkyard-Scrapper-527, and Junkyard-Scrapper-529 are here with you.[0m
+***
+[33mYou hear footsteps right next to you to the west.[0m
+***
+[33mYou hear footsteps right next to you to the west.[0m
+***
+[33mYou hear footsteps right next to you to the west.[0m
+***
+[33mYou hear footsteps right next to you to the west.[0m
+***
+[33mYou hear footsteps right next to you to the west.[0m
+***
+[33mYou hear footsteps right next to you to the west.[0m
+[31mJunkyardΓÇæScrapperΓÇæ511 has just arrived from the east.[0m
+[31mJunkyardΓÇæScrapperΓÇæ518 has just arrived from the east.[0m
+[31mJunkyardΓÇæScrapperΓÇæ520 has just arrived from the east.[0m
+[31mJunkyardΓÇæScrapperΓÇæ525 has just arrived from the east.[0m
+[31mJunkyardΓÇæScrapperΓÇæ527 has just arrived from the east.[0m
+[31mJunkyardΓÇæScrapperΓÇæ529 has just arrived from the east.[0m
+> [31mAn eerie calm settles in the distance.[0m
+[32mCompass: (-1E : 0N)[0m
+[33mnorth - [0m[36marea continues.[0m
+[33msouth - [0m[36marea continues.[0m
+[33meast  - [0m[36marea continues.[0m
+[33mwest  - [0m[36marea continues.[0m
+***
+[37mJunkyard-Scrapper-511, Junkyard-Scrapper-514, Junkyard-Scrapper-518, Junkyard-Scrapper-520, Junkyard-Scrapper-525, Junkyard-Scrapper-527, and Junkyard-Scrapper-529 are here with you.[0m
+***
+[33mYou hear footsteps right next to you to the east.[0m
+***
+[33mYou hear footsteps right next to you to the east.[0m
+***
+[33mYou hear footsteps right next to you to the east.[0m
+***
+[33mYou hear footsteps right next to you to the east.[0m
+***
+[33mYou hear footsteps right next to you to the east.[0m
+***
+[33mYou hear footsteps right next to you to the east.[0m
+[31mJunkyardΓÇæScrapperΓÇæ511 has just arrived from the west.[0m
+[33mJunkyardΓÇæScrapperΓÇæ514 has hit you with his RustyΓÇæShiv![0m
+[31mJunkyardΓÇæScrapperΓÇæ518 has just arrived from the west.[0m
+[31mJunkyardΓÇæScrapperΓÇæ520 has just arrived from the west.[0m
+[31mJunkyardΓÇæScrapperΓÇæ525 has just arrived from the west.[0m
+[31mJunkyardΓÇæScrapperΓÇæ527 has just arrived from the west.[0m
+[31mJunkyardΓÇæScrapperΓÇæ529 has just arrived from the west.[0m
+> [31mThe street is cracked here.[0m
+[32mCompass: (0E : 0N)[0m
+[33mnorth - [0m[36marea continues.[0m
+[33msouth - [0m[36marea continues.[0m
+[33meast  - [0m[36marea continues.[0m
+[33mwest  - [0m[36marea continues.[0m
+***
+[33mOn the ground lies:[0m
+[36mA┬áBrokenΓÇæWeapon, A┬áBrokenΓÇæWeapon (1), A┬áBrokenΓÇæWeapon (2).[0m
+***
+[37mJunkyard-Scrapper-511, Junkyard-Scrapper-514, Junkyard-Scrapper-518, Junkyard-Scrapper-520, Junkyard-Scrapper-525, Junkyard-Scrapper-527, and Junkyard-Scrapper-529 are here with you.[0m
+***
+[33mYou hear footsteps right next to you to the west.[0m
+***
+[33mYou hear footsteps right next to you to the west.[0m
+***
+[33mYou hear footsteps right next to you to the west.[0m
+***
+[33mYou hear footsteps right next to you to the west.[0m
+***
+[33mYou hear footsteps right next to you to the west.[0m
+***
+[33mYou hear footsteps right next to you to the west.[0m
+***
+[33mYou hear footsteps right next to you to the west.[0m
+[31mJunkyardΓÇæScrapperΓÇæ511 has just arrived from the east.[0m
+[31mJunkyardΓÇæScrapperΓÇæ514 has just arrived from the east.[0m
+[31mJunkyardΓÇæScrapperΓÇæ518 has just arrived from the east.[0m
+[31mJunkyardΓÇæScrapperΓÇæ520 has just arrived from the east.[0m
+[31mJunkyardΓÇæScrapperΓÇæ525 has just arrived from the east.[0m
+[31mJunkyardΓÇæScrapperΓÇæ527 has just arrived from the east.[0m
+[31mJunkyardΓÇæScrapperΓÇæ529 has just arrived from the east.[0m
+> [31mAn eerie calm settles in the distance.[0m
+[32mCompass: (-1E : 0N)[0m
+[33mnorth - [0m[36marea continues.[0m
+[33msouth - [0m[36marea continues.[0m
+[33meast  - [0m[36marea continues.[0m
+[33mwest  - [0m[36marea continues.[0m
+***
+[37mJunkyard-Scrapper-511, Junkyard-Scrapper-514, Junkyard-Scrapper-518, Junkyard-Scrapper-520, Junkyard-Scrapper-525, Junkyard-Scrapper-527, and Junkyard-Scrapper-529 are here with you.[0m
+***
+[33mYou hear footsteps right next to you to the east.[0m
+***
+[33mYou hear footsteps right next to you to the east.[0m
+***
+[33mYou hear footsteps right next to you to the east.[0m
+***
+[33mYou hear footsteps right next to you to the east.[0m
+***
+[33mYou hear footsteps right next to you to the east.[0m
+***
+[33mYou hear footsteps right next to you to the east.[0m
+***
+[33mYou hear footsteps right next to you to the east.[0m
+[31mJunkyardΓÇæScrapperΓÇæ511 has just arrived from the west.[0m
+[31mJunkyardΓÇæScrapperΓÇæ514 has just arrived from the west.[0m
+[31mJunkyardΓÇæScrapperΓÇæ518 has just arrived from the west.[0m
+[31mJunkyardΓÇæScrapperΓÇæ520 has just arrived from the west.[0m
+[31mJunkyardΓÇæScrapperΓÇæ525 has just arrived from the west.[0m
+[31mJunkyardΓÇæScrapperΓÇæ527 has just arrived from the west.[0m
+[31mJunkyardΓÇæScrapperΓÇæ529 has just arrived from the west.[0m
+> [31mThe street is cracked here.[0m
+[32mCompass: (0E : 0N)[0m
+[33mnorth - [0m[36marea continues.[0m
+[33msouth - [0m[36marea continues.[0m
+[33meast  - [0m[36marea continues.[0m
+[33mwest  - [0m[36marea continues.[0m
+***
+[33mOn the ground lies:[0m
+[36mA┬áBrokenΓÇæWeapon, A┬áBrokenΓÇæWeapon (1), A┬áBrokenΓÇæWeapon (2).[0m
+***
+[37mJunkyard-Scrapper-511, Junkyard-Scrapper-514, Junkyard-Scrapper-518, Junkyard-Scrapper-520, Junkyard-Scrapper-525, Junkyard-Scrapper-527, and Junkyard-Scrapper-529 are here with you.[0m
+***
+[33mYou hear footsteps right next to you to the west.[0m
+***
+[33mYou hear footsteps right next to you to the west.[0m
+***
+[33mYou hear footsteps right next to you to the west.[0m
+***
+[33mYou hear footsteps right next to you to the west.[0m
+***
+[33mYou hear footsteps right next to you to the west.[0m
+***
+[33mYou hear footsteps right next to you to the west.[0m
+***
+[33mYou hear footsteps right next to you to the west.[0m
+[31mJunkyardΓÇæScrapperΓÇæ511 has just arrived from the east.[0m
+[31mJunkyardΓÇæScrapperΓÇæ514 has just arrived from the east.[0m
+[31mJunkyardΓÇæScrapperΓÇæ518 has just arrived from the east.[0m
+[31mJunkyardΓÇæScrapperΓÇæ520 has just arrived from the east.[0m
+[31mJunkyardΓÇæScrapperΓÇæ525 has just arrived from the east.[0m
+[31mJunkyardΓÇæScrapperΓÇæ527 has just arrived from the east.[0m
+[31mJunkyardΓÇæScrapperΓÇæ529 has just arrived from the east.[0m
+> [31mAn eerie calm settles in the distance.[0m
+[32mCompass: (-1E : 0N)[0m
+[33mnorth - [0m[36marea continues.[0m
+[33msouth - [0m[36marea continues.[0m
+[33meast  - [0m[36marea continues.[0m
+[33mwest  - [0m[36marea continues.[0m
+***
+[37mJunkyard-Scrapper-511, Junkyard-Scrapper-514, Junkyard-Scrapper-518, Junkyard-Scrapper-520, Junkyard-Scrapper-525, Junkyard-Scrapper-527, and Junkyard-Scrapper-529 are here with you.[0m
+***
+[33mYou hear footsteps right next to you to the east.[0m
+***
+[33mYou hear footsteps right next to you to the east.[0m
+***
+[33mYou hear footsteps right next to you to the east.[0m
+***
+[33mYou hear footsteps right next to you to the east.[0m
+***
+[33mYou hear footsteps right next to you to the east.[0m
+***
+[33mYou hear footsteps right next to you to the east.[0m
+***
+[33mYou hear footsteps right next to you to the east.[0m
+[31mJunkyardΓÇæScrapperΓÇæ511 has just arrived from the west.[0m
+[31mJunkyardΓÇæScrapperΓÇæ514 has just arrived from the west.[0m
+[31mJunkyardΓÇæScrapperΓÇæ518 has just arrived from the west.[0m
+[31mJunkyardΓÇæScrapperΓÇæ520 has just arrived from the west.[0m
+[31mJunkyardΓÇæScrapperΓÇæ525 has just arrived from the west.[0m
+[31mJunkyardΓÇæScrapperΓÇæ527 has just arrived from the west.[0m
+[31mJunkyardΓÇæScrapperΓÇæ529 has just arrived from the west.[0m
+> [31mThe street is cracked here.[0m
+[32mCompass: (0E : 0N)[0m
+[33mnorth - [0m[36marea continues.[0m
+[33msouth - [0m[36marea continues.[0m
+[33meast  - [0m[36marea continues.[0m
+[33mwest  - [0m[36marea continues.[0m
+***
+[33mOn the ground lies:[0m
+[36mA┬áBrokenΓÇæWeapon, A┬áBrokenΓÇæWeapon (1), A┬áBrokenΓÇæWeapon (2).[0m
+***
+[37mJunkyard-Scrapper-511, Junkyard-Scrapper-514, Junkyard-Scrapper-518, Junkyard-Scrapper-520, Junkyard-Scrapper-525, Junkyard-Scrapper-527, and Junkyard-Scrapper-529 are here with you.[0m
+***
+[33mYou hear footsteps right next to you to the west.[0m
+***
+[33mYou hear footsteps right next to you to the west.[0m
+***
+[33mYou hear footsteps right next to you to the west.[0m
+***
+[33mYou hear footsteps right next to you to the west.[0m
+***
+[33mYou hear footsteps right next to you to the west.[0m
+***
+[33mYou hear footsteps right next to you to the west.[0m
+***
+[33mYou hear footsteps right next to you to the west.[0m
+[31mJunkyardΓÇæScrapperΓÇæ511 has just arrived from the east.[0m
+[31mJunkyardΓÇæScrapperΓÇæ514 has just arrived from the east.[0m
+[31mJunkyardΓÇæScrapperΓÇæ518 has just arrived from the east.[0m
+[31mJunkyardΓÇæScrapperΓÇæ520 has just arrived from the east.[0m
+[31mJunkyardΓÇæScrapperΓÇæ525 has just arrived from the east.[0m
+[31mJunkyardΓÇæScrapperΓÇæ527 has just arrived from the east.[0m
+[31mJunkyardΓÇæScrapperΓÇæ529 has just arrived from the east.[0m
+> [31mThe street is cracked here.[0m
+[32mCompass: (0E : 0N)[0m
+[33mnorth - [0m[36marea continues.[0m
+[33msouth - [0m[36marea continues.[0m
+[33meast  - [0m[36marea continues.[0m
+[33mwest  - [0m[36marea continues.[0m
+***
+[33mOn the ground lies:[0m
+[36mA┬áBrokenΓÇæWeapon, A┬áBrokenΓÇæWeapon (1), A┬áBrokenΓÇæWeapon (2).[0m
+***
+[37mJunkyard-Scrapper-511, Junkyard-Scrapper-514, Junkyard-Scrapper-518, Junkyard-Scrapper-520, Junkyard-Scrapper-525, Junkyard-Scrapper-527, and Junkyard-Scrapper-529 are here with you.[0m
+[33mJunkyardΓÇæScrapperΓÇæ511 has hit you with his GoldΓÇæChunk![0m
+[33mJunkyardΓÇæScrapperΓÇæ520 has hit you with his RustyΓÇæShiv![0m
+[33mJunkyardΓÇæScrapperΓÇæ527 has hit you with his RustyΓÇæShiv![0m
+[33mJunkyardΓÇæScrapperΓÇæ529 has hit you with his RustyΓÇæShiv![0m
+[31mJunkyardΓÇæScrapperΓÇæ514 is singing a strange song.[0m
+[31mJunkyardΓÇæScrapperΓÇæ518 pleads with you.[0m
+[31mJunkyardΓÇæScrapperΓÇæ525 adjusts their helmet.[0m
+> [31mThe street is cracked here.[0m
+[32mCompass: (0E : 0N)[0m
+[33mnorth - [0m[36marea continues.[0m
+[33msouth - [0m[36marea continues.[0m
+[33meast  - [0m[36marea continues.[0m
+[33mwest  - [0m[36marea continues.[0m
+***
+[33mOn the ground lies:[0m
+[36mA┬áBrokenΓÇæWeapon, A┬áBrokenΓÇæWeapon (1), A┬áBrokenΓÇæWeapon (2).[0m
+***
+[37mJunkyard-Scrapper-511, Junkyard-Scrapper-514, Junkyard-Scrapper-518, Junkyard-Scrapper-520, Junkyard-Scrapper-525, Junkyard-Scrapper-527, and Junkyard-Scrapper-529 are here with you.[0m
+[33mJunkyardΓÇæScrapperΓÇæ511 has hit you with his GoldΓÇæChunk![0m
+[33mJunkyardΓÇæScrapperΓÇæ527 has hit you with his RustyΓÇæShiv![0m
+[33mJunkyardΓÇæScrapperΓÇæ529 has hit you with his RustyΓÇæShiv![0m
+[31mJunkyardΓÇæScrapperΓÇæ514 whispers something unintelligible.[0m
+[31mJunkyardΓÇæScrapperΓÇæ514 is wondering what you're doing.[0m
+[31mJunkyardΓÇæScrapperΓÇæ514 pats their pockets for supplies.[0m
+[31mJunkyardΓÇæScrapperΓÇæ518 adjusts their helmet.[0m
+[31mJunkyardΓÇæScrapperΓÇæ520 is looking awfully sad.[0m
+[31mJunkyardΓÇæScrapperΓÇæ525 is making strange noises.[0m
+[31mJunkyardΓÇæScrapperΓÇæ527 is trying to make friends with you.[0m
+> [31mThe street is cracked here.[0m
+[32mCompass: (0E : 0N)[0m
+[33mnorth - [0m[36marea continues.[0m
+[33msouth - [0m[36marea continues.[0m
+[33meast  - [0m[36marea continues.[0m
+[33mwest  - [0m[36marea continues.[0m
+***
+[33mOn the ground lies:[0m
+[36mA┬áBrokenΓÇæWeapon, A┬áBrokenΓÇæWeapon (1), A┬áBrokenΓÇæWeapon (2).[0m
+***
+[37mJunkyard-Scrapper-511, Junkyard-Scrapper-514, Junkyard-Scrapper-518, Junkyard-Scrapper-520, Junkyard-Scrapper-525, Junkyard-Scrapper-527, and Junkyard-Scrapper-529 are here with you.[0m
+[33mJunkyardΓÇæScrapperΓÇæ518 has hit you with his RustyΓÇæShiv![0m
+[33mJunkyardΓÇæScrapperΓÇæ520 has hit you with his RustyΓÇæShiv![0m
+[33mJunkyardΓÇæScrapperΓÇæ527 has hit you with his RustyΓÇæShiv![0m
+[33mJunkyardΓÇæScrapperΓÇæ529 has hit you with his RustyΓÇæShiv![0m
+[31mJunkyardΓÇæScrapperΓÇæ511 is looking awfully sad.[0m
+[31mJunkyardΓÇæScrapperΓÇæ514 pats their pockets for supplies.[0m
+[31mJunkyardΓÇæScrapperΓÇæ525 is looking awfully sad.[0m
+> [31mThe street is cracked here.[0m
+[32mCompass: (0E : 0N)[0m
+[33mnorth - [0m[36marea continues.[0m
+[33msouth - [0m[36marea continues.[0m
+[33meast  - [0m[36marea continues.[0m
+[33mwest  - [0m[36marea continues.[0m
+***
+[33mOn the ground lies:[0m
+[36mA┬áBrokenΓÇæWeapon, A┬áBrokenΓÇæWeapon (1), A┬áBrokenΓÇæWeapon (2).[0m
+***
+[37mJunkyard-Scrapper-511, Junkyard-Scrapper-514, Junkyard-Scrapper-518, Junkyard-Scrapper-520, Junkyard-Scrapper-525, Junkyard-Scrapper-527, and Junkyard-Scrapper-529 are here with you.[0m
+[31mJunkyardΓÇæScrapperΓÇæ511 mutters about the weather.[0m
+[31mJunkyardΓÇæScrapperΓÇæ514 mutters about the weather.[0m
+[31mJunkyardΓÇæScrapperΓÇæ518 stares into the distance.[0m
+[31mJunkyardΓÇæScrapperΓÇæ520 is trying to make friends with you.[0m
+[31mJunkyardΓÇæScrapperΓÇæ525 adjusts their helmet.[0m
+[31mJunkyardΓÇæScrapperΓÇæ527 draws a sigil in the dust.[0m
+[31mJunkyardΓÇæScrapperΓÇæ529 looks at you.[0m
+> [31mThe street is cracked here.[0m
+[32mCompass: (0E : 0N)[0m
+[33mnorth - [0m[36marea continues.[0m
+[33msouth - [0m[36marea continues.[0m
+[33meast  - [0m[36marea continues.[0m
+[33mwest  - [0m[36marea continues.[0m
+***
+[33mOn the ground lies:[0m
+[36mA┬áBrokenΓÇæWeapon, A┬áBrokenΓÇæWeapon (1), A┬áBrokenΓÇæWeapon (2).[0m
+***
+[37mJunkyard-Scrapper-511, Junkyard-Scrapper-514, Junkyard-Scrapper-518, Junkyard-Scrapper-520, Junkyard-Scrapper-525, Junkyard-Scrapper-527, and Junkyard-Scrapper-529 are here with you.[0m
+[33mJunkyardΓÇæScrapperΓÇæ514 has hit you with his RustyΓÇæShiv![0m
+[33mJunkyardΓÇæScrapperΓÇæ518 has hit you with his RustyΓÇæShiv![0m
+[31mJunkyardΓÇæScrapperΓÇæ511 flexes ominously.[0m
+[31mJunkyardΓÇæScrapperΓÇæ520 takes a deep, steadying breath.[0m
+[31mJunkyardΓÇæScrapperΓÇæ525 pats their pockets for supplies.[0m
+[31mJunkyardΓÇæScrapperΓÇæ527 hums a battle hymn.[0m
+[31mJunkyardΓÇæScrapperΓÇæ529 checks the horizon for danger.[0m
+> ***
+[33mYou ready yourself against JunkyardΓÇæScrapperΓÇæ511.[0m
+***
+[33mJunkyardΓÇæScrapperΓÇæ514 has hit you with his RustyΓÇæShiv![0m
+***
+[33mJunkyardΓÇæScrapperΓÇæ529 has hit you with his RustyΓÇæShiv![0m
+***
+[31mJunkyardΓÇæScrapperΓÇæ511 sharpens their claws.[0m
+***
+[31mJunkyardΓÇæScrapperΓÇæ511 adjusts their helmet.[0m
+***
+[31mJunkyardΓÇæScrapperΓÇæ518 is trying to make friends with you.[0m
+***
+[31mJunkyardΓÇæScrapperΓÇæ520 looks at you.[0m
+***
+[31mJunkyardΓÇæScrapperΓÇæ525 takes a deep, steadying breath.[0m
+***
+[31mJunkyardΓÇæScrapperΓÇæ527 checks the horizon for danger.[0m
+> ***
+[37mYou ready the GoldΓÇæChunk for combat.[0m
+***
+[33mYou strike JunkyardΓÇæScrapperΓÇæ511 for 9 damage.[0m
+***
+[31mJunkyardΓÇæScrapperΓÇæ511 yells: Get away from me![0m
+***
+[33mJunkyardΓÇæScrapperΓÇæ514 has hit you with his RustyΓÇæShiv![0m
+***
+[33mJunkyardΓÇæScrapperΓÇæ518 has hit you with his RustyΓÇæShiv![0m
+***
+[33mJunkyardΓÇæScrapperΓÇæ520 has hit you with his RustyΓÇæShiv![0m
+***
+[33mJunkyardΓÇæScrapperΓÇæ525 has hit you with his RustyΓÇæShiv![0m
+***
+[33mJunkyardΓÇæScrapperΓÇæ527 has hit you with his RustyΓÇæShiv![0m
+***
+[31mJunkyardΓÇæScrapperΓÇæ514 is singing a strange song.[0m
+***
+[31mJunkyardΓÇæScrapperΓÇæ529 pats their pockets for supplies.[0m
+> ***
+[37mYou ready the GoldΓÇæChunk for combat.[0m
+***
+[33mYou strike JunkyardΓÇæScrapperΓÇæ511 for 17 damage.[0m
+***
+[31mYou have slain JunkyardΓÇæScrapperΓÇæ511![0m
+***
+[31mGround is full; GoldΓÇæChunk dissipates.[0m
+***
+[31mGround is full; Skull dissipates.[0m
+***
+[31mGround is full; TornΓÇæOveralls dissipates.[0m
+***
+[31mGround is full; TornΓÇæOveralls dissipates.[0m
+***
+[31mYour experience points are increased by 30![0m
+***
+[31mYou collect 10 Riblets and 29676 ions from the slain body.[0m
+***
+[31mA┬áRustyΓÇæShiv is falling from JunkyardΓÇæScrapperΓÇæ511's body![0m
+***
+[31mA┬áBoltΓÇæPouch is falling from JunkyardΓÇæScrapperΓÇæ511's body![0m
+***
+[31mA┬áBoltΓÇæPouch is falling from JunkyardΓÇæScrapperΓÇæ511's body![0m
+***
+[31mJunkyardΓÇæScrapperΓÇæ511 is crumbling to dust![0m
+***
+[31mJunkyardΓÇæScrapperΓÇæ514 picks up RustyΓÇæShiv.[0m
+***
+[31mJunkyardΓÇæScrapperΓÇæ518 picks up BoltΓÇæPouch.[0m
+***
+[31mJunkyardΓÇæScrapperΓÇæ520 begins casting Arcane Burst...[0m
+***
+[31mJunkyardΓÇæScrapperΓÇæ520's spell fizzles out.[0m
+***
+[31mJunkyardΓÇæScrapperΓÇæ525 picks up BoltΓÇæPouch.[0m
+***
+[33mJunkyardΓÇæScrapperΓÇæ527 has hit you with his RustyΓÇæShiv![0m
+***
+[31mJunkyardΓÇæScrapperΓÇæ520 pleads with you.[0m
+***
+[31mJunkyardΓÇæScrapperΓÇæ529 stares into the distance.[0m
+> ***
+[37mYou swing the GoldΓÇæChunk around, testing its weight.[0m
+***
+[33mJunkyardΓÇæScrapperΓÇæ514 has hit you with his RustyΓÇæShiv![0m
+***
+[33mJunkyardΓÇæScrapperΓÇæ518 has hit you with his RustyΓÇæShiv![0m
+***
+[33mJunkyardΓÇæScrapperΓÇæ520 has hit you with his RustyΓÇæShiv![0m
+***
+[33mJunkyardΓÇæScrapperΓÇæ527 has hit you with his RustyΓÇæShiv![0m
+***
+[33mJunkyardΓÇæScrapperΓÇæ529 has hit you with his RustyΓÇæShiv![0m
+***
+[31mJunkyardΓÇæScrapperΓÇæ514 is making strange noises.[0m
+***
+[31mJunkyardΓÇæScrapperΓÇæ514 stares into the distance.[0m
+***
+[31mJunkyardΓÇæScrapperΓÇæ525 is trying to make friends with you.[0m
+***
+[31mJunkyardΓÇæScrapperΓÇæ527 draws a sigil in the dust.[0m
+***
+[31mJunkyardΓÇæScrapperΓÇæ527 is trying to make friends with you.[0m
+> ***
+[37mYou swing the GoldΓÇæChunk around, testing its weight.[0m
+***
+[33mJunkyardΓÇæScrapperΓÇæ518 has hit you with his RustyΓÇæShiv![0m
+***
+[33mJunkyardΓÇæScrapperΓÇæ525 has hit you with his RustyΓÇæShiv![0m
+***
+[33mJunkyardΓÇæScrapperΓÇæ529 has hit you with his RustyΓÇæShiv![0m
+***
+[31mJunkyardΓÇæScrapperΓÇæ514 checks the horizon for danger.[0m
+***
+[31mJunkyardΓÇæScrapperΓÇæ520 looks at you.[0m
+***
+[31mJunkyardΓÇæScrapperΓÇæ527 practices a victory pose.[0m
+> ***
+[37mYou swing the GoldΓÇæChunk around, testing its weight.[0m
+***
+[33mJunkyardΓÇæScrapperΓÇæ518 has hit you with his RustyΓÇæShiv![0m
+***
+[33mJunkyardΓÇæScrapperΓÇæ520 has hit you with his RustyΓÇæShiv![0m
+***
+[31mJunkyardΓÇæScrapperΓÇæ514 takes a deep, steadying breath.[0m
+***
+[31mJunkyardΓÇæScrapperΓÇæ525 practices a victory pose.[0m
+***
+[31mJunkyardΓÇæScrapperΓÇæ527 takes a deep, steadying breath.[0m
+***
+[31mJunkyardΓÇæScrapperΓÇæ529 is singing a strange song.[0m
+> ***
+[37mYou swing the GoldΓÇæChunk around, testing its weight.[0m
+***
+[33mJunkyardΓÇæScrapperΓÇæ520 has hit you with his RustyΓÇæShiv![0m
+***
+[33mJunkyardΓÇæScrapperΓÇæ520 has hit you with his RustyΓÇæShiv![0m
+***
+[33mJunkyardΓÇæScrapperΓÇæ520 has hit you with his RustyΓÇæShiv![0m
+***
+[33mJunkyardΓÇæScrapperΓÇæ525 has hit you with his RustyΓÇæShiv![0m
+***
+[33mJunkyardΓÇæScrapperΓÇæ525 has hit you with his RustyΓÇæShiv![0m
+***
+[33mJunkyardΓÇæScrapperΓÇæ527 has hit you with his RustyΓÇæShiv![0m
+***
+[33mJunkyardΓÇæScrapperΓÇæ529 has hit you with his RustyΓÇæShiv![0m
+***
+[31mJunkyardΓÇæScrapperΓÇæ514 draws a sigil in the dust.[0m
+***
+[31mJunkyardΓÇæScrapperΓÇæ518 is trying to make friends with you.[0m
+> ***
+[37mYou swing the GoldΓÇæChunk around, testing its weight.[0m
+***
+[33mJunkyardΓÇæScrapperΓÇæ514 has hit you with his RustyΓÇæShiv![0m
+***
+[33mJunkyardΓÇæScrapperΓÇæ518 has hit you with his BoltΓÇæPouch![0m
+***
+[33mJunkyardΓÇæScrapperΓÇæ520 has hit you with his RustyΓÇæShiv![0m
+***
+[33mJunkyardΓÇæScrapperΓÇæ529 has hit you with his RustyΓÇæShiv![0m
+***
+[33mJunkyardΓÇæScrapperΓÇæ529 has hit you with his RustyΓÇæShiv![0m
+***
+[31mJunkyardΓÇæScrapperΓÇæ514 flexes ominously.[0m
+***
+[31mJunkyardΓÇæScrapperΓÇæ525 is making strange noises.[0m
+***
+[31mJunkyardΓÇæScrapperΓÇæ527 hums a battle hymn.[0m
+***
+[31mJunkyardΓÇæScrapperΓÇæ527 mutters about the weather.[0m
+> ***
+[37mYou swing the GoldΓÇæChunk around, testing its weight.[0m
+***
+[33mJunkyardΓÇæScrapperΓÇæ514 has hit you with his RustyΓÇæShiv![0m
+***
+[33mJunkyardΓÇæScrapperΓÇæ520 has hit you with his RustyΓÇæShiv![0m
+***
+[33mJunkyardΓÇæScrapperΓÇæ527 has hit you with his RustyΓÇæShiv![0m
+***
+[31mJunkyardΓÇæScrapperΓÇæ514 checks the horizon for danger.[0m
+***
+[31mJunkyardΓÇæScrapperΓÇæ518 takes a deep, steadying breath.[0m
+***
+[31mJunkyardΓÇæScrapperΓÇæ525 adjusts their helmet.[0m
+***
+[31mJunkyardΓÇæScrapperΓÇæ529 bounces on their heels.[0m
+> ***
+[37mYou swing the GoldΓÇæChunk around, testing its weight.[0m
+***
+[33mJunkyardΓÇæScrapperΓÇæ514 has hit you with his RustyΓÇæShiv![0m
+***
+[33mJunkyardΓÇæScrapperΓÇæ520 has hit you with his RustyΓÇæShiv![0m
+***
+[33mJunkyardΓÇæScrapperΓÇæ525 has hit you with his RustyΓÇæShiv![0m
+***
+[33mJunkyardΓÇæScrapperΓÇæ529 has hit you with his RustyΓÇæShiv![0m
+***
+[31mJunkyardΓÇæScrapperΓÇæ518 checks the horizon for danger.[0m
+***
+[31mJunkyardΓÇæScrapperΓÇæ527 is looking awfully sad.[0m
+***
+[31mJunkyardΓÇæScrapperΓÇæ529 hums a battle hymn.[0m
+> ***
+[37mYou swing the GoldΓÇæChunk around, testing its weight.[0m
+***
+[33mJunkyardΓÇæScrapperΓÇæ520 has hit you with his RustyΓÇæShiv![0m
+***
+[33mJunkyardΓÇæScrapperΓÇæ527 has hit you with his RustyΓÇæShiv![0m
+***
+[31mJunkyardΓÇæScrapperΓÇæ514 is making strange noises.[0m
+***
+[31mJunkyardΓÇæScrapperΓÇæ518 mutters about the weather.[0m
+***
+[31mJunkyardΓÇæScrapperΓÇæ520 takes a deep, steadying breath.[0m
+***
+[31mJunkyardΓÇæScrapperΓÇæ525 stares into the distance.[0m
+***
+[31mJunkyardΓÇæScrapperΓÇæ529 hums a battle hymn.[0m
+> ***
+[37mYou swing the GoldΓÇæChunk around, testing its weight.[0m
+***
+[33mJunkyardΓÇæScrapperΓÇæ518 has hit you with his RustyΓÇæShiv![0m
+***
+[33mJunkyardΓÇæScrapperΓÇæ520 has hit you with his RustyΓÇæShiv![0m
+***
+[33mJunkyardΓÇæScrapperΓÇæ527 has hit you with his RustyΓÇæShiv![0m
+***
+[33mJunkyardΓÇæScrapperΓÇæ529 has hit you with his RustyΓÇæShiv![0m
+***
+[31mJunkyardΓÇæScrapperΓÇæ514 is trying to make friends with you.[0m
+***
+[31mJunkyardΓÇæScrapperΓÇæ520 is wondering what you're doing.[0m
+***
+[31mJunkyardΓÇæScrapperΓÇæ525 bounces on their heels.[0m
+***
+[31mJunkyardΓÇæScrapperΓÇæ525 is wondering what you're doing.[0m
+***
+[31mJunkyardΓÇæScrapperΓÇæ527 takes a deep, steadying breath.[0m
+> ***
+[37mYou swing the GoldΓÇæChunk around, testing its weight.[0m
+***
+[33mJunkyardΓÇæScrapperΓÇæ518 has hit you with his BoltΓÇæPouch![0m
+***
+[33mJunkyardΓÇæScrapperΓÇæ525 has hit you with his RustyΓÇæShiv![0m
+***
+[33mJunkyardΓÇæScrapperΓÇæ527 has hit you with his RustyΓÇæShiv![0m
+***
+[33mJunkyardΓÇæScrapperΓÇæ529 has hit you with his RustyΓÇæShiv![0m
+***
+[31mJunkyardΓÇæScrapperΓÇæ514 is making strange noises.[0m
+***
+[31mJunkyardΓÇæScrapperΓÇæ520 draws a sigil in the dust.[0m
+> [31mThe street is cracked here.[0m
+[32mCompass: (0E : 0N)[0m
+[33mnorth - [0m[36marea continues.[0m
+[33msouth - [0m[36marea continues.[0m
+[33meast  - [0m[36marea continues.[0m
+[33mwest  - [0m[36marea continues.[0m
+***
+[33mOn the ground lies:[0m
+[36mA┬áBrokenΓÇæWeapon, A┬áBrokenΓÇæWeapon (1), A┬áBrokenΓÇæWeapon (2).[0m
+***
+[37mJunkyard-Scrapper-514, Junkyard-Scrapper-518, Junkyard-Scrapper-520, Junkyard-Scrapper-525, Junkyard-Scrapper-527, and Junkyard-Scrapper-529 are here with you.[0m
+[33mJunkyardΓÇæScrapperΓÇæ518 has hit you with his RustyΓÇæShiv![0m
+[33mJunkyardΓÇæScrapperΓÇæ520 has hit you with his RustyΓÇæShiv![0m
+[33mJunkyardΓÇæScrapperΓÇæ525 has hit you with his BoltΓÇæPouch![0m
+[33mJunkyardΓÇæScrapperΓÇæ527 has hit you with his RustyΓÇæShiv![0m
+[33mJunkyardΓÇæScrapperΓÇæ529 has hit you with his RustyΓÇæShiv![0m
+[31mJunkyardΓÇæScrapperΓÇæ514 bounces on their heels.[0m
+[31mJunkyardΓÇæScrapperΓÇæ518 flexes ominously.[0m
+[31mJunkyardΓÇæScrapperΓÇæ525 looks at you.[0m
+[31mJunkyardΓÇæScrapperΓÇæ529 flexes ominously.[0m
+> [31mThe street is cracked here.[0m
+[32mCompass: (0E : 0N)[0m
+[33mnorth - [0m[36marea continues.[0m
+[33msouth - [0m[36marea continues.[0m
+[33meast  - [0m[36marea continues.[0m
+[33mwest  - [0m[36marea continues.[0m
+***
+[33mOn the ground lies:[0m
+[36mA┬áBrokenΓÇæWeapon, A┬áBrokenΓÇæWeapon (1), A┬áBrokenΓÇæWeapon (2).[0m
+***
+[37mJunkyard-Scrapper-514, Junkyard-Scrapper-518, Junkyard-Scrapper-520, Junkyard-Scrapper-525, Junkyard-Scrapper-527, and Junkyard-Scrapper-529 are here with you.[0m
+[33mJunkyardΓÇæScrapperΓÇæ514 has hit you with his RustyΓÇæShiv![0m
+[33mJunkyardΓÇæScrapperΓÇæ520 has hit you with his RustyΓÇæShiv![0m
+[33mJunkyardΓÇæScrapperΓÇæ525 has hit you with his RustyΓÇæShiv![0m
+[33mJunkyardΓÇæScrapperΓÇæ529 has hit you with his RustyΓÇæShiv![0m
+[31mJunkyardΓÇæScrapperΓÇæ518 hums a battle hymn.[0m
+[31mJunkyardΓÇæScrapperΓÇæ527 takes a deep, steadying breath.[0m
+> [31mThe street is cracked here.[0m
+[32mCompass: (0E : 0N)[0m
+[33mnorth - [0m[36marea continues.[0m
+[33msouth - [0m[36marea continues.[0m
+[33meast  - [0m[36marea continues.[0m
+[33mwest  - [0m[36marea continues.[0m
+***
+[33mOn the ground lies:[0m
+[36mA┬áBrokenΓÇæWeapon, A┬áBrokenΓÇæWeapon (1), A┬áBrokenΓÇæWeapon (2).[0m
+***
+[37mJunkyard-Scrapper-514, Junkyard-Scrapper-518, Junkyard-Scrapper-520, Junkyard-Scrapper-525, Junkyard-Scrapper-527, and Junkyard-Scrapper-529 are here with you.[0m
+[33mJunkyardΓÇæScrapperΓÇæ514 has hit you with his RustyΓÇæShiv![0m
+[33mJunkyardΓÇæScrapperΓÇæ518 has hit you with his RustyΓÇæShiv![0m
+[33mJunkyardΓÇæScrapperΓÇæ520 has hit you with his RustyΓÇæShiv![0m
+[33mJunkyardΓÇæScrapperΓÇæ529 has hit you with his RustyΓÇæShiv![0m
+[33mJunkyardΓÇæScrapperΓÇæ529 has hit you with his RustyΓÇæShiv![0m
+[31mJunkyardΓÇæScrapperΓÇæ525 sharpens their claws.[0m
+[31mJunkyardΓÇæScrapperΓÇæ527 pleads with you.[0m
+> [31mThe street is cracked here.[0m
+[32mCompass: (0E : 0N)[0m
+[33mnorth - [0m[36marea continues.[0m
+[33msouth - [0m[36marea continues.[0m
+[33meast  - [0m[36marea continues.[0m
+[33mwest  - [0m[36marea continues.[0m
+***
+[33mOn the ground lies:[0m
+[36mA┬áBrokenΓÇæWeapon, A┬áBrokenΓÇæWeapon (1), A┬áBrokenΓÇæWeapon (2).[0m
+***
+[37mJunkyard-Scrapper-514, Junkyard-Scrapper-518, Junkyard-Scrapper-520, Junkyard-Scrapper-525, Junkyard-Scrapper-527, and Junkyard-Scrapper-529 are here with you.[0m
+[33mJunkyardΓÇæScrapperΓÇæ518 has hit you with his RustyΓÇæShiv![0m
+[33mJunkyardΓÇæScrapperΓÇæ520 has hit you with his RustyΓÇæShiv![0m
+[33mJunkyardΓÇæScrapperΓÇæ525 has hit you with his RustyΓÇæShiv![0m
+[33mJunkyardΓÇæScrapperΓÇæ529 has hit you with his RustyΓÇæShiv![0m
+[31mJunkyardΓÇæScrapperΓÇæ514 draws a sigil in the dust.[0m
+[31mJunkyardΓÇæScrapperΓÇæ527 takes a deep, steadying breath.[0m
+> [31mThe street is cracked here.[0m
+[32mCompass: (0E : 0N)[0m
+[33mnorth - [0m[36marea continues.[0m
+[33msouth - [0m[36marea continues.[0m
+[33meast  - [0m[36marea continues.[0m
+[33mwest  - [0m[36marea continues.[0m
+***
+[33mOn the ground lies:[0m
+[36mA┬áBrokenΓÇæWeapon, A┬áBrokenΓÇæWeapon (1), A┬áBrokenΓÇæWeapon (2).[0m
+***
+[37mJunkyard-Scrapper-514, Junkyard-Scrapper-518, Junkyard-Scrapper-520, Junkyard-Scrapper-525, Junkyard-Scrapper-527, and Junkyard-Scrapper-529 are here with you.[0m
+[33mJunkyardΓÇæScrapperΓÇæ525 has hit you with his RustyΓÇæShiv![0m
+[33mJunkyardΓÇæScrapperΓÇæ529 has hit you with his RustyΓÇæShiv![0m
+[31mJunkyardΓÇæScrapperΓÇæ514 adjusts their helmet.[0m
+[31mJunkyardΓÇæScrapperΓÇæ518 is looking awfully sad.[0m
+[31mJunkyardΓÇæScrapperΓÇæ520 is singing a strange song.[0m
+[31mJunkyardΓÇæScrapperΓÇæ527 draws a sigil in the dust.[0m
+> [31mThe street is cracked here.[0m
+[32mCompass: (0E : 0N)[0m
+[33mnorth - [0m[36marea continues.[0m
+[33msouth - [0m[36marea continues.[0m
+[33meast  - [0m[36marea continues.[0m
+[33mwest  - [0m[36marea continues.[0m
+***
+[33mOn the ground lies:[0m
+[36mA┬áBrokenΓÇæWeapon, A┬áBrokenΓÇæWeapon (1), A┬áBrokenΓÇæWeapon (2).[0m
+***
+[37mJunkyard-Scrapper-514, Junkyard-Scrapper-518, Junkyard-Scrapper-520, Junkyard-Scrapper-525, Junkyard-Scrapper-527, and Junkyard-Scrapper-529 are here with you.[0m
+[33mJunkyardΓÇæScrapperΓÇæ514 has hit you with his RustyΓÇæShiv![0m
+[33mJunkyardΓÇæScrapperΓÇæ520 has hit you with his RustyΓÇæShiv![0m
+[33mJunkyardΓÇæScrapperΓÇæ527 has hit you with his RustyΓÇæShiv![0m
+[33mJunkyardΓÇæScrapperΓÇæ529 has hit you with his RustyΓÇæShiv![0m
+[33mJunkyardΓÇæScrapperΓÇæ529 has hit you with his RustyΓÇæShiv![0m
+[31mJunkyardΓÇæScrapperΓÇæ514 stares into the distance.[0m
+[31mJunkyardΓÇæScrapperΓÇæ518 draws a sigil in the dust.[0m
+[31mJunkyardΓÇæScrapperΓÇæ525 adjusts their helmet.[0m
+[31mJunkyardΓÇæScrapperΓÇæ529 adjusts their helmet.[0m
+> [31mThe street is cracked here.[0m
+[32mCompass: (0E : 0N)[0m
+[33mnorth - [0m[36marea continues.[0m
+[33msouth - [0m[36marea continues.[0m
+[33meast  - [0m[36marea continues.[0m
+[33mwest  - [0m[36marea continues.[0m
+***
+[33mOn the ground lies:[0m
+[36mA┬áBrokenΓÇæWeapon, A┬áBrokenΓÇæWeapon (1), A┬áBrokenΓÇæWeapon (2).[0m
+***
+[37mJunkyard-Scrapper-514, Junkyard-Scrapper-518, Junkyard-Scrapper-520, Junkyard-Scrapper-525, Junkyard-Scrapper-527, and Junkyard-Scrapper-529 are here with you.[0m
+[33mJunkyardΓÇæScrapperΓÇæ514 has hit you with his RustyΓÇæShiv![0m
+[33mJunkyardΓÇæScrapperΓÇæ520 has hit you with his RustyΓÇæShiv![0m
+[33mJunkyardΓÇæScrapperΓÇæ527 has hit you with his RustyΓÇæShiv![0m
+[33mJunkyardΓÇæScrapperΓÇæ529 has hit you with his RustyΓÇæShiv![0m
+[33mJunkyardΓÇæScrapperΓÇæ529 has hit you with his RustyΓÇæShiv![0m
+[31mJunkyardΓÇæScrapperΓÇæ518 looks at you.[0m
+[31mJunkyardΓÇæScrapperΓÇæ525 adjusts their helmet.[0m
+[31mJunkyardΓÇæScrapperΓÇæ527 is singing a strange song.[0m
+[31mJunkyardΓÇæScrapperΓÇæ527 flexes ominously.[0m
+> [31mThe street is cracked here.[0m
+[32mCompass: (0E : 0N)[0m
+[33mnorth - [0m[36marea continues.[0m
+[33msouth - [0m[36marea continues.[0m
+[33meast  - [0m[36marea continues.[0m
+[33mwest  - [0m[36marea continues.[0m
+***
+[33mOn the ground lies:[0m
+[36mA┬áBrokenΓÇæWeapon, A┬áBrokenΓÇæWeapon (1), A┬áBrokenΓÇæWeapon (2).[0m
+***
+[37mJunkyard-Scrapper-514, Junkyard-Scrapper-518, Junkyard-Scrapper-520, Junkyard-Scrapper-525, Junkyard-Scrapper-527, and Junkyard-Scrapper-529 are here with you.[0m
+[33mJunkyardΓÇæScrapperΓÇæ520 has hit you with his RustyΓÇæShiv![0m
+[33mJunkyardΓÇæScrapperΓÇæ525 has hit you with his RustyΓÇæShiv![0m
+[33mJunkyardΓÇæScrapperΓÇæ529 has hit you with his RustyΓÇæShiv![0m
+[31mJunkyardΓÇæScrapperΓÇæ514 practices a victory pose.[0m
+[31mJunkyardΓÇæScrapperΓÇæ518 looks at you.[0m
+[31mJunkyardΓÇæScrapperΓÇæ525 is singing a strange song.[0m
+[31mJunkyardΓÇæScrapperΓÇæ527 is trying to make friends with you.[0m
+[31mJunkyardΓÇæScrapperΓÇæ527 is making strange noises.[0m
+[31mJunkyardΓÇæScrapperΓÇæ529 whispers something unintelligible.[0m
+> [31mThe street is cracked here.[0m
+[32mCompass: (0E : 0N)[0m
+[33mnorth - [0m[36marea continues.[0m
+[33msouth - [0m[36marea continues.[0m
+[33meast  - [0m[36marea continues.[0m
+[33mwest  - [0m[36marea continues.[0m
+***
+[33mOn the ground lies:[0m
+[36mA┬áBrokenΓÇæWeapon, A┬áBrokenΓÇæWeapon (1), A┬áBrokenΓÇæWeapon (2).[0m
+***
+[37mJunkyard-Scrapper-514, Junkyard-Scrapper-518, Junkyard-Scrapper-520, Junkyard-Scrapper-525, Junkyard-Scrapper-527, and Junkyard-Scrapper-529 are here with you.[0m
+[33mJunkyardΓÇæScrapperΓÇæ514 has hit you with his RustyΓÇæShiv![0m
+[33mJunkyardΓÇæScrapperΓÇæ520 has hit you with his RustyΓÇæShiv![0m
+[31mJunkyardΓÇæScrapperΓÇæ518 is making strange noises.[0m
+[31mJunkyardΓÇæScrapperΓÇæ525 is singing a strange song.[0m
+[31mJunkyardΓÇæScrapperΓÇæ527 pleads with you.[0m
+[31mJunkyardΓÇæScrapperΓÇæ529 takes a deep, steadying breath.[0m
+> [31mThe street is cracked here.[0m
+[32mCompass: (0E : 0N)[0m
+[33mnorth - [0m[36marea continues.[0m
+[33msouth - [0m[36marea continues.[0m
+[33meast  - [0m[36marea continues.[0m
+[33mwest  - [0m[36marea continues.[0m
+***
+[33mOn the ground lies:[0m
+[36mA┬áBrokenΓÇæWeapon, A┬áBrokenΓÇæWeapon (1), A┬áBrokenΓÇæWeapon (2).[0m
+***
+[37mJunkyard-Scrapper-514, Junkyard-Scrapper-518, Junkyard-Scrapper-520, Junkyard-Scrapper-525, Junkyard-Scrapper-527, and Junkyard-Scrapper-529 are here with you.[0m
+[31mJunkyardΓÇæScrapperΓÇæ527 begins casting Arcane Burst...[0m
+[31mJunkyardΓÇæScrapperΓÇæ527 casts Arcane Burst![0m
+[31mJunkyardΓÇæScrapperΓÇæ514 is looking awfully sad.[0m
+[31mJunkyardΓÇæScrapperΓÇæ518 practices a victory pose.[0m
+[31mJunkyardΓÇæScrapperΓÇæ520 checks the horizon for danger.[0m
+[31mJunkyardΓÇæScrapperΓÇæ525 adjusts their helmet.[0m
+[31mJunkyardΓÇæScrapperΓÇæ529 is trying to make friends with you.[0m
+> [37m 1. Mutant Thief    Level: 1   Year: 2000  (0 0)[0m
+[37m 2. Mutant Priest   Level: 1   Year: 2000  (0 0)[0m
+[37m 3. Mutant Wizard   Level: 1   Year: 2000  (0 0)[0m
+[37m 4. Mutant Warrior  Level: 1   Year: 2000  (ΓÇæ3 0)[0m
+[37m 5. Mutant Mage     Level: 1   Year: 2000  (ΓÇæ2 2)[0m
+
+[37mType BURY [class number] to reset a player. Type X to exit.[0m
+[37m***[0m
+[33mSelect (Bury, 1-5, ?)[0m 

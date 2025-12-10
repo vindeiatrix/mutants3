@@ -17,6 +17,7 @@ FEEDBACK_INFO = "feedback.info"
 FEEDBACK_WARN = "feedback.warn"
 FEEDBACK_ERR = "feedback.err"
 LOG_LINE = "log.line"
+ITEM_LINE = "item.line"
 
 __all__ = [
     "COMPASS_LINE",
@@ -30,4 +31,5 @@ __all__ = [
     "FEEDBACK_WARN",
     "FEEDBACK_ERR",
     "LOG_LINE",
+    "ITEM_LINE",
 ]

@@ -1,0 +1,50 @@
+﻿[33mMutants ΓÇö classic BBS vibes.  Type 'help' for commands; 'theme mono' for no color.
+[0m
+[37m 1. Mutant Thief    Level: 1   Year: 2000  (0 0)[0m
+[37m 2. Mutant Priest   Level: 1   Year: 2200  (0 0)[0m
+[37m 3. Mutant Wizard   Level: 1   Year: 2000  (0 0)[0m
+[37m 4. Mutant Warrior  Level: 1   Year: 2000  (ΓÇæ3 0)[0m
+[37m 5. Mutant Mage     Level: 1   Year: 2000  (ΓÇæ2 2)[0m
+
+[37mType BURY [class number] to reset a player. Type X to exit.[0m
+[37m***[0m
+[33mSelect (Bury, 1-5, ?)[0m [31mThe street is cracked here.[0m
+[32mCompass: (0E : 0N)[0m
+[33mnorth - [0m[36marea continues.[0m
+[33msouth - [0m[36marea continues.[0m
+[33meast  - [0m[36marea continues.[0m
+[33mwest  - [0m[36marea continues.[0m
+***
+[33mOn the ground lies:[0m
+[36mA┬áBrokenΓÇæWeapon, A┬áBrokenΓÇæWeapon (1), A┬áBrokenΓÇæWeapon (2), A┬áBrokenΓÇæWeapon (3),[0m
+[36mA┬áBrokenΓÇæWeapon (4), A┬áBrokenΓÇæWeapon (5), A┬áBrokenΓÇæWeapon (6).[0m
+***
+[37mJunkyard-Scrapper-520, Junkyard-Scrapper-525, Junkyard-Scrapper-527, Junkyard-Scrapper-529, Junkyard-Scrapper-530, Junkyard-Scrapper-535, Junkyard-Scrapper-537, and Junkyard-Scrapper-542 are here with you.[0m
+> ***
+[37m[36mName: [0m[33mThief / Mutant Thief[0m
+[36mExhaustion : [0m[33m0[0m
+
+[36mStr: [0m[33m 15[0m    [36mInt: [0m[33m  9[0m   [36mWis: [0m[33m  8[0m
+[36mDex: [0m[33m 14[0m    [36mCon: [0m[33m 15[0m   [36mCha: [0m[33m 16[0m
+
+[36mHit Points  : [0m[33m998088 / 1000000[0m
+[36mExp. Points : [0m[33m180   [0m [36mLevel: [0m[33m1[0m
+[36mRiblets     : [0m[33m71[0m
+[36mIons        : [0m[33m112901[0m
+[36mWearing Armor : [0m[33mNone  [0m[36mArmour Class: [0m[33m1  [0m[36m(Dex bonus: +[0m[33m1, Armour: +0)[0m
+[36mReady to Combat: [0m[33mNO ONE[0m
+[36mReadied Spell  : [0m[33mNo spell memorized.[0m
+[36mYear A.D. : [0m[33m2000[0m[0m
+***
+[37mYou are carrying the following items:  (Total Weight: 0 LB's)
+A┬áGoldΓÇæChunk, A┬áGoldΓÇæChunk (1), A┬áGoldΓÇæChunk (2), A┬áGoldΓÇæChunk (3), A┬áGoldΓÇæChunk
+ (4), A┬áGoldΓÇæChunk (5).[0m
+> [37m 1. Mutant Thief    Level: 1   Year: 2000  (0 0)[0m
+[37m 2. Mutant Priest   Level: 1   Year: 2200  (0 0)[0m
+[37m 3. Mutant Wizard   Level: 1   Year: 2000  (0 0)[0m
+[37m 4. Mutant Warrior  Level: 1   Year: 2000  (ΓÇæ3 0)[0m
+[37m 5. Mutant Mage     Level: 1   Year: 2000  (ΓÇæ2 2)[0m
+
+[37mType BURY [class number] to reset a player. Type X to exit.[0m
+[37m***[0m
+[33mSelect (Bury, 1-5, ?)[0m 

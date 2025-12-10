@@ -210,21 +210,21 @@
       "class": "Mage",
       "is_active": true,
       "pos": [
-        2000,
-        0,
-        0
+        2100,
+        -2,
+        -3
       ],
-      "ions": 30000,
+      "ions": 64000,
       "inventory": [],
-      "Ions": 30000,
+      "Ions": 64000,
       "riblets": 0,
       "Riblets": 0,
       "exp_points": 0,
       "exhaustion": 0,
       "level": 1,
       "hp": {
-        "current": 28,
-        "max": 28
+        "current": 23232281,
+        "max": 23232323
       },
       "stats": {
         "str": 18,
@@ -263,7 +263,7 @@
     "Priest": 30000,
     "Wizard": 30000,
     "Warrior": 30000,
-    "Mage": 30000
+    "Mage": 64000
   },
   "riblets_by_class": {
     "Thief": 0,
@@ -304,8 +304,8 @@
       "max": 40
     },
     "Mage": {
-      "current": 28,
-      "max": 28
+      "current": 23232281,
+      "max": 23232323
     }
   },
   "stats_by_class": {
@@ -439,16 +439,16 @@
     "wearing": null,
     "armour_class": 1
   },
-  "ions": 30000,
-  "Ions": 30000,
+  "ions": 64000,
+  "Ions": 64000,
   "riblets": 0,
   "Riblets": 0,
   "exhaustion": 0,
   "exp_points": 0,
   "level": 1,
   "hp": {
-    "current": 28,
-    "max": 28
+    "current": 23232281,
+    "max": 23232323
   },
   "stats": {
     "str": 18,
@@ -461,9 +461,9 @@
   "class": "Mage",
   "name": "Mage",
   "pos": [
-    2000,
-    0,
-    0
+    2100,
+    -2,
+    -3
   ],
   "bags": {
     "Thief": [],
@@ -474,9 +474,9 @@
   },
   "inventory": [],
   "position": [
-    2500,
-    -1,
-    0
+    2100,
+    -2,
+    -3
   ],
   "ready_target": null,
   "target_monster_id": null,
