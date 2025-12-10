@@ -131,6 +131,16 @@ class Dispatch:
         return None
 
     def call(self, token: str, arg: str) -> Optional[str]:
+        # Treat blank input as a no-op: show a gentle hint and do not advance turns.
+        if not (token or "").strip():
+            if self._bus is not None:
+                self._bus.push("SYSTEM/INFO", "***")
+                self._bus.push("SYSTEM/INFO", "Type ? if you need assistance.")
+            else:
+                print("***")
+                print("Type ? if you need assistance.")
+            return None
+
         resolved: Optional[str] = None
         result_token: Optional[str] = None
         observer = turnlog.get_observer(self._ctx) if self._ctx is not None else None
