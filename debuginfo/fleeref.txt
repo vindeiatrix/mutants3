@@ -1,0 +1,1994 @@
+
+# Log file open.
+
+tra 2200
+***
+ZAAAAPPPPP!! You've been sent to the year 2200 A.D.
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear-thong. 
+>
+s
+***
+The wind is whistling through open windows.
+Compass: (0E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the east, south.
+>
+stat
+***
+
+Name: Vindeiatrix / Mutant Mage
+Exhaustion    : 0  
+Str: 112    Int: 146   Wis: 196
+Dex: 98     Con: 147   Cha: 167
+Hit Points    : 115 / 115
+Exp. Points   : 40475423 Level: 16 
+Riblets       : 124080 
+Ions          : 4272222
+Wearing Armor : Satanic-Armour  Armour Class: 1019
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D.      : 2200
+
+You are carrying the following items:  (Total Weight: 9 LB's)
+Hell-Blade.
+>
+s
+***
+An old hydro line has fallen here.
+Compass: (0E : -2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - open gate.
+***
+Spitting-Cobra-1924 is here.
+***
+You see shadows to the south.
+***
+Spitting-Cobra-1924 hssss: Thssssss, Vindeiatrix!
+>
+
+com s
+***
+You're ready to combat Spitting-Cobra-1924!
+>
+wie he
+***
+You've hit Spitting-Cobra-1924 with your Hell-Blade!
+***
+Spitting-Cobra-1924 screams: Get away from me, Vindeiatrix!!!
+***
+Spitting-Cobra-1924 has just left east
+***
+You hear loud sounds of footsteps to the east.
+>
+e
+***
+You're in a wrecked building.
+Compass: (1E : -2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Spitting-Cobra-1924 is here.
+***
+You see shadows to the north.
+***
+The Spitting-Cobra-1924 bites you!
+***
+You suffer 6 hit points of damage!
+>
+look
+***
+Spitting-Cobra-1924 has just left west
+***
+You hear loud sounds of footsteps to the west.
+>***
+You're in a wrecked building.
+Compass: (1E : -2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the north, west.
+>
+w
+***
+An old hydro line has fallen here.
+Compass: (0E : -2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - open gate.
+***
+Spitting-Cobra-1924 is here.
+***
+You see shadows to the south.
+***
+Spitting-Cobra-1924 screams: Get away from me, Vindeiatrix!!!
+***
+Spitting-Cobra-1924 has just left north
+***
+You hear loud sounds of footsteps to the north.
+>
+n
+***
+The wind is whistling through open windows.
+Compass: (0E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Spitting-Cobra-1924 is here.
+***
+You see shadows to the east.
+>
+hea
+***
+Your body glows at it heals 21 points!
+***
+You're healed to the maximum!
+***
+Spitting-Cobra-1924 screams: Get away from me, Vindeiatrix!!!
+***
+Spitting-Cobra-1924 has just left west
+***
+You hear loud sounds of footsteps to the west.
+>
+w
+***
+Relics of the war line the streets.
+Compass: (-1E : -1N)
+north - area continues.
+south - open gate.
+east  - area continues.
+west  - area continues.
+***
+Spitting-Cobra-1924 is here.
+>
+look
+***
+Relics of the war line the streets.
+Compass: (-1E : -1N)
+north - area continues.
+south - open gate.
+east  - area continues.
+west  - area continues.
+***
+Spitting-Cobra-1924 is here.
+>
+look
+***
+Relics of the war line the streets.
+Compass: (-1E : -1N)
+north - area continues.
+south - open gate.
+east  - area continues.
+west  - area continues.
+***
+Spitting-Cobra-1924 is here.
+>
+look
+***
+Relics of the war line the streets.
+Compass: (-1E : -1N)
+north - area continues.
+south - open gate.
+east  - area continues.
+west  - area continues.
+***
+Spitting-Cobra-1924 is here.
+>
+look
+***
+Relics of the war line the streets.
+Compass: (-1E : -1N)
+north - area continues.
+south - open gate.
+east  - area continues.
+west  - area continues.
+***
+Spitting-Cobra-1924 is here.
+>
+look
+***
+Relics of the war line the streets.
+Compass: (-1E : -1N)
+north - area continues.
+south - open gate.
+east  - area continues.
+west  - area continues.
+***
+Spitting-Cobra-1924 is here.
+***
+Spitting-Cobra-1924 has hit you with his Ion-Decay!
+>
+look
+***
+Relics of the war line the streets.
+Compass: (-1E : -1N)
+north - area continues.
+south - open gate.
+east  - area continues.
+west  - area continues.
+***
+Spitting-Cobra-1924 is here.
+>
+look
+***
+Relics of the war line the streets.
+Compass: (-1E : -1N)
+north - area continues.
+south - open gate.
+east  - area continues.
+west  - area continues.
+***
+Spitting-Cobra-1924 is here.
+***
+Spitting-Cobra-1924 has hit you with his Ion-Decay!
+>
+look
+***
+Relics of the war line the streets.
+Compass: (-1E : -1N)
+north - area continues.
+south - open gate.
+east  - area continues.
+west  - area continues.
+***
+Spitting-Cobra-1924 is here.
+>
+look
+***
+Relics of the war line the streets.
+Compass: (-1E : -1N)
+north - area continues.
+south - open gate.
+east  - area continues.
+west  - area continues.
+***
+Spitting-Cobra-1924 is here.
+>
+look
+***
+Relics of the war line the streets.
+Compass: (-1E : -1N)
+north - area continues.
+south - open gate.
+east  - area continues.
+west  - area continues.
+***
+Spitting-Cobra-1924 is here.
+>
+look
+***
+Relics of the war line the streets.
+Compass: (-1E : -1N)
+north - area continues.
+south - open gate.
+east  - area continues.
+west  - area continues.
+***
+Spitting-Cobra-1924 is here.
+***
+Spitting-Cobra-1924 is thinking.
+>
+look
+***
+Relics of the war line the streets.
+Compass: (-1E : -1N)
+north - area continues.
+south - open gate.
+east  - area continues.
+west  - area continues.
+***
+Spitting-Cobra-1924 is here.
+>
+look
+***
+Relics of the war line the streets.
+Compass: (-1E : -1N)
+north - area continues.
+south - open gate.
+east  - area continues.
+west  - area continues.
+***
+Spitting-Cobra-1924 is here.
+***
+Spitting-Cobra-1924 has hit you with his Ion-Decay!
+>
+look
+***
+Relics of the war line the streets.
+Compass: (-1E : -1N)
+north - area continues.
+south - open gate.
+east  - area continues.
+west  - area continues.
+***
+Spitting-Cobra-1924 is here.
+***
+Spitting-Cobra-1924 screams: Get away from me, Vindeiatrix!!!
+***
+Spitting-Cobra-1924 has just left north
+***
+You hear loud sounds of footsteps to the north.
+>
+look
+***
+Relics of the war line the streets.
+Compass: (-1E : -1N)
+north - area continues.
+south - open gate.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the north.
+>
+hea
+***
+Nothing happens!
+>
+n
+***
+The wind is whistling through open windows.
+Compass: (-1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Spitting-Cobra-1924 is here.
+>
+look
+***
+The wind is whistling through open windows.
+Compass: (-1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Spitting-Cobra-1924 is here.
+>
+look
+***
+The wind is whistling through open windows.
+Compass: (-1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Spitting-Cobra-1924 is here.
+>
+look
+***
+The wind is whistling through open windows.
+Compass: (-1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Spitting-Cobra-1924 is here.
+***
+Spitting-Cobra-1924 screams: Get away from me, Vindeiatrix!!!
+>
+look
+***
+The wind is whistling through open windows.
+Compass: (-1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Spitting-Cobra-1924 is here.
+***
+Spitting-Cobra-1924 screams: Get away from me, Vindeiatrix!!!
+***
+Spitting-Cobra-1924 has just left south
+***
+You hear loud sounds of footsteps to the south.
+>
+s
+***
+Relics of the war line the streets.
+Compass: (-1E : -1N)
+north - area continues.
+south - open gate.
+east  - area continues.
+west  - area continues.
+***
+Spitting-Cobra-1924 is here.
+>
+hea
+
+***
+Nothing happens!
+***
+Spitting-Cobra-1924 screams: Get away from me, Vindeiatrix!!!
+***
+Spitting-Cobra-1924 has just left west
+***
+You hear loud sounds of footsteps to the west.
+>look
+***
+Relics of the war line the streets.
+Compass: (-1E : -1N)
+north - area continues.
+south - open gate.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the west.
+>
+w
+***
+An eerie calm settles in the distance.
+Compass: (-2E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Spitting-Cobra-1924 is here.
+***
+You see shadows to the west.
+>
+look
+***
+An eerie calm settles in the distance.
+Compass: (-2E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Spitting-Cobra-1924 is here.
+***
+You see shadows to the west.
+>look
+***
+An eerie calm settles in the distance.
+Compass: (-2E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Spitting-Cobra-1924 is here.
+***
+You see shadows to the west.
+***
+Spitting-Cobra-1924 is singing a strange song.
+>
+look
+***
+An eerie calm settles in the distance.
+Compass: (-2E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Spitting-Cobra-1924 is here.
+***
+You see shadows to the west.
+***
+Spitting-Cobra-1924 screams: Get away from me, Vindeiatrix!!!
+***
+Spitting-Cobra-1924 has just left south
+***
+You hear loud sounds of footsteps to the south.
+>
+s
+***
+You're in a wrecked building.
+Compass: (-2E : -2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Spitting-Cobra-1924 is here.
+***
+Spitting-Cobra-1924 has hit you with his Ion-Decay!
+>
+look
+***
+You're in a wrecked building.
+Compa
+ss: (-2E : -2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Spitting-Cobra-1924 is here.
+***
+Spitting-Cobra-1924 has hit you with his Ion-Decay!
+>look
+***
+You're in a wrecked building.
+Compass: (-2E : -2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Spitting-Cobra-1924 is here.
+>
+look
+***
+You're in a wrecked building.
+Compass: (-2E : -2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Spitting-Cobra-1924 is here.
+***
+Spitting-Cobra-1924 screams: Get away from me, Vindeiatrix!!!
+***
+Spitting-Cobra-1924 has just left north
+***
+You hear loud sounds of footsteps to the north.
+>
+look
+***
+You're in a wrecked building.
+Compa
+ss: (-2E : -2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the north.
+>hea
+
+***
+Nothing happens!
+>n
+***
+An eerie calm settles in the distance.
+Compass: (-2E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Spitting-Cobra-1924 is here.
+***
+You see shadows to the west.
+***
+Spitting-Cobra-1924 has hit you with his Ion-Decay!
+>
+look
+
+***
+An eerie calm settles in the distance.
+Compass: (-2E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Spitting-Cobra-1924 is here.
+***
+You see shadows to the west.
+***
+Spitting-Cobra-1924 has hit you with his Ion-Decay!
+>look
+***
+An eerie calm settles in the distance.
+Compass: (-2E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Spitting-Cobra-1924 is here.
+***
+You see shadows to the west.
+>
+look
+***
+An eerie calm settles in the distance.
+Compass: (-2E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Spitting-Cobra-1924 is here.
+***
+You see shadows to the west.
+***
+Spitting-Cobra-1924 screams: Get away from me, Vindeiatrix!!!
+***
+Spitting-Cobra-1924 has just left west
+***
+You hear loud sounds of footsteps to the west.
+>
+w
+***
+You feel a cold breeze.
+Compass: (-3E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Kobold-324, and Spitting-Cobra-1924 are here with you.
+***
+You see shadows to the north.
+***
+Kobold-324 Grunts: You smell, Vindeiatrix!
+>
+look
+***
+You feel a cold breeze.
+Compass: (-3E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Kobold-324, and Spitting-Cobra-1924 are here with you.
+***
+You see shadows to the north.
+***
+Kobold-324 has hit you with his Gold-Chunck!
+>
+look
+
+***
+You feel a cold breeze.
+Compass: (-3E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Kobold-324, and Spitting-Cobra-1924 are here with you.
+***
+You see shadows to the north.
+***
+Kobold-324 has hit you with his Gold-Chunck!
+***
+Spitting-Cobra-1924 screams: Get away from me, Vindeiatrix!!!
+***
+Spitting-Cobra-1924 has just left north
+***
+You hear loud sounds of footsteps to the north.
+>look
+***
+You feel a cold breeze.
+Compass: (-3E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Kobold-324 is here.
+***
+You see shadows to the north.
+>
+hea
+
+***
+Nothing happens!
+>n
+***
+Broken glass covers the road.
+Compass: (-3E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Spitting-Cobra-1924, and Plasma-Beast-2964 are here with you.
+***
+You see shadows to the south, west.
+***
+***
+Plasma-Beast-2964 yells: I havn't eaten in a while, Vindeiatrix!
+***
+You hear loud sounds of yelling and screaming to the south.
+***
+Kobold-324 has just arrived from the south.
+***
+Spitting-Cobra-1924 screams: Get away from me, Vindeiatrix!!!
+***
+Spitting-Cobra-1924 has just left west
+***
+You hear loud sounds of footsteps to the west.
+>
+look
+***
+Broken glass covers the road.
+Compass: (-3E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Kobold-324, and Plasma-Beast-2964 are here with you.
+***
+You see shadows to the west.
+***
+You hear faint sounds of footsteps far to the west.
+***
+Plasma-Beast-2964 has hit you with his Cheese!
+>
+w
+***
+You're in a maintenance shop.
+Compass: (-4E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Mage-1444 is here.
+***
+You see shadows to the east, west.
+***
+Mage-1444 speaks: I'll fry ya, Vindeiatrix!
+***
+You hear loud sounds of yelling and screaming to the east.
+***
+Kobold-324 has just arrived from the east.
+***
+Mage-1444 has hit you with his Ion-Decay!
+***
+Plasma-Beast-2964 has just arrived from the east.
+>
+
+com p
+***
+You're ready to combat Plasma-Beast-2964!
+***
+Kobold-324 is saying: what?
+***
+Plasma-Beast-2964 has hit you with his Cheese!
+>
+wie he
+***
+You've hit Plasma-Beast-2964 with your Hell-Blade!
+>
+wie he
+***
+You've hit Plasma-Beast-2964 with your Hell-Blade!
+***
+You have slain Plasma-Beast-2964!
+Your experience points are increased by 2666!
+You collect 1480 Riblets and 9384 ions from the slain body.
+***
+
+A Cheese is falling from Plasma-Beast-2964's body!
+***
+A Skull is falling from Plasma-Beast-2964's body!
+***
+Plasma-Beast-2964 is crumbling to dust!
+***
+Kobold-324 picked up the Cheese.
+***
+Mage-1444 picked up the Skull.
+>
+hea
+***
+Nothing happens!
+***
+You see a blinding white flash illuminate from Mage-1444's body!
+***
+You hear faint sounds of footsteps far to the west.
+>
+hea
+***
+Nothing happens!
+***
+You hear faint sounds of footsteps far to the west.
+>
+look
+***
+You're in a maintenance shop.
+Compass: (-4E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Kobold-324, and Mage-1444 are here with you.
+***
+Kobold-324 is sitting down.
+***
+You hear faint sounds of footsteps far to the west.
+>
+
+com k
+
+***
+You're ready to combat Kobold-324!
+>wie he
+***
+You've hit Kobold-324 with your Hell-Blade!
+***
+Kobold-324's armour has just cracked down the center!
+***
+Mage-1444 has hit you with his Ion-Decay!
+>
+look
+***
+You're in a maintenance shop.
+Compass: (-4E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Kobold-324, and Mage-1444 are here with you.
+***
+Kobold-324 screams: Get away from me, Vindeiatrix!!!
+***
+Kobold-324 has just left east
+***
+You hear loud sounds of footsteps to the east.
+***
+Mage-1444 waves his arms in the air frantically, and begins to chant!
+***
+Darkness suddenly overcomes this area.
+>
+tra 2300
+***
+ZAAAAPPPPP!! You've been sent to the year 2300 A.D.
+>
+
+hea
+look
+***
+Nothing happens!
+>***
+You're in a wrecked building.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+>
+e
+
+***
+An eerie calm settles in the distance.
+Compass: (1E : 0N)
+south - area continues.
+west  - area continues.
+>e
+***
+You're blocked!
+>
+n
+
+***
+You're blocked!
+>
+s
+***
+You're in an abandoned building.
+Compass: (1E : -1N)
+north - area continues.
+south - open gate.
+***
+On the ground lies:
+A Nuclear-Rock. 
+***
+You see shadows to the south.
+>s
+***
+A sign reads: FOR SALE $ 100000
+Compass: (1E : -2N)
+north - open gate.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Ape-Beast-1125, and BlackBird-1925 are here with you.
+***
+Ape-Beast-1125 roars: I hate you, Vindeiatrix!
+***
+BlackBird-1925 squeaks: Another Victim, Vindeiatrix!
+>
+
+com b
+
+***
+You're ready to combat BlackBird-1925!
+***
+The Ape-Beast-1125 claws you!
+***
+You suffer 6 hit points of damage!
+>wie he
+***
+You've hit BlackBird-1925 with your Hell-Blade!
+***
+BlackBird-1925's armour has just cracked down the center!
+>
+look
+***
+A sign reads: FOR SALE $ 100000
+Compass: (1E : -2N)
+north - open gate.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Ape-Beast-1125, and BlackBird-1925 are here with you.
+***
+Ape-Beast-1125 has hit you with his Nuclear-Decay!
+***
+BlackBird-1925 has hit you with his Spear!
+***
+BlackBird-1925's Spear has just cracked in half!
+>
+wie he
+***
+You've hit BlackBird-1925 with your Hell-Blade!
+***
+You have slain BlackBird-1925!
+Your experience points are increased by 4000!
+You collect 5080 Riblets and 18105 ions from the slain body.
+***
+
+A Skull is falling from BlackBird-1925's body!
+***
+BlackBird-1925 is crumbling to dust!
+***
+Ape-Beast-1125 screams: Get away from me, Vindeiatrix!!!
+***
+Ape-Beast-1125 has just left north
+***
+You hear loud sounds of footsteps to the north.
+>
+hea
+***
+Your body glows at it heals 21 points!
+***
+You're healed to the maximum!
+>
+look
+***
+A sign reads: FOR SALE $ 100000
+Compass: (1E : -2N)
+north - open gate.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Skull. 
+***
+You see shadows to the north.
+>
+n
+***
+You're in an abandoned building.
+Compass: (1E : -1N)
+north - area continues.
+south - open gate.
+***
+On the ground lies:
+A Nuclear-Rock. 
+***
+Ape-Beast-1125 is here.
+***
+Ape-Beast-1125 screams: Get away from me, Vindeiatrix!!!
+>
+look
+***
+You're in an abandoned building.
+Compass: (1E : -1N)
+north - area continues.
+south - open gate.
+***
+On the ground lies:
+A Nuclear-Rock. 
+***
+Ape-Beast-1125 is here.
+***
+Ape-Beast-1125 picked up the Nuclear-Rock.
+>
+look
+***
+You're in an abandoned building.
+Compass: (1E : -1N)
+north - area continues.
+south - open gate.
+***
+Ape-Beast-1125 is here.
+>
+look
+***
+You're in an abandoned building.
+Compass: (1E : -1N)
+north - area continues.
+south - open gate.
+***
+Ape-Beast-1125 is here.
+>
+look
+***
+You're in an abandoned building.
+Compass: (1E : -1N)
+north - area continues.
+south - open gate.
+***
+Ape-Beast-1125 is here.
+>
+look
+***
+You're in an abandoned building.
+Compass: (1E : -1N)
+north - area continues.
+south - open gate.
+***
+Ape-Beast-1125 is here.
+>
+look
+***
+You're in an abandoned building.
+Compass: (1E : -1N)
+north - area continues.
+south - open gate.
+***
+Ape-Beast-1125 is here.
+***
+The Ape-Beast-1125 claws you!
+***
+You suffer 6 hit points of damage!
+>
+look
+***
+You're in an abandoned building.
+Compass: (1E : -1N)
+north - area continues.
+south - open gate.
+***
+Ape-Beast-1125 is here.
+>
+look
+***
+You're in an abandoned building.
+Compass: (1E : -1N)
+north - area continues.
+south - open gate.
+***
+Ape-Beast-1125 is here.
+***
+Ape-Beast-1125 screams: Get away from me, Vindeiatrix!!!
+>
+look
+***
+You're in an abandoned building.
+Compass: (1E : -1N)
+north - area continues.
+south - open gate.
+***
+Ape-Beast-1125 is here.
+***
+Ape-Beast-1125 has hit you with his Nuclear-Decay!
+>
+look
+***
+You're in an abandoned building.
+Compass: (1E : -1N)
+north - area continues.
+south - open gate.
+***
+Ape-Beast-1125 is here.
+>
+look
+***
+You're in an abandoned building.
+Compass: (1E : -1N)
+north - area continues.
+south - open gate.
+***
+Ape-Beast-1125 is here.
+***
+Ape-Beast-1125 has hit you with his Nuclear-Decay!
+>
+look
+***
+You're in an abandoned building.
+Compass: (1E : -1N)
+north - area continues.
+south - open gate.
+***
+Ape-Beast-1125 is here.
+>
+look
+***
+You're in an abandoned building.
+Compass: (1E : -1N)
+north - area continues.
+south - open gate.
+***
+Ape-Beast-1125 is here.
+>
+look
+***
+You're in an abandoned building.
+Compass: (1E : -1N)
+north - area continues.
+south - open gate.
+***
+Ape-Beast-1125 is here.
+>
+look
+***
+You're in an abandoned building.
+Compass: (1E : -1N)
+north - area continues.
+south - open gate.
+***
+Ape-Beast-1125 is here.
+>
+
+com a
+
+***
+You're ready to combat Ape-Beast-1125!
+>wie he
+***
+You've hit Ape-Beast-1125 with your Hell-Blade!
+***
+You have slain Ape-Beast-1125!
+Your experience points are increased by 2000!
+You collect 280 Riblets and 899 ions from the slain body.
+***
+
+A Poker is falling from Ape-Beast-1125's body!
+***
+A Monster-Bait is falling from Ape-Beast-1125's body!
+***
+A Nuclear-Decay is falling from Ape-Beast-1125's body!
+***
+A Nuclear-Rock is falling from Ape-Beast-1125's body!
+***
+A Skull is falling from Ape-Beast-1125's body!
+***
+Ape-Beast-1125 is crumbling to dust!
+>
+hea
+***
+Your body glows at it heals 21 points!
+***
+You're healed to the maximum!
+>
+look
+***
+You're in an abandoned building.
+Compass: (1E : -1N)
+north - area continues.
+south - open gate.
+***
+On the ground lies:
+A Poker, A Monster-Bait, A Nuclear-Decay, A Nuclear-Rock, A Skull. 
+>
+tra 2400
+***
+ZAAAAPPPPP!! You've been sent to the year 2
+400 A.D.
+>
+hea
+***
+Nothing happens!
+>look
+***
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - open gate.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon. 
+>
+
+hea
+***
+Nothing happens!
+>e
+***
+You're in a maintenance shop.
+Compass: (1E : 0N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cheese. 
+>
+e
+
+***
+Graffiti lines the city walls.
+Compass: (2E : 0N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+An Ion-Booster. 
+>e
+***
+You hear volcanoes erupt in the distance.
+Compass: (3E : 0N)
+north - open gate.
+south - area continues.
+east  - open gate.
+west  - area continues.
+***
+On the ground lies:
+A Gold-Chunck. 
+>
+s
+
+***
+You feel a cold breeze.
+Compass: (3E : -1N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+A Cheese. 
+>s
+***
+Crumbling buildings surround you.
+Compass: (3E : -2N)
+north - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear-Rock. 
+>
+s
+***
+You're blocked!
+>
+w
+
+***
+The two moons are rising above.
+Compass: (2E : -2N)
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the west.
+>w
+***
+You feel a cold breeze.
+Compass: (1E : -2N)
+south - area continues.
+east  - area continues.
+***
+Bone-Golem-2246 is here.
+>
+
+
+com b
+***
+You're ready to combat Bone-Golem-2246!
+>wie he
+***
+You've hit Bone-Golem-2246 with your Hell-Blade!
+***
+The Bone-Golem-2246 grunts: I'm hungry, Vindeiatrix!
+***
+Bone-Golem-2246 is getting ready to combat you!
+>
+look
+***
+You feel a cold breeze.
+Compass: (1E : -2N)
+south - area continues.
+east  - area continues.
+***
+Bone-Golem-2246 is here.
+***
+Bone-Golem-2246 screams: Get away from me, Vindeiatrix!!!
+>
+look
+***
+You feel a cold breeze.
+Compass: (1E : -2N)
+south - area continues.
+east  - area continues.
+***
+Bone-Golem-2246 is here.
+***
+Bone-Golem-2246 screams: Get away from me, Vindeiatrix!!!
+***
+Bone-Golem-2246 has just left south
+***
+You hear loud sounds of footsteps to the south.
+>
+s
+***
+Broken glass covers the road.
+Compass: (1E : -3N)
+north - area continues.
+south - area continues.
+west  - area continues.
+***
+On the ground lies:
+An Ion-Decay. 
+***
+Bone-Golem-2246 is here.
+***
+Bone-Golem-2246 screams: Get away from me, Vindeiatrix!!!
+***
+Bone-Golem-2246 has just left west
+***
+You hear loud sounds of footsteps to the west.
+>
+w
+***
+You feel a cold breeze.
+Compass: (0E : -3N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+An Ion-Decay. 
+***
+Bone-Golem-2246 is here.
+***
+You see shadows to the west.
+***
+Bone-Golem-2246 picked up the Ion-Decay.
+>
+look
+***
+You feel a cold breeze.
+Compass: (0E : -3N)
+east  - area continues.
+west  - area continues.
+***
+Bone-Golem-2246 is here.
+***
+You see shadows to the west.
+***
+Bone-Golem-2246 screams: Get away from me, Vindeiatrix!!!
+>
+look
+***
+You feel a cold breeze.
+Compass: (0E : -3N)
+east  - area continues.
+west  - area continues.
+***
+Bone-Golem-2246 is here.
+***
+You see shadows to the west.
+>
+look
+***
+You feel a cold breeze.
+Compass: (0E : -3N)
+east  - area continues.
+west  - area continues.
+***
+Bone-Golem-2246 is here.
+***
+You see shadows to the west.
+>
+look
+***
+You feel a cold breeze.
+Compass: (0E : -3N)
+east  - area continues.
+west  - area continues.
+***
+Bone-Golem-2246 is here.
+***
+You see shadows to the west.
+>
+look
+***
+You feel a cold breeze.
+Compass: (0E : -3N)
+east  - area continues.
+west  - area continues.
+***
+Bone-Golem-2246 is here.
+***
+You see shadows to the west.
+***
+Bone-Golem-2246 screams: Get away from me, Vindeiatrix!!!
+>
+look
+***
+You feel a cold breeze.
+Compass: (0E : -3N)
+east  - area continues.
+west  - area continues.
+***
+Bone-Golem-2246 is here.
+***
+You see shadows to the west.
+***
+Bone-Golem-2246 has hit you with his Bone!
+>
+look
+***
+You feel a cold breeze.
+Compass: (0E : -3N)
+east  - area continues.
+west  - area continues.
+***
+Bone-Golem-2246 is here.
+***
+You see shadows to the west.
+***
+Bone-Golem-2246 has hit you with his Bone!
+>
+look
+***
+You feel a cold breeze.
+Compass: (0E : -3N)
+east  - area continues.
+west  - area continues.
+***
+Bone-Golem-2246 is here.
+***
+You see shadows to the west.
+***
+Bone-Golem-2246 screams: Get away from me, Vindeiatrix!!!
+>
+look
+***
+You feel a cold breeze.
+Compass: (0E : -3N)
+east  - area continues.
+west  - area continues.
+***
+Bone-Golem-2246 is here.
+***
+You see shadows to the west.
+***
+Bone-Golem-2246 screams: Get away from me, Vindeiatrix!!!
+>
+look
+***
+You feel a cold breeze.
+Compass: (0E : -3N)
+east  - area continues.
+west  - area continues.
+***
+Bone-Golem-2246 is here.
+***
+You see shadows to the west.
+>
+look
+***
+You feel a cold breeze.
+Compass: (0E : -3N)
+east  - area continues.
+west  - area continues.
+***
+Bone-Golem-2246 is here.
+***
+You see shadows to the west.
+>
+look
+***
+You feel a cold breeze.
+Compass: (0E : -3N)
+east  - area continues.
+west  - area continues.
+***
+Bone-Golem-2246 is here.
+***
+You see shadows to the west.
+>
+look
+***
+You feel a cold breeze.
+Compass: (0E : -3N)
+east  - area continues.
+west  - area continues.
+***
+Bone-Golem-2246 is here.
+***
+You see shadows to the west.
+>
+look
+***
+You feel a cold breeze.
+Compass: (0
+E : -3N)
+east  - area continues.
+west  - area continues.
+***
+Bone-Golem-2246 is here.
+***
+You see shadows to the west.
+***
+Bone-Golem-2246 screams: Get away from me, Vindeiatrix!!!
+***
+Bone-Golem-2246 has just left west
+***
+You hear loud sounds of footsteps to the west.
+>look
+***
+You feel a cold breeze.
+Compass: (0E : -3N)
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the west.
+***
+You hear faint sounds of footsteps far to the west.
+>
+hea
+***
+Nothing happens!
+***
+You he
+ar faint sounds of footsteps far to the west.
+>w
+***
+You're in a maintenance shop.
+Compass: (-1E : -3N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+An Ion-Pack. 
+***
+Rouge-1446 is here.
+>
+w
+***
+A sign reads: FOR SALE $ 125000
+Compass: (-2E : -3N)
+south - area continues.
+east  - area continues.
+west  - open gate.
+***
+On the ground lies:
+A Nuclear-thong. 
+***
+You see shadows to the east, west.
+>
+w
+***
+Broken lamp posts line the streets.
+Compass: (-3E : -3N)
+north - area continues.
+east  - open gate.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear-thong. 
+***
+Bone-Golem-2246 is here.
+***
+Bone-Golem-2246 screams: Get away from me, Vindeiatrix!!!
+>
+look
+***
+Broken lamp posts line the streets.
+Compass: (-3E : -3N)
+north - area continues.
+east  - open gate.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear-thong. 
+***
+Bone-Golem-2246 is here.
+>
+look
+***
+Broken lamp posts line the streets.
+Compass: (-3E : -3N)
+north - area continues.
+east  - open gate.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear-thong. 
+***
+Bone-Golem-2246 is here.
+***
+Bone-Golem-2246 screams: Get away from me, Vindeiatrix!!!
+>
+look
+***
+Broken lamp posts line the streets.
+Compass: (-3E : -3N)
+north - area continues.
+east  - open gate.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear-thong. 
+***
+Bone-Golem-2246 is here.
+***
+Bone-Golem-2246 screams: Get away from me, Vindeiatrix!!!
+>
+look
+***
+Broken lamp posts line the streets.
+Compass: (-3E : -3N)
+north - area continues.
+east  - open gate.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear-thong. 
+***
+Bone-Golem-2246 is here.
+***
+Bone-Golem-2246 screams: Get away from me, Vindeiatrix!!!
+>
+look
+***
+Broken lamp posts line the streets.
+Compass: (-3E : -3N)
+north - area continues.
+east  - open gate.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear-thong. 
+***
+Bone-Golem-2246 is here.
+***
+Bone-Golem-2246 screams: Get away from me, Vindeiatrix!!!
+***
+Bone-Golem-2246 has just left north
+***
+You hear loud sounds of footsteps to the north.
+>
+look
+***
+Broken lamp posts line the streets.
+Compass: (-3E : -3N)
+north - area continues.
+east  - open gate.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear-thong. 
+***
+You see shadows to the north.
+>
+
+hea
+n
+***
+Nothing happens!
+***
+You hear faint sounds of footsteps far to the north.
+>***
+A sign reads: FOR SALE $ 125000
+Compass: (-3E : -2N)
+north - open gate.
+south - area continues.
+***
+On the ground lies:
+A Broken-Weapon. 
+***
+You see shadows to the north.
+>
+n
+***
+You're in a maintenance shop.
+Compass: (-3E : -1N)
+north - area continues.
+south - open gate.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon. 
+***
+Bone-Golem-2246 is here.
+>
+look
+
+***
+You're in a maintenance shop.
+Compass: (-3E : -1N)
+north - area continues.
+south - open gate.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon. 
+***
+Bone-Golem-2246 is here.
+***
+Bone-Golem-2246 screams: Get away from me, Vindeiatrix!!!
+***
+Bone-Golem-2246 has just left north
+***
+You hear loud sounds of footsteps to the north.
+>look
+***
+You're in a maintenance shop.
+Compass: (-3E : -1N)
+north - area continues.
+south - open gate.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon. 
+***
+You see shadows to the north.
+>
+look
+***
+You're in a maintenance shop.
+Compass: (-3E : -1N)
+north - area continues.
+south - open gate.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon. 
+***
+You see shadows to the north.
+***
+You hear faint sounds of footsteps far to the north.
+>
+n
+***
+Graffiti lines the city walls.
+Compass: (-3E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+On the ground lies:
+A Gold-Chunck. 
+***
+You see shadows to the north.
+***
+You hear faint sounds of footsteps far to the north.
+>
+n
+***
+You feel a cold breeze.
+Compass: (-3E : 1N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+A Nuclear-thong. 
+***
+You see shadows to the north.
+>
+n
+***
+You see rubble everywhere.
+Compass: (-3E : 2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+On the ground lies:
+A Cigarette-Butt. 
+***
+Bone-Golem-2246 is here.
+>
+look
+***
+You see rubble everywhere.
+Compass: (-3E : 2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+On the ground lies:
+A Cigarette-Butt. 
+***
+Bone-Golem-2246 is here.
+***
+Bone-Golem-2246 picked up the Cigarette-Butt.
+>
+look
+***
+You see rubble everywhere.
+Compass: (-3E : 2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+Bone-Golem-2246 is here.
+>
+look
+***
+You see rubble everywhere.
+Compass: (-3E : 2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+Bone-Golem-2246 is here.
+>
+look
+***
+You see rubble everywhere.
+Compass:
+ (-3E : 2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+Bone-Golem-2246 is here.
+>look
+***
+You see rubble everywhere.
+Compass: (-3E : 2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+Bone-Golem-2246 is here.
+>
+look
+***
+You see rubble everywhere.
+Compass:
+ (-3E : 2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+Bone-Golem-2246 is here.
+>look
+***
+You see rubble everywhere.
+Compass: (-3E : 2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+Bone-Golem-2246 is here.
+>
+look
+
+***
+You see rubble everywhere.
+Compass: (-3E : 2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+Bone-Golem-2246 is here.
+***
+Bone-Golem-2246 screams: Get away from me, Vindeiatrix!!!
+***
+Bone-Golem-2246 has just left east
+***
+You hear loud sounds of footsteps to the east.
+>look
+***
+You see rubble everywhere.
+Compass: (-3E : 2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+You see shadows to the east.
+>
+hea
+***
+Nothing happens!
+***
+You he
+ar faint sounds of footsteps far to the east.
+>e
+***
+You're in a maintenance shop.
+Compass: (-2E : 2N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cigarette-Butt. 
+***
+You see shadows to the east.
+>
+e
+***
+You hear volcanoes erupt in the distance.
+Compass: (-1E : 2N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear-Decay. 
+***
+Bone-Golem-2246 is here.
+***
+Bone-Golem-2246 is crying.
+>
+look
+
+***
+You hear volcanoes erupt in the distance.
+Compass: (-1E : 2N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear-Decay. 
+***
+Bone-Golem-2246 is here.
+***
+Bone-Golem-2246 screams: Get away from me, Vindeiatrix!!!
+>look
+***
+You hear volcanoes erupt in the distance.
+Compass: (-1E : 2N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear-Decay. 
+***
+Bone-Golem-2246 is here.
+***
+The Bone-Golem-2246 clubs you!
+***
+You suffer 6 hit points of damage!
+***
+Bone-Golem-2246 picked up the Nuclear-Decay.
+>
+hea
+***
+Your body glows at it heals 21 points!
+***
+You're healed to the maximum!
+***
+Bone-Golem-2246 has hit you with his Nuclear-Decay!
+>
+wie he
+***
+You've hit Bone-Golem-2246 with your Hell-Blade!
+***
+You have slain Bone-Golem-2246!
+Your experience points are increased by 4666!
+You collect 6280 Riblets and 26196 ions from the slain body.
+***
+
+A Bone is falling from Bone-Golem-2246's body!
+***
+A Golden-Key is falling from Bone-Golem-2246's body!
+***
+A Nuclear-thong is falling from Bone-Golem-2246's body!
+***
+A Monster-Bait is falling from Bone-Golem-2246's body!
+***
+An Ion-Decay is falling from Bone-Golem-2246's body!
+***
+A Cigarette-Butt is falling from Bone-Golem-2246's body!
+***
+Bone-Golem-2246 is crumbling to dust!
+>
+

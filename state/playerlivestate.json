@@ -157,26 +157,23 @@
       "id": "player_warrior",
       "name": "Warrior",
       "class": "Warrior",
-      "is_active": true,
+      "is_active": false,
       "pos": [
         2000,
         0,
         0
       ],
-      "ions": 117575,
-      "inventory": [
-        "1a1052a43ad64e9886b6a42c2c932d8f",
-        "18b77e4099ea4d18869d80704356f6f7"
-      ],
-      "Ions": 117575,
-      "riblets": 57,
-      "Riblets": 57,
-      "exp_points": 50,
+      "ions": 30000,
+      "inventory": [],
+      "Ions": 30000,
+      "riblets": 0,
+      "Riblets": 0,
       "exhaustion": 0,
+      "exp_points": 0,
       "level": 1,
       "hp": {
-        "current": 23232317,
-        "max": 23232323
+        "current": 40,
+        "max": 40
       },
       "stats": {
         "str": 23,
@@ -205,14 +202,13 @@
       "status_effects_by_class": {
         "Warrior": []
       },
-      "status_effects": [],
-      "_dirty": true
+      "status_effects": []
     },
     {
       "id": "player_mage",
       "name": "Mage",
       "class": "Mage",
-      "is_active": false,
+      "is_active": true,
       "pos": [
         2000,
         0,
@@ -223,8 +219,8 @@
       "Ions": 30000,
       "riblets": 0,
       "Riblets": 0,
-      "exhaustion": 0,
       "exp_points": 0,
+      "exhaustion": 0,
       "level": 1,
       "hp": {
         "current": 28,
@@ -257,29 +253,30 @@
       "status_effects_by_class": {
         "Mage": []
       },
-      "status_effects": []
+      "status_effects": [],
+      "_dirty": true
     }
   ],
-  "active_id": "player_warrior",
+  "active_id": "player_mage",
   "ions_by_class": {
     "Thief": 30000,
     "Priest": 30000,
     "Wizard": 30000,
-    "Warrior": 117575,
+    "Warrior": 30000,
     "Mage": 30000
   },
   "riblets_by_class": {
     "Thief": 0,
     "Priest": 0,
     "Wizard": 0,
-    "Warrior": 57,
+    "Warrior": 0,
     "Mage": 0
   },
   "exp_by_class": {
     "Thief": 0,
     "Priest": 0,
     "Wizard": 0,
-    "Warrior": 50,
+    "Warrior": 0,
     "Mage": 0
   },
   "level_by_class": {
@@ -303,8 +300,8 @@
       "max": 23
     },
     "Warrior": {
-      "current": 23232317,
-      "max": 23232323
+      "current": 40,
+      "max": 40
     },
     "Mage": {
       "current": 28,
@@ -440,29 +437,29 @@
   "world_tile_effects": {},
   "armour": {
     "wearing": null,
-    "armour_class": 2
+    "armour_class": 1
   },
-  "ions": 117575,
-  "Ions": 117575,
-  "riblets": 57,
-  "Riblets": 57,
+  "ions": 30000,
+  "Ions": 30000,
+  "riblets": 0,
+  "Riblets": 0,
   "exhaustion": 0,
-  "exp_points": 50,
+  "exp_points": 0,
   "level": 1,
   "hp": {
-    "current": 23232317,
-    "max": 23232323
+    "current": 28,
+    "max": 28
   },
   "stats": {
-    "str": 23,
-    "int": 12,
-    "wis": 14,
-    "dex": 20,
-    "con": 19,
-    "cha": 9
+    "str": 18,
+    "int": 23,
+    "wis": 20,
+    "dex": 16,
+    "con": 15,
+    "cha": 20
   },
-  "class": "Warrior",
-  "name": "Warrior",
+  "class": "Mage",
+  "name": "Mage",
   "pos": [
     2000,
     0,
@@ -470,21 +467,15 @@
   ],
   "bags": {
     "Thief": [],
-    "Warrior": [
-      "1a1052a43ad64e9886b6a42c2c932d8f",
-      "18b77e4099ea4d18869d80704356f6f7"
-    ],
+    "Warrior": [],
     "Priest": [],
     "Wizard": [],
     "Mage": []
   },
-  "inventory": [
-    "1a1052a43ad64e9886b6a42c2c932d8f",
-    "18b77e4099ea4d18869d80704356f6f7"
-  ],
+  "inventory": [],
   "position": [
-    2000,
-    0,
+    2500,
+    -1,
     0
   ],
   "ready_target": null,

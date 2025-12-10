@@ -56,13 +56,13 @@ class CombatConfig:
     wake_on_look: int = 30
     wake_on_entry: int = 50
     flee_hp_pct: int = 25
-    flee_pct: int = 10
+    flee_pct: int = 20
     heal_at_pct: int = 85
     heal_pct: int = 45
     heal_cost: int = 150
     convert_pct: int = 30
     low_ion_pct: int = 70
-    cast_pct: int = 25
+    cast_pct: int = 1
     attack_pct: int = 45
     pickup_pct: int = 25
     emote_pct: int = 8
