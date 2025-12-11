@@ -236,24 +236,21 @@ def _emit_arrival_and_noise(
         return
 
     try:
-        if arrived_dir:
-            bus.push("COMBAT/INFO", f"You see shadows to the {arrived_dir}.")
-            bus.push("COMBAT/INFO", f"You hear loud sounds of yelling and screaming to the {arrived_dir}.")
+        # Shadows now come from the renderer's adjacency pass; keep only the audio cue here.
+        target_dir = arrived_dir or direction
+        if target_dir:
+            bus.push("COMBAT/INFO", f"You hear loud sounds of yelling and screaming to the {target_dir}.")
             return
-        if direction:
-            bus.push("COMBAT/INFO", f"You see shadows to the {direction}.")
-            bus.push("COMBAT/INFO", f"You hear loud sounds of yelling and screaming to the {direction}.")
-        else:
-            # Not adjacent: provide a loud directional cue based on movement vector if known.
-            if movement:
-                mdx, mdy = movement
-                if abs(mdx) + abs(mdy) > 0:
-                    if abs(mdx) >= abs(mdy):
-                        direction = "east" if mdx > 0 else "west"
-                    else:
-                        direction = "north" if mdy > 0 else "south"
-            if direction:
-                bus.push("COMBAT/INFO", f"You hear loud sounds of yelling and screaming to the {direction}.")
+        # Not adjacent: provide a loud directional cue based on movement vector if known.
+        if movement:
+            mdx, mdy = movement
+            if abs(mdx) + abs(mdy) > 0:
+                if abs(mdx) >= abs(mdy):
+                    target_dir = "east" if mdx > 0 else "west"
+                else:
+                    target_dir = "north" if mdy > 0 else "south"
+        if target_dir:
+            bus.push("COMBAT/INFO", f"You hear loud sounds of yelling and screaming to the {target_dir}.")
     except Exception:
         LOG.debug("Failed to push flee noise cues", exc_info=True)
 
@@ -486,6 +483,26 @@ def attempt_flee_step(
             meta = {"from": (int(sx), int(sy)), "step": step, "away": away}
             meta.update(details)
             _log(ctx, monster, success=True, reason="flee-step", **meta)
+            # Emit explicit leave feedback (matches reference flee messaging).
+            try:
+                bus = ctx.get("feedback_bus") if isinstance(ctx, Mapping) else getattr(ctx, "feedback_bus", None)
+                if hasattr(bus, "push") and isinstance(step, tuple) and len(step) == 2:
+                    dx = int(step[0]) - int(sx)
+                    dy = int(step[1]) - int(sy)
+                    dir_token = None
+                    if dx == 1:
+                        dir_token = "east"
+                    elif dx == -1:
+                        dir_token = "west"
+                    elif dy == 1:
+                        dir_token = "north"
+                    elif dy == -1:
+                        dir_token = "south"
+                    name = _monster_display_name(monster)
+                    if dir_token:
+                        bus.push("COMBAT/INFO", f"{name} has just left {dir_token}")
+            except Exception:
+                LOG.debug("Failed to push flee leave cue", exc_info=True)
             try:
                 monster_pos = monster.get("pos")
             except Exception:  # pragma: no cover - defensive

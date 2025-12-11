@@ -154,11 +154,13 @@ def emit_sound(
         if token is None:
             return None
         direction = vision.direction_word(token)
-        message = f"You hear {label}{qualifier} to the {direction}."
+    message = f"You hear {label}{qualifier} to the {direction}."
 
     queue = _resolve_store(ctx, create=True)
     if queue is not None:
-        queue.append(message)
+        # Avoid piling up duplicate cues within the same tick/frame.
+        if not queue or queue[-1] != message:
+            queue.append(message)
     return message
 
 
@@ -168,7 +170,14 @@ def drain(ctx: Any) -> List[str]:
     queue = _resolve_store(ctx, create=False)
     if not queue:
         return []
-    items = list(queue)
+    items = []
+    seen: set[str] = set()
+    while queue:
+        msg = queue.popleft()
+        if msg in seen:
+            continue
+        seen.add(msg)
+        items.append(msg)
     queue.clear()
     return items
 

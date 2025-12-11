@@ -45,6 +45,17 @@ def _coerce_int(value: Any, default: int = 0) -> int:
         return default
 
 
+def _coerce_pos(pos: Any) -> tuple[int, int, int] | None:
+    """Best-effort position coercion to (year, x, y) ints."""
+    coords = combat_loot.coerce_pos(pos)
+    if coords is None or len(coords) < 3:
+        return None
+    try:
+        return (int(coords[0]), int(coords[1]), int(coords[2]))
+    except Exception:
+        return None
+
+
 def _monster_display_name(monster: Mapping[str, Any]) -> str:
     name = monster.get("name") or monster.get("monster_id")
     if isinstance(name, str) and name:
@@ -119,6 +130,32 @@ def _drop_entry_sort_key(
         or iid
     )
     return (label.lower(), item_id, iid)
+
+
+def _is_collocated(monster: Mapping[str, Any], ctx: Mapping[str, Any]) -> bool:
+    """Return True when monster and active player share the same tile/year."""
+    try:
+        state = ctx.get("player_state") if isinstance(ctx, Mapping) and isinstance(ctx.get("player_state"), Mapping) else None
+    except Exception:
+        state = None
+    if state is None:
+        # Some call sites pass an object with a ``player_state`` attribute rather than a mapping.
+        try:
+            candidate = getattr(ctx, "player_state", None)
+            if isinstance(candidate, Mapping):
+                state = candidate
+        except Exception:
+            state = None
+    try:
+        if state is None:
+            state, _ = pstate.get_active_pair()
+        year, px, py = pstate.canonical_player_pos(state)
+    except Exception:
+        return True  # assume collocated if we cannot resolve positions
+    pos = _coerce_pos(monster.get("pos"))
+    if pos is None:
+        return True
+    return int(pos[0]) == int(year) and int(pos[1]) == int(px) and int(pos[2]) == int(py)
 
 
 def sorted_bag_drops(
@@ -1451,6 +1488,19 @@ def execute_random_action(monster: Any, ctx: Any, *, rng: Any | None = None, cas
     if action_name == "cast":
         cast_guard["cast_used"] = True
     stop_after = action_name in {"pursue", "flee_move"}
+    requires_collocation = action_name in {
+        "attack",
+        "pickup",
+        "convert",
+        "remove_armour",
+        "emote",
+        "flee_statement",
+        "cast",
+    }
+    if requires_collocation and not _is_collocated(monster, ctx):
+        # Skip actions that require being on the same tile (e.g., taunts, attacks)
+        # instead of burning the monster's whole turn.
+        return {"ok": False, "reason": "not_collocated", "stop_turn": False}
     action = _ACTION_TABLE.get(action_name)
     if not action:
         LOG.debug("No action handler for gate %s", cascade_result.gate)
