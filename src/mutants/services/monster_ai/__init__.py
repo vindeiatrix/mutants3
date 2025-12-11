@@ -399,12 +399,6 @@ def on_player_command(ctx: Any, *, token: str, resolved: str | None, arg: str | 
             credits = min(credits, 1)
 
         if not wake_tick:
-            if not collocated:
-                credits = min(credits, 1)
-                if credits <= 0:
-                    credits = 1
-            if _is_flee_mode(monster) and credits < 2:
-                credits = 2
             if reentry and credits <= 0:
                 credits = 1
                 turnlog.emit(
@@ -415,6 +409,8 @@ def on_player_command(ctx: Any, *, token: str, resolved: str | None, arg: str | 
                 )
             if collocated and credits <= 0 and has_target:
                 credits = 1
+        # Reference pacing: one action per tick to avoid multi-heal/multi-move bursts.
+        credits = max(1, min(credits, 1))
         _log_tick(ctx, monster, credits)
         if credits <= 0:
             return

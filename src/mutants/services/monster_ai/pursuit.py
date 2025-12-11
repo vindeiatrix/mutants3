@@ -514,37 +514,36 @@ def attempt_flee_step(
             except Exception:
                 movement = None
             _emit_arrival_and_noise(ctx, monster_pos, away, movement=movement, flee_mode=True)
-            # If the monster just moved adjacent to or into player, emit arrival direction.
+            # If the monster just moved into the player's tile, emit arrival direction.
             monster_pos = combat_loot.coerce_pos(monster_pos)
             player_pos = combat_loot.coerce_pos(away)
-            if monster_pos and player_pos and int(monster_pos[0]) == int(player_pos[0]):
-                dx = int(monster_pos[1]) - int(player_pos[1])
-                dy = int(monster_pos[2]) - int(player_pos[2])
-                if abs(dx) + abs(dy) == 1:
-                    dir_token = None
-                    if dx == 1:
-                        dir_token = "east"
-                    elif dx == -1:
-                        dir_token = "west"
-                    elif dy == 1:
-                        dir_token = "north"
-                    elif dy == -1:
-                        dir_token = "south"
-                    bus = ctx.get("feedback_bus") if isinstance(ctx, Mapping) else getattr(ctx, "feedback_bus", None)
-                    name = _monster_display_name(monster)
-                    if dir_token and hasattr(bus, "push"):
-                        try:
-                            bus.push("COMBAT/INFO", f"{name} has just arrived from the {dir_token}.")
-                            _emit_arrival_and_noise(
-                                ctx,
-                                monster_pos,
-                                player_pos,
-                                movement=movement,
-                                flee_mode=True,
-                                arrived_dir=dir_token,
-                            )
-                        except Exception:
-                            LOG.debug("Failed to push arrival cue", exc_info=True)
+            if monster_pos and player_pos and int(monster_pos[0]) == int(player_pos[0]) and tuple(monster_pos[1:]) == tuple(player_pos[1:]):
+                prev_dx = int(sx) - int(player_pos[1])
+                prev_dy = int(sy) - int(player_pos[2])
+                dir_token = None
+                if prev_dx == 1:
+                    dir_token = "east"
+                elif prev_dx == -1:
+                    dir_token = "west"
+                elif prev_dy == 1:
+                    dir_token = "north"
+                elif prev_dy == -1:
+                    dir_token = "south"
+                bus = ctx.get("feedback_bus") if isinstance(ctx, Mapping) else getattr(ctx, "feedback_bus", None)
+                name = _monster_display_name(monster)
+                if dir_token and hasattr(bus, "push"):
+                    try:
+                        bus.push("COMBAT/INFO", f"{name} has just arrived from the {dir_token}.")
+                        _emit_arrival_and_noise(
+                            ctx,
+                            monster_pos,
+                            player_pos,
+                            movement=movement,
+                            flee_mode=True,
+                            arrived_dir=dir_token,
+                        )
+                    except Exception:
+                        LOG.debug("Failed to push arrival cue", exc_info=True)
             return True
 
     _log(ctx, monster, success=False, reason="blocked", attempts=len(candidates), away=away)
