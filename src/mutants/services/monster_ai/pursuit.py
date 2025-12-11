@@ -201,6 +201,8 @@ def _emit_arrival_and_noise(
     movement: tuple[int, int] | None,
     flee_mode: bool,
     arrived_dir: str | None = None,
+    allow_shadow: bool = True,
+    force_direction: str | None = None,
 ) -> None:
     """Emit arrival/noise cues tuned for flee mode."""
 
@@ -236,8 +238,7 @@ def _emit_arrival_and_noise(
         return
 
     try:
-        # Shadows now come from the renderer's adjacency pass; keep only the audio cue here.
-        target_dir = arrived_dir or direction
+        target_dir = force_direction or arrived_dir or direction
         if target_dir:
             bus.push("COMBAT/INFO", f"You hear loud sounds of yelling and screaming to the {target_dir}.")
             return
@@ -365,11 +366,18 @@ def attempt_pursuit(
         chance -= _CRACKED_DISTRACTION_PENALTY
         modifiers.append("cracked")
 
-    threshold = _clamp_pct(chance)
-    try:
-        roll = int(rng.randrange(100))
-    except Exception:
-        roll = int(random.Random().randrange(100))
+    # Bound monsters (explicit target) should always choose to pursue, matching
+    # the desired deterministic chase behaviour.
+    has_bound_target = bool(monster.get("target_player_id"))
+    if has_bound_target:
+        roll = 0
+        threshold = 100
+    else:
+        threshold = _clamp_pct(chance)
+        try:
+            roll = int(rng.randrange(100))
+        except Exception:
+            roll = int(random.Random().randrange(100))
 
     meta = {
         "threshold": threshold,
@@ -381,7 +389,7 @@ def attempt_pursuit(
         "ions_max": ions_max,
     }
 
-    if roll >= threshold:
+    if not has_bound_target and roll >= threshold:
         reason = f"roll={roll} threshold={threshold}"
         _log(ctx, monster, success=False, reason=reason, **meta)
         return False
@@ -483,7 +491,7 @@ def attempt_flee_step(
             meta = {"from": (int(sx), int(sy)), "step": step, "away": away}
             meta.update(details)
             _log(ctx, monster, success=True, reason="flee-step", **meta)
-            # Emit explicit leave feedback (matches reference flee messaging).
+            was_collocated = int(sx) == int(away[1]) and int(sy) == int(away[2])
             try:
                 bus = ctx.get("feedback_bus") if isinstance(ctx, Mapping) else getattr(ctx, "feedback_bus", None)
                 if hasattr(bus, "push") and isinstance(step, tuple) and len(step) == 2:
@@ -499,8 +507,40 @@ def attempt_flee_step(
                     elif dy == -1:
                         dir_token = "south"
                     name = _monster_display_name(monster)
-                    if dir_token:
-                        bus.push("COMBAT/INFO", f"{name} has just left {dir_token}")
+                    if was_collocated and dir_token and abs(dx) + abs(dy) > 0:
+                        # Guard against duplicate leave/noise in the same tick by tagging ctx.
+                        dedupe_key = f"flee_leave::{_monster_id(monster)}"
+                        emitted = getattr(ctx, "_flee_emitted", None)
+                        if not isinstance(emitted, set):
+                            emitted = set()
+                            try:
+                                setattr(ctx, "_flee_emitted", emitted)
+                            except Exception:
+                                emitted = None
+                        if emitted is None or dedupe_key not in emitted:
+                            bus.push("COMBAT/INFO", f"{name} has just left {dir_token}")
+                            # Occasional flee noise to better match reference (not every move).
+                            noise_ok = True
+                            try:
+                                noise_ok = int(rng.randrange(100)) < 65
+                            except Exception:
+                                noise_ok = True
+                            if noise_ok:
+                                _emit_arrival_and_noise(
+                                    ctx,
+                                    [int(year), int(step[0]), int(step[1])],
+                                    away,
+                                    movement=(dx, dy),
+                                    flee_mode=True,
+                                    arrived_dir=None,
+                                    force_direction=dir_token,
+                                )
+                            if emitted is not None:
+                                emitted.add(dedupe_key)
+                            try:
+                                setattr(ctx, "_suppress_shadows_once", True)
+                            except Exception:
+                                pass
             except Exception:
                 LOG.debug("Failed to push flee leave cue", exc_info=True)
             try:
@@ -513,7 +553,6 @@ def attempt_flee_step(
                     movement = (int(step[0]) - int(sx), int(step[1]) - int(sy))
             except Exception:
                 movement = None
-            _emit_arrival_and_noise(ctx, monster_pos, away, movement=movement, flee_mode=True)
             # If the monster just moved into the player's tile, emit arrival direction.
             monster_pos = combat_loot.coerce_pos(monster_pos)
             player_pos = combat_loot.coerce_pos(away)

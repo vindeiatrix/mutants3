@@ -342,6 +342,10 @@ def render_frame(ctx: Dict[str, Any]) -> None:
             ctx["monsters"],
             ctx.get("items"),
         )
+    # Allow one-frame suppression of shadow cues (e.g., immediately after a flee leave).
+    if ctx.pop("_suppress_shadows_once", False):
+        vm = dict(vm)
+        vm["shadows"] = []
     cues = audio_cues.drain(ctx)
     if cues:
         vm = dict(vm)

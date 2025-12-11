@@ -111,6 +111,7 @@ def emit_sound(
     *,
     ctx: Any | None = None,
     movement: tuple[int, int] | None = None,
+    once_per_frame: bool = True,
 ) -> str | None:
     """Format and store an audio cue for *kind* if the player can hear it.
 
@@ -158,6 +159,8 @@ def emit_sound(
 
     queue = _resolve_store(ctx, create=True)
     if queue is not None:
+        if once_per_frame and message in queue:
+            return message
         # Avoid piling up duplicate cues within the same tick/frame.
         if not queue or queue[-1] != message:
             queue.append(message)

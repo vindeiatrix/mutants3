@@ -1181,7 +1181,7 @@ def _heal_action(
 
     label = _monster_display_name(monster)
     bus = _feedback_bus(ctx)
-    if hasattr(bus, "push"):
+    if hasattr(bus, "push") and _is_collocated(monster, ctx):
         heal_message = textutils.render_feedback_template(
             textutils.TEMPLATE_MONSTER_HEAL,
             monster=label,
