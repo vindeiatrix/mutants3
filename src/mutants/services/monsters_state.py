@@ -908,6 +908,64 @@ class MonstersState:
         # Cache is the authoritative read path during a session.
         return list(self._monsters)
 
+    def list_adjacent_monsters(self, player_pos: Iterable[Any]) -> list[str]:
+        """
+        Return direction tokens (e.g., ``\"N\"``, ``\"SW\"``) for monsters that
+        are in any tile adjacent to ``player_pos`` (including diagonals).
+        """
+        try:
+            raw = list(player_pos)
+        except Exception:
+            return []
+        if len(raw) < 3:
+            return []
+        try:
+            year, px, py = (int(raw[0]), int(raw[1]), int(raw[2]))
+        except Exception:
+            return []
+
+        dirs: list[str] = []
+        for mon in self._monsters:
+            pos = mon.get("pos")
+            if not (isinstance(pos, list) and len(pos) >= 3):
+                continue
+            try:
+                ry, rx, ry2 = int(pos[0]), int(pos[1]), int(pos[2])
+            except Exception:
+                continue
+            try:
+                hp_block = mon.get("hp") if isinstance(mon.get("hp"), Mapping) else {}
+                hp_cur = int(hp_block.get("current", mon.get("hp_cur", 1)))
+                if hp_cur <= 0:
+                    continue
+            except Exception:
+                pass
+            if ry != year:
+                continue
+            dx = rx - px
+            dy = ry2 - py
+            if dx == 0 and dy == 0:
+                continue
+            if abs(dx) > 1 or abs(dy) > 1:
+                continue
+            if dx == 0 and dy == -1:
+                dirs.append("N")
+            elif dx == 0 and dy == 1:
+                dirs.append("S")
+            elif dx == 1 and dy == 0:
+                dirs.append("E")
+            elif dx == -1 and dy == 0:
+                dirs.append("W")
+            elif dx == 1 and dy == 1:
+                dirs.append("SE")
+            elif dx == 1 and dy == -1:
+                dirs.append("NE")
+            elif dx == -1 and dy == 1:
+                dirs.append("SW")
+            elif dx == -1 and dy == -1:
+                dirs.append("NW")
+        return dirs
+
     def list_at(self, year: int, x: int, y: int) -> List[Dict[str, Any]]:
         def _match(mon: Dict[str, Any]) -> bool:
             pos = mon.get("pos")

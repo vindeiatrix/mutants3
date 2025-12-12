@@ -26,6 +26,7 @@ LOG = logging.getLogger(__name__)
 SegmentLine = List[st.Segment]
 
 
+
 def _normalize_player_name(value: Any) -> Optional[str]:
     if isinstance(value, str):
         candidate = value.strip()
@@ -526,9 +527,13 @@ def render(
             block_cues.append(fmt.format_cue_line(cue))
             if idx < len(cues) - 1:
                 block_cues.append(UC.SEPARATOR_LINE)
+    # Emit shadows once per frame; suppress duplicates for the same direction set.
     shadow_line = fmt.format_shadows(vm.get("shadows", []))
     if shadow_line:
-        block_cues.append(st.resolve_segments(shadow_line, {}))
+        shadow_str = st.resolve_segments(shadow_line, {})
+        if block_cues:
+            block_cues.append(UC.SEPARATOR_LINE)
+        block_cues.append(shadow_str)
 
     # ---- Join blocks with separators between non-empty blocks only ----
     def _join_with_separators(blocks: list[list[str]]) -> list[str]:

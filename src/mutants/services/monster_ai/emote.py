@@ -145,7 +145,13 @@ def execute_free_emote(
     gate: str,
 ) -> None:
     """Emit a free emote line for *monster* using *rng*."""
-
+    try:
+        from mutants.services.monster_actions import _is_collocated  # local import to avoid cycles
+    except Exception:
+        _emit_emote(monster, ctx, rng, origin="free", gate=gate)
+        return
+    if not _is_collocated(monster, ctx):
+        return
     _emit_emote(monster, ctx, rng, origin="free", gate=gate)
 
 

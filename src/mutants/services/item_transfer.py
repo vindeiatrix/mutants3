@@ -477,9 +477,18 @@ def pick_from_ground(ctx, prefix: str, *, seed: Optional[int] = None) -> Dict:
         ground_now = _ground_ordered_ids(year, x, y)
         if len(ground_now) >= GROUND_CAP:
             swap_iid = rng.choice(ground_now)
-            itemsreg.clear_position(swap_iid)
-            inv.append(swap_iid)
-        itemsreg.update_instance(drop_iid, year=year, x=x, y=y, owner=None)
+            try:
+                itemsreg.clear_position(swap_iid)
+                inv.append(swap_iid)
+            except KeyError:
+                pass
+        try:
+            itemsreg.update_instance(drop_iid, year=year, x=x, y=y, owner=None)
+        except KeyError:
+            # If the overflow target is missing, skip the drop.
+            inv = _remove_first(inv, drop_iid)
+            overflow_info = {"inv_overflow_drop": drop_iid, "missing": True}
+            drop_iid = None
         inv = _remove_first(inv, drop_iid)
         overflow_info = {"inv_overflow_drop": drop_iid}
 
