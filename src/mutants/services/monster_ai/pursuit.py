@@ -446,7 +446,8 @@ def attempt_pursuit(
                 if dir_token and hasattr(bus, "push"):
                     try:
                         bus.push("COMBAT/INFO", f"{name} has just arrived from the {dir_token}.")
-                        # Hide monsters for a frame so the presence line appears on the next tick, not the arrival tick.
+                        # Hide the presence line until the next player action so arrival text
+                        # and presence are not in the same frame.
                         try:
                             if isinstance(ctx, MutableMapping):
                                 ctx["_suppress_monsters_once"] = True
