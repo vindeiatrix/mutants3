@@ -351,13 +351,10 @@ def render_frame(ctx: Dict[str, Any]) -> None:
         vm = dict(vm)
         vm["shadows"] = []
     cues = audio_cues.drain(ctx)
-    if cues:
-        vm = dict(vm)
-        existing = list(vm.get("cues_lines") or [])
-        existing.extend(cues)
-        vm["cues_lines"] = existing
-
     events = ctx["feedback_bus"].drain()
+    if cues:
+        cue_events = [{"text": c} for c in cues]
+        events.extend(cue_events)
     lines = ctx["renderer"](
         vm,
         feedback_events=events,

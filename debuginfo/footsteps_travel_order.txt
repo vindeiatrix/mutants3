@@ -1,0 +1,66 @@
+You feel a cold breeze.
+Compass: (3E : 0N)
+north - open gate.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Light‑Spear, A Short‑Sword.
+***
+Titan‑of‑Chrome‑643 has just arrived from the west.
+> tra 2300
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cigarette‑Butt.
+***
+You hear faint sounds of footsteps far to the east.
+***
+You're already in the 24th Century!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cigarette‑Butt.
+***
+You hear loud sounds of footsteps to the east.
+***
+You see shadows to the east.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cigarette‑Butt.
+***
+Titan‑of‑Chrome‑643 has just arrived from the east.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cigarette‑Butt.
+***
+Titan-of-Chrome-643 is here.
+***
+Titan‑of‑Chrome‑643 is singing a strange song.
+>

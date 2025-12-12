@@ -1,0 +1,13 @@
+bury all
+4
+tra 2300
+debug hp 999999
+debug monster t
+look
+e
+look
+tra 2300
+look
+look
+x
+
