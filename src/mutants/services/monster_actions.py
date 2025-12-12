@@ -775,7 +775,10 @@ def _apply_player_damage(
     plan = select_attack(monster, ctx)
     weapon_iid = plan.item_iid
     resolved_iid = str(weapon_iid) if weapon_iid else None
-    damage_item: Any = str(weapon_iid) if weapon_iid else {}
+    if plan.source == "innate":
+        damage_item = monster.get("innate_attack") or {}
+    else:
+        damage_item = {"iid": weapon_iid} if weapon_iid else {}
     attack = damage_engine.resolve_attack(damage_item, monster, active, source=plan.source)
     try:
         final_damage = max(0, int(attack.damage))
@@ -823,6 +826,7 @@ def _apply_player_damage(
             template_key,
             monster=label,
             weapon=weapon_label,
+            damage=final_damage,
         )
         bus_obj.push(
             "COMBAT/HIT",
@@ -835,6 +839,13 @@ def _apply_player_damage(
             damage=final_damage,
             source=attack.source,
         )
+        if final_damage > 0:
+            bus_obj.push(
+                "COMBAT/DAMAGE",
+                f"You suffer {final_damage} hit points of damage!",
+                template="combat.player.suffer",
+                damage=final_damage,
+            )
     killed_flag = final_damage > 0 and new_hp <= 0
     if final_damage > 0:
         turnlog.emit(
@@ -1538,7 +1549,7 @@ def execute_random_action(monster: Any, ctx: Any, *, rng: Any | None = None, cas
             return None
     cascade_result = evaluate_cascade(monster, ctx)
     action_name = cascade_result.action
-    if cascade_result.gate in {"EMOTE", "IDLE"}:
+    if cascade_result.gate == "EMOTE":
         emote_mod.schedule_free_emote(monster, ctx, gate=cascade_result.gate)
         if action_name == "emote":
             action_name = None

@@ -355,6 +355,11 @@ def select_attack(monster: Mapping[str, Any], ctx: Any) -> AttackPlan:
                 best_ranged_score = score
                 ranged_entry = entry
 
+    # If this monster is bound to a player, bias toward the first bag item but still allow innate.
+    state = monster.get("_ai_state") if isinstance(monster, Mapping) else None
+    pending_target = state.get("pending_pursuit") if isinstance(state, Mapping) else None
+    has_bound_target = bool(monster.get("target_player_id") or pending_target)
+
     has_innate = _has_innate(monster)
     prefers_ranged = _resolve_prefers_ranged(monster, ctx)
     prefers_innate = _resolve_prefers_innate(monster, ctx)
@@ -380,6 +385,14 @@ def select_attack(monster: Mapping[str, Any], ctx: Any) -> AttackPlan:
         weight = int(weights.get(source, 0))
         if weight > 0:
             weighted_sources.append((source, weight))
+
+    # Bound monsters: prefer first bag item but allow innate in the mix.
+    if has_bound_target:
+        weighted_sources = []
+        if bag:
+            weighted_sources.append(("melee", 70))
+        if has_innate:
+            weighted_sources.append(("innate", 30))
 
     if not weighted_sources:
         # No usable weapons or innate attack – fall back to innate punch.

@@ -1,0 +1,2788 @@
+Launching game (SQLite backend)...
+Mutants — classic BBS vibes.  Type 'help' for commands; 'theme mono' for no color.
+
+ 1. Mutant Thief    Level: 1   Year: 2000  (0 0)
+ 2. Mutant Priest   Level: 1   Year: 2000  (0 0)
+ 3. Mutant Wizard   Level: 1   Year: 2000  (0 0)
+ 4. Mutant Warrior  Level: 1   Year: 2000  (0 0)
+ 5. Mutant Mage     Level: 1   Year: 2300  (0 0)
+
+Type BURY [class number] to reset a player. Type X to exit.
+***
+Select (Bury, 1-5, ?)
+***
+Type ? if you need assistance.
+Select (Bury, 1-5, ?) bury all
+Player reset.
+ 1. Mutant Thief    Level: 1   Year: 2000  (0 0)
+ 2. Mutant Priest   Level: 1   Year: 2000  (0 0)
+ 3. Mutant Wizard   Level: 1   Year: 2000  (0 0)
+ 4. Mutant Warrior  Level: 1   Year: 2000  (0 0)
+ 5. Mutant Mage     Level: 1   Year: 2000  (0 0)
+
+Type BURY [class number] to reset a player. Type X to exit.
+***
+Select (Bury, 1-5, ?) 4
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+> tra 2300
+***
+ZAAAPPPPP!! You've been sent to the year 2300 A.D.
+> debug hp 232323
+***
+Set HP for Warrior to 232323 / 232323.
+> debug monster t
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cigarette‑Butt.
+***
+Titan-of-Chrome-221 is here.
+***
+Spawned Titan‑of‑Chrome‑221 at your location.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cigarette‑Butt.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cigarette‑Butt.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 pats their pockets for supplies.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cigarette‑Butt.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 has hit you with his Hydraulic‑Slam!
+> e
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+An Ion‑Decay.
+***
+You see shadows to the west.
+***
+Titan‑of‑Chrome‑221 has just arrived from the west.
+> w
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cigarette‑Butt.
+***
+You see shadows to the east.
+***
+Titan‑of‑Chrome‑221 has just arrived from the east.
+> e
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+An Ion‑Decay.
+***
+You see shadows to the west.
+***
+You hear loud sounds of yelling and screaming to the west.
+***
+Titan‑of‑Chrome‑221 has just arrived from the west.
+> w
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cigarette‑Butt.
+***
+You see shadows to the east.
+***
+You hear loud sounds of yelling and screaming to the east.
+***
+Titan‑of‑Chrome‑221 has just arrived from the east.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cigarette‑Butt.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cigarette‑Butt.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 picks up Cigarette‑Butt.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+***
+A blinding white flash erupts around Titan‑of‑Chrome‑221!
+***
+Titan‑of‑Chrome‑221 converts loot worth 11000 ions.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 is wondering what you're doing.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 flexes ominously.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 begins casting Arcane Burst...
+***
+Titan‑of‑Chrome‑221 casts Arcane Burst!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 stares into the distance.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 practices a victory pose.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 practices a victory pose.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 hums a battle hymn.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 sharpens their claws.
+>
+***
+Type ? if you need assistance.
+> debug add n
+***
+spawned 1 x nuclear_decay at (2300, 0, 0) [dc3677aaeb694f33830918ad89bd7e50]
+***
+Titan‑of‑Chrome‑221 picks up Nuclear‑Decay.
+> get n
+***
+There isn't a n here.
+> debug add n
+***
+spawned 1 x nuclear_decay at (2300, 0, 0) [e4eb2c60c28f4960ba1f7029070efb95]
+> get n
+***
+You pick up the Nuclear‑Decay.
+***
+A blinding white flash erupts around Titan‑of‑Chrome‑221!
+***
+Titan‑of‑Chrome‑221 converts loot worth 85000 ions.
+> com t
+***
+You ready yourself against Titan‑of‑Chrome‑221.
+> wie n
+***
+You ready the Nuclear‑Decay for combat.
+***
+You strike Titan‑of‑Chrome‑221 for 69 damage.
+***
+Titan‑of‑Chrome‑221 yells: Get away from me!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-221 is here.
+***
+Titan‑of‑Chrome‑221 restores 14 HP (1350 ions).
+***
+Titan‑of‑Chrome‑221's body is glowing!
+> wie n
+***
+You ready the Nuclear‑Decay for combat.
+***
+You strike Titan‑of‑Chrome‑221 for 76 damage.
+***
+You have slain Titan‑of‑Chrome‑221!
+Your experience points are increased by 50!
+You collect 48 Riblets and 114533 ions from the slain body.
+***
+A Hydraulic‑Fist is falling from Titan‑of‑Chrome‑221's body!
+***
+A Power‑Core is falling from Titan‑of‑Chrome‑221's body!
+***
+A Skull is falling from Titan‑of‑Chrome‑221's body!
+***
+A Chrome‑Plating is falling from Titan‑of‑Chrome‑221's body!
+***
+Titan‑of‑Chrome‑221 is crumbling to dust!
+> e
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+An Ion‑Decay.
+> debug monster w
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+An Ion‑Decay.
+***
+Waste-Mauler-356 is here.
+***
+Spawned Waste‑Mauler‑356 at your location.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+An Ion‑Decay.
+***
+Waste-Mauler-356 is here.
+***
+Waste‑Mauler‑356 has hit you with his Rebar‑Smash!
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+An Ion‑Decay.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+An Ion‑Decay.
+***
+Waste-Mauler-356 is here.
+***
+Waste‑Mauler‑356 has hit you with his Rebar‑Smash!
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+An Ion‑Decay.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+***
+Waste‑Mauler‑356 picks up Ion‑Decay.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+***
+Waste‑Mauler‑356 has hit you with his Rebar‑Smash!
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+***
+Waste‑Mauler‑356 has hit you with his Ion‑Decay!
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+***
+Waste‑Mauler‑356 has hit you with his Ion‑Decay!
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+***
+Waste‑Mauler‑356 looks at you.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+***
+Waste‑Mauler‑356 has hit you with his Ion‑Decay!
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+***
+Waste‑Mauler‑356 has hit you with his Ion‑Decay!
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+***
+Waste‑Mauler‑356 has hit you with his Ion‑Decay!
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+***
+Waste‑Mauler‑356 has hit you with his Rebar‑Smash!
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+***
+Waste‑Mauler‑356 has hit you with his Ion‑Decay!
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+***
+Waste‑Mauler‑356 has hit you with his Rebar‑Smash!
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+***
+Waste‑Mauler‑356 has hit you with his Ion‑Decay!
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+***
+Waste‑Mauler‑356 has hit you with his Ion‑Decay!
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+***
+Waste‑Mauler‑356 has hit you with his Ion‑Decay!
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+***
+Waste‑Mauler‑356 has hit you with his Ion‑Decay!
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+***
+Waste‑Mauler‑356 has hit you with his Ion‑Decay!
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+***
+Waste‑Mauler‑356 has hit you with his Ion‑Decay!
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+***
+Waste‑Mauler‑356 has hit you with his Rebar‑Smash!
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+***
+Waste‑Mauler‑356 has hit you with his Ion‑Decay!
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+***
+Waste‑Mauler‑356 has hit you with his Ion‑Decay!
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+***
+Waste‑Mauler‑356 has hit you with his Rebar‑Smash!
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+***
+Waste‑Mauler‑356 adjusts their helmet.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+***
+Waste‑Mauler‑356 has hit you with his Rebar‑Smash!
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+***
+Waste‑Mauler‑356 has hit you with his Ion‑Decay!
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+***
+Waste‑Mauler‑356 has hit you with his Ion‑Decay!
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+***
+Waste‑Mauler‑356 has hit you with his Ion‑Decay!
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+***
+Waste‑Mauler‑356 has hit you with his Ion‑Decay!
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+***
+Waste‑Mauler‑356 has hit you with his Ion‑Decay!
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+***
+Waste‑Mauler‑356 pleads with you.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+***
+Waste‑Mauler‑356 has hit you with his Rebar‑Smash!
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+***
+Waste‑Mauler‑356 has hit you with his Rebar‑Smash!
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+***
+Waste‑Mauler‑356's Broken‑Weapon cracks!
+***
+Waste‑Mauler‑356 has hit you with his Ion‑Decay!
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-356 is here.
+***
+Waste‑Mauler‑356 has hit you with his Rebar‑Smash!
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken‑Weapon.
+***
+Waste-Mauler-356 is here.
+***
+Waste‑Mauler‑356 has dropped Broken‑Weapon.
+***
+Waste‑Mauler‑356 has hit you with his Rebar‑Smash!
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken‑Weapon.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken‑Weapon.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken‑Weapon.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken‑Weapon.
+***
+Waste-Mauler-356 is here.
+***
+Waste‑Mauler‑356 has hit you with his Rebar‑Smash!
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken‑Weapon.
+***
+Waste-Mauler-356 is here.
+***
+Waste‑Mauler‑356 has hit you with his Rebar‑Smash!
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken‑Weapon.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken‑Weapon.
+***
+Waste-Mauler-356 is here.
+***
+Waste‑Mauler‑356 is singing a strange song.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken‑Weapon.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken‑Weapon.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken‑Weapon.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken‑Weapon.
+***
+Waste-Mauler-356 is here.
+***
+Waste‑Mauler‑356 has hit you with his Rebar‑Smash!
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken‑Weapon.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken‑Weapon.
+***
+Waste-Mauler-356 is here.
+> look
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken‑Weapon.
+***
+Waste-Mauler-356 is here.
+> com w
+***
+You ready yourself against Waste‑Mauler‑356.
+> wie n
+***
+You ready the Nuclear‑Decay for combat.
+***
+You strike Waste‑Mauler‑356 for 61 damage.
+***
+Waste‑Mauler‑356 yells: Get away from me!
+> wie n
+***
+You ready the Nuclear‑Decay for combat.
+***
+You strike Waste‑Mauler‑356 for 77 damage.
+***
+You have slain Waste‑Mauler‑356!
+Your experience points are increased by 28!
+You collect 6 Riblets and 10505 ions from the slain body.
+***
+A Rebar‑Maul is falling from Waste‑Mauler‑356's body!
+***
+A Radioactive‑Fang is falling from Waste‑Mauler‑356's body!
+***
+A Skull is falling from Waste‑Mauler‑356's body!
+***
+A Spiked‑Plating is falling from Waste‑Mauler‑356's body!
+***
+Waste‑Mauler‑356 is crumbling to dust!
