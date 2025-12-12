@@ -208,7 +208,9 @@ def _emit_arrival_and_noise(
 
     if not flee_mode:
         try:
-            audio_cues.emit_sound(monster_pos, player_pos, kind="footsteps", ctx=ctx, movement=movement)
+            msg = audio_cues.emit_sound(monster_pos, player_pos, kind="footsteps", ctx=ctx, movement=movement)
+            if msg and isinstance(ctx, Mapping):
+                ctx["_ai_emitted_audio"] = True
         except Exception:  # pragma: no cover - defensive guard
             LOG.debug("Failed to emit audio cue for pursuit", exc_info=True)
         return
@@ -241,7 +243,9 @@ def _emit_arrival_and_noise(
         target_dir = force_direction or arrived_dir or direction
         # Footsteps (audible within hearing range) even during flee.
         try:
-            audio_cues.emit_sound(monster_pos, player_pos, kind="footsteps", ctx=ctx, movement=movement)
+            msg = audio_cues.emit_sound(monster_pos, player_pos, kind="footsteps", ctx=ctx, movement=movement)
+            if msg and isinstance(ctx, Mapping):
+                ctx["_ai_emitted_audio"] = True
         except Exception:
             LOG.debug("Failed to emit flee footsteps", exc_info=True)
         if target_dir:
@@ -434,14 +438,20 @@ def attempt_pursuit(
                 dir_token = None
                 mdx, mdy = movement
                 if abs(mdx) >= abs(mdy):
-                    dir_token = "east" if mdx > 0 else "west"
+                    dir_token = "west" if mdx > 0 else "east"  # direction monster came from
                 else:
-                    dir_token = "north" if mdy > 0 else "south"
+                    dir_token = "south" if mdy > 0 else "north"
                 bus = ctx.get("feedback_bus") if isinstance(ctx, Mapping) else getattr(ctx, "feedback_bus", None)
                 name = _monster_display_name(monster)
                 if dir_token and hasattr(bus, "push"):
                     try:
                         bus.push("COMBAT/INFO", f"{name} has just arrived from the {dir_token}.")
+                        # Hide monsters for a frame so the presence line appears on the next tick, not the arrival tick.
+                        try:
+                            if isinstance(ctx, MutableMapping):
+                                ctx["_suppress_monsters_once"] = True
+                        except Exception:
+                            pass
                     except Exception:
                         LOG.debug("Failed to push arrival cue", exc_info=True)
         return True

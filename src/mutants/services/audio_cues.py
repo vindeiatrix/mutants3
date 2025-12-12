@@ -131,23 +131,10 @@ def emit_sound(
         return None
 
     label = _sound_label(kind)
-    qualifier = " far" if dist > 1 else ""
 
     if dist == 0:
-        if not movement:
-            return None
-        mx, my = movement
-        if mx == 0 and my == 0:
-            return None
-        prev_x = monster[1] - mx
-        prev_y = monster[2] - my
-        dx = prev_x - player[1]
-        dy = prev_y - player[2]
-        token = _direction_token(dx, dy)
-        if token is None:
-            return None
-        direction = vision.direction_word(token)
-        message = f"You hear {label} right next to you to the {direction}."
+        # Reference does not emit a cue when co-located; suppress the adjacent variant.
+        return None
     else:
         dx = monster[1] - player[1]
         dy = monster[2] - player[2]
@@ -155,7 +142,10 @@ def emit_sound(
         if token is None:
             return None
         direction = vision.direction_word(token)
-    message = f"You hear {label}{qualifier} to the {direction}."
+        if dist > 1:
+            message = f"You hear faint sounds of {label} far to the {direction}."
+        else:
+            message = f"You hear loud sounds of {label} to the {direction}."
 
     queue = _resolve_store(ctx, create=True)
     if queue is not None:
@@ -164,6 +154,13 @@ def emit_sound(
         # Avoid piling up duplicate cues within the same tick/frame.
         if not queue or queue[-1] != message:
             queue.append(message)
+            # When hearing a monster at distance > 1, suppress shadows for the next render
+            # so they appear a frame later.
+            try:
+                if dist > 1 and isinstance(ctx, MutableMapping):
+                    ctx["_suppress_shadows_once"] = True
+            except Exception:
+                pass
     return message
 
 

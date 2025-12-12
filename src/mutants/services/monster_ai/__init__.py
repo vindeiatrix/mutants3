@@ -293,6 +293,8 @@ def on_player_command(ctx: Any, *, token: str, resolved: str | None, arg: str | 
     monsters = _pull(ctx, "monsters")
     if monsters is None:
         return
+    # Track whether we emitted any audio cues so callers can decide to flush feedback immediately.
+    ctx["_ai_emitted_audio"] = False
 
     # Some player commands should never wake/aggro monsters or even grant them a turn.
     # - "menu"/"x": completely safe; skip monster processing.
@@ -507,6 +509,14 @@ def on_player_command(ctx: Any, *, token: str, resolved: str | None, arg: str | 
 
     for monster in _iter_targeted_monsters(monsters, year=year, player_id=player_id):
         _process_monster(monster, allow_target_roll=False, require_wake=False)
+
+    # If any audio was emitted during this tick, signal the REPL to flush immediately
+    # so sounds tied to travel/pursuit aren't delayed to the next player command.
+    try:
+        if ctx.get("_ai_emitted_audio"):
+            ctx["render_next"] = True
+    except Exception:
+        pass
 
     if suppress_aggro:
         return

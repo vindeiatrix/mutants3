@@ -1,0 +1,73 @@
+You see rubble everywhere.
+Compass: (6E : 0N)
+east  - open gate.
+west  - area continues.
+***
+Titan-of-Chrome-795 is here.
+***
+You hear footsteps to the west.
+***
+Titan‑of‑Chrome‑795 has just arrived from the east.
+> look
+You see rubble everywhere.
+Compass: (6E : 0N)
+east  - open gate.
+west  - area continues.
+***
+Titan-of-Chrome-795 is here.
+***
+Titan‑of‑Chrome‑795 pats their pockets for supplies.
+> tra 2300
+***
+You're already in the 24th Century!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You hear footsteps far to the east.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You hear footsteps far to the east.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You hear footsteps far to the east.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You hear footsteps to the east.
+***
+You see shadows to the east.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-795 is here.
+***
+You hear footsteps to the east.
+***
+Titan‑of‑Chrome‑795 has just arrived from the west.

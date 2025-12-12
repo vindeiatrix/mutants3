@@ -1,0 +1,97 @@
+
+# Log file open.
+
+look
+***
+You see rubble everywhere.
+Compass: (6E : 0N)
+east  - area continues.
+west  - area continues.
+***
+Troglodyte-325 is here.
+>
+look
+***
+You see rubble everywhere.
+Compass: (6E : 0N)
+east  - area continues.
+west  - area continues.
+***
+Troglodyte-325 is here.
+***
+Troglodyte-325 is crying.
+>
+tra 2300
+***
+You're already in the 24th Century!
+>
+look
+***
+You're in a wrecked building.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cheese. 
+***
+You hear faint sounds of footsteps far to the east.
+>
+look
+***
+You're in a wrecked building.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cheese. 
+***
+You hear faint sounds of footsteps far to the east.
+>
+look
+***
+You're in a wrecked building.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cheese. 
+***
+You hear faint sounds of footsteps far to the east.
+>
+look
+***
+You're in a wrecked building.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cheese. 
+***
+You hear loud sounds of footsteps to the east.
+>
+look
+***
+You're in a wrecked building.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cheese. 
+***
+You see shadows to the east.
+***
+You hear loud sounds of yelling and screaming to the east.
+***
+Troglodyte-325 has just arrived from the east.
+>
+
