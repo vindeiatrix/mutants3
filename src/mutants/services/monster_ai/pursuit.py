@@ -200,20 +200,13 @@ def _emit_arrival_and_noise(
     *,
     movement: tuple[int, int] | None,
     flee_mode: bool,
+    has_bound_target: bool = False,
+    rng: Any | None = None,
     arrived_dir: str | None = None,
     allow_shadow: bool = True,
     force_direction: str | None = None,
 ) -> None:
     """Emit arrival/noise cues tuned for flee mode."""
-
-    if not flee_mode:
-        try:
-            msg = audio_cues.emit_sound(monster_pos, player_pos, kind="footsteps", ctx=ctx, movement=movement)
-            if msg and isinstance(ctx, Mapping):
-                ctx["_ai_emitted_audio"] = True
-        except Exception:  # pragma: no cover - defensive guard
-            LOG.debug("Failed to emit audio cue for pursuit", exc_info=True)
-        return
 
     mon = combat_loot.coerce_pos(monster_pos)
     ply = combat_loot.coerce_pos(player_pos)
@@ -225,6 +218,26 @@ def _emit_arrival_and_noise(
         return
     dx = int(mx) - int(px)
     dy = int(myy) - int(pyy)
+    # If co-located after movement, use the previous step direction for audio cues,
+    # and capture a shadow hint/arrival direction.
+    audio_mon_pos = mon
+    arrived_dir_token = None
+    is_arrival_step = dx == 0 and dy == 0 and movement
+    if is_arrival_step:
+        try:
+            prev_x = int(mx) - int(movement[0])
+            prev_y = int(myy) - int(movement[1])
+            audio_mon_pos = (int(my), prev_x, prev_y)
+            dx = prev_x - int(px)
+            dy = prev_y - int(pyy)
+            mdx, mdy = movement
+            if abs(mdx) >= abs(mdy):
+                arrived_dir_token = "west" if mdx > 0 else "east"
+            else:
+                arrived_dir_token = "south" if mdy > 0 else "north"
+        except Exception:
+            pass
+
     direction = None
     if abs(dx) + abs(dy) == 1:
         if dx == 1:
@@ -238,29 +251,54 @@ def _emit_arrival_and_noise(
     bus = ctx.get("feedback_bus") if isinstance(ctx, Mapping) else getattr(ctx, "feedback_bus", None)
     if not hasattr(bus, "push"):
         return
-
     try:
-        target_dir = force_direction or arrived_dir or direction
-        # Footsteps (audible within hearing range) even during flee.
-        try:
-            msg = audio_cues.emit_sound(monster_pos, player_pos, kind="footsteps", ctx=ctx, movement=movement)
-            if msg and isinstance(ctx, Mapping):
-                ctx["_ai_emitted_audio"] = True
-        except Exception:
-            LOG.debug("Failed to emit flee footsteps", exc_info=True)
-        if target_dir:
-            bus.push("COMBAT/INFO", f"You hear loud sounds of yelling and screaming to the {target_dir}.")
+        # Optional yelling/screaming roll when bound and not co-located.
+        dist = max(abs(dx), abs(dy))
+        if has_bound_target and dist > 0:
+            try:
+                roll = int(rng.randrange(100)) if rng is not None else None
+            except Exception:
+                roll = None
+            if roll is None:
+                import random as _rand
+
+                roll = int(_rand.Random().randrange(100))
+            if roll < 60:  # ~60% chance per frame to better match reference frequency
+                scream = audio_cues.emit_sound(
+                    audio_mon_pos,
+                    player_pos,
+                    kind="yelling",
+                    ctx=ctx,
+                    movement=movement,
+                )
+                if scream and isinstance(ctx, Mapping):
+                    ctx["_ai_emitted_audio"] = True
+
+        # Footsteps (audible within hearing range) for both pursue and flee, except suppress on arrival frame.
+        if not is_arrival_step:
+            try:
+                msg = audio_cues.emit_sound(audio_mon_pos, player_pos, kind="footsteps", ctx=ctx, movement=movement)
+                if msg and isinstance(ctx, Mapping):
+                    ctx["_ai_emitted_audio"] = True
+            except Exception:
+                LOG.debug("Failed to emit movement footsteps", exc_info=True)
+
+        if allow_shadow and isinstance(ctx, MutableMapping):
+            try:
+                if dist == 1:
+                    ctx["_suppress_shadows_once"] = True
+                if is_arrival_step:
+                    shadow_dir = arrived_dir_token or direction
+                    if shadow_dir:
+                        ctx["_shadow_hint_once"] = [shadow_dir]
+            except Exception:
+                pass
+
+        if not flee_mode:
             return
-        # Not adjacent: provide a loud directional cue based on movement vector if known.
-        if movement:
-            mdx, mdy = movement
-            if abs(mdx) + abs(mdy) > 0:
-                if abs(mdx) >= abs(mdy):
-                    target_dir = "east" if mdx > 0 else "west"
-                else:
-                    target_dir = "north" if mdy > 0 else "south"
-        if target_dir:
-            bus.push("COMBAT/INFO", f"You hear loud sounds of yelling and screaming to the {target_dir}.")
+
+        target_dir = force_direction or arrived_dir or direction
+        # For flee we already emitted footsteps/yelling above; no extra manual push needed.
     except Exception:
         LOG.debug("Failed to push flee noise cues", exc_info=True)
 
@@ -427,7 +465,15 @@ def attempt_pursuit(
                     movement = (mx, my)
         except Exception:  # pragma: no cover - defensive guard
             movement = None
-        _emit_arrival_and_noise(ctx, monster_pos, target, movement=movement, flee_mode=False)
+        _emit_arrival_and_noise(
+            ctx,
+            monster_pos,
+            target,
+            movement=movement,
+            flee_mode=False,
+            has_bound_target=has_bound_target,
+            rng=rng,
+        )
         # Arrival cue when entering player tile.
         player_pos = combat_loot.coerce_pos(target)
         monster_pos_norm = combat_loot.coerce_pos(monster_pos)
@@ -507,6 +553,12 @@ def attempt_flee_step(
     # Prefer steps that maximize distance
     candidates.sort(key=lambda value: value[0], reverse=True)
 
+    state = monster.get("_ai_state") if isinstance(monster, Mapping) else None
+    pending_target = None
+    if isinstance(state, Mapping):
+        pending_target = state.get("pending_pursuit")
+    has_bound_target = bool(monster.get("target_player_id") or pending_target)
+
     for _, step in candidates:
         success, details = _apply_movement(monster, int(year), (int(sx), int(sy)), step, ctx)
         if success:
@@ -554,6 +606,8 @@ def attempt_flee_step(
                                     away,
                                     movement=(dx, dy),
                                     flee_mode=True,
+                                    has_bound_target=has_bound_target,
+                                    rng=rng,
                                     arrived_dir=None,
                                     force_direction=dir_token,
                                 )
@@ -573,7 +627,15 @@ def attempt_flee_step(
                 movement = None
             # Emit generic flee noise/footsteps even when not previously collocated.
             try:
-                _emit_arrival_and_noise(ctx, monster_pos, away, movement=movement, flee_mode=True)
+                _emit_arrival_and_noise(
+                    ctx,
+                    monster_pos,
+                    away,
+                    movement=movement,
+                    flee_mode=True,
+                    has_bound_target=has_bound_target,
+                    rng=rng,
+                )
             except Exception:
                 LOG.debug("Failed to emit flee footsteps", exc_info=True)
             # Always suppress shadows for the next frame after a flee move.

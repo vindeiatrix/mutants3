@@ -1,0 +1,2855 @@
+
+# Log file open.
+
+e
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear-Waste. 
+***
+You see shadows to the west.
+***
+You hear loud sounds of yelling and screaming to the west.
+***
+Giant-Ant-804 has just arrived from the west.
+>
+e
+***
+You're in a maintenance shop.
+Compass: (2E : 0N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear-Rock. 
+***
+You see shadows to the west.
+***
+Giant-Ant-804 has just arrived from the west.
+>
+e
+***
+POWER OF SALE $ 375000
+Compass: (3E : 0N)
+east  - open gate.
+west  - area continues.
+***
+On the ground lies:
+A Cheese. 
+***
+You see shadows to the west.
+***
+You hear loud sounds of yelling and screaming to the west.
+***
+Giant-Ant-804 has just arrived from the west.
+>
+e
+***
+An old hydro line has fallen here.
+Compass: (4E : 0N)
+north - area continues.
+east  - area continues.
+west  - open gate.
+***
+You see shadows to the west.
+***
+You hear loud sounds of yelling and screaming to the west.
+***
+Giant-Ant-804 has just arrived from the west.
+>
+e
+***
+Relics of the war line the streets.
+Compass: (5E : 0N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+An Ion-Pack. 
+***
+You see shadows to the west.
+***
+You hear loud sounds of yelling and screaming to the west.
+***
+Giant-Ant-804 has just arrived from the west.
+>
+w
+***
+An old hydro line has fallen here.
+Compass: (4E : 0N)
+north - area continues.
+east  - area continues.
+west  - open gate.
+***
+You see shadows to the east.
+***
+Giant-Ant-804 has just arrived from the east.
+>
+w
+***
+POWER OF SALE $ 375000
+Compass: (3E : 0N)
+east  - open gate.
+west  - area continues.
+***
+On the ground lies:
+A Cheese. 
+***
+You see shadows to the east.
+***
+You hear loud sounds of yelling and screaming to the east.
+***
+Giant-Ant-804 has just arrived from the east.
+>
+w
+***
+You're in a maintenance shop.
+Compass: (2E : 0N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear-Rock. 
+***
+You see shadows to the east.
+***
+Giant-Ant-804 has just arrived from the east.
+>
+w
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear-Waste. 
+***
+You see shadows to the east.
+***
+Giant-Ant-804 has just arrived from the east.
+>
+w
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cigarette-Butt. 
+***
+You see shadows to the east.
+***
+You hear loud sounds of yelling and screaming to the east.
+***
+Giant-Ant-804 has just arrived from the east.
+>
+e
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear-Waste. 
+***
+You see shadows to the west.
+***
+Giant-Ant-804 has just arrived from the west.
+>
+e
+***
+You're in a maintenance shop.
+Compass: (2E : 0N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear-Rock. 
+***
+You see shadows to the west.
+***
+Giant-Ant-804 has just arrived from the west.
+>
+e
+***
+POWER OF SALE $ 375000
+Compass: (3E : 0N)
+east  - open gate.
+west  - area continues.
+***
+On the ground lies:
+A Cheese. 
+***
+You see shadows to the west.
+***
+You hear loud sounds of yelling and screaming to the west.
+***
+Giant-Ant-804 has just arrived from the west.
+>
+e
+***
+An old hydro line has fallen here.
+Compass: (4E : 0N)
+north - area continues.
+east  - area continues.
+west  - open gate.
+***
+You see shadows to the west.
+***
+Giant-Ant-804 has just arrived from the west.
+>
+e
+***
+Relics of the war line the streets.
+Compass: (5E : 0N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+An Ion-Pack. 
+***
+You see shadows to the west.
+***
+Giant-Ant-804 has just arrived from the west.
+>
+w
+***
+An old hydro line has fallen here.
+Compass: (4E : 0N)
+north - area continues.
+east  - area continues.
+west  - open gate.
+***
+You see shadows to the east.
+***
+Giant-Ant-804 has just arrived from the east.
+>
+w
+***
+POWER OF SALE $ 375000
+Compass: (3E : 0N)
+east  - open gate.
+west  - area continues.
+***
+On the ground lies:
+A Cheese. 
+***
+You see shadows to the east.
+***
+You hear loud sounds of yelling and screaming to the east.
+***
+Giant-Ant-804 has just arrived from the east.
+>
+w
+***
+You're in a maintenance shop.
+Compass: (2E : 0N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear-Rock. 
+***
+You see shadows to the east.
+***
+Giant-Ant-804 has just arrived from the east.
+>
+w
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear-Waste. 
+***
+You see shadows to the east.
+***
+You hear loud sounds of yelling and screaming to the east.
+***
+Giant-Ant-804 has just arrived from the east.
+>
+w
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cigarette-Butt. 
+***
+You see shadows to the east.
+***
+Giant-Ant-804 has just arrived from the east.
+>
+e
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear-Waste. 
+***
+You see shadows to the west.
+***
+You hear loud sounds of yelling and screaming to the west.
+***
+Giant-Ant-804 has just arrived from the west.
+>
+e
+***
+You're in a maintenance shop.
+Compass: (2E : 0N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear-Rock. 
+***
+You see shadows to the west.
+***
+Giant-Ant-804 has just arrived from the west.
+>
+e
+***
+POWER OF SALE $ 375000
+Compass: (3E : 0N)
+east  - open gate.
+west  - area continues.
+***
+On the ground lies:
+A Cheese. 
+***
+You see shadows to the west.
+***
+You hear loud sounds of yelling and screaming to the west.
+***
+Giant-Ant-804 has just arrived from the west.
+>
+e
+***
+An old hydro line has fallen here.
+Compass: (4E : 0N)
+north - area continues.
+east  - area continues.
+west  - open gate.
+***
+You see shadows to the west.
+***
+You hear loud sounds of yelling and screaming to the west.
+***
+Giant-Ant-804 has just arrived from the west.
+>
+e
+***
+Relics of the war line the streets.
+Compass: (5E : 0N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+An Ion-Pack. 
+***
+You see shadows to the west.
+***
+Giant-Ant-804 has just arrived from the west.
+>
+stat
+***
+
+Name: Vindeiatrix / Mutant Warrior
+Exhaustion    : 0  
+Str: 126    Int: 22    Wis: 22 
+Dex: 92     Con: 97    Cha: 29 
+Hit Points    : 87  / 93 
+Exp. Points   : 4797084 Level: 9  
+Riblets       : 3340   
+Ions          : 1070108
+Wearing Armor : Eazy-Armour  Armour Class: 465
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D.      : 2200
+
+You are carrying the following items:  (Total Weight: 129 LB's)
+Hell-Blade, Lightning-Rod.
+***
+Giant-Ant-804 picked up the Ion-Pack.
+>
+tra 2200
+***
+You're already in the 23th Century!
+***
+You hear faint sounds of footsteps far to the east.
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cigarette-Butt. 
+***
+You hear faint sounds of footsteps far to the east.
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cigarette-Butt. 
+***
+You hear faint sounds of footsteps far to the east.
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cigarette-Butt. 
+***
+You hear faint sounds of yelling and screaming far to the east.
+***
+You hear loud sounds of footsteps to the east.
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cigarette-Butt. 
+***
+You see shadows to the east.
+***
+You hear loud sounds of yelling and screaming to the east.
+***
+Giant-Ant-804 has just arrived from the east.
+>
+>>> Turbosentry@bbs.themajorbbs.com logged on
+>***
+Type ? if you need assistance.
+>
+e
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear-Waste. 
+***
+You see shadows to the west.
+***
+Giant-Ant-804 has just arrived from the west.
+>
+e
+
+***
+You're in a maintenance shop.
+Compass: (2E : 0N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear-Rock. 
+***
+You see shadows to the west.
+***
+Giant-Ant-804 has just arrived from the west.
+>e
+***
+POWER OF SALE $ 375000
+Compass: (3E : 0N)
+east  - open gate.
+west  - area continues.
+***
+On the ground lies:
+A Cheese. 
+***
+You see shadows to the west.
+***
+Giant-Ant-804 has just arrived from the west.
+>
+e
+***
+An old hydro line has fallen here.
+Compass: (4E : 0N)
+north - area continues.
+east  - area continues.
+west  - open gate.
+***
+You see shadows to the west.
+***
+Giant-Ant-804 has just arrived from the west.
+>
+e
+***
+Relics of the war line the streets.
+Compass: (5E : 0N)
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the west.
+***
+Giant-Ant-804 has just arrived from the west.
+>
+tra 2200
+***
+You're already in the 23th Century!
+***
+You hear faint sounds of footsteps far to the east.
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cigarette-Butt. 
+***
+You hear faint sounds of footsteps far to the east.
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cigarette-Butt. 
+***
+You hear faint sounds of yelling and screaming far to the east.
+***
+You hear faint sounds of footsteps far to the east.
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cigarette-Butt. 
+***
+You hear faint sounds of yelling and screaming far to the east.
+***
+You hear loud sounds of footsteps to the east.
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cigarette-Butt. 
+***
+You see shadows to the east.
+***
+Giant-Ant-804 has just arrived from the east.
+>
+e
+
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear-Waste. 
+***
+You see shadows to the west.
+***
+Giant-Ant-804 has just arrived from the west.
+>e
+***
+You're in a maintenance shop.
+Compass: (2E : 0N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear-Rock. 
+***
+You see shadows to the west.
+***
+Giant-Ant-804 has just arrived from the west.
+>
+e
+***
+POWER OF SALE $ 375000
+Compass: (3E : 0N)
+east  - open gate.
+west  - area continues.
+***
+On the ground lies:
+A Cheese. 
+***
+You see shadows to the west.
+***
+Giant-Ant-804 has just arrived from the west.
+>
+e
+***
+An old hydro line has fallen here.
+Compass: (4E : 0N)
+north - area continues.
+east  - area continues.
+west  - open gate.
+***
+You see shadows to the west.
+***
+You hear loud sounds of yelling and screaming to the west.
+***
+Giant-Ant-804 has just arrived from the west.
+>
+e
+***
+Relics of the war line the streets.
+Compass: (5E : 0N)
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the west.
+***
+Giant-Ant-804 has just arrived from the west.
+>
+>>> Turbosentry@bbs.themajorbbs.com logged off
+>***
+Type ? if you need assistance.
+>
+tra 2200
+***
+You're already in the 23th Century!
+***
+You hear faint sounds of footsteps far to the east.
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cigarette-Butt. 
+***
+You hear faint sounds of footsteps far to the east.
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cigarette-Butt. 
+***
+You hear faint sounds of yelling and screaming far to the east.
+***
+You hear faint sounds of footsteps far to the east.
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cigarette-Butt. 
+***
+You hear loud sounds of footsteps to the east.
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cigarette-Butt. 
+***
+You see shadows to the east.
+***
+Giant-Ant-804 has just arrived from the east.
+>
+e
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear-Waste. 
+***
+You see shadows to the west.
+***
+You hear loud sounds of yelling and screaming to the west.
+***
+Giant-Ant-804 has just arrived from the west.
+>
+e
+
+***
+You're in a maintenance shop.
+Compass: (2E : 0N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear-Rock. 
+***
+You see shadows to the west.
+***
+Giant-Ant-804 has just arrived from the west.
+>e
+***
+POWER OF SALE $ 375000
+Compass: (3E : 0N)
+east  - open gate.
+west  - area continues.
+***
+On the ground lies:
+A Cheese. 
+***
+You see shadows to the west.
+***
+Giant-Ant-804 has just arrived from the west.
+>
+e
+***
+An old hydro line has fallen here.
+Compass: (4E : 0N)
+north - area continues.
+east  - area continues.
+west  - open gate.
+***
+You see shadows to the west.
+***
+You hear loud sounds of yelling and screaming to the west.
+***
+Giant-Ant-804 has just arrived from the west.
+>
+>>> TurboSentry@mortuary.ddns.net logged on
+>***
+Type ? if you need assistance.
+>
+tra 2200
+***
+You're already in the 23th Century!
+***
+You hear faint sounds of yelling and screaming far to the east.
+***
+You hear faint sounds of footsteps far to the east.
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cigarette-Butt. 
+***
+You hear faint sounds of yelling and screaming far to the east.
+***
+You hear faint sounds of footsteps far to the east.
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cigarette-Butt. 
+***
+You hear faint sounds of yelling and screaming far to the east.
+***
+You hear loud sounds of footsteps to the east.
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cigarette-Butt. 
+***
+You see shadows to the east.
+***
+You hear loud sounds of yelling and screaming to the east.
+***
+Giant-Ant-804 has just arrived from the east.
+>
+>>> TurboSentry@mortuary.ddns.net logged off
+>***
+Type ? if you need assistance.
+>
+hea
+***
+Your body glows at it heals 14 points!
+***
+You're healed to the maximum!
+***
+Giant-Ant-804 picked up the Cigarette-Butt.
+>
+hea
+
+***
+Nothing happens!
+>look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+>>> turbosentrY@omniversebbs.com logged on
+
+>***
+Type ? if you need assistance.
+>look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+***
+The Giant-Ant-804 spits acid at you!
+***
+You suffer 6 hit points of damage!
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+hea
+***
+Your body glows at it heals 14 points!
+***
+You're healed to the maximum!
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+***
+Giant-Ant-804 has hit you with his Gold-Chunck!
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+***
+Giant-Ant-804 has hit you with his Gold-Chunck!
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+hea
+***
+Nothing happens!
+***
+Giant-Ant-804 has hit you with his Gold-Chunck!
+>
+hea
+***
+Nothing happens!
+***
+Giant-Ant-804 has hit you with his Gold-Chunck!
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+***
+Giant-Ant-804 has hit you with his Gold-Chunck!
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+hea
+***
+Nothing happens!
+>
+hea
+***
+Nothing happens!
+***
+Giant-Ant-804 has hit you with his Gold-Chunck!
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+***
+The Giant-Ant-804 spits acid at you!
+***
+You suffer 6 hit points of damage!
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+hea
+***
+Your body glows at it heals 14 points!
+***
+You're healed to the maximum!
+***
+Giant-Ant-804 has hit you with his Gold-Chunck!
+>
+hea
+***
+Nothing happens!
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+***
+Giant-Ant-804 has hit you with his Gold-Chunck!
+>
+
+>>> turbosentrY@omniversebbs.com logged off
+>look
+***
+Type ? if you need assistance.
+>***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+hea
+***
+Nothing happens!
+>
+hea
+***
+Nothing happens!
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+***
+The Giant-Ant-804 spits acid at you!
+***
+You suffer 6 hit points of damage!
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+***
+Giant-Ant-804 has hit you with his Gold-Chunck!
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+hea
+***
+Your body glows at it heals 14 points!
+***
+You're healed to the maximum!
+>
+hea
+***
+Nothing happens!
+>
+>>> turbosentrY@omniversebbs.com logged on
+>***
+Type ? if you need assistance.
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+***
+The Giant-Ant-804 spits acid at you!
+***
+You suffer 6 hit points of damage!
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+***
+Giant-Ant-804 has hit you with his Gold-Chunck!
+>
+hea
+***
+Your body glows at it heals 14 points!
+***
+You're healed to the maximum!
+***
+The Giant-Ant-804 spits acid at you!
+***
+You suffer 6 hit points of damage!
+>
+hea
+***
+Your body glows at it heals 14 points!
+***
+You're healed to the maximum!
+>
+hea
+***
+Nothing happens!
+***
+Giant-Ant-804 has hit you with his Gold-Chunck!
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+***
+Giant-Ant-804 has hit you with his Gold-Chunck!
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+***
+Giant-Ant-804 has hit you with his Gold-Chunck!
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+***
+The Giant-Ant-804 spits acid at you!
+***
+You suffer 6 hit points of damage!
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+***
+The Giant-Ant-804 spits acid at you!
+***
+You suffer 6 hit points of damage!
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+hea
+***
+Your body glows at it heals 14 points!
+***
+You're healed to the maximum!
+***
+The Giant-Ant-804 spits acid at you!
+***
+You suffer 6 hit points of damage!
+>
+hea
+***
+Your body glows at it heals 14 points!
+***
+You're healed to the maximum!
+>
+hea
+***
+Nothing happens!
+***
+The Giant-Ant-804 spits acid at you!
+***
+You suffer 6 hit points of damage!
+>
+>>> turbosentrY@omniversebbs.com logged of
+f
+>***
+Type ? if you need assistance.
+>hea
+***
+Your body glows at it heals 14 points!
+***
+You're healed to the maximum!
+***
+The Giant-Ant-804 spits acid at you!
+***
+You suffer 6 hit points of damage!
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+look
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+***
+Giant-Ant-804 has hit you with his Gold-Chunck!
+>
+hea
+***
+Your body glows at it heals 14 points!
+***
+You're healed to the maximum!
+***
+Giant-Ant-804 has hit you with his Gold-Chunck!
+>
+hea
+***
+Nothing happens!
+>
+>>> turbosentrY@omniversebbs.com logged on
+>***
+Type ? if you need assistance.
+>
+e
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear-Waste. 
+***
+You see shadows to the west.
+***
+You hear loud sounds of yelling and screaming to the west.
+***
+Giant-Ant-804 has just arrived from the west.
+>
+w
+***
+You're in a maintenance shop.
+Compass: (0E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the east.
+***
+You hear loud sounds of yelling and screaming to the east.
+***
+Giant-Ant-804 has just arrived from the east.
+>
+e
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear-Waste. 
+***
+You see shadows to the west.
+***
+You hear loud sounds of yelling and screaming to the west.
+***
+Giant-Ant-804 has just arrived from the west.
+>
+hea
+***
+Nothing happens!
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear-Waste. 
+***
+Giant-Ant-804 is here.
+***
+The Giant-Ant-804 spits acid at you!
+***
+You suffer 6 hit points of damage!
+***
+Giant-Ant-804 picked up the Nuclear-Waste.
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+look
+
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+***
+Giant-Ant-804 has hit you with his Gold-Chunck!
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+hea
+***
+Your body glows at it heals 14 points!
+***
+You're healed to the maximum!
+***
+The Giant-Ant-804 spits acid at you!
+***
+You suffer 6 hit points of damage!
+>
+hea
+***
+Your body glows at it heals 14 points!
+***
+You're healed to the maximum!
+>
+hea
+***
+Nothing happens!
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+***
+The Giant-Ant-804 spits acid at you!
+***
+You suffer 6 hit points of damage!
+***
+Giant-Ant-804 is making strange noises.
+>
+hea
+***
+Your body glows at it heals 14 points!
+***
+You're healed to the maximum!
+>
+hea
+***
+Nothing happens!
+***
+The Giant-Ant-804 spits acid at you!
+***
+You suffer 6 hit points of damage!
+>
+hea
+***
+Your body glows at it heals 14 points!
+***
+You're healed to the maximum!
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+***
+Giant-Ant-804 has hit you with his Gold-Chunck!
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+***
+Giant-Ant-804 is wondering what your doing.
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+hea
+***
+Nothing happens!
+>
+hea
+***
+Nothing happens!
+***
+Giant-Ant-804 has hit you with his Gold-Chunck!
+>
+hea
+***
+Nothing happens!
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+***
+The Giant-Ant-804 spits acid at you!
+***
+You suffer 6 hit points of damage!
+>
+>>> turbosentrY@omniversebbs.com logged off
+>***
+Type ? if you need assistance.
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+hea
+***
+Your body glows at it heals 14 points!
+***
+You're healed to the maximum!
+>
+hea
+***
+Nothing happens!
+***
+The Giant-Ant-804 spits acid at you!
+***
+You suffer 6 hit points of damage!
+>
+hea
+***
+Your body glows at it heals 14 points!
+***
+You're healed to the maximum!
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+***
+The Giant-Ant-804 spits acid at you!
+***
+You suffer 6 hit points of damage!
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+***
+Giant-Ant-804 has hit you with his Gold-Chunck!
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+***
+Giant-Ant-804 has hit you with his Gold-Chunck!
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+***
+Giant-Ant-804 has hit you with his Gold-Chunck!
+>
+look
+
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+***
+Giant-Ant-804 has hit you with his Gold-Chunck!
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+look
+
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+hea
+***
+Your body glows at it heals 14 points!
+***
+You're healed to the maximum!
+***
+The Giant-Ant-804 spits acid at you!
+***
+You suffer 6 hit points of damage!
+>
+hea
+
+***
+Your body glows at it heals 14 points!
+***
+You're healed to the maximum!
+>hea
+***
+Nothing happens!
+>
+hea
+***
+Nothing happens!
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+***
+Giant-Ant-804 has hit you with his Gold-Chunck!
+>
+look
+
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+***
+The Giant-Ant-804 spits acid at you!
+***
+You suffer 6 hit points of damage!
+>hea
+***
+Your body glows at it heals 14 points!
+***
+You're healed to the maximum!
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+***
+The Giant-Ant-804 spits acid at you!
+***
+You suffer 6 hit points of damage!
+>
+look
+
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+***
+The Giant-Ant-804 spits acid at you!
+***
+You suffer 6 hit points of damage!
+>look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+***
+The Giant-Ant-804 spits acid at you!
+***
+You suffer 6 hit points of damage!
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+***
+Giant-Ant-804 has hit you with his Gold-Chunck!
+>
+look
+
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+***
+Giant-Ant-804 has hit you with his Gold-Chunck!
+>look
+
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>hea
+***
+Your body glows at it heals 14 points!
+***
+The Giant-Ant-804 spits acid at you!
+***
+You suffer 6 hit points of damage!
+>
+hea
+
+***
+Your body glows at it heals 14 points!
+***
+You're healed to the maximum!
+>hea
+***
+Nothing happens!
+***
+Giant-Ant-804 has hit you with his Gold-Chunck!
+>
+hea
+***
+Nothing happens!
+***
+Giant-Ant-804 has hit you with his Gold-Chunck!
+>
+hea
+***
+Nothing happens!
+>
+hea
+***
+Nothing happens!
+>
+hea
+***
+Nothing happens!
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+***
+The Giant-Ant-804 spits acid at you!
+***
+You suffer 6 hit points of damage!
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+***
+The Giant-Ant-804 spits acid at you!
+***
+You suffer 6 hit points of damage!
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+***
+Giant-Ant-804 has hit you with his Gold-Chunck!
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+hea
+***
+Your body glows at it heals 14 points!
+***
+You're healed to the maximum!
+>
+hea
+***
+Nothing happens!
+***
+The Giant-Ant-804 spits acid at you!
+***
+You suffer 6 hit points of damage!
+>
+hea
+***
+Your body glows at it heals 14 points!
+***
+You're healed to the maximum!
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+look
+
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+***
+Giant-Ant-804 has hit you with his Gold-Chunck!
+>look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+hea
+***
+Nothing happens!
+>
+hea
+***
+Nothing happens!
+>
+hea
+***
+Nothing happens!
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+***
+The Giant-Ant-804 spits acid at you!
+***
+You suffer 6 hit points of damage!
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+look
+
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+hea
+
+***
+Your body glows at it heals 14 points!
+***
+You're healed to the maximum!
+>hea
+***
+Nothing happens!
+***
+The Giant-Ant-804 spits acid at you!
+***
+You suffer 6 hit points of damage!
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+look
+
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+***
+The Giant-Ant-804 spits acid at you!
+***
+You suffer 6 hit points of damage!
+>look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+***
+Giant-Ant-804 has hit you with his Gold-Chunck!
+>
+look
+
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>hea
+***
+Your body glows at it heals 14 points!
+***
+You're healed to the maximum!
+>
+hea
+***
+Nothing happens!
+***
+Giant-Ant-804 has hit you with his Gold-Chunck!
+>
+hea
+***
+Nothing happens!
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+***
+Giant-Ant-804 has hit you with his Gold-Chunck!
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+***
+The Giant-Ant-804 spits acid at you!
+***
+You suffer 6 hit points of damage!
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+***
+Giant-Ant-804 is trying to make friends with you.
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+***
+The Giant-Ant-804 spits acid at you!
+***
+You suffer 6 hit points of damage!
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+***
+Giant-Ant-804 has hit you with his Gold-Chunck!
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+hea
+***
+Your body glows at it heals 14 points!
+***
+You're healed to the maximum!
+***
+Giant-Ant-804 has hit you with his Gold-Chunck!
+>
+hea
+***
+Nothing happens!
+>
+hea
+***
+Nothing happens!
+***
+Giant-Ant-804 has hit you with his Gold-Chunck!
+>
+hea
+***
+Nothing happens!
+***
+Giant-Ant-804 has hit you with his Gold-Chunck!
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+***
+The Giant-Ant-804 spits acid at you!
+***
+You suffer 6 hit points of damage!
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+***
+Giant-Ant-804 has hit you with his Gold-Chunck!
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+***
+The Giant-Ant-804 spits acid at you!
+***
+You suffer 6 hit points of damage!
+>
+look
+
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>hea
+***
+Your body glows at it heals 14 points!
+***
+You're healed to the maximum!
+>
+look
+
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>hea
+***
+Nothing happens!
+***
+Giant-Ant-804 has hit you with his Gold-Chunck!
+>
+hea
+
+***
+Nothing happens!
+>look
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+***
+Giant-Ant-804 has hit you with his Gold-Chunck!
+>
+look
+
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>hea
+***
+Nothing happens!
+>
+look
+
+***
+Crumbling buildings surround you.
+Compass: (1E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Giant-Ant-804 is here.
+>hea
+***
+Nothing happens!
+***
+Giant-Ant-804 has hit you with his Gold-Chunck!
+>
+>>> Turbobot@PlayMajorMUD.com logged on
+>***
+Type ? if you need assistance.
+>
+
+com g
+***
+You're ready to combat Giant-Ant-804!
+***
+Giant-Ant-804 has hit you with his Gold-Chunck!
+>
+wie he
+***
+You've hit Giant-Ant-804 with your Hell-Blade!
+***
+Giant-Ant-804's armour has just cracked down the center!
+>
+wie he
+***
+You've hit Giant-Ant-804 with your Hell-Blade!
+***
+You have slain Giant-Ant-804!
+Your experience points are increased by 2000!
+You collect 1480 Riblets and 6315 ions from the slain body.
+***
+
+A Gold-Chunck is falling from Giant-Ant-804's body!
+***
+A Knife is falling from Giant-Ant-804's body!
+***
+An Ion-Decay is falling from Giant-Ant-804's body!
+***
+An Ion-Pack is falling from Giant-Ant-804's body!
+***
+A Cigarette-Butt is falling from Giant-Ant-804's body!
+***
+A Nuclear-Waste is falling from Giant-Ant-804's body!
+***
+Giant-Ant-804 is crumbling to dust!
+>
+hea
+***
+Nothing happens!
+>
+>>> Turbobot@PlayMajorMUD.com logged off
+>***
+Type ? if you need assistance.
+>
+

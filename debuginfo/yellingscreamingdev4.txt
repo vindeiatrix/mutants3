@@ -1,0 +1,47 @@
+You're already in the 24th Century!
+***
+You hear faint sounds of yelling and screaming far to the east.
+***
+You hear faint sounds of footsteps far to the east.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cigarette‑Butt.
+***
+You see shadows to the east.
+***
+You hear loud sounds of footsteps to the east.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cigarette‑Butt.
+***
+You hear loud sounds of yelling and screaming to the east.
+***
+Titan‑of‑Chrome‑281 has just arrived from the east.
+> e
+Broken glass covers the road.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+An Ion‑Decay.
+***
+You hear loud sounds of yelling and screaming to the west.
+***
+Titan‑of‑Chrome‑281 has just arrived from the west.

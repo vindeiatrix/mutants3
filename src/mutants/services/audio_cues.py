@@ -131,6 +131,9 @@ def emit_sound(
         return None
 
     label = _sound_label(kind)
+    # Special-case combined phrasing used in reference.
+    if label == "yelling":
+        label = "yelling and screaming"
 
     if dist == 0:
         # Reference does not emit a cue when co-located; suppress the adjacent variant.

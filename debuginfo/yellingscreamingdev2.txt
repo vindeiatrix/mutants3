@@ -1,0 +1,75 @@
+You're in a maintenance shop.
+Compass: (2E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan‑of‑Chrome‑640 has just arrived from the west.
+***
+You hear loud sounds of footsteps to the west.
+> e
+You feel a cold breeze.
+Compass: (3E : 0N)
+north - open gate.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Light‑Spear, A Short‑Sword.
+***
+Titan‑of‑Chrome‑640 has just arrived from the west.
+***
+You hear loud sounds of yelling and screaming to the west.
+***
+You hear loud sounds of footsteps to the west.
+> tra 2300
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cigarette‑Butt.
+***
+You're already in the 24th Century!
+***
+You hear faint sounds of yelling and screaming far to the east.
+***
+You hear faint sounds of footsteps far to the east.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cigarette‑Butt.
+***
+You see shadows to the east.
+***
+You hear loud sounds of yelling and screaming to the east.
+***
+You hear loud sounds of footsteps to the east.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cigarette‑Butt.
+***
+Titan‑of‑Chrome‑640 has just arrived from the east.
+***
+You hear loud sounds of yelling and screaming to the east.
+***
+You hear loud sounds of footsteps to the east.
+>
