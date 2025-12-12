@@ -239,6 +239,11 @@ def _emit_arrival_and_noise(
 
     try:
         target_dir = force_direction or arrived_dir or direction
+        # Footsteps (audible within hearing range) even during flee.
+        try:
+            audio_cues.emit_sound(monster_pos, player_pos, kind="footsteps", ctx=ctx, movement=movement)
+        except Exception:
+            LOG.debug("Failed to emit flee footsteps", exc_info=True)
         if target_dir:
             bus.push("COMBAT/INFO", f"You hear loud sounds of yelling and screaming to the {target_dir}.")
             return
@@ -368,7 +373,11 @@ def attempt_pursuit(
 
     # Bound monsters (explicit target) should always choose to pursue, matching
     # the desired deterministic chase behaviour.
-    has_bound_target = bool(monster.get("target_player_id"))
+    state = monster.get("_ai_state") if isinstance(monster, Mapping) else None
+    pending_target = None
+    if isinstance(state, Mapping):
+        pending_target = state.get("pending_pursuit")
+    has_bound_target = bool(monster.get("target_player_id") or pending_target)
     if has_bound_target:
         roll = 0
         threshold = 100
@@ -438,6 +447,8 @@ def attempt_pursuit(
         return True
 
     meta.update(details)
+    # Avoid passing duplicate 'reason' twice via meta
+    meta.pop("reason", None)
     _log(ctx, monster, success=False, reason=details.get("reason", details.get("direct_reason", "blocked")), **meta)
     return False
 
@@ -537,10 +548,6 @@ def attempt_flee_step(
                                 )
                             if emitted is not None:
                                 emitted.add(dedupe_key)
-                            try:
-                                setattr(ctx, "_suppress_shadows_once", True)
-                            except Exception:
-                                pass
             except Exception:
                 LOG.debug("Failed to push flee leave cue", exc_info=True)
             try:
@@ -553,6 +560,16 @@ def attempt_flee_step(
                     movement = (int(step[0]) - int(sx), int(step[1]) - int(sy))
             except Exception:
                 movement = None
+            # Emit generic flee noise/footsteps even when not previously collocated.
+            try:
+                _emit_arrival_and_noise(ctx, monster_pos, away, movement=movement, flee_mode=True)
+            except Exception:
+                LOG.debug("Failed to emit flee footsteps", exc_info=True)
+            # Always suppress shadows for the next frame after a flee move.
+            try:
+                setattr(ctx, "_suppress_shadows_once", True)
+            except Exception:
+                pass
             # If the monster just moved into the player's tile, emit arrival direction.
             monster_pos = combat_loot.coerce_pos(monster_pos)
             player_pos = combat_loot.coerce_pos(away)

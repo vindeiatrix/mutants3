@@ -24,6 +24,7 @@ from mutants.services.monster_ai import tracking as tracking_mod
 from mutants.services.monster_ai.pursuit import attempt_pursuit, attempt_flee_step
 from mutants.debug import turnlog
 from mutants.ui import item_display, textutils
+from mutants.services import audio_cues
 
 LOG = logging.getLogger(__name__)
 
@@ -1294,6 +1295,10 @@ def _pursue_action(
 
     target_id = _sanitize_player_id(monster.get("target_player_id"))
     if not target_id:
+        state = monster.get("_ai_state") if isinstance(monster, Mapping) else None
+        if isinstance(state, Mapping):
+            target_id = _sanitize_player_id(state.get("bound_player_id"))
+    if not target_id:
         return {"ok": False, "reason": "no_target"}
 
     target_pos, target_collocated = tracking_mod.get_target_position(monster, target_id)
@@ -1467,6 +1472,65 @@ def execute_random_action(monster: Any, ctx: Any, *, rng: Any | None = None, cas
     if flee_mode and pursuit_target is not None:
         # Discard pending pursuits while fleeing.
         pursuit_target = None
+    # Bound monsters should always advance toward their target, regardless of distance.
+    if not flee_mode and not _is_collocated(monster, ctx):
+        target_id = _sanitize_player_id(monster.get("target_player_id"))
+        if not target_id:
+            state = monster.get("_ai_state") if isinstance(monster, Mapping) else None
+            if isinstance(state, Mapping):
+                target_id = _sanitize_player_id(state.get("bound_player_id"))
+        target_pos = None
+        if target_id:
+            target_pos, _ = tracking_mod.get_target_position(monster, target_id)
+        if target_pos is None:
+            # Try cached position for the active player even if target_id is unset.
+            player_state = ctx.get("player_state") if isinstance(ctx, Mapping) else None
+            active_player_id = None
+            try:
+                state, active = pstate.get_active_pair(player_state)
+                active_player_id = _sanitize_player_id((active or {}).get("id")) if isinstance(active, Mapping) else None
+            except Exception:
+                active_player_id = None
+            if active_player_id:
+                target_pos, _ = tracking_mod.get_target_position(monster, active_player_id)
+        if target_pos is None:
+            target_pos = pursuit_target
+        # Fall back to the player's current position if everything else failed.
+        if target_pos is None:
+            player_state = ctx.get("player_state") if isinstance(ctx, Mapping) else None
+            try:
+                state, active = pstate.get_active_pair(player_state)
+                target_pos = pstate.canonical_player_pos(active or state)
+            except Exception:
+                target_pos = None
+        # As a last resort, chase the live player's current position even if not cached.
+        if target_pos is None:
+            try:
+                year, px, py = pstate.canonical_player_pos(ctx.get("player_state"))
+                target_pos = (int(year), int(px), int(py))
+            except Exception:
+                target_pos = None
+        if target_pos is not None:
+            moved = attempt_pursuit(monster, target_pos, random_obj, ctx=ctx)
+            if not moved:
+                mpos = combat_loot.coerce_pos(monster.get("pos"))
+                tpos = combat_loot.coerce_pos(target_pos)
+                if mpos and tpos and int(mpos[0]) == int(tpos[0]):
+                    mx, my = int(mpos[1]), int(mpos[2])
+                    tx, ty = int(tpos[1]), int(tpos[2])
+                    step_x = mx + (1 if tx > mx else -1 if tx < mx else 0)
+                    step_y = my + (1 if ty > my else -1 if ty < my else 0)
+                    if step_x != mx or step_y != my:
+                        monster["pos"] = [int(mpos[0]), step_x, step_y]
+                        monsters_state._refresh_monster_derived(monster)
+                        try:
+                            audio_cues.emit_sound(monster.get("pos"), tpos, kind="footsteps", ctx=ctx, movement=(step_x - mx, step_y - my), once_per_frame=False)
+                        except Exception:
+                            LOG.debug("Failed to emit forced pursue footsteps", exc_info=True)
+                        moved = True
+            if moved:
+                _mark_monsters_dirty(ctx)
+                return {"ok": True, "pursued": True, "stop_turn": True}
     if pursuit_target is not None:
         success = attempt_pursuit(monster, pursuit_target, random_obj, ctx=ctx)
         if success:

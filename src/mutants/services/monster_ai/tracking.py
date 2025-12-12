@@ -162,7 +162,11 @@ def update_target_positions(
 
     for monster in _iter_monsters(monsters):
         target = _normalize_player_id(monster.get("target_player_id"))
-        if target != normalized_player:
+        bound = None
+        state = monster.get("_ai_state") if isinstance(monster, Mapping) else None
+        if isinstance(state, Mapping):
+            bound = _normalize_player_id(state.get("bound_player_id"))
+        if target != normalized_player and bound != normalized_player:
             continue
         if record_target_position(monster, normalized_player, normalized_pos):
             monster_ident = _monster_id(monster)

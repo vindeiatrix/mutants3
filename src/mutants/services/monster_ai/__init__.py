@@ -8,6 +8,8 @@ from mutants.services import player_state as pstate
 from mutants.debug import turnlog
 
 from mutants.services.combat_config import CombatConfig
+from mutants.services import monsters_state
+from . import pursuit
 
 from .wake import should_wake
 from . import tracking as tracking_mod
@@ -254,8 +256,30 @@ def _iter_targeted_monsters(
         if not isinstance(entry, Mapping):
             continue
         target = _normalize_id(entry.get("target_player_id"))
-        if target != player_id:
-            continue
+        bound_id = None
+        state = entry.get("_ai_state") if isinstance(entry, Mapping) else None
+        if isinstance(state, Mapping):
+            bound_id = _normalize_id(state.get("bound_player_id"))
+        if target != player_id and bound_id != player_id:
+            state = entry.get("_ai_state") if isinstance(entry, Mapping) else None
+            pending = None
+            positions_map = None
+            if isinstance(state, Mapping):
+                pending = state.get("pending_pursuit")
+                positions_map = state.get("target_positions")
+            pending_pos = _normalize_pos(pending)
+            # If the monster is explicitly pursuing this player, or has a cached
+            # target position for this player, include it even when the target id
+            # is temporarily unset (e.g., long-distance pursuit after travel).
+            if pending_pos is None or int(pending_pos[0]) != int(year):
+                has_cached_target = False
+                if isinstance(positions_map, Mapping):
+                    cached = positions_map.get(player_id)
+                    if isinstance(cached, Mapping):
+                        cached_pos = _normalize_pos(cached.get("pos"))
+                        has_cached_target = cached_pos is not None and int(cached_pos[0]) == int(year)
+                if not has_cached_target:
+                    continue
         pos = _normalize_pos(entry.get("pos"))
         if pos is None or int(pos[0]) != int(year):
             continue
@@ -332,6 +356,40 @@ def on_player_command(ctx: Any, *, token: str, resolved: str | None, arg: str | 
 
     processed: set[str] = set()
 
+    def _force_bound_pursuit_step(monster: MutableMapping[str, Any]) -> bool:
+        """Deterministically advance a bound monster one step toward the player."""
+        mon_pos = _normalize_pos(monster.get("pos"))
+        if mon_pos is None or int(mon_pos[0]) != int(pos[0]):
+            return False
+        if (int(mon_pos[1]), int(mon_pos[2])) == (int(pos[1]), int(pos[2])):
+            return False
+        moved = False
+        try:
+            moved = pursuit.attempt_pursuit(monster, pos, rng, ctx=ctx, config=config)
+        except Exception:
+            moved = False
+        if not moved:
+            try:
+                mx, my = int(mon_pos[1]), int(mon_pos[2])
+                tx, ty = int(pos[1]), int(pos[2])
+                step_x = mx + (1 if tx > mx else -1 if tx < mx else 0)
+                step_y = my + (1 if ty > my else -1 if ty < my else 0)
+                if (step_x, step_y) != (mx, my):
+                    monster["pos"] = [int(pos[0]), step_x, step_y]
+                    try:
+                        monsters_state._refresh_monster_derived(monster)
+                    except Exception:
+                        pass
+                    moved = True
+            except Exception:
+                moved = False
+        if moved and callable(mark_dirty):
+            try:
+                mark_dirty()
+            except Exception:
+                pass
+        return moved
+
     def _process_monster(monster: Mapping[str, Any], *, allow_target_roll: bool, require_wake: bool) -> None:
         target = _normalize_id(monster.get("target_player_id"))
         if target not in (player_id, None):
@@ -344,6 +402,18 @@ def on_player_command(ctx: Any, *, token: str, resolved: str | None, arg: str | 
         if int(mon_pos[0]) != int(year):
             return
         collocated = mon_pos == pos
+        # Bind to the active player the first time we share a tile so pursuit persists after separation.
+        if collocated and isinstance(monster, MutableMapping):
+            try:
+                monster["target_player_id"] = player_id
+                state_block = _ensure_ai_state(monster)
+                state_block["bound_player_id"] = player_id
+                state_block["ever_collocated"] = True
+                state_block["last_collocated_tick"] = int(getattr(turnlog, "tick", lambda *_: 1)(ctx))
+                if callable(mark_dirty):
+                    mark_dirty()
+            except Exception:
+                pass
 
         if (
             not collocated
@@ -414,9 +484,19 @@ def on_player_command(ctx: Any, *, token: str, resolved: str | None, arg: str | 
         _log_tick(ctx, monster, credits)
         if credits <= 0:
             return
+        if credits <= 0:
+            return
 
         cast_guard = {"cast_used": False}
         for _ in range(credits):
+            # Bound pursuit: if not collocated and bound/targeted to this player, spend this tick moving one step.
+            if not collocated:
+                state_block = monster.get("_ai_state") if isinstance(monster, Mapping) else None
+                bound_id = _normalize_id(state_block.get("bound_player_id")) if isinstance(state_block, Mapping) else None
+                target_id_safe = _normalize_id(monster.get("target_player_id"))
+                if bound_id == player_id or target_id_safe == player_id:
+                    _force_bound_pursuit_step(monster)
+                    break
             try:
                 result = actions_mod.execute_random_action(monster, ctx, rng=rng, cast_guard=cast_guard)
                 if isinstance(result, Mapping) and result.get("stop_turn"):
