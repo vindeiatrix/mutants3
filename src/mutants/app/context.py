@@ -350,14 +350,20 @@ def render_frame(ctx: Dict[str, Any]) -> None:
     if ctx.pop("_suppress_shadows_once", False):
         vm = dict(vm)
         vm["shadows"] = []
-    cues = audio_cues.drain(ctx)
-    if cues:
+    shadow_hint = ctx.pop("_shadow_hint_once", None)
+    if shadow_hint:
         vm = dict(vm)
-        existing = list(vm.get("cues_lines") or [])
-        existing.extend(cues)
-        vm["cues_lines"] = existing
-
+        vm["shadows"] = list(shadow_hint)
+    cues = audio_cues.drain(ctx)
     events = ctx["feedback_bus"].drain()
+    if cues:
+        cue_events = [{"text": c} for c in cues]
+        events.extend(cue_events)
+    # Process system/arrival cues after movement audio by reordering so arrival comes last.
+    if events:
+        arrivals = [ev for ev in events if isinstance(ev, Mapping) and ev.get("kind") == "COMBAT/INFO" and "arrived from" in str(ev.get("text", ""))]
+        others = [ev for ev in events if ev not in arrivals]
+        events = others + arrivals
     lines = ctx["renderer"](
         vm,
         feedback_events=events,

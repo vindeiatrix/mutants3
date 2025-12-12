@@ -1,0 +1,1105 @@
+ZAAAPPPPP!! You've been sent to the year 2300 A.D.
+> debug hp 232323
+***
+Set HP for Mage to 232323 / 232323.
+> debug ions 232323
+***
+Set ions for Mage to 232323.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cigarette‑Butt.
+> stat
+***
+Name: Mage / Mutant Mage
+Exhaustion : 0
+Str:  18    Int:  23   Wis:  20
+Dex:  16    Con:  15   Cha:  20
+Hit Points  : 232323 / 232323
+Exp. Points : 0      Level: 1
+Riblets     : 0
+Ions        : 232323
+Wearing Armor : None  Armour Class: 1  (Dex bonus: +1, Armour: +0)
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D. : 2300
+***
+You are carrying the following items:  (Total Weight: 0 LB's)
+Nothing.
+> debug ions 23232323
+***
+Set ions for Mage to 23232323.
+> stat
+***
+Name: Mage / Mutant Mage
+Exhaustion : 0
+Str:  18    Int:  23   Wis:  20
+Dex:  16    Con:  15   Cha:  20
+Hit Points  : 232323 / 232323
+Exp. Points : 0      Level: 1
+Riblets     : 0
+Ions        : 23232323
+Wearing Armor : None  Armour Class: 1  (Dex bonus: +1, Armour: +0)
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D. : 2300
+***
+You are carrying the following items:  (Total Weight: 0 LB's)
+Nothing.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cigarette‑Butt.
+> debug monster t
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cigarette‑Butt.
+***
+Titan-of-Chrome-674 is here.
+***
+Spawned Titan‑of‑Chrome‑674 at your location.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cigarette‑Butt.
+***
+Titan-of-Chrome-674 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+***
+Titan‑of‑Chrome‑674 picks up Cigarette‑Butt.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+***
+Titan‑of‑Chrome‑674 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+***
+Titan‑of‑Chrome‑674 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+***
+Titan‑of‑Chrome‑674 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+***
+Titan‑of‑Chrome‑674 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+***
+Titan‑of‑Chrome‑674 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+***
+Titan‑of‑Chrome‑674 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+***
+Titan‑of‑Chrome‑674 has hit you with his Cigarette‑Butt!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+***
+Titan‑of‑Chrome‑674 hums a battle hymn.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+***
+Titan‑of‑Chrome‑674 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+***
+Titan‑of‑Chrome‑674 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+***
+Titan‑of‑Chrome‑674 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+***
+Titan‑of‑Chrome‑674 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+***
+Titan‑of‑Chrome‑674 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+***
+Titan‑of‑Chrome‑674 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+***
+Titan‑of‑Chrome‑674 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+***
+Titan‑of‑Chrome‑674 has hit you with his Cigarette‑Butt!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+***
+Titan‑of‑Chrome‑674 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+***
+Titan‑of‑Chrome‑674 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+***
+Titan‑of‑Chrome‑674 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+***
+Titan‑of‑Chrome‑674 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+***
+Titan‑of‑Chrome‑674 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+***
+Titan‑of‑Chrome‑674 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+***
+Titan‑of‑Chrome‑674 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+***
+Titan‑of‑Chrome‑674 is looking awfully sad.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+***
+Titan‑of‑Chrome‑674 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+***
+Titan‑of‑Chrome‑674 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+***
+Titan‑of‑Chrome‑674 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+***
+Titan‑of‑Chrome‑674 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+***
+Titan‑of‑Chrome‑674 looks at you.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+***
+Titan‑of‑Chrome‑674 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+***
+Titan‑of‑Chrome‑674 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+***
+Titan‑of‑Chrome‑674 is looking awfully sad.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+***
+Titan‑of‑Chrome‑674 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+***
+Titan‑of‑Chrome‑674 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+***
+Titan‑of‑Chrome‑674 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+***
+Titan‑of‑Chrome‑674 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+***
+Titan‑of‑Chrome‑674 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+***
+Titan‑of‑Chrome‑674 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+***
+Titan‑of‑Chrome‑674 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+***
+Titan‑of‑Chrome‑674 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+***
+Titan‑of‑Chrome‑674 has hit you with his Cigarette‑Butt!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+***
+Titan‑of‑Chrome‑674 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+***
+Titan‑of‑Chrome‑674 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+***
+Titan‑of‑Chrome‑674 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+***
+Titan‑of‑Chrome‑674 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+***
+Titan‑of‑Chrome‑674 hums a battle hymn.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+***
+Titan‑of‑Chrome‑674 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+***
+Titan‑of‑Chrome‑674 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+***
+Titan‑of‑Chrome‑674 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+***
+Titan‑of‑Chrome‑674 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+***
+Titan‑of‑Chrome‑674 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.
+***
+Titan‑of‑Chrome‑674 has hit you with his Hydraulic‑Slam!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-674 is here.

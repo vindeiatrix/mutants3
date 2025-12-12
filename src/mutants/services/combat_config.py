@@ -63,9 +63,9 @@ class CombatConfig:
     convert_pct: int = 30
     low_ion_pct: int = 70
     cast_pct: int = 1
-    attack_pct: int = 45
+    attack_pct: int = 38
     pickup_pct: int = 25
-    emote_pct: int = 8
+    emote_pct: int = 6
     spell_cost: int = 8
     spell_success_pct: int = 75
     cracked_pickup_bonus: int = 10

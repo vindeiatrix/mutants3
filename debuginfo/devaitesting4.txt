@@ -1,0 +1,3037 @@
+Launching game (SQLite backend)...
+Mutants — classic BBS vibes.  Type 'help' for commands; 'theme mono' for no color.
+
+ 1. Mutant Thief    Level: 1   Year: 2000  (0 0)
+ 2. Mutant Priest   Level: 1   Year: 2000  (0 0)
+ 3. Mutant Wizard   Level: 1   Year: 2000  (0 0)
+ 4. Mutant Warrior  Level: 1   Year: 2200  (0 0)
+ 5. Mutant Mage     Level: 1   Year: 2000  (0 0)
+
+Type BURY [class number] to reset a player. Type X to exit.
+***
+Select (Bury, 1-5, ?) bury all
+Player reset.
+ 1. Mutant Thief    Level: 1   Year: 2000  (0 0)
+ 2. Mutant Priest   Level: 1   Year: 2000  (0 0)
+ 3. Mutant Wizard   Level: 1   Year: 2000  (0 0)
+ 4. Mutant Warrior  Level: 1   Year: 2000  (0 0)
+ 5. Mutant Mage     Level: 1   Year: 2000  (0 0)
+
+Type BURY [class number] to reset a player. Type X to exit.
+***
+Select (Bury, 1-5, ?) 4
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+> tra 2200
+***
+ZAAAPPPPP!! You've been sent to the year 2200 A.D.
+> debug hp 23232323
+***
+Set HP for Warrior to 23232323 / 23232323.
+> debug monster t
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-830 is here.
+***
+Spawned Titan‑of‑Chrome‑830 at your location.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-830 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-830 is here.
+***
+Titan‑of‑Chrome‑830 has hit you with his Hydraulic‑Fist!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-830 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-830 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-830 is here.
+>
+***
+Type ? if you need assistance.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-830 is here.
+***
+Titan‑of‑Chrome‑830 has hit you with his Hydraulic‑Fist!
+> debug add n
+***
+spawned 1 x nuclear_decay at (2200, 0, 0) [31f16d4941aa4508957d035e6e29856c]
+***
+Titan‑of‑Chrome‑830 has hit you with his Hydraulic‑Fist!
+> get n
+***
+You pick up the Nuclear‑Decay.
+> com t
+***
+You ready yourself against Titan‑of‑Chrome‑830.
+***
+Titan‑of‑Chrome‑830 has hit you with his Hydraulic‑Fist!
+> wie n
+***
+You ready the Nuclear‑Decay for combat.
+***
+You strike Titan‑of‑Chrome‑830 for 69 damage.
+***
+Titan‑of‑Chrome‑830 yells: Get away from me!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan‑of‑Chrome‑830 has just left north
+***
+You hear loud sounds of yelling and screaming to the north.
+***
+You hear loud sounds of footsteps to the north.
+> n
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-830 is here.
+***
+Titan‑of‑Chrome‑830 yells: Get away from me!
+> wie n
+***
+You ready the Nuclear‑Decay for combat.
+***
+You strike Titan‑of‑Chrome‑830 for 76 damage.
+***
+You have slain Titan‑of‑Chrome‑830!
+Your experience points are increased by 50!
+You collect 49 Riblets and 30893 ions from the slain body.
+***
+A Hydraulic‑Fist is falling from Titan‑of‑Chrome‑830's body!
+***
+A Power‑Core is falling from Titan‑of‑Chrome‑830's body!
+***
+A Skull is falling from Titan‑of‑Chrome‑830's body!
+***
+A Chrome‑Plating is falling from Titan‑of‑Chrome‑830's body!
+***
+Titan‑of‑Chrome‑830 is crumbling to dust!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Hydraulic‑Fist, A Power‑Core, A Skull, A Chrome‑Plating.
+> debug monster w
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Hydraulic‑Fist, A Power‑Core, A Skull, A Chrome‑Plating.
+***
+Waste-Mauler-388 is here.
+***
+Spawned Waste‑Mauler‑388 at your location.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Hydraulic‑Fist, A Power‑Core, A Skull, A Chrome‑Plating.
+***
+Waste-Mauler-388 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Hydraulic‑Fist, A Power‑Core, A Chrome‑Plating.
+***
+Waste-Mauler-388 is here.
+***
+Waste‑Mauler‑388 picks up Skull.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Hydraulic‑Fist, A Power‑Core, A Chrome‑Plating.
+***
+Waste-Mauler-388 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Hydraulic‑Fist, A Power‑Core, A Chrome‑Plating.
+***
+Waste-Mauler-388 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Hydraulic‑Fist, A Power‑Core, A Chrome‑Plating.
+***
+Waste-Mauler-388 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Power‑Core, A Chrome‑Plating.
+***
+Waste-Mauler-388 is here.
+***
+Waste‑Mauler‑388 picks up Hydraulic‑Fist.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Power‑Core, A Chrome‑Plating.
+***
+Waste-Mauler-388 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Power‑Core, A Chrome‑Plating.
+***
+Waste-Mauler-388 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Chrome‑Plating.
+***
+Waste-Mauler-388 is here.
+***
+Waste‑Mauler‑388 picks up Power‑Core.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Chrome‑Plating.
+***
+Waste-Mauler-388 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Chrome‑Plating.
+***
+Waste-Mauler-388 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Chrome‑Plating.
+***
+Waste-Mauler-388 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Chrome‑Plating.
+***
+Waste-Mauler-388 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+***
+Waste‑Mauler‑388 picks up Chrome‑Plating.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+***
+Waste‑Mauler‑388 has hit you with his Rebar‑Maul!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+***
+Waste‑Mauler‑388 has hit you with his Rebar‑Maul!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+***
+Waste‑Mauler‑388 has hit you with his Rebar‑Maul!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+***
+Waste‑Mauler‑388 has hit you with his Rebar‑Maul!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+***
+Waste‑Mauler‑388 has hit you with his Rebar‑Maul!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+***
+Waste‑Mauler‑388 has hit you with his Rebar‑Maul!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+***
+Waste‑Mauler‑388 has hit you with his Rebar‑Maul!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+***
+Waste‑Mauler‑388 has hit you with his Rebar‑Maul!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+***
+Waste‑Mauler‑388 has hit you with his Rebar‑Maul!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+***
+Waste‑Mauler‑388 has hit you with his Rebar‑Maul!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+***
+Waste‑Mauler‑388 has hit you with his Rebar‑Maul!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+***
+Waste‑Mauler‑388 has hit you with his Rebar‑Maul!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+***
+Waste‑Mauler‑388 has hit you with his Rebar‑Maul!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+***
+Waste‑Mauler‑388 has hit you with his Rebar‑Maul!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+***
+Waste‑Mauler‑388 has hit you with his Rebar‑Maul!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+***
+Waste‑Mauler‑388 has hit you with his Rebar‑Maul!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+***
+Waste‑Mauler‑388 has hit you with his Rebar‑Maul!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+***
+Waste‑Mauler‑388 has hit you with his Rebar‑Maul!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+***
+Waste‑Mauler‑388 is looking awfully sad.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+***
+Waste‑Mauler‑388 has hit you with his Rebar‑Maul!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+***
+Waste‑Mauler‑388 has hit you with his Rebar‑Maul!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+***
+Waste‑Mauler‑388 has hit you with his Rebar‑Maul!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-388 is here.
+> com w
+***
+You ready yourself against Waste‑Mauler‑388.
+***
+Waste‑Mauler‑388 is trying to make friends with you.
+> wie n
+***
+You ready the Nuclear‑Decay for combat.
+***
+You strike Waste‑Mauler‑388 for 61 damage.
+***
+Waste‑Mauler‑388 yells: Get away from me!
+> wie n
+***
+You ready the Nuclear‑Decay for combat.
+***
+You strike Waste‑Mauler‑388 for 76 damage.
+***
+You have slain Waste‑Mauler‑388!
+***
+Ground is full; Spiked‑Plating dissipates.
+***
+Ground is full; Chrome‑Plating dissipates.
+***
+Your experience points are increased by 28!
+You collect 5 Riblets and 10196 ions from the slain body.
+***
+A Rebar‑Maul is falling from Waste‑Mauler‑388's body!
+***
+A Radioactive‑Fang is falling from Waste‑Mauler‑388's body!
+***
+A Hydraulic‑Fist is falling from Waste‑Mauler‑388's body!
+***
+A Power‑Core is falling from Waste‑Mauler‑388's body!
+***
+A Skull is falling from Waste‑Mauler‑388's body!
+***
+A Skull is falling from Waste‑Mauler‑388's body!
+***
+Waste‑Mauler‑388 is crumbling to dust!
+> debug monster m
+***
+Unknown monster: m
+> debug monster g
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Rebar‑Maul, A Radioactive‑Fang, A Hydraulic‑Fist, A Power‑Core, A Skull,
+A Skull (1).
+***
+Gate-Warden-373 is here.
+***
+Spawned Gate‑Warden‑373 at your location.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Rebar‑Maul, A Radioactive‑Fang, A Hydraulic‑Fist, A Power‑Core, A Skull,
+A Skull (1).
+***
+Gate-Warden-373 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Rebar‑Maul, A Radioactive‑Fang, A Hydraulic‑Fist, A Power‑Core, A Skull,
+A Skull (1).
+***
+Gate-Warden-373 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Rebar‑Maul, A Radioactive‑Fang, A Hydraulic‑Fist, A Power‑Core, A Skull,
+A Skull (1).
+***
+Gate-Warden-373 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Rebar‑Maul, A Radioactive‑Fang, A Hydraulic‑Fist, A Power‑Core, A Skull,
+A Skull (1).
+***
+Gate-Warden-373 is here.
+***
+Gate‑Warden‑373 has hit you with his Gate‑Halberd!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Rebar‑Maul, A Radioactive‑Fang, A Hydraulic‑Fist, A Power‑Core, A Skull,
+A Skull (1).
+***
+Gate-Warden-373 is here.
+***
+Gate‑Warden‑373 has hit you with his Gate‑Halberd!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Radioactive‑Fang, A Hydraulic‑Fist, A Power‑Core, A Skull, A Skull (1).
+***
+Gate-Warden-373 is here.
+***
+Gate‑Warden‑373 picks up Rebar‑Maul.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Radioactive‑Fang, A Hydraulic‑Fist, A Power‑Core, A Skull, A Skull (1).
+***
+Gate-Warden-373 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Radioactive‑Fang, A Hydraulic‑Fist, A Power‑Core, A Skull, A Skull (1).
+***
+Gate-Warden-373 is here.
+***
+Gate‑Warden‑373 has hit you with his Gate‑Halberd!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Radioactive‑Fang, A Hydraulic‑Fist, A Power‑Core, A Skull, A Skull (1).
+***
+Gate-Warden-373 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Radioactive‑Fang, A Hydraulic‑Fist, A Power‑Core, A Skull, A Skull (1).
+***
+Gate-Warden-373 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Radioactive‑Fang, A Hydraulic‑Fist, A Power‑Core, A Skull, A Skull (1).
+***
+Gate-Warden-373 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Radioactive‑Fang, A Hydraulic‑Fist, A Power‑Core, A Skull, A Skull (1).
+***
+Gate-Warden-373 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Radioactive‑Fang, A Hydraulic‑Fist, A Power‑Core, A Skull, A Skull (1).
+***
+Gate-Warden-373 is here.
+***
+Gate‑Warden‑373 bounces on their heels.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Radioactive‑Fang, A Hydraulic‑Fist, A Power‑Core, A Skull, A Skull (1).
+***
+Gate-Warden-373 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Radioactive‑Fang, A Hydraulic‑Fist, A Power‑Core, A Skull, A Skull (1).
+***
+Gate-Warden-373 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Radioactive‑Fang, A Hydraulic‑Fist, A Power‑Core, A Skull, A Skull (1).
+***
+Gate-Warden-373 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Radioactive‑Fang, A Hydraulic‑Fist, A Power‑Core, A Skull, A Skull (1).
+***
+Gate-Warden-373 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Radioactive‑Fang, A Hydraulic‑Fist, A Power‑Core, A Skull, A Skull (1).
+***
+Gate-Warden-373 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Radioactive‑Fang, A Hydraulic‑Fist, A Power‑Core, A Skull.
+***
+Gate-Warden-373 is here.
+***
+Gate‑Warden‑373 picks up Skull.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Radioactive‑Fang, A Hydraulic‑Fist, A Power‑Core, A Skull.
+***
+Gate-Warden-373 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Radioactive‑Fang, A Hydraulic‑Fist, A Power‑Core.
+***
+Gate-Warden-373 is here.
+***
+Gate‑Warden‑373 picks up Skull.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Radioactive‑Fang, A Power‑Core.
+***
+Gate-Warden-373 is here.
+***
+Gate‑Warden‑373 picks up Hydraulic‑Fist.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Radioactive‑Fang, A Power‑Core.
+***
+Gate-Warden-373 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Radioactive‑Fang.
+***
+Gate-Warden-373 is here.
+***
+Gate‑Warden‑373 picks up Power‑Core.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Radioactive‑Fang.
+***
+Gate-Warden-373 is here.
+***
+Gate‑Warden‑373 has hit you with his Gate‑Halberd!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Radioactive‑Fang.
+***
+Gate-Warden-373 is here.
+***
+Gate‑Warden‑373 has hit you with his Gate‑Halberd!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+***
+Gate‑Warden‑373 picks up Radioactive‑Fang.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+***
+Gate‑Warden‑373 has hit you with his Gate‑Halberd!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+***
+Gate‑Warden‑373 has hit you with his Gate‑Halberd!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+***
+Gate‑Warden‑373 has hit you with his Gate‑Halberd!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+***
+Gate‑Warden‑373 is making strange noises.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+***
+Gate‑Warden‑373 has hit you with his Gate‑Halberd!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+***
+Gate‑Warden‑373 has hit you with his Gate‑Halberd!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+***
+Gate‑Warden‑373 has hit you with his Gate‑Halberd!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+***
+Gate‑Warden‑373 has hit you with his Gate‑Halberd!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+***
+Gate‑Warden‑373 has hit you with his Gate‑Halberd!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+***
+Gate‑Warden‑373 has hit you with his Gate‑Halberd!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+***
+Gate‑Warden‑373 has hit you with his Gate‑Halberd!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+***
+Gate‑Warden‑373 checks the horizon for danger.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+***
+Gate‑Warden‑373 has hit you with his Gate‑Halberd!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+***
+Gate‑Warden‑373 has hit you with his Gate‑Halberd!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+***
+Gate‑Warden‑373 has hit you with his Gate‑Halberd!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+***
+Gate‑Warden‑373 has hit you with his Gate‑Halberd!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+***
+Gate‑Warden‑373 has hit you with his Gate‑Halberd!
+> inv
+***
+You are carrying the following items:  (Total Weight: 50 LB's)
+A Nuclear‑Decay.
+***
+Gate‑Warden‑373 has hit you with his Gate‑Halberd!
+> debug add nuclear-r
+***
+spawned 1 x nuclear_rock at (2200, 0, 1) [00529267d8644799a9741cf50af6c39e]
+> get n
+***
+You pick up the Nuclear‑Rock.
+> con nuclear-d
+***
+The Nuclear‑Decay vanishes with a flash!
+You convert the Nuclear‑Decay into 85000 ions.
+> com g
+***
+You ready yourself against Gate‑Warden‑373.
+> wie n
+***
+You ready the Nuclear‑Rock for combat.
+***
+You strike Gate‑Warden‑373 for 6 damage.
+***
+Gate‑Warden‑373 has hit you with his Gate‑Halberd!
+> wie n
+***
+You ready the Nuclear‑Rock for combat.
+***
+You strike Gate‑Warden‑373 for 6 damage.
+> wie n
+***
+You ready the Nuclear‑Rock for combat.
+***
+You strike Gate‑Warden‑373 for 6 damage.
+> wie n
+***
+You ready the Nuclear‑Rock for combat.
+***
+You strike Gate‑Warden‑373 for 6 damage.
+***
+Gate‑Warden‑373 has hit you with his Gate‑Halberd!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+***
+Gate‑Warden‑373 restores 15 HP (1500 ions).
+***
+Gate‑Warden‑373's body is glowing!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+***
+A blinding white flash erupts around Gate‑Warden‑373!
+***
+Gate‑Warden‑373 converts loot worth 15000 ions.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+***
+Gate‑Warden‑373 has hit you with his Gate‑Halberd!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+***
+Gate‑Warden‑373 has hit you with his Gate‑Halberd!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+***
+Gate‑Warden‑373 has hit you with his Gate‑Halberd!
+> com g
+***
+You ready yourself against Gate‑Warden‑373.
+> wie n
+***
+You ready the Nuclear‑Rock for combat.
+***
+You strike Gate‑Warden‑373 for 6 damage.
+***
+Gate‑Warden‑373 restores 15 HP (1500 ions).
+***
+Gate‑Warden‑373's body is glowing!
+> wie n
+***
+You ready the Nuclear‑Rock for combat.
+***
+You strike Gate‑Warden‑373 for 6 damage.
+***
+Gate‑Warden‑373 has hit you with his Gate‑Halberd!
+> wie n
+***
+You ready the Nuclear‑Rock for combat.
+***
+You strike Gate‑Warden‑373 for 6 damage.
+> wie n
+***
+You ready the Nuclear‑Rock for combat.
+***
+You strike Gate‑Warden‑373 for 6 damage.
+***
+Gate‑Warden‑373 has hit you with his Gate‑Halberd!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+***
+Gate‑Warden‑373 restores 15 HP (1500 ions).
+***
+Gate‑Warden‑373's body is glowing!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+***
+Gate‑Warden‑373 has hit you with his Gate‑Halberd!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+***
+Gate‑Warden‑373 has hit you with his Gate‑Halberd!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+***
+Gate‑Warden‑373 has hit you with his Gate‑Halberd!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+***
+Gate‑Warden‑373 has hit you with his Gate‑Halberd!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+***
+Gate‑Warden‑373 has hit you with his Gate‑Halberd!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+***
+Gate‑Warden‑373 has hit you with his Gate‑Halberd!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+***
+Gate‑Warden‑373 has hit you with his Gate‑Halberd!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+***
+Gate‑Warden‑373 adjusts their helmet.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+***
+Gate‑Warden‑373 has hit you with his Gate‑Halberd!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+> com g
+***
+You ready yourself against Gate‑Warden‑373.
+***
+Gate‑Warden‑373 has hit you with his Gate‑Halberd!
+> wie n
+***
+You ready the Nuclear‑Rock for combat.
+***
+You strike Gate‑Warden‑373 for 6 damage.
+***
+Gate‑Warden‑373 is looking awfully sad.
+> wie n
+***
+You ready the Nuclear‑Rock for combat.
+***
+You strike Gate‑Warden‑373 for 6 damage.
+***
+Gate‑Warden‑373 has hit you with his Gate‑Halberd!
+> wie n
+***
+You ready the Nuclear‑Rock for combat.
+***
+You strike Gate‑Warden‑373 for 6 damage.
+> wie n
+***
+You ready the Nuclear‑Rock for combat.
+***
+You strike Gate‑Warden‑373 for 6 damage.
+***
+Gate‑Warden‑373 restores 15 HP (1500 ions).
+***
+Gate‑Warden‑373's body is glowing!
+> wie n
+***
+You ready the Nuclear‑Rock for combat.
+***
+You strike Gate‑Warden‑373 for 6 damage.
+***
+Gate‑Warden‑373 restores 15 HP (1500 ions).
+***
+Gate‑Warden‑373's body is glowing!
+> wie n
+***
+You ready the Nuclear‑Rock for combat.
+***
+You strike Gate‑Warden‑373 for 6 damage.
+> wie n
+***
+You ready the Nuclear‑Rock for combat.
+***
+You strike Gate‑Warden‑373 for 6 damage.
+> wie n
+***
+You ready the Nuclear‑Rock for combat.
+***
+You strike Gate‑Warden‑373 for 6 damage.
+***
+Gate‑Warden‑373 has hit you with his Gate‑Halberd!
+> wie n
+***
+You ready the Nuclear‑Rock for combat.
+***
+You strike Gate‑Warden‑373 for 6 damage.
+> wie n
+***
+You ready the Nuclear‑Rock for combat.
+***
+You strike Gate‑Warden‑373 for 6 damage.
+***
+Gate‑Warden‑373 restores 15 HP (1500 ions).
+***
+Gate‑Warden‑373's body is glowing!
+> wie n
+***
+You ready the Nuclear‑Rock for combat.
+***
+You strike Gate‑Warden‑373 for 6 damage.
+***
+Gate‑Warden‑373 restores 15 HP (1500 ions).
+***
+Gate‑Warden‑373's body is glowing!
+> wie n
+***
+You ready the Nuclear‑Rock for combat.
+***
+Your Broken‑Weapon cracks!
+***
+Gate‑Warden‑373's Broken‑Armour cracks!
+***
+You strike Gate‑Warden‑373 for 6 damage.
+***
+Gate‑Warden‑373 has dropped Broken‑Armour.
+> wie n
+***
+You're not carrying a n.
+***
+Gate‑Warden‑373 has hit you with his Gate‑Halberd!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Gate-Warden-373 is here.
+> debug add nuclear-d
+***
+spawned 1 x nuclear_decay at (2200, 0, 1) [f2e3897728dc409fa9839ad3ff08cb0c]
+***
+Gate‑Warden‑373 has hit you with his Gate‑Halberd!
+> get n
+***
+You pick up the Nuclear‑Decay.
+***
+Gate‑Warden‑373 restores 15 HP (1500 ions).
+***
+Gate‑Warden‑373's body is glowing!
+> wie n
+***
+You ready the Nuclear‑Decay for combat.
+***
+You strike Gate‑Warden‑373 for 79 damage.
+***
+Gate‑Warden‑373 yells: Get away from me!
+> wie n
+***
+You ready the Nuclear‑Decay for combat.
+***
+You strike Gate‑Warden‑373 for 79 damage.
+***
+You have slain Gate‑Warden‑373!
+***
+Ground is full; Skull dissipates.
+***
+Ground is full; Skull dissipates.
+***
+Ground is full; Skull dissipates.
+***
+Ground is full; Broken‑Armour dissipates.
+***
+Your experience points are increased by 40!
+You collect 11 Riblets and 17225 ions from the slain body.
+***
+A Gate‑Halberd is falling from Gate‑Warden‑373's body!
+***
+A Warden‑Seal is falling from Gate‑Warden‑373's body!
+***
+A Hydraulic‑Fist is falling from Gate‑Warden‑373's body!
+***
+A Power‑Core is falling from Gate‑Warden‑373's body!
+***
+A Radioactive‑Fang is falling from Gate‑Warden‑373's body!
+***
+Gate‑Warden‑373 is crumbling to dust!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Gate‑Halberd, A Warden‑Seal, A Hydraulic‑Fist, A Power‑Core,
+A Radioactive‑Fang.
+> stat
+***
+Name: Warrior / Mutant Warrior
+Exhaustion : 0
+Str:  23    Int:  12   Wis:  14
+Dex:  20    Con:  19   Cha:   9
+Hit Points  : 23232323 / 23232323
+Exp. Points : 118    Level: 1
+Riblets     : 65
+Ions        : 167314
+Wearing Armor : None  Armour Class: 2  (Dex bonus: +2, Armour: +0)
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D. : 2200
+***
+You are carrying the following items:  (Total Weight: 54 LB's)
+A Broken‑Weapon, A Nuclear‑Decay.
+> con brok
+***
+The Broken‑Weapon vanishes with a flash!
+You convert the Broken‑Weapon into 100 ions.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Gate‑Halberd, A Warden‑Seal, A Hydraulic‑Fist, A Power‑Core,
+A Radioactive‑Fang.
+> debug monster j
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Gate‑Halberd, A Warden‑Seal, A Hydraulic‑Fist, A Power‑Core,
+A Radioactive‑Fang.
+***
+Junkyard-Scrapper-653 is here.
+***
+Spawned Junkyard‑Scrapper‑653 at your location.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Gate‑Halberd, A Warden‑Seal, A Hydraulic‑Fist, A Power‑Core,
+A Radioactive‑Fang.
+***
+Junkyard-Scrapper-653 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Warden‑Seal, A Hydraulic‑Fist, A Power‑Core, A Radioactive‑Fang.
+***
+Junkyard-Scrapper-653 is here.
+***
+Junkyard‑Scrapper‑653 picks up Gate‑Halberd.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Warden‑Seal, A Hydraulic‑Fist, A Power‑Core, A Radioactive‑Fang.
+***
+Junkyard-Scrapper-653 is here.
+***
+A blinding white flash erupts around Junkyard‑Scrapper‑653!
+***
+Junkyard‑Scrapper‑653 converts loot worth 20000 ions.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Hydraulic‑Fist, A Power‑Core, A Radioactive‑Fang.
+***
+Junkyard-Scrapper-653 is here.
+***
+Junkyard‑Scrapper‑653 picks up Warden‑Seal.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Hydraulic‑Fist, A Power‑Core, A Radioactive‑Fang.
+***
+Junkyard-Scrapper-653 is here.
+***
+Junkyard‑Scrapper‑653 begins casting Arcane Burst...
+***
+Junkyard‑Scrapper‑653's spell fizzles out.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Hydraulic‑Fist, A Power‑Core, A Radioactive‑Fang.
+***
+Junkyard-Scrapper-653 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Hydraulic‑Fist, A Power‑Core, A Radioactive‑Fang.
+***
+Junkyard-Scrapper-653 is here.
+***
+A blinding white flash erupts around Junkyard‑Scrapper‑653!
+***
+Junkyard‑Scrapper‑653 converts loot worth 9000 ions.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Hydraulic‑Fist, A Power‑Core, A Radioactive‑Fang.
+***
+Junkyard-Scrapper-653 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Hydraulic‑Fist, A Power‑Core, A Radioactive‑Fang.
+***
+Junkyard-Scrapper-653 is here.
+***
+Junkyard‑Scrapper‑653 has hit you with his Rusty‑Shiv!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Power‑Core, A Radioactive‑Fang.
+***
+Junkyard-Scrapper-653 is here.
+***
+Junkyard‑Scrapper‑653 picks up Hydraulic‑Fist.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Power‑Core, A Radioactive‑Fang.
+***
+Junkyard-Scrapper-653 is here.
+***
+Junkyard‑Scrapper‑653 has hit you with his Rusty‑Shiv!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Power‑Core, A Radioactive‑Fang.
+***
+Junkyard-Scrapper-653 is here.
+***
+Junkyard‑Scrapper‑653 has hit you with his Rusty‑Shiv!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Power‑Core, A Radioactive‑Fang.
+***
+Junkyard-Scrapper-653 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Power‑Core, A Radioactive‑Fang.
+***
+Junkyard-Scrapper-653 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Power‑Core, A Radioactive‑Fang.
+***
+Junkyard-Scrapper-653 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Power‑Core, A Radioactive‑Fang.
+***
+Junkyard-Scrapper-653 is here.
+***
+Junkyard‑Scrapper‑653 has hit you with his Rusty‑Shiv!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Power‑Core, A Radioactive‑Fang.
+***
+Junkyard-Scrapper-653 is here.
+***
+Junkyard‑Scrapper‑653 has hit you with his Rusty‑Shiv!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Power‑Core, A Radioactive‑Fang.
+***
+Junkyard-Scrapper-653 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Radioactive‑Fang.
+***
+Junkyard-Scrapper-653 is here.
+***
+Junkyard‑Scrapper‑653 picks up Power‑Core.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Radioactive‑Fang.
+***
+Junkyard-Scrapper-653 is here.
+***
+Junkyard‑Scrapper‑653 has hit you with his Rusty‑Shiv!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Radioactive‑Fang.
+***
+Junkyard-Scrapper-653 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Radioactive‑Fang.
+***
+Junkyard-Scrapper-653 is here.
+***
+Junkyard‑Scrapper‑653 has hit you with his Rusty‑Shiv!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-653 is here.
+***
+Junkyard‑Scrapper‑653 picks up Radioactive‑Fang.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-653 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-653 is here.
+***
+Junkyard‑Scrapper‑653 has hit you with his Rusty‑Shiv!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-653 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-653 is here.
+***
+Junkyard‑Scrapper‑653 has hit you with his Rusty‑Shiv!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-653 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-653 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-653 is here.
+***
+Junkyard‑Scrapper‑653 has hit you with his Rusty‑Shiv!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-653 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-653 is here.
+***
+Junkyard‑Scrapper‑653 has hit you with his Rusty‑Shiv!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-653 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-653 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-653 is here.
+***
+Junkyard‑Scrapper‑653 has hit you with his Rusty‑Shiv!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-653 is here.
+> com j
+***
+You ready yourself against Junkyard‑Scrapper‑653.
+> wien
+***
+Unknown command "wien" (commands require at least 3 letters).
+> wie n
+***
+You ready the Nuclear‑Decay for combat.
+***
+You strike Junkyard‑Scrapper‑653 for 9 damage.
+***
+Junkyard‑Scrapper‑653 yells: Get away from me!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard‑Scrapper‑653 has just left north
+***
+You hear loud sounds of yelling and screaming to the north.
+***
+You hear loud sounds of footsteps to the north.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the north.
+***
+Junkyard‑Scrapper‑653 has just arrived from the north.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard‑Scrapper‑653 has just left east
+***
+You hear loud sounds of yelling and screaming to the east.
+***
+You hear loud sounds of footsteps to the east.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the east.
+***
+Junkyard‑Scrapper‑653 has just arrived from the east.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-653 is here.
+***
+Junkyard‑Scrapper‑653 restores 6 HP (150 ions).
+***
+Junkyard‑Scrapper‑653's body is glowing!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-653 is here.
+***
+Junkyard‑Scrapper‑653 restores 3 HP (150 ions).
+***
+Junkyard‑Scrapper‑653's body is glowing!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard‑Scrapper‑653 has just left north
+***
+You hear loud sounds of footsteps to the north.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the north.
+***
+You hear loud sounds of yelling and screaming to the north.
+***
+Junkyard‑Scrapper‑653 has just arrived from the north.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-653 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-653 is here.
+***
+Junkyard‑Scrapper‑653 yells: Get away from me!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-653 is here.
+***
+Junkyard‑Scrapper‑653 yells: Get away from me!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-653 is here.
+***
+Junkyard‑Scrapper‑653 is singing a strange song.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-653 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-653 is here.
+***
+Junkyard‑Scrapper‑653 yells: Get away from me!
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-653 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-653 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-653 is here.
