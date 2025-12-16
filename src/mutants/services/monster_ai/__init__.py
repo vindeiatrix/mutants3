@@ -404,18 +404,6 @@ def on_player_command(ctx: Any, *, token: str, resolved: str | None, arg: str | 
         if int(mon_pos[0]) != int(year):
             return
         collocated = mon_pos == pos
-        # Bind to the active player the first time we share a tile so pursuit persists after separation.
-        if collocated and isinstance(monster, MutableMapping):
-            try:
-                monster["target_player_id"] = player_id
-                state_block = _ensure_ai_state(monster)
-                state_block["bound_player_id"] = player_id
-                state_block["ever_collocated"] = True
-                state_block["last_collocated_tick"] = int(getattr(turnlog, "tick", lambda *_: 1)(ctx))
-                if callable(mark_dirty):
-                    mark_dirty()
-            except Exception:
-                pass
 
         if (
             not collocated
@@ -451,6 +439,7 @@ def on_player_command(ctx: Any, *, token: str, resolved: str | None, arg: str | 
                 config=config,
                 bus=bus,
                 woke=woke if require_wake else None,
+                ctx=ctx,
             )
             if callable(mark_dirty) and outcome.get("target_set"):
                 try:

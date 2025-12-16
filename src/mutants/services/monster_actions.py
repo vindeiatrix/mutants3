@@ -905,6 +905,7 @@ def roll_entry_target(
     config: CombatConfig | None = None,
     bus: Any | None = None,
     woke: bool | None = None,
+    ctx: Mapping[str, Any] | None = None,
 ) -> Dict[str, Any]:
     try:
         state, active = pstate.get_active_pair(player_state)
@@ -954,6 +955,16 @@ def roll_entry_target(
         return {"ok": True, "target_set": False, "taunt": None, "woke": False}
 
     monster["target_player_id"] = player_id
+    state_block = _ai_state(monster) if isinstance(monster, MutableMapping) else None
+    if isinstance(state_block, MutableMapping):
+        state_block["bound_player_id"] = player_id
+        state_block["ever_collocated"] = True
+        try:
+            state_block["last_collocated_tick"] = int(
+                getattr(turnlog, "tick", lambda *_: 1)(ctx)
+            )
+        except Exception:
+            state_block["last_collocated_tick"] = 1
     if player_pos is not None:
         tracking_mod.record_target_position(monster, player_id, player_pos)
 

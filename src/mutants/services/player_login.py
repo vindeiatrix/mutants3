@@ -150,6 +150,7 @@ def handle_login_entry(
             rng_obj,
             config=config if isinstance(config, CombatConfig) else None,
             bus=bus,
+            ctx=context,
         )
         results.append(outcome)
 
