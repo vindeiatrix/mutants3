@@ -95,23 +95,33 @@ def statistics_cmd(arg: str, ctx) -> None:
     def _line(label: str, value: str) -> str:
         return st.colorize_text(label, group=UG.DIR_OPEN) + st.colorize_text(value, group=UG.FEEDBACK_INFO)
 
+    # Align colons vertically across the single-column rows.
+    LABEL_COL = 14
+
+    def _pad_label(text: str) -> str:
+        return f"{text:<{LABEL_COL}}: "
+
+    def _attr(label: str, value: int | str) -> str:
+        # Single space between the label and value; pad value to keep columns tidy without leading blanks.
+        return _line(f"{label}: ", f"{value:<3}")
+
+    NAME_LABEL = "Name: "
     lines = [
-        _line("Name: ", f"{name} / Mutant {cls}"),
-        _line("Exhaustion : ", f"{exhaustion}"),
-        _line("Str: ", f"{STR:>3}") + "    " + _line("Int: ", f"{INT:>3}") + "   " + _line("Wis: ", f"{WIS:>3}"),
-        _line("Dex: ", f"{DEX:>3}") + "    " + _line("Con: ", f"{CON:>3}") + "   " + _line("Cha: ", f"{CHA:>3}"),
-        _line("Hit Points  : ", f"{hp_cur} / {hp_max}"),
-        _line("Exp. Points : ", f"{exp_pts:<6}") + " " + _line("Level: ", f"{level}"),
-        _line("Riblets     : ", f"{riblets}"),
-        _line("Ions        : ", f"{ions}"),
+        _line(NAME_LABEL, f"{name} / Mutant {cls}"),
+        _line(_pad_label("Exhaustion"), f"{exhaustion}"),
+        _attr("Str", STR) + "    " + _attr("Int", INT) + "     " + _attr("Wis", WIS),
+        _attr("Dex", DEX) + "    " + _attr("Con", CON) + "     " + _attr("Cha", CHA),
+        _line(_pad_label("Hit Points"), f"{hp_cur} / {hp_max}"),
+        _line(_pad_label("Exp. Points"), f"{exp_pts}") + "  " + _line("Level: ", f"{level}"),
+        _line(_pad_label("Riblets"), f"{riblets}"),
+        _line(_pad_label("Ions"), f"{ions}"),
     ]
     armour_class = armour_class_for_active(state)
     dex_bonus = dex_bonus_for_active(state)
     armour_bonus = armour_class_from_equipped(state)
     lines.append(
-        _line("Wearing Armor : ", f"{armour_status}  ")
-        + _line("Armour Class: ", f"{armour_class}  ")
-        + _line("(Dex bonus: +", f"{dex_bonus}, Armour: +{armour_bonus})")
+        _line(_pad_label("Wearing Armor"), f"{armour_status}  ")
+        + _line("Armour Class: ", f"{armour_class}")
     )
     ready_target_label = "NO ONE"
     ready_target_id = pstate.get_ready_target_for_active(state)
@@ -179,13 +189,11 @@ def statistics_cmd(arg: str, ctx) -> None:
                         ctx["player_state"] = pstate.load_state()
                 ready_target_label = "NO ONE"
                 ready_target_id = None
-    lines.append(_line("Ready to Combat: ", f"{ready_target_label}"))
+    lines.append(_line(_pad_label("Ready to Combat"), f"{ready_target_label}"))
     lines.append(_line("Readied Spell  : ", "No spell memorized."))
-    lines.append(_line("Year A.D. : ", f"{year}"))
+    lines.append(_line("Year A.D.      : ", f"{year}"))
 
-    bus.push("SYSTEM/OK", "\n".join(lines))
-
-    # Inline inventory block (single event) to avoid extra separators between lines.
+    # Inline inventory block into the same event to avoid separator lines between stats and bag.
     inv_state, inv_player = pstate.get_active_pair(state_hint)
     pstate.bind_inventory_to_active_class(inv_player)
     inventory = [str(i) for i in (inv_player.get("inventory") or []) if i]
@@ -218,8 +226,9 @@ def statistics_cmd(arg: str, ctx) -> None:
     if not display:
         inv_lines.append("Nothing.")
     else:
-        inv_lines.extend([st.colorize_text(ln, group=UG.ITEM_LINE) for ln in uwrap.wrap_list(display)])
-    bus.push("SYSTEM/OK", "\n".join(inv_lines))
+        inv_lines.extend([st.colorize_text(ln, group=UG.LOG_LINE) for ln in uwrap.wrap_list(display)])
+    combined = lines + [""] + inv_lines
+    bus.push("SYSTEM/OK", "\n".join(combined))
     st.set_ansi_enabled(prev_ansi)
 
 

@@ -67,7 +67,7 @@ def inv_cmd(arg: str, ctx):
         body_lines.append("Nothing.")
     else:
         for ln in uwrap.wrap_list(display):
-            body_lines.append(st.colorize_text(ln, group=UG.ITEM_LINE))
+            body_lines.append(st.colorize_text(ln, group=UG.LOG_LINE))
     block = "\n".join([header, *body_lines])
     bus.push("SYSTEM/OK", block)
 
