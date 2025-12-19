@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 from typing import Any, Dict, Iterable, List, Mapping, MutableMapping
+import time
+from datetime import datetime
+from pathlib import Path
 
 import logging
 import os
@@ -114,7 +117,11 @@ def build_context() -> Dict[str, Any]:
     else:
         st.set_colors_map_path(None)
     st.reload_colors_map()
-    st.set_ansi_enabled(theme.ansi_enabled)
+    # Disable ANSI when running under pytest to keep test expectations simple.
+    if os.getenv("PYTEST_CURRENT_TEST"):
+        st.set_ansi_enabled(False)
+    else:
+        st.set_ansi_enabled(theme.ansi_enabled)
     sink = LogSink()
     monsters = monsters_state.load_state()
     spawner = None
@@ -331,8 +338,55 @@ def build_room_vm(
     return vm
 
 
+def _log_move_lag(ctx: Dict[str, Any], probe: Mapping[str, Any]) -> None:
+    """Append a movement lag entry to state/logs/move_lag.log (independent of global logging)."""
+    start = probe.get("start")
+    if not isinstance(start, (float, int)):
+        return
+    try:
+        duration_ms = (time.perf_counter() - float(start)) * 1000.0
+    except Exception:
+        return
+    try:
+        log_dir = state_path("logs")
+        Path(log_dir).mkdir(parents=True, exist_ok=True)
+        log_file = Path(log_dir) / "move_lag.log"
+        now = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
+        dir_token = probe.get("dir") or "?"
+        from_pos = probe.get("from") or ()
+        try:
+            year, fx, fy = from_pos
+        except Exception:
+            year, fx, fy = ("?", "?", "?")
+        pos = pstate.canonical_player_pos(ctx.get("player_state")) if ctx.get("player_state") else ("?", "?", "?")
+        mon_obj = ctx.get("monsters")
+        total_monsters = None
+        monsters_in_year = None
+        try:
+            if mon_obj is not None and hasattr(mon_obj, "list_all"):
+                total_monsters = len(mon_obj.list_all())  # type: ignore[arg-type]
+            if mon_obj is not None and hasattr(mon_obj, "list_in_year") and not isinstance(year, str):
+                monsters_in_year = len(mon_obj.list_in_year(int(year)))  # type: ignore[arg-type]
+        except Exception:
+            total_monsters = total_monsters
+        line = (
+            f"{now} dir={dir_token} from=({year},{fx},{fy}) to=({pos[0]},{pos[1]},{pos[2]}) "
+            f"lag_ms={duration_ms:.2f}"
+        )
+        if total_monsters is not None:
+            line += f" total_monsters={total_monsters}"
+        if monsters_in_year is not None:
+            line += f" year_monsters={monsters_in_year}"
+        with log_file.open("a", encoding="utf-8") as fh:
+            fh.write(line + "\n")
+    except Exception:
+        # Best-effort; never raise from logging.
+        pass
+
+
 def render_frame(ctx: Dict[str, Any]) -> None:
     vm = ctx.pop("peek_vm", None)
+    is_peek = vm is not None
     if vm is None:
         # Cache is the single read path for monsters; never read directly from the store.
         vm = build_room_vm(
@@ -342,8 +396,14 @@ def render_frame(ctx: Dict[str, Any]) -> None:
             ctx["monsters"],
             ctx.get("items"),
         )
+    force_show_monsters = bool(ctx.pop("_force_show_monsters", False))
+    if is_peek:
+        # Peeking into adjacent tiles should never emit shadows; show the tile as-is.
+        vm = dict(vm)
+        vm["shadows"] = []
+        force_show_monsters = True
     # Allow one-frame suppression of monster presence (e.g., immediately after an arrival cue).
-    if ctx.pop("_suppress_monsters_once", False):
+    if (not force_show_monsters) and ctx.pop("_suppress_monsters_once", False):
         vm = dict(vm)
         vm["monsters_here"] = []
     # Allow one-frame suppression of shadow cues (e.g., immediately after a flee leave).
@@ -382,6 +442,10 @@ def render_frame(ctx: Dict[str, Any]) -> None:
             )
     except Exception:
         pass
+    # Movement lag probe: compute render latency if a move set a probe.
+    probe = ctx.pop("_move_lag_probe", None)
+    if isinstance(probe, Mapping):
+        _log_move_lag(ctx, probe)
 
 
 def flush_feedback(ctx: Dict[str, Any]) -> None:

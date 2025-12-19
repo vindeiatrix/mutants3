@@ -1,0 +1,408 @@
+(.venv) PS C:\Git2\mutants3> cd .\state\
+(.venv) PS C:\Git2\mutants3\state> del .\mutants.db
+(.venv) PS C:\Git2\mutants3\state> cd..
+(.venv) PS C:\Git2\mutants3> .\Run-Mutants.ps1
+Creating SQLite database file...
+Repo: C:\Git2\mutants3
+DB:   C:\Git2\mutants3\state\mutants.db
+ENV:  MUTANTS_STATE_BACKEND=sqlite; GAME_STATE_ROOT=C:\Git2\mutants3\state
+Obtaining file:///C:/Git2/mutants3
+  Installing build dependencies ... done
+  Checking if build backend supports build_editable ... done
+  Getting requirements to build editable ... done
+  Preparing editable metadata (pyproject.toml) ... done
+Building wheels for collected packages: mutants
+  Building editable for mutants (pyproject.toml) ... done
+  Created wheel for mutants: filename=mutants-0.0.0-0.editable-py3-none-any.whl size=2532 sha256=b996fad531d2aa3849d11859fd134c986553f4eb4cc6cf2fbcec51a364c7c0fc     
+  Stored in directory: C:\Users\michael.bowman\AppData\Local\Temp\pip-ephem-wheel-cache-7uolht9v\wheels\b8\16\79\15911a472ed15aea2aceb8a431ad64aff3d06b7f7f7fe0eff6   
+Successfully built mutants
+Installing collected packages: mutants
+  Attempting uninstall: mutants
+    Found existing installation: mutants 0.0.0
+    Uninstalling mutants-0.0.0:
+      Successfully uninstalled mutants-0.0.0
+Successfully installed mutants-0.0.0
+Schema ensured at C:\Git2\mutants3\state\mutants.db
+Importing items catalog into SQLite...
+Imported 45 items into C:\Git2\mutants3\state\mutants.db
+daily_litter: triggered
+Importing monsters catalog into SQLite...
+Imported 7 monster(s) into catalog at C:\Git2\mutants3\state\mutants.db
+Monsters currently present (rows: 0).
+
+Launching game (SQLite backend)...
+Mutants — classic BBS vibes.  Type 'help' for commands; 'theme mono' for no color.
+
+ 1. Mutant Thief    Level: 1   Year: 2000  (0 0)
+ 2. Mutant Priest   Level: 1   Year: 2000  (0 0)
+ 3. Mutant Wizard   Level: 1   Year: 2000  (0 0)
+ 4. Mutant Warrior  Level: 1   Year: 2300  (‑1 ‑1)
+ 5. Mutant Mage     Level: 1   Year: 2000  (0 0)
+
+Type BURY [class number] to reset a player. Type X to exit.
+***
+Select (Bury, 1-5, ?) bury all
+Player reset.
+ 1. Mutant Thief    Level: 1   Year: 2000  (0 0)
+ 2. Mutant Priest   Level: 1   Year: 2000  (0 0)
+ 3. Mutant Wizard   Level: 1   Year: 2000  (0 0)
+ 4. Mutant Warrior  Level: 1   Year: 2000  (0 0)
+ 5. Mutant Mage     Level: 1   Year: 2000  (0 0)
+
+Type BURY [class number] to reset a player. Type X to exit.
+***
+Select (Bury, 1-5, ?) 4
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+> tra 2300
+***
+ZAAAPPPPP!! You've been sent to the year 2300 A.D.
+> debug hp 2323232
+***
+Set HP for Warrior to 2323232 / 2323232.
+> debug add n
+***
+spawned 1 x nuclear_decay at (2300, 0, 0) [055e0216fe9847e1b228fc599fc3d564]
+> get n
+***
+You pick up the Nuclear‑Decay.
+> debug monster t
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-447 is here.
+***
+Spawned Titan‑of‑Chrome‑447 at your location.
+> w
+The street is cracked here.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the east.
+> look
+The street is cracked here.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the east.
+> look
+The street is cracked here.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the east.
+> look
+The street is cracked here.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the east.
+> look
+The street is cracked here.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the east.
+> look
+The street is cracked here.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the east.
+> look
+The street is cracked here.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the east.
+> look
+The street is cracked here.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the east.
+> e
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-447 is here.
+***
+You are surplus.
+***
+Titan‑of‑Chrome‑447 is getting ready to combat you!
+> w
+The street is cracked here.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the east.
+***
+Titan‑of‑Chrome‑447 has just arrived from the east.
+> e
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the west.
+***
+You hear loud sounds of yelling and screaming to the west.
+***
+Titan‑of‑Chrome‑447 has just arrived from the west.
+> w
+The street is cracked here.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the east.
+***
+You hear loud sounds of yelling and screaming to the east.
+***
+Titan‑of‑Chrome‑447 has just arrived from the east.
+> look we
+Broken lamp posts line the streets.
+Compass: (-2E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan‑of‑Chrome‑447 has hit you with his Hydraulic‑Fist!
+> look
+The street is cracked here.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-447 is here.
+> com t
+***
+You ready yourself against Titan‑of‑Chrome‑447.
+> wie n
+***
+You ready the Nuclear‑Decay for combat.
+***
+You strike Titan‑of‑Chrome‑447 for 69 damage.
+***
+Titan‑of‑Chrome‑447 yells: Get away from me!
+> look
+The street is cracked here.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-447 is here.
+***
+Titan‑of‑Chrome‑447 yells: Get away from me!
+> look
+The street is cracked here.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-447 is here.
+***
+Titan‑of‑Chrome‑447 yells: Get away from me!
+> look
+The street is cracked here.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-447 is here.
+***
+Titan‑of‑Chrome‑447 restores 14 HP (1350 ions).
+***
+Titan‑of‑Chrome‑447's body is glowing!
+> look
+The street is cracked here.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-447 is here.
+> look
+The street is cracked here.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan‑of‑Chrome‑447 has just left west
+***
+You hear loud sounds of footsteps to the west.
+***
+You hear loud sounds of yelling and screaming to the west.
+> look we
+Broken lamp posts line the streets.
+Compass: (-2E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the west.
+***
+Titan‑of‑Chrome‑447 has just arrived from the west.
+> look
+The street is cracked here.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan‑of‑Chrome‑447 has just left east
+***
+You hear loud sounds of yelling and screaming to the east.
+***
+You hear loud sounds of footsteps to the east.
+> look ea
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the east.
+***
+Titan‑of‑Chrome‑447 has just arrived from the east.
+> look
+The street is cracked here.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-447 is here.
+***
+Titan‑of‑Chrome‑447 has hit you with his Hydraulic‑Fist!
+> look
+The street is cracked here.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-447 is here.
+***
+Titan‑of‑Chrome‑447 yells: Get away from me!
+> look
+The street is cracked here.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-447 is here.
+***
+Titan‑of‑Chrome‑447 restores 14 HP (1350 ions).
+***
+Titan‑of‑Chrome‑447's body is glowing!
+> look
+The street is cracked here.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-447 is here.
+***
+Titan‑of‑Chrome‑447 restores 14 HP (1350 ions).
+***
+Titan‑of‑Chrome‑447's body is glowing!
+> look
+The street is cracked here.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-447 is here.
+> look
+The street is cracked here.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan‑of‑Chrome‑447 has just left west
+***
+You hear loud sounds of footsteps to the west.
+***
+You hear loud sounds of yelling and screaming to the west.
+> look
+The street is cracked here.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the west.
+***
+You hear loud sounds of yelling and screaming to the west.
+***
+Titan‑of‑Chrome‑447 has just arrived from the west.

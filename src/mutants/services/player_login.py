@@ -158,7 +158,9 @@ def handle_login_entry(
             try:
                 if monster_id and hasattr(monsters, "get"):
                     monsters.get(monster_id)  # type: ignore[attr-defined]
-                monsters.mark_dirty()  # type: ignore[attr-defined]
+                if hasattr(monsters, "mark_targeting"):
+                    monsters.mark_targeting(monster)  # type: ignore[attr-defined]
+                monsters.mark_dirty(monster_id)  # type: ignore[attr-defined]
             except Exception:
                 LOG.debug("Failed to mark monsters dirty after login target roll", exc_info=True)
 

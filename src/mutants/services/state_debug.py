@@ -21,7 +21,7 @@ _LOG_BACKUPS = 3
 def _debug_enabled() -> bool:
     raw = os.getenv("MUTANTS_STATE_DEBUG")
     if raw is None:
-        return True
+        return False
     token = raw.strip().lower()
     if token in {"0", "false", "off"}:
         return False

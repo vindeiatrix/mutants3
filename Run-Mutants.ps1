@@ -4,7 +4,8 @@
 #>
 
 param(
-    [string]$Years
+    [string]$Years,
+    [switch]$Logging
 )
 
 $ErrorActionPreference = "Stop"
@@ -35,6 +36,7 @@ if (!(Test-Path $DBPath)) {
 
 $env:MUTANTS_STATE_BACKEND = "sqlite"
 $env:GAME_STATE_ROOT = $StateDir
+$env:MUTANTS_LOGGING = $(if ($Logging) { "1" } else { "0" })
 
 Write-Host "Repo: $Repo"
 Write-Host "DB:   $DBPath"

@@ -12,6 +12,10 @@ class LogSink:
 
     def __init__(self, capacity: int = 200, file_path: str | Path | None = state_path("logs", "game.log")) -> None:
         self.capacity = capacity
+        logging_enabled = str(os.getenv("MUTANTS_LOGGING", "")).strip().lower() in {"1", "true", "yes", "on"}
+        # Respect global logging toggle: when disabled, skip file writes entirely.
+        if not logging_enabled:
+            file_path = None
         self.file_path = Path(file_path) if file_path else None
         self.buffer: List[str] = []
         if self.file_path:
@@ -26,8 +30,6 @@ class LogSink:
         if self.file_path:
             with open(self.file_path, "a", encoding="utf-8") as f:
                 f.write(line + "\n")
-                f.flush()
-                os.fsync(f.fileno())
 
     def handle(self, ev: Dict[str, str]) -> None:
         """Legacy shim: accept dicts as used by some commands."""

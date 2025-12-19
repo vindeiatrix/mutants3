@@ -5,6 +5,17 @@ from mutants.repl.loop import main
 
 
 def _setup_logging() -> None:
+    enable = str(os.getenv("MUTANTS_LOGGING", "")).strip().lower() in {"1", "true", "yes", "on"}
+    if not enable:
+        # Silence root logger and clear any default handlers when logging is disabled.
+        logging.disable(logging.CRITICAL)
+        root = logging.getLogger()
+        try:
+            root.handlers.clear()
+        except Exception:
+            root.handlers = []
+        return
+
     level = logging.DEBUG if os.getenv("WORLD_DEBUG") == "1" else logging.INFO
     log_dir = Path("state/logs")
     log_dir.mkdir(parents=True, exist_ok=True)

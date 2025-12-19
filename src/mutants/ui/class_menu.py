@@ -11,7 +11,7 @@ from mutants.services import player_reset, player_state as pstate
 LOG = logging.getLogger(__name__)
 
 
-ROW_FMT = "{idx:>2}. Mutant {cls:<7}  Level: {lvl:<2}  Year: {yr:<4}  ({x} {y})"
+ROW_FMT = "{idx:>2}. Mutant {cls:<7}  Level: {lvl:<2}  Year: {yr:<4}  ({x:>2} {y:>2})"
 
 
 def _coerce_pos(player) -> Tuple[int, int, int]:
@@ -73,12 +73,10 @@ def render_menu(ctx: dict) -> None:
     for i, class_name in enumerate(CLASS_ORDER, start=1):
         player = players_by_class.get(class_name, {})
         yr, x, y = _coerce_pos(player)
-        xs = str(int(x))
-        ys = str(int(y))
         lvl = int(player.get("level", 1) or 1)
         bus.push(
             "SYSTEM/OK",
-            ROW_FMT.format(idx=i, cls=class_name, lvl=lvl, yr=yr, x=xs, y=ys),
+            ROW_FMT.format(idx=i, cls=class_name, lvl=lvl, yr=yr, x=int(x), y=int(y)),
         )
     # Blank line between the list and the hint line.
     bus.push("SYSTEM/OK", "")

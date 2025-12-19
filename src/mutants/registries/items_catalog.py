@@ -28,6 +28,7 @@ from .sqlite_store import SQLiteConnectionManager
 
 DEFAULT_CATALOG_PATH = state_path("items", "catalog.json")
 FALLBACK_CATALOG_PATH = DEFAULT_CATALOG_PATH
+_CATALOG_CACHE: dict[str, "ItemsCatalog"] = {}
 
 DISALLOWED_ENCHANTABLE_FIELDS: Tuple[Tuple[str, str], ...] = (
     ("ranged", "ranged"),
@@ -333,6 +334,14 @@ def load_catalog(path: Path | str | None = None) -> ItemsCatalog:
         If any catalog entry violates invariants (missing flags, invalid ranges, etc.).
     """
 
+    global _CATALOG_CACHE
+    if _CATALOG_CACHE is None:
+        _CATALOG_CACHE = {}
+    key = str(path) if path is not None else "__default__"
+    cached = _CATALOG_CACHE.get(key)
+    if cached is not None:
+        return cached
+
     manager = SQLiteConnectionManager(path) if path is not None else SQLiteConnectionManager()
     items = _load_items_from_store(manager)
     _coerce_legacy_bools(items)
@@ -343,7 +352,9 @@ def load_catalog(path: Path | str | None = None) -> ItemsCatalog:
         for msg in errors:
             LOG.error(msg)
         raise ValueError("invalid catalog items")
-    return ItemsCatalog(items)
+    catalog = ItemsCatalog(items)
+    _CATALOG_CACHE[key] = catalog
+    return catalog
 
 
 def catalog_defaults(item_id: str) -> Dict[str, Any]:
@@ -441,16 +452,10 @@ def playable_years() -> List[int]:
     return dl._list_years(world_dir)
 
 
-_CATALOG_CACHE: ItemsCatalog | None = None
-
-
 def get() -> ItemsCatalog:
     """Return a cached :class:`ItemsCatalog` instance."""
 
-    global _CATALOG_CACHE
-    if _CATALOG_CACHE is None:
-        _CATALOG_CACHE = load_catalog()
-    return _CATALOG_CACHE
+    return load_catalog()
 
 
 def _spawnable_map(spawnables: Iterable[Dict[str, Any]]) -> Dict[str, Dict[str, Optional[int]]]:

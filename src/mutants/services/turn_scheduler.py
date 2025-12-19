@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import os
 import random
 from typing import TYPE_CHECKING, Any, Callable, Mapping, MutableMapping, Optional, Sequence
 
@@ -38,6 +39,20 @@ class TurnScheduler:
         else:
             self._status_manager = status_manager
         self._free_actions: list[Callable[[Any], None]] = []
+        try:
+            interval_raw = os.getenv("MUTANTS_MONSTER_SAVE_INTERVAL", "10")
+            interval = int(interval_raw)
+        except Exception:
+            interval = 10
+        self._monster_save_interval = max(1, interval)
+        self._monster_save_counter = 0
+        try:
+            p_interval_raw = os.getenv("MUTANTS_PLAYER_SAVE_INTERVAL", "5")
+            p_interval = int(p_interval_raw)
+        except Exception:
+            p_interval = 1
+        self._player_save_interval = max(1, p_interval)
+        self._player_save_counter = 0
 
     # Internal state helpers --------------------------------------------
     def _monster_id(self, monster: Mapping[str, Any] | None) -> str:
@@ -134,7 +149,9 @@ class TurnScheduler:
                     except Exception:
                         monsters = None
                 if monsters is not None and hasattr(monsters, "save"):
-                    monsters.save()
+                    self._monster_save_counter += 1
+                    if self._monster_save_counter % self._monster_save_interval == 0:
+                        monsters.save()
             except Exception:  # pragma: no cover - defensive
                 LOG.exception("Failed to flush caches at end of command")
             # End-of-command checkpoint: persist runtime player if dirty.
@@ -144,8 +161,10 @@ class TurnScheduler:
 
                 player = ensure_player_state(self._ctx)
                 if isinstance(player, dict) and player.get("_dirty"):
-                    pstate.save_player_state(self._ctx)
-                    player["_dirty"] = False
+                    self._player_save_counter += 1
+                    if self._player_save_counter % self._player_save_interval == 0:
+                        pstate.save_player_state(self._ctx)
+                        player["_dirty"] = False
             except Exception:  # pragma: no cover
                 LOG.exception("Failed to persist runtime player at end of command")
 

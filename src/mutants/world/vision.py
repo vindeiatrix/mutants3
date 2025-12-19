@@ -24,6 +24,7 @@ _DIRECTION_NAMES: dict[str, str] = {
 # classic BBS order with the diagonals grouped beside their parent direction.
 _DISPLAY_ORDER: tuple[str, ...] = ("E", "NE", "SE", "S", "SW", "W", "NW", "N")
 _DISPLAY_ORDER_INDEX = {direction: index for index, direction in enumerate(_DISPLAY_ORDER)}
+_CARDINAL_DIRECTIONS = {"N", "S", "E", "W"}
 
 # Build an alias table so that short-form, uppercase, lowercase, and long-form
 # strings all resolve to the same canonical direction token.
@@ -128,7 +129,8 @@ def adjacent_monster_directions(monsters: Any, player_pos: Sequence[int] | Mappi
         payload = raw
     else:
         payload = [raw]
-    return normalize_directions(payload)
+    normalized = normalize_directions(payload)
+    return [direction for direction in normalized if direction in _CARDINAL_DIRECTIONS]
 
 
 __all__ = [

@@ -750,6 +750,45 @@ class MonstersState:
         self._deleted_ids: set[str] = set()
         self._last_accessed_id: Optional[str] = None
         self._instances = instances or monsters_instances.load_monsters_instances(path)
+        self._pos_index: Dict[int, Dict[tuple[int, int], List[Dict[str, Any]]]] = {}
+        self._pos_index_dirty: bool = True
+        self._has_targeting: bool = any(
+            bool(
+                mon.get("target_player_id")
+                or (
+                    isinstance(mon.get("_ai_state"), Mapping)
+                    and mon.get("_ai_state", {}).get("bound_player_id")
+                )
+            )
+            for mon in monsters
+            if isinstance(mon, Mapping)
+        )
+        self._by_target: Dict[str, set[str]] = {}
+        self._statusful_count: int = 0
+        for mon in monsters:
+            if not isinstance(mon, Mapping):
+                continue
+            try:
+                pid = str(mon.get("target_player_id") or "").strip()
+                state = mon.get("_ai_state") if isinstance(mon, Mapping) else None
+                bound = ""
+                if isinstance(state, Mapping):
+                    bound = str(state.get("bound_player_id") or "").strip()
+                mid = str(mon.get("id") or mon.get("instance_id") or "")
+            except Exception:
+                pid = ""
+                bound = ""
+                mid = ""
+            if mid:
+                for pid_candidate in (pid, bound):
+                    if pid_candidate:
+                        self._by_target.setdefault(pid_candidate, set()).add(mid)
+            try:
+                statuses = mon.get("status_effects") if isinstance(mon, Mapping) else None
+                if isinstance(statuses, list) and statuses:
+                    self._statusful_count += 1
+            except Exception:
+                pass
 
     def _prepare_store_payload(self, monster: Mapping[str, Any]) -> Dict[str, Any]:
         payload = copy.deepcopy(dict(monster))
@@ -908,6 +947,140 @@ class MonstersState:
         # Cache is the authoritative read path during a session.
         return list(self._monsters)
 
+    def _rebuild_pos_index(self) -> None:
+        index: Dict[int, Dict[tuple[int, int], List[Dict[str, Any]]]] = {}
+        for mon in self._monsters:
+            pos = mon.get("pos")
+            if not (isinstance(pos, list) and len(pos) >= 3):
+                continue
+            try:
+                year, x, y = int(pos[0]), int(pos[1]), int(pos[2])
+            except Exception:
+                continue
+            by_year = index.setdefault(year, {})
+            by_year.setdefault((x, y), []).append(mon)
+        self._pos_index = index
+        self._pos_index_dirty = False
+
+    def list_in_year(self, year: int) -> List[Dict[str, Any]]:
+        """Return monsters whose ``pos`` year matches ``year`` (best-effort)."""
+        if self._pos_index_dirty:
+            self._rebuild_pos_index()
+        buckets = self._pos_index.get(int(year), {})
+        result: list[Dict[str, Any]] = []
+        for mons in buckets.values():
+            result.extend(mons)
+        return result
+
+    def _clear_target_index(self, monster_id: str, player_id: str | None = None) -> None:
+        if not monster_id:
+            return
+        if player_id:
+            bucket = self._by_target.get(player_id)
+            if bucket and monster_id in bucket:
+                bucket.discard(monster_id)
+                if not bucket:
+                    self._by_target.pop(player_id, None)
+            return
+        for pid in list(self._by_target.keys()):
+            bucket = self._by_target.get(pid)
+            if bucket and monster_id in bucket:
+                bucket.discard(monster_id)
+                if not bucket:
+                    self._by_target.pop(pid, None)
+
+    def mark_targeting(self, monster: Mapping[str, Any] | str | None = None) -> None:
+        """Hint that at least one monster is targeting a player to avoid scans."""
+        if monster is None:
+            self._has_targeting = True
+            return
+        if isinstance(monster, str):
+            self._has_targeting = True
+            return
+        try:
+            mid = str(monster.get("id") or monster.get("instance_id") or "").strip()
+            pid = str(monster.get("target_player_id") or "").strip()
+            state = monster.get("_ai_state") if isinstance(monster, Mapping) else None
+            bound = state.get("bound_player_id") if isinstance(state, Mapping) else None
+            if pid:
+                self._by_target.setdefault(pid, set()).add(mid)
+                self._has_targeting = True
+            elif bound:
+                self._by_target.setdefault(str(bound), set()).add(mid)
+                self._has_targeting = True
+        except Exception:
+            self._has_targeting = True
+
+    def list_targeting_player(self, player_id: str, *, year: Optional[int] = None) -> List[Dict[str, Any]]:
+        """Return monsters explicitly targeting/bound to ``player_id`` (optionally in ``year``)."""
+        pid = str(player_id).strip()
+        if not pid:
+            return []
+        if not self._has_targeting:
+            return []
+        candidates: list[Dict[str, Any]] = []
+        id_bucket = self._by_target.get(pid, set())
+        if id_bucket:
+            for mid in list(id_bucket):
+                mon = self._by_id.get(mid)
+                if not isinstance(mon, Mapping):
+                    continue
+                pos = mon.get("pos")
+                if year is not None:
+                    if not (isinstance(pos, list) and len(pos) >= 3):
+                        continue
+                    try:
+                        if int(pos[0]) != int(year):
+                            continue
+                    except Exception:
+                        continue
+                candidates.append(mon)
+        if candidates:
+            return candidates
+        # Fallback: defensive scan when index is empty/stale. If none are found,
+        # drop the targeting flag so future calls don't scan every monster.
+        result: list[Dict[str, Any]] = []
+        for mon in self._monsters:
+            pos = mon.get("pos")
+            if year is not None:
+                if not (isinstance(pos, list) and len(pos) >= 3):
+                    continue
+                try:
+                    if int(pos[0]) != int(year):
+                        continue
+                except Exception:
+                    continue
+            target = mon.get("target_player_id")
+            if isinstance(target, str) and target.strip() == pid:
+                result.append(mon)
+                continue
+            state = mon.get("_ai_state") if isinstance(mon, Mapping) else None
+            if isinstance(state, Mapping):
+                bound = state.get("bound_player_id")
+                if isinstance(bound, str) and bound.strip() == pid:
+                    result.append(mon)
+                    continue
+                pending = state.get("pending_pursuit")
+                pending_pos = None
+                try:
+                    pending_pos = combat_loot.coerce_pos(pending)
+                except Exception:
+                    pending_pos = None
+                if pending_pos is not None and (year is None or int(pending_pos[0]) == int(year)):
+                    result.append(mon)
+                    continue
+                positions_map = state.get("target_positions")
+                if isinstance(positions_map, Mapping):
+                    cached = positions_map.get(pid)
+                    if isinstance(cached, Mapping):
+                        cached_pos = combat_loot.coerce_pos(cached.get("pos"))
+                        if cached_pos is not None and (year is None or int(cached_pos[0]) == int(year)):
+                            result.append(mon)
+                            continue
+        if not result:
+            self._has_targeting = False
+        return result
+
     def list_adjacent_monsters(self, player_pos: Iterable[Any]) -> list[str]:
         """
         Return direction tokens (e.g., ``\"N\"``, ``\"SW\"``) for monsters that
@@ -924,57 +1097,36 @@ class MonstersState:
         except Exception:
             return []
 
+        if self._pos_index_dirty:
+            self._rebuild_pos_index()
+
+        buckets = self._pos_index.get(year, {})
+        offsets = [
+            ((0, -1), "N"),
+            ((0, 1), "S"),
+            ((1, 0), "E"),
+            ((-1, 0), "W"),
+        ]
+
         dirs: list[str] = []
-        for mon in self._monsters:
-            pos = mon.get("pos")
-            if not (isinstance(pos, list) and len(pos) >= 3):
-                continue
-            try:
-                ry, rx, ry2 = int(pos[0]), int(pos[1]), int(pos[2])
-            except Exception:
-                continue
-            try:
-                hp_block = mon.get("hp") if isinstance(mon.get("hp"), Mapping) else {}
-                hp_cur = int(hp_block.get("current", mon.get("hp_cur", 1)))
-                if hp_cur <= 0:
+        for (dx, dy), token in offsets:
+            bucket = buckets.get((px + dx, py + dy), [])
+            for mon in bucket:
+                try:
+                    hp_block = mon.get("hp") if isinstance(mon.get("hp"), Mapping) else {}
+                    hp_cur = int(hp_block.get("current", mon.get("hp_cur", 1)))
+                    if hp_cur <= 0:
+                        continue
+                except Exception:
                     continue
-            except Exception:
-                pass
-            if ry != year:
-                continue
-            dx = rx - px
-            dy = ry2 - py
-            if dx == 0 and dy == 0:
-                continue
-            if abs(dx) > 1 or abs(dy) > 1:
-                continue
-            if dx == 0 and dy == -1:
-                dirs.append("N")
-            elif dx == 0 and dy == 1:
-                dirs.append("S")
-            elif dx == 1 and dy == 0:
-                dirs.append("E")
-            elif dx == -1 and dy == 0:
-                dirs.append("W")
-            elif dx == 1 and dy == 1:
-                dirs.append("SE")
-            elif dx == 1 and dy == -1:
-                dirs.append("NE")
-            elif dx == -1 and dy == 1:
-                dirs.append("SW")
-            elif dx == -1 and dy == -1:
-                dirs.append("NW")
+                dirs.append(token)
+                break
         return dirs
 
     def list_at(self, year: int, x: int, y: int) -> List[Dict[str, Any]]:
-        def _match(mon: Dict[str, Any]) -> bool:
-            pos = mon.get("pos")
-            if not isinstance(pos, list) or len(pos) != 3:
-                return False
-            return int(pos[0]) == int(year) and int(pos[1]) == int(x) and int(pos[2]) == int(y)
-
-        # Always read from the in-memory cache.
-        raw = [mon for mon in self._monsters if _match(mon)]
+        if self._pos_index_dirty:
+            self._rebuild_pos_index()
+        raw = self._pos_index.get(int(year), {}).get((int(x), int(y)), [])
 
         filtered: List[Dict[str, Any]] = []
         seen: set[str] = set()
@@ -1034,6 +1186,34 @@ class MonstersState:
             self._monsters.append(entry)
 
         self._track_dirty(iid)
+        # Maintain position index incrementally on add/replace.
+        try:
+            pos = entry.get("pos")
+            if isinstance(pos, list) and len(pos) >= 3:
+                year, x, y = int(pos[0]), int(pos[1]), int(pos[2])
+                by_year = self._pos_index.setdefault(year, {})
+                bucket = by_year.setdefault((x, y), [])
+                # Remove any previous instances of this iid in this bucket.
+                bucket = [mon for mon in bucket if mon.get("id") != iid and mon.get("instance_id") != iid]
+                bucket.append(entry)
+                by_year[(x, y)] = bucket
+        except Exception:
+            self._pos_index_dirty = True
+        try:
+            if entry.get("target_player_id"):
+                self._has_targeting = True
+                pid = str(entry.get("target_player_id")).strip()
+                if pid:
+                    self._by_target.setdefault(pid, set()).add(iid)
+            else:
+                state = entry.get("_ai_state") if isinstance(entry, Mapping) else None
+                if isinstance(state, Mapping) and state.get("bound_player_id"):
+                    self._has_targeting = True
+                    bid = str(state.get("bound_player_id")).strip()
+                    if bid:
+                        self._by_target.setdefault(bid, set()).add(iid)
+        except Exception:
+            pass
         try:
             state_debug.log_monster_spawn(entry, reason="cache_add")
         except Exception:
@@ -1053,6 +1233,7 @@ class MonstersState:
         if current == sanitized:
             return [dict(entry) for entry in current]
 
+        had_status = bool(current)
         payload = [dict(entry) for entry in sanitized]
         monster["status_effects"] = payload
         if payload:
@@ -1060,11 +1241,22 @@ class MonstersState:
         else:
             monster.pop("timers", None)
 
+        has_status = bool(payload)
+        try:
+            if had_status and not has_status:
+                self._statusful_count = max(0, self._statusful_count - 1)
+            elif (not had_status) and has_status:
+                self._statusful_count += 1
+        except Exception:
+            pass
+
         self._track_dirty(monster_id)
         return payload
 
     def decrement_status_effects(self, amount: int = 1) -> Dict[str, List[Dict[str, Any]]]:
         if amount <= 0:
+            return {}
+        if self._statusful_count <= 0:
             return {}
 
         expired: Dict[str, List[Dict[str, Any]]] = {}
@@ -1091,8 +1283,78 @@ class MonstersState:
 
         return expired
 
-    def mark_dirty(self) -> None:
-        self._track_dirty(self._last_accessed_id)
+    def _coerce_monster_id(self, monster: Mapping[str, Any] | str | None) -> Optional[str]:
+        if monster is None:
+            return None
+        if isinstance(monster, str):
+            token = monster.strip()
+            return token or None
+        if isinstance(monster, Mapping):
+            for key in ("id", "instance_id", "monster_id"):
+                raw = monster.get(key)
+                if raw is None:
+                    continue
+                token = str(raw).strip()
+                if token:
+                    return token
+        return None
+
+    def update_position_cache(self, monster: Mapping[str, Any], *, previous_pos: Iterable[Any] | None = None) -> None:
+        """
+        Maintain the position index incrementally when a monster moves.
+
+        Falls back to marking the index dirty if anything goes wrong so callers
+        never pay the price of stale lookups.
+        """
+
+        def _coerce_pos(value: Any) -> Optional[tuple[int, int, int]]:
+            try:
+                raw = list(value)
+            except Exception:
+                return None
+            if len(raw) < 3:
+                return None
+            try:
+                return int(raw[0]), int(raw[1]), int(raw[2])
+            except Exception:
+                return None
+
+        monster_id = self._coerce_monster_id(monster)
+        if not monster_id:
+            self._pos_index_dirty = True
+            return
+
+        new_pos = _coerce_pos(monster.get("pos"))
+        old_pos = _coerce_pos(previous_pos)
+
+        try:
+            if old_pos:
+                by_year = self._pos_index.get(old_pos[0])
+                if by_year is not None:
+                    bucket = by_year.get((old_pos[1], old_pos[2]), [])
+                    filtered = [entry for entry in bucket if self._coerce_monster_id(entry) != monster_id]
+                    if filtered:
+                        by_year[(old_pos[1], old_pos[2])] = filtered
+                    else:
+                        by_year.pop((old_pos[1], old_pos[2]), None)
+                    if not by_year:
+                        self._pos_index.pop(old_pos[0], None)
+
+            if new_pos:
+                by_year = self._pos_index.setdefault(new_pos[0], {})
+                bucket = by_year.get((new_pos[1], new_pos[2]), [])
+                bucket = [entry for entry in bucket if self._coerce_monster_id(entry) != monster_id]
+                bucket.append(monster)
+                by_year[(new_pos[1], new_pos[2])] = bucket
+        except Exception:
+            self._pos_index_dirty = True
+
+    def mark_dirty(self, monster: Mapping[str, Any] | str | None = None) -> None:
+        monster_id = self._coerce_monster_id(monster)
+        if monster_id:
+            self._last_accessed_id = monster_id
+        target_id = monster_id or self._last_accessed_id
+        self._track_dirty(target_id)
 
     def level_up_monster(self, monster_id: str) -> bool:
         monster = self._by_id.get(monster_id)
@@ -1147,6 +1409,16 @@ class MonstersState:
             if entry is monster or entry.get("id") == monster_id:
                 del self._monsters[idx]
                 break
+        try:
+            self.update_position_cache({"id": monster_id, "pos": None}, previous_pos=monster.get("pos"))
+        except Exception:
+            pass
+        try:
+            statuses = monster.get("status_effects") if isinstance(monster, Mapping) else None
+            if isinstance(statuses, list) and statuses and self._statusful_count > 0:
+                self._statusful_count = max(0, self._statusful_count - 1)
+        except Exception:
+            pass
 
         drops: List[Dict[str, Any]] = []
         bag_items: List[Dict[str, Any]] = []
@@ -1204,6 +1476,10 @@ class MonstersState:
         self._deleted_ids.add(monster_id)
         self._dirty_ids.discard(monster_id)
         self._last_accessed_id = None
+        try:
+            self._clear_target_index(monster_id)
+        except Exception:
+            pass
         return {
             "monster": monster,
             "drops": drops,
@@ -1398,6 +1674,12 @@ def load_state(path: Path | str = DEFAULT_MONSTERS_PATH) -> MonstersState:
     global _CACHE, _CACHE_PATH, _CACHE_SIGNATURE
 
     path_obj = Path(path)
+    # Reuse the warmed cache when it matches the requested path. The MonstersState
+    # instance is the authoritative in-memory copy during a session, so avoid
+    # reloading the entire store (which scales with monster count) on every call.
+    if _CACHE is not None and _CACHE_PATH == path_obj:
+        return _CACHE
+
     instances = monsters_instances.load_monsters_instances(path_obj)
     raw, from_store = _load_raw(path_obj, instances)
     try:
@@ -1412,6 +1694,10 @@ def load_state(path: Path | str = DEFAULT_MONSTERS_PATH) -> MonstersState:
         return _CACHE
 
     state = MonstersState(path_obj, normalized, instances=instances)
+    try:
+        state._rebuild_pos_index()
+    except Exception:
+        pass
 
     if normalized != raw or not from_store:
         state._track_dirty(None, force_all=True)
@@ -1451,12 +1737,19 @@ def clear_all_targets(monsters: MonstersState | None = None) -> bool:
         record["target_player_id"] = None
         cleared = True
         try:
-            state.mark_dirty()
+            try:
+                state.mark_dirty(record)
+            except TypeError:
+                state.mark_dirty()
         except Exception:
             try:
                 state._track_dirty(str(record.get("id")))  # type: ignore[attr-defined]
             except Exception:
                 pass
+        try:
+            state._clear_target_index(str(record.get("id")), None)
+        except Exception:
+            pass
 
     if cleared:
         try:

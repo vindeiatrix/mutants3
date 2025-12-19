@@ -1,0 +1,1649 @@
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the west.
+***
+Titan‑of‑Chrome‑534 has just arrived from the west.
+> com t
+***
+You ready yourself against Titan‑of‑Chrome‑534.
+***
+Titan‑of‑Chrome‑534 has hit you with his Hydraulic‑Fist!
+> wie n
+***
+You ready the Nuclear‑Decay for combat.
+***
+You strike Titan‑of‑Chrome‑534 for 69 damage.
+***
+Titan‑of‑Chrome‑534 yells: Get away from me!
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan‑of‑Chrome‑534 has just left south
+***
+You hear loud sounds of yelling and screaming to the south.
+***
+You hear loud sounds of footsteps to the south.
+> s
+You hear volcanoes erupt in the distance.
+Compass: (0E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+***
+Titan‑of‑Chrome‑534 restores 14 HP (1350 ions).
+***
+Titan‑of‑Chrome‑534's body is glowing!
+> look
+You hear volcanoes erupt in the distance.
+Compass: (0E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+***
+Titan‑of‑Chrome‑534 restores 14 HP (1350 ions).
+***
+Titan‑of‑Chrome‑534's body is glowing!
+> look
+You hear volcanoes erupt in the distance.
+Compass: (0E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+***
+Titan‑of‑Chrome‑534 yells: Get away from me!
+> look
+You hear volcanoes erupt in the distance.
+Compass: (0E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan‑of‑Chrome‑534 has just left west
+***
+You hear loud sounds of yelling and screaming to the west.
+***
+You hear loud sounds of footsteps to the west.
+> w
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear‑Waste.
+***
+Titan-of-Chrome-534 is here.
+***
+Titan‑of‑Chrome‑534 yells: Get away from me!
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear‑Waste.
+***
+Titan‑of‑Chrome‑534 has just left south
+***
+You hear loud sounds of yelling and screaming to the south.
+***
+You hear loud sounds of footsteps to the south.
+> s
+City Trading Centre.
+Compass: (-1E : -2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+> look
+City Trading Centre.
+Compass: (-1E : -2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+> look
+City Trading Centre.
+Compass: (-1E : -2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+***
+Titan‑of‑Chrome‑534 has hit you with his Hydraulic‑Slam!
+***
+You suffer 16 hit points of damage!
+> look
+City Trading Centre.
+Compass: (-1E : -2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+> look
+City Trading Centre.
+Compass: (-1E : -2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+***
+Titan‑of‑Chrome‑534 restores 14 HP (1350 ions).
+***
+Titan‑of‑Chrome‑534's body is glowing!
+> look
+City Trading Centre.
+Compass: (-1E : -2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+> look
+City Trading Centre.
+Compass: (-1E : -2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+***
+Titan‑of‑Chrome‑534 restores 14 HP (1350 ions).
+***
+Titan‑of‑Chrome‑534's body is glowing!
+> look
+City Trading Centre.
+Compass: (-1E : -2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan‑of‑Chrome‑534 has just left north
+***
+You hear loud sounds of footsteps to the north.
+> n
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear‑Waste.
+***
+Titan-of-Chrome-534 is here.
+***
+Titan‑of‑Chrome‑534 yells: Get away from me!
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear‑Waste.
+***
+Titan-of-Chrome-534 is here.
+***
+Titan‑of‑Chrome‑534 restores 13 HP (1350 ions).
+***
+Titan‑of‑Chrome‑534's body is glowing!
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear‑Waste.
+***
+Titan‑of‑Chrome‑534 has just left north
+***
+You hear loud sounds of yelling and screaming to the north.
+***
+You hear loud sounds of footsteps to the north.
+> n
+The street is cracked here.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+> look
+The street is cracked here.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+> look
+The street is cracked here.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+***
+Titan‑of‑Chrome‑534 has hit you with his Hydraulic‑Slam!
+***
+You suffer 16 hit points of damage!
+> look
+The street is cracked here.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+***
+Titan‑of‑Chrome‑534 has hit you with his Hydraulic‑Slam!
+***
+You suffer 16 hit points of damage!
+> look
+The street is cracked here.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+> look
+The street is cracked here.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+> look
+The street is cracked here.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+> look
+The street is cracked here.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+***
+Titan‑of‑Chrome‑534 has hit you with his Hydraulic‑Fist!
+> look
+The street is cracked here.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan‑of‑Chrome‑534 has just left south
+***
+You hear loud sounds of footsteps to the south.
+> s
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear‑Waste.
+***
+Titan-of-Chrome-534 is here.
+***
+Titan‑of‑Chrome‑534 has hit you with his Hydraulic‑Slam!
+***
+You suffer 16 hit points of damage!
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear‑Waste.
+***
+Titan-of-Chrome-534 is here.
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear‑Waste.
+***
+Titan-of-Chrome-534 is here.
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear‑Waste.
+***
+Titan-of-Chrome-534 is here.
+***
+Titan‑of‑Chrome‑534 has hit you with his Hydraulic‑Fist!
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear‑Waste.
+***
+Titan-of-Chrome-534 is here.
+***
+Titan‑of‑Chrome‑534 has hit you with his Hydraulic‑Slam!
+***
+You suffer 16 hit points of damage!
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear‑Waste.
+***
+Titan-of-Chrome-534 is here.
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear‑Waste.
+***
+Titan-of-Chrome-534 is here.
+***
+Titan‑of‑Chrome‑534 yells: Get away from me!
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear‑Waste.
+***
+Titan-of-Chrome-534 is here.
+***
+Titan‑of‑Chrome‑534 yells: Get away from me!
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear‑Waste.
+***
+Titan‑of‑Chrome‑534 has just left west
+***
+You hear loud sounds of footsteps to the west.
+> w
+City Trading Centre.
+Compass: (-2E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+***
+Titan‑of‑Chrome‑534 yells: Get away from me!
+> look
+City Trading Centre.
+Compass: (-2E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+***
+Titan‑of‑Chrome‑534 has hit you with his Hydraulic‑Fist!
+> look
+City Trading Centre.
+Compass: (-2E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+***
+Titan‑of‑Chrome‑534 yells: Get away from me!
+> look
+City Trading Centre.
+Compass: (-2E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+> look
+City Trading Centre.
+Compass: (-2E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+***
+Titan‑of‑Chrome‑534 yells: Get away from me!
+> look
+City Trading Centre.
+Compass: (-2E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+***
+Titan‑of‑Chrome‑534 yells: Get away from me!
+> look
+City Trading Centre.
+Compass: (-2E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+> look
+City Trading Centre.
+Compass: (-2E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+***
+Titan‑of‑Chrome‑534 has hit you with his Hydraulic‑Fist!
+> look
+City Trading Centre.
+Compass: (-2E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan‑of‑Chrome‑534 has just left east
+***
+You hear loud sounds of footsteps to the east.
+> e
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear‑Waste.
+***
+Titan-of-Chrome-534 is here.
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear‑Waste.
+***
+Titan-of-Chrome-534 is here.
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear‑Waste.
+***
+Titan‑of‑Chrome‑534 has just left south
+***
+You hear loud sounds of footsteps to the south.
+> s
+City Trading Centre.
+Compass: (-1E : -2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+***
+Titan‑of‑Chrome‑534 has hit you with his Hydraulic‑Fist!
+> wie n
+City Trading Centre.
+Compass: (-1E : -2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You ready the Nuclear‑Decay for combat.
+***
+You strike Titan‑of‑Chrome‑534 for 69 damage.
+***
+Titan‑of‑Chrome‑534 has just left north
+***
+You hear loud sounds of footsteps to the north.
+> n
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear‑Waste.
+***
+Titan-of-Chrome-534 is here.
+***
+Titan‑of‑Chrome‑534 restores 14 HP (1350 ions).
+***
+Titan‑of‑Chrome‑534's body is glowing!
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear‑Waste.
+***
+Titan-of-Chrome-534 is here.
+***
+Titan‑of‑Chrome‑534 restores 14 HP (1350 ions).
+***
+Titan‑of‑Chrome‑534's body is glowing!
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear‑Waste.
+***
+Titan-of-Chrome-534 is here.
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear‑Waste.
+***
+Titan-of-Chrome-534 is here.
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear‑Waste.
+***
+Titan-of-Chrome-534 is here.
+***
+Titan‑of‑Chrome‑534 yells: Get away from me!
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear‑Waste.
+***
+Titan-of-Chrome-534 is here.
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear‑Waste.
+***
+Titan-of-Chrome-534 is here.
+***
+Titan‑of‑Chrome‑534 has hit you with his Hydraulic‑Fist!
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear‑Waste.
+***
+Titan‑of‑Chrome‑534 has just left south
+***
+You hear loud sounds of footsteps to the south.
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear‑Waste.
+***
+You see shadows to the south.
+***
+You hear loud sounds of yelling and screaming to the south.
+***
+Titan‑of‑Chrome‑534 has just arrived from the south.
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear‑Waste.
+***
+Titan-of-Chrome-534 is here.
+***
+Titan‑of‑Chrome‑534 restores 14 HP (1350 ions).
+***
+Titan‑of‑Chrome‑534's body is glowing!
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+***
+Titan‑of‑Chrome‑534 picks up Nuclear‑Waste.
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+***
+A blinding white flash erupts around Titan‑of‑Chrome‑534!
+***
+Titan‑of‑Chrome‑534 converts loot worth 15000 ions.
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+***
+Titan‑of‑Chrome‑534 restores 14 HP (1350 ions).
+***
+Titan‑of‑Chrome‑534's body is glowing!
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan‑of‑Chrome‑534 has just left south
+***
+You hear loud sounds of footsteps to the south.
+***
+You hear loud sounds of yelling and screaming to the south.
+> look so
+City Trading Centre.
+Compass: (-1E : -2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the south.
+***
+Titan‑of‑Chrome‑534 has just arrived from the south.
+>
+***
+Type ? if you need assistance.
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+***
+Titan‑of‑Chrome‑534 yells: Get away from me!
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+***
+Titan‑of‑Chrome‑534 restores 13 HP (1350 ions).
+***
+Titan‑of‑Chrome‑534's body is glowing!
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+***
+Titan‑of‑Chrome‑534 pats their pockets for supplies.
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+***
+Titan‑of‑Chrome‑534 yells: Get away from me!
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+***
+Titan‑of‑Chrome‑534 has hit you with his Hydraulic‑Fist!
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+***
+Titan‑of‑Chrome‑534 yells: Get away from me!
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+***
+Titan‑of‑Chrome‑534 yells: Get away from me!
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+***
+Titan‑of‑Chrome‑534 has hit you with his Hydraulic‑Fist!
+> look so
+City Trading Centre.
+Compass: (-1E : -2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the south.
+***
+Titan‑of‑Chrome‑534 has hit you with his Hydraulic‑Fist!
+> look so
+City Trading Centre.
+Compass: (-1E : -2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the south.
+> look o
+***
+Try north, south, east, or west.
+> look no
+The street is cracked here.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the north.
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+***
+Titan‑of‑Chrome‑534 has hit you with his Hydraulic‑Fist!
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+***
+Titan‑of‑Chrome‑534 yells: Get away from me!
+> wie n
+***
+You ready the Nuclear‑Decay for combat.
+***
+You strike Titan‑of‑Chrome‑534 for 69 damage.
+***
+Titan‑of‑Chrome‑534 yells: Get away from me!
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+***
+Titan‑of‑Chrome‑534 yells: Get away from me!
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+***
+Titan‑of‑Chrome‑534 restores 14 HP (1350 ions).
+***
+Titan‑of‑Chrome‑534's body is glowing!
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan‑of‑Chrome‑534 has just left east
+***
+You hear loud sounds of yelling and screaming to the east.
+***
+You hear loud sounds of footsteps to the east.
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the east.
+***
+You hear loud sounds of yelling and screaming to the east.
+***
+Titan‑of‑Chrome‑534 has just arrived from the east.
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+***
+Titan‑of‑Chrome‑534 yells: Get away from me!
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan‑of‑Chrome‑534 has just left east
+***
+You hear loud sounds of yelling and screaming to the east.
+***
+You hear loud sounds of footsteps to the east.
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the east.
+***
+You hear loud sounds of yelling and screaming to the east.
+***
+Titan‑of‑Chrome‑534 has just arrived from the east.
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+***
+Titan‑of‑Chrome‑534 yells: Get away from me!
+> look ea
+You hear volcanoes erupt in the distance.
+Compass: (0E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the west.
+***
+Titan‑of‑Chrome‑534 restores 14 HP (1350 ions).
+***
+Titan‑of‑Chrome‑534's body is glowing!
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+***
+Titan‑of‑Chrome‑534 yells: Get away from me!
+> look so
+City Trading Centre.
+Compass: (-1E : -2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the south.
+***
+Titan‑of‑Chrome‑534 restores 14 HP (1350 ions).
+***
+Titan‑of‑Chrome‑534's body is glowing!
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+***
+Titan‑of‑Chrome‑534 has hit you with his Hydraulic‑Slam!
+***
+You suffer 16 hit points of damage!
+> look no
+The street is cracked here.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the north.
+***
+Titan‑of‑Chrome‑534 yells: Get away from me!
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+***
+Titan‑of‑Chrome‑534 restores 14 HP (1350 ions).
+***
+Titan‑of‑Chrome‑534's body is glowing!
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan‑of‑Chrome‑534 has just left west
+***
+You hear loud sounds of footsteps to the west.
+***
+You hear loud sounds of yelling and screaming to the west.
+> look we
+City Trading Centre.
+Compass: (-2E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the west.
+***
+You hear loud sounds of yelling and screaming to the west.
+***
+Titan‑of‑Chrome‑534 has just arrived from the west.
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+***
+Titan‑of‑Chrome‑534 yells: Get away from me!
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+***
+Titan‑of‑Chrome‑534 has hit you with his Hydraulic‑Slam!
+***
+You suffer 16 hit points of damage!
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan‑of‑Chrome‑534 has just left south
+***
+You hear loud sounds of yelling and screaming to the south.
+***
+You hear loud sounds of footsteps to the south.
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the south.
+***
+You hear loud sounds of yelling and screaming to the south.
+***
+Titan‑of‑Chrome‑534 has just arrived from the south.
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+***
+Titan‑of‑Chrome‑534 restores 13 HP (1350 ions).
+***
+Titan‑of‑Chrome‑534's body is glowing!
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+***
+Titan‑of‑Chrome‑534 yells: Get away from me!
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+***
+Titan‑of‑Chrome‑534 has hit you with his Hydraulic‑Fist!
+> stat
+***
+Name: Warrior / Mutant Warrior
+Exhaustion : 0
+Str:  23    Int:  12   Wis:  14
+Dex:  20    Con:  19   Cha:   9
+Hit Points  : 23120 / 23232
+Exp. Points : 0      Level: 1
+Riblets     : 0
+Ions        : 23232323
+Wearing Armor : None  Armour Class: 2  (Dex bonus: +2, Armour: +0)
+Ready to Combat: Titan‑of‑Chrome‑534
+Readied Spell  : No spell memorized.
+Year A.D. : 2300
+***
+You are carrying the following items:  (Total Weight: 50 LB's)
+A Nuclear‑Decay.
+***
+Titan‑of‑Chrome‑534 has hit you with his Hydraulic‑Fist!
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan‑of‑Chrome‑534 has just left north
+***
+You hear loud sounds of footsteps to the north.
+***
+You hear loud sounds of yelling and screaming to the north.
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the north.
+***
+You hear loud sounds of yelling and screaming to the north.
+***
+Titan‑of‑Chrome‑534 has just arrived from the north.
+> n
+The street is cracked here.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the south.
+***
+Titan‑of‑Chrome‑534 has just arrived from the south.
+> s
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the north.
+***
+Titan‑of‑Chrome‑534 has just arrived from the north.
+> n
+The street is cracked here.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the south.
+***
+Titan‑of‑Chrome‑534 has just arrived from the south.
+> s
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the north.
+***
+Titan‑of‑Chrome‑534 has just arrived from the north.
+> n
+The street is cracked here.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the south.
+***
+You hear loud sounds of yelling and screaming to the south.
+***
+Titan‑of‑Chrome‑534 has just arrived from the south.
+> s
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the north.
+***
+You hear loud sounds of yelling and screaming to the north.
+***
+Titan‑of‑Chrome‑534 has just arrived from the north.
+> n
+The street is cracked here.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the south.
+***
+You hear loud sounds of yelling and screaming to the south.
+***
+Titan‑of‑Chrome‑534 has just arrived from the south.
+> s
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the north.
+***
+Titan‑of‑Chrome‑534 has just arrived from the north.
+> n
+The street is cracked here.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the south.
+***
+Titan‑of‑Chrome‑534 has just arrived from the south.
+> s
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the north.
+***
+You hear loud sounds of yelling and screaming to the north.
+***
+Titan‑of‑Chrome‑534 has just arrived from the north.
+> n
+The street is cracked here.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the south.
+***
+Titan‑of‑Chrome‑534 has just arrived from the south.
+> s
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the north.
+***
+You hear loud sounds of yelling and screaming to the north.
+***
+Titan‑of‑Chrome‑534 has just arrived from the north.
+> w
+City Trading Centre.
+Compass: (-2E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the east.
+***
+You hear loud sounds of yelling and screaming to the east.
+***
+Titan‑of‑Chrome‑534 has just arrived from the east.
+> e
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the west.
+***
+You hear loud sounds of yelling and screaming to the west.
+***
+Titan‑of‑Chrome‑534 has just arrived from the west.
+> e
+You hear volcanoes erupt in the distance.
+Compass: (0E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the west.
+***
+Titan‑of‑Chrome‑534 has just arrived from the west.
+> w
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the east.
+***
+You hear loud sounds of yelling and screaming to the east.
+***
+Titan‑of‑Chrome‑534 has just arrived from the east.
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+***
+Titan‑of‑Chrome‑534 has hit you with his Hydraulic‑Fist!
+> look
+City Trading Centre.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Titan-of-Chrome-534 is here.
+***
+Titan‑of‑Chrome‑534 yells: Get away from me!
+>   

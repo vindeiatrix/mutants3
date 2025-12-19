@@ -538,6 +538,18 @@ def _force_monster_aggro(
         return
 
     monster["target_player_id"] = player_id
+    monsters_state_obj = ctx.get("monsters") if isinstance(ctx, Mapping) else None
+    if monsters_state_obj is None and hasattr(ctx, "monsters"):
+        try:
+            monsters_state_obj = getattr(ctx, "monsters")
+        except Exception:
+            monsters_state_obj = None
+    target_marker = getattr(monsters_state_obj, "mark_targeting", None)
+    if callable(target_marker):
+        try:
+            target_marker(monster)
+        except Exception:
+            pass
     try:
         pos = pstate.canonical_player_pos(state)
     except Exception:
@@ -545,16 +557,10 @@ def _force_monster_aggro(
     if pos is not None:
         tracking_mod.record_target_position(monster, player_id, pos)
 
-    monsters_state_obj = ctx.get("monsters") if isinstance(ctx, Mapping) else None
-    if monsters_state_obj is None and hasattr(ctx, "monsters"):
-        try:
-            monsters_state_obj = getattr(ctx, "monsters")
-        except Exception:
-            monsters_state_obj = None
     marker = getattr(monsters_state_obj, "mark_dirty", None)
     if callable(marker):
         try:
-            marker()
+            marker(monster)
         except Exception:
             pass
 
@@ -793,7 +799,7 @@ def perform_melee_attack(ctx: Dict[str, Any]) -> Dict[str, Any]:
         marker = getattr(monsters, "mark_dirty", None)
         if callable(marker):
             try:
-                marker()
+                marker(monster)
             except Exception:
                 pass
     return result
@@ -1014,7 +1020,7 @@ def perform_ranged_attack(
         marker = getattr(monsters, "mark_dirty", None)
         if callable(marker):
             try:
-                marker()
+                marker(monster)
             except Exception:
                 pass
 

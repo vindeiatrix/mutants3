@@ -29,6 +29,7 @@ from typing import Any, Dict, List, MutableMapping, Optional
 from mutants.io.atomic import atomic_write_json
 from mutants.bootstrap.runtime import discover_world_years, read_config
 from mutants.players import startup as player_startup
+from mutants.state import state_path
 
 try:
     from importlib.resources import files  # Python 3.9+
@@ -166,7 +167,7 @@ def make_player_from_template(t: Dict[str, Any], make_active: bool = False) -> D
 def ensure_player_state(
     ctx: MutableMapping[str, Any] | None = None,
     *,
-    state_dir: str = "state",
+    state_dir: str | None = None,
     out_name: str = "playerlivestate.json",
     templates_pkg: str = "mutants.data",
     templates_resource: str = "startingclasstemplates.json",
@@ -180,8 +181,10 @@ def ensure_player_state(
 
         return pstate.ensure_player_state(ctx)
 
+    resolved_state_dir = state_dir or str(state_path())
+
     return _ensure_player_state_file(
-        state_dir=state_dir,
+        state_dir=resolved_state_dir,
         out_name=out_name,
         templates_pkg=templates_pkg,
         templates_resource=templates_resource,

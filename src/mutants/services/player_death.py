@@ -292,7 +292,8 @@ def handle_player_death(
         return state_obj
 
     try:
-        pstate.clear_target(reason="player-death")
+        monsters_ctx = ctx.get("monsters") if isinstance(ctx, Mapping) else None
+        pstate.clear_target(reason="player-death", monsters=monsters_ctx)
     except Exception:  # pragma: no cover - defensive guard
         LOG.exception("Failed to clear ready target after player death")
 

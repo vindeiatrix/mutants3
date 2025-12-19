@@ -26,11 +26,11 @@
       "power_per_level": 1,
       "line": "The Junkyard Scrapper slashes you with a rusty shiv!"
     },
-    "exp_bonus": 30,
-    "ions_min": 3000,
-    "ions_max": 8000,
-    "riblets_min": 8,
-    "riblets_max": 16,
+  "exp_bonus": 5,
+  "ions_min": 3000,
+  "ions_max": 8000,
+  "riblets_min": 0,
+  "riblets_max": 2,
     "spells": [],
     "starter_armour": [
       "Torn-Overalls"

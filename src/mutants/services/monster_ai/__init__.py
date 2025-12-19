@@ -92,12 +92,16 @@ def _ensure_ai_state(monster: MutableMapping[str, Any]) -> MutableMapping[str, A
 def _is_flee_mode(monster: Mapping[str, Any]) -> bool:
     state = monster.get("_ai_state") if isinstance(monster, Mapping) else None
     if isinstance(state, Mapping):
+        if state.get("flee_locked"):
+            return True
         flag = state.get("flee_mode")
         if isinstance(flag, bool):
             return flag
         if flag is not None:
             return bool(flag)
     top_level = monster.get("flee_mode") if isinstance(monster, Mapping) else None
+    if isinstance(monster, Mapping) and monster.get("flee_locked"):
+        return True
     if isinstance(top_level, bool):
         return top_level
     if top_level is not None:
@@ -233,8 +237,16 @@ def _iter_aggro_monsters(monsters: Any, *, year: int, x: int, y: int) -> Iterabl
         return []
     result: list[Mapping[str, Any]] = []
     for entry in entries:
-        if isinstance(entry, Mapping):
-            result.append(entry)
+        if not isinstance(entry, Mapping):
+            continue
+        hp_block = entry.get("hp") if isinstance(entry.get("hp"), Mapping) else {}
+        try:
+            hp_cur = int(hp_block.get("current", entry.get("hp_cur", 1)))
+            if hp_cur <= 0:
+                continue
+        except Exception:
+            pass
+        result.append(entry)
     return result
 
 
@@ -243,12 +255,26 @@ def _iter_targeted_monsters(
 ) -> Iterable[Mapping[str, Any]]:
     if monsters is None:
         return []
+    list_targeting = getattr(monsters, "list_targeting_player", None)
+    list_year = getattr(monsters, "list_in_year", None)
     list_all = getattr(monsters, "list_all", None)
-    if not callable(list_all):
-        return []
-    try:
-        entries = list_all()
-    except Exception:
+    entries = []
+    if callable(list_targeting):
+        try:
+            entries = list_targeting(player_id, year=year)  # type: ignore[misc]
+        except Exception:
+            entries = []
+    elif callable(list_year):
+        try:
+            entries = list_year(year)  # type: ignore[misc]
+        except Exception:
+            entries = []
+    elif callable(list_all):
+        try:
+            entries = list_all()
+        except Exception:
+            entries = []
+    else:
         return []
 
     result: list[Mapping[str, Any]] = []
@@ -354,6 +380,7 @@ def on_player_command(ctx: Any, *, token: str, resolved: str | None, arg: str | 
     mark_dirty = getattr(monsters, "mark_dirty", None)
 
     pos = (year, x, y)
+    # Limit tracking to monsters targeting this player in this year only.
     reentry_ids = tracking_mod.update_target_positions(monsters, player_id, pos)
 
     processed: set[str] = set()
@@ -385,9 +412,17 @@ def on_player_command(ctx: Any, *, token: str, resolved: str | None, arg: str | 
                     moved = True
             except Exception:
                 moved = False
+        if moved:
+            try:
+                previous = (int(mon_pos[0]), int(mon_pos[1]), int(mon_pos[2]))
+                updater = getattr(monsters, "update_position_cache", None)
+                if callable(updater):
+                    updater(monster, previous_pos=previous)
+            except Exception:
+                pass
         if moved and callable(mark_dirty):
             try:
-                mark_dirty()
+                mark_dirty(monster)
             except Exception:
                 pass
         return moved
@@ -404,6 +439,25 @@ def on_player_command(ctx: Any, *, token: str, resolved: str | None, arg: str | 
         if int(mon_pos[0]) != int(year):
             return
         collocated = mon_pos == pos
+        # If collocated and not yet targeting, bind immediately with a taunt (no wake gate).
+        if collocated and target is None:
+            outcome = actions_mod.roll_entry_target(
+                monster,
+                source_state,
+                rng,
+                config=config,
+                bus=bus,
+                woke=True,
+                ctx=ctx,
+            )
+            target = _normalize_id(monster.get("target_player_id"))
+            if callable(mark_dirty) and outcome.get("target_set"):
+                try:
+                    mark_dirty(monster)
+                except Exception:
+                    pass
+            if target != player_id:
+                return
 
         if (
             not collocated
@@ -443,7 +497,7 @@ def on_player_command(ctx: Any, *, token: str, resolved: str | None, arg: str | 
             )
             if callable(mark_dirty) and outcome.get("target_set"):
                 try:
-                    mark_dirty()
+                    mark_dirty(monster)
                 except Exception:  # pragma: no cover - best effort
                     pass
             target = _normalize_id(monster.get("target_player_id"))
@@ -481,7 +535,11 @@ def on_player_command(ctx: Any, *, token: str, resolved: str | None, arg: str | 
         cast_guard = {"cast_used": False}
         for _ in range(credits):
             # Bound pursuit: if not collocated and bound/targeted to this player, spend this tick moving one step.
-            if not collocated:
+            state_block = monster.get("_ai_state") if isinstance(monster, Mapping) else None
+            flee_dir = None
+            if isinstance(state_block, Mapping):
+                flee_dir = state_block.get("flee_dir")
+            if not collocated and not _is_flee_mode(monster) and not flee_dir:
                 state_block = monster.get("_ai_state") if isinstance(monster, Mapping) else None
                 bound_id = _normalize_id(state_block.get("bound_player_id")) if isinstance(state_block, Mapping) else None
                 target_id_safe = _normalize_id(monster.get("target_player_id"))
@@ -496,6 +554,7 @@ def on_player_command(ctx: Any, *, token: str, resolved: str | None, arg: str | 
                 LOG.exception("Monster action execution failed", extra={"monster": _monster_id(monster)})
                 break
 
+    # Only process targeted monsters in the same year.
     for monster in _iter_targeted_monsters(monsters, year=year, player_id=player_id):
         _process_monster(monster, allow_target_roll=False, require_wake=False)
 

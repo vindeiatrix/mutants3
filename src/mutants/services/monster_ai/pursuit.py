@@ -362,7 +362,17 @@ def _apply_movement(
             return False, details
 
     monster["pos"] = [year, step_taken[0], step_taken[1]]
-    monsters_state._refresh_monster_derived(monster)
+    try:
+        monsters_state._refresh_monster_derived(monster)
+    except Exception:
+        pass
+    try:
+        monsters_obj = ctx.get("monsters") if isinstance(ctx, Mapping) else getattr(ctx, "monsters", None)
+        updater = getattr(monsters_obj, "update_position_cache", None)
+        if callable(updater):
+            updater(monster, previous_pos=(year, start[0], start[1]))
+    except Exception:
+        pass
     return True, details
 
 
@@ -516,6 +526,7 @@ def attempt_flee_step(
     rng: Any,
     *,
     ctx: Any | None = None,
+    preferred_direction: str | None = None,
 ) -> bool:
     """Try to take a single step strictly away from ``away_from_pos``."""
 
@@ -532,6 +543,21 @@ def attempt_flee_step(
 
     current_distance = abs(int(sx) - int(away[1])) + abs(int(sy) - int(away[2]))
 
+    preferred_step: tuple[int, int] | None = None
+    if preferred_direction in ("N", "S", "E", "W"):
+        pdx, pdy = 0, 0
+        if preferred_direction == "N":
+            pdy = 1
+        elif preferred_direction == "S":
+            pdy = -1
+        elif preferred_direction == "E":
+            pdx = 1
+        elif preferred_direction == "W":
+            pdx = -1
+        step = (int(sx) + pdx, int(sy) + pdy)
+        if abs(step[0] - int(away[1])) + abs(step[1] - int(away[2])) > current_distance:
+            preferred_step = step
+
     directions = list(_DIRECTIONS.keys())
     try:
         rng.shuffle(directions)
@@ -539,7 +565,12 @@ def attempt_flee_step(
         pass
 
     candidates: list[tuple[int, tuple[int, int]]] = []
+    if preferred_step is not None:
+        pref_dist = abs(preferred_step[0] - int(away[1])) + abs(preferred_step[1] - int(away[2]))
+        candidates.append((pref_dist, preferred_step))
     for dx, dy in directions:
+        if preferred_step is not None and (int(sx) + dx, int(sy) + dy) == preferred_step:
+            continue
         step = (int(sx) + int(dx), int(sy) + int(dy))
         step_distance = abs(step[0] - int(away[1])) + abs(step[1] - int(away[2]))
         if step_distance <= current_distance:

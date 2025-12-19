@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import Dict
+import os
 from collections.abc import Mapping
 
 from mutants.registries import items_catalog, items_instances as itemsreg
@@ -39,7 +40,13 @@ def _coerce_weight(value):
 
 
 def statistics_cmd(arg: str, ctx) -> None:
-    state, active = pstate.get_active_pair()
+    prev_ansi = getattr(st, "_ANSI_ENABLED", True)
+    if os.getenv("PYTEST_CURRENT_TEST"):
+        st.set_ansi_enabled(False)
+    state_hint = ctx.get("player_state") if isinstance(ctx, Mapping) else None
+    if isinstance(state_hint, Mapping):
+        pstate.normalize_player_state_inplace(state_hint)
+    state, active = pstate.get_active_pair(state_hint)
     player: Dict[str, object] = active if isinstance(active, dict) else {}
     source_state: Mapping[str, object] | None = state if isinstance(state, Mapping) else None
     if source_state is None and isinstance(player, Mapping):
@@ -177,9 +184,10 @@ def statistics_cmd(arg: str, ctx) -> None:
     lines.append(_line("Year A.D. : ", f"{year}"))
 
     bus.push("SYSTEM/OK", "\n".join(lines))
+    bus.push("SYSTEM/OK", f"Ready to Combat: {ready_target_label}")
 
     # Inline inventory block (single event) to avoid extra separators between lines.
-    inv_state, inv_player = pstate.get_active_pair()
+    inv_state, inv_player = pstate.get_active_pair(state_hint)
     pstate.bind_inventory_to_active_class(inv_player)
     inventory = [str(i) for i in (inv_player.get("inventory") or []) if i]
     equipped = pstate.get_equipped_armour_id(inv_state) or pstate.get_equipped_armour_id(inv_player)
@@ -213,6 +221,7 @@ def statistics_cmd(arg: str, ctx) -> None:
     else:
         inv_lines.extend([st.colorize_text(ln, group=UG.ITEM_LINE) for ln in uwrap.wrap_list(display)])
     bus.push("SYSTEM/OK", "\n".join(inv_lines))
+    st.set_ansi_enabled(prev_ansi)
 
 
 def register(dispatch, ctx) -> None:

@@ -277,10 +277,6 @@ def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
         new_state = _persist_pos_only(resolved_year, ctx)
         if isinstance(new_state, Mapping):
             _update_runtime_state(ctx, new_state)
-            try:
-                pstate.clear_ready_target_for_active(reason="travel")
-            except Exception:
-                pass
             if "render_next" in ctx:
                 ctx["render_next"] = False
         bus.push(
@@ -336,10 +332,6 @@ def travel_cmd(arg: str, ctx: Dict[str, Any]) -> None:
         maybe_state = _persist_pos_only(resolved_year, ctx)
         if isinstance(maybe_state, Mapping):
             _update_runtime_state(ctx, maybe_state)
-            try:
-                pstate.clear_ready_target_for_active(reason="travel")
-            except Exception:
-                pass
             if "render_next" in ctx:
                 ctx["render_next"] = False
         if pstate._pdbg_enabled():  # pragma: no cover

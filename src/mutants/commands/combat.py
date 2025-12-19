@@ -47,12 +47,12 @@ def combat_cmd(arg: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
         return {"ok": True, "cleared": True}
 
     normalized = normalize_item_query(token)
-    state, active = pstate.get_active_pair()
-    source_state: Mapping[str, Any] | None = None
-    if isinstance(state, Mapping):
-        source_state = state
-    elif isinstance(active, Mapping):
-        source_state = active
+    # Prefer the caller's context state so we operate on the latest runtime position.
+    state_hint = ctx.get("player_state") if isinstance(ctx, Mapping) else None
+    if isinstance(state_hint, Mapping):
+        pstate.normalize_player_state_inplace(state_hint)
+    state, active = pstate.get_active_pair(state_hint)
+    source_state: Mapping[str, Any] | None = state if isinstance(state, Mapping) else None
     if source_state is None:
         bus.push("SYSTEM/WARN", "You are nowhere to engage in combat.")
         pstate.clear_ready_target_for_active(reason="invalid-position")

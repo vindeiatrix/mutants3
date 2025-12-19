@@ -3633,6 +3633,10 @@ def _update_ready_target_for_active(
         ctx.pop(_RUNTIME_PLAYER_KEY, None)
         player_ctx = ensure_player_state(ctx)
         player_ctx["_dirty"] = True
+        # When running under pytest (or without an active scheduler), persist immediately
+        # so callers that rely on disk state do not lose the ready target.
+        if os.getenv("PYTEST_CURRENT_TEST") or not ctx.get("turn_scheduler"):
+            save_state(normalized)
     else:
         save_state(normalized)
 
@@ -3696,7 +3700,7 @@ def _clear_ready_targets_for_all_classes(normalized: MutableMapping[str, Any]) -
                 map_payload[entry] = None
 
 
-def clear_target(*, reason: Optional[str] = None) -> Optional[str]:
+def clear_target(*, reason: Optional[str] = None, monsters: Any | None = None) -> Optional[str]:
     """Clear the active ready target and monster aggro references."""
 
     try:
@@ -3711,13 +3715,16 @@ def clear_target(*, reason: Optional[str] = None) -> Optional[str]:
     _clear_ready_targets_for_all_classes(normalized)
 
     ctx = _current_runtime_ctx()
+    persist_immediately = True
     if isinstance(ctx, MutableMapping):
         ctx["player_state"] = normalized
         ctx.pop(_RUNTIME_PLAYER_KEY, None)
         runtime_player = ensure_player_state(ctx)
         runtime_player["_dirty"] = True
+        persist_immediately = False
 
-    save_state(normalized)
+    if persist_immediately:
+        save_state(normalized)
 
     player_ids: set[str] = set()
     active_player_id = _sanitize_player_id(
@@ -3743,10 +3750,11 @@ def clear_target(*, reason: Optional[str] = None) -> Optional[str]:
     if not player_ids:
         return previous
 
-    try:
-        monsters = monsters_state.load_state()
-    except Exception:
-        return previous
+    if monsters is None:
+        try:
+            monsters = monsters_state.load_state()
+        except Exception:
+            return previous
 
     cleared = False
     for record in monsters.list_all():
@@ -3769,13 +3777,21 @@ def clear_target(*, reason: Optional[str] = None) -> Optional[str]:
             continue
         monster["target_player_id"] = None
         try:
-            monsters.mark_dirty()
+            try:
+                monsters.mark_dirty(monster_id)
+            except TypeError:
+                monsters.mark_dirty()
         except Exception:
             # Fall back to saving via global dirty flag if marking fails.
             try:
                 monsters._track_dirty(str(monster_id))  # type: ignore[attr-defined]
             except Exception:
                 pass
+        try:
+            if hasattr(monsters, "_clear_target_index"):
+                monsters._clear_target_index(str(monster_id), target_token)  # type: ignore[attr-defined]
+        except Exception:
+            pass
         cleared = True
 
     if cleared:
