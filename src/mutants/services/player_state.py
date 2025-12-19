@@ -120,6 +120,20 @@ def set_active_player(state: dict, player_id: str) -> dict:
         state["class"] = active_entry.get("class")
         state["pos"] = list(active_entry.get("pos") or state.get("pos") or [2000, 0, 0])
         state["position"] = list(state.get("pos"))
+        # Align ready target fields with per-class maps to avoid bleed between classes.
+        cls_token = _normalize_class_name(active_entry.get("class"))
+        ready_map = state.get("ready_target_by_class") if isinstance(state, MutableMapping) else None
+        target_map = state.get("target_monster_id_by_class") if isinstance(state, MutableMapping) else None
+        per_class_ready = None
+        per_class_target = None
+        if isinstance(ready_map, Mapping) and cls_token in ready_map:
+            per_class_ready = ready_map.get(cls_token)
+        if isinstance(target_map, Mapping) and cls_token in target_map:
+            per_class_target = target_map.get(cls_token)
+        active_entry["ready_target"] = per_class_ready
+        active_entry["target_monster_id"] = per_class_target
+        state["ready_target"] = per_class_ready
+        state["target_monster_id"] = per_class_target
 
         # Keep the active inventory bound to the active class' bag instead of
         # leaking whatever bag happened to be in ``state['inventory']`` when
@@ -536,6 +550,15 @@ def get_canonical_state(state: Optional[Mapping[str, Any]] = None) -> Dict[str, 
     players = base.get("players")
     if not isinstance(players, list):
         base["players"] = []
+    else:
+        allowed_keys = {"id", "class", "name", "display_name", "pos", "inventory", "is_active", "ions", "Ions"}
+        for idx, entry in enumerate(players):
+            if not isinstance(entry, MutableMapping):
+                continue
+            cleaned = {key: value for key, value in entry.items() if key in allowed_keys}
+            if "display_name" in cleaned and "name" not in cleaned:
+                cleaned["name"] = cleaned["display_name"]
+            players[idx] = cleaned
     ions_map = base.get("ions_by_class")
     if not isinstance(ions_map, dict):
         base["ions_by_class"] = {}
@@ -827,6 +850,124 @@ def normalize_player_state_inplace(p: dict) -> dict:
                 pl.pop(key, None)
 
     return p
+
+
+def _repair_from_templates(state: MutableMapping[str, Any]) -> bool:
+    """Best-effort repair for missing/zeroed stats, hp, and positions using templates."""
+
+    changed = False
+    try:
+        from mutants.bootstrap import lazyinit
+    except Exception:
+        return False
+
+    templates = {tpl.get("class"): tpl for tpl in lazyinit.load_templates()}
+    players = state.get("players") if isinstance(state, MutableMapping) else None
+    if not isinstance(players, list):
+        return False
+
+    fallback_pos = _coerce_pos(state.get("pos") or state.get("position"))
+    active_id = _sanitize_player_id(state.get("active_id"))
+    existing_stats_map = state.get("stats_by_class") if isinstance(state.get("stats_by_class"), Mapping) else {}
+    existing_hp_map = state.get("hp_by_class") if isinstance(state.get("hp_by_class"), Mapping) else {}
+
+    stats_map: Dict[str, Dict[str, int]] = {}
+    hp_map: Dict[str, Dict[str, int]] = {}
+    active_stats: Dict[str, int] | None = None
+    active_hp: Dict[str, int] | None = None
+
+    for pl in players:
+        if not isinstance(pl, MutableMapping):
+            continue
+        cls_name = _normalize_class_name(pl.get("class")) or _normalize_class_name(pl.get("name"))
+        if not cls_name:
+            continue
+        template = templates.get(cls_name)
+        if not isinstance(template, Mapping):
+            continue
+        base_stats = template.get("base_stats") or {}
+        stats_block = (
+            pl.get("stats") if isinstance(pl.get("stats"), MutableMapping) else {}
+        )
+        mapped_stats = _normalize_stats_block(
+            existing_stats_map.get(cls_name) if isinstance(existing_stats_map, Mapping) else None
+        )
+        stats_ok = mapped_stats != _empty_stats()
+        repaired_stats = dict(stats_block)
+        if not stats_ok:
+            for key, val in (base_stats or {}).items():
+                try:
+                    cur_val = int(repaired_stats.get(key, 0))
+                except Exception:
+                    cur_val = 0
+                if cur_val <= 0:
+                    repaired_stats[key] = val
+                    changed = True
+        elif not repaired_stats:
+            repaired_stats = dict(mapped_stats)
+        if repaired_stats:
+            pl["stats"] = repaired_stats
+
+        hp_block = pl.get("hp") if isinstance(pl.get("hp"), MutableMapping) else {}
+        mapped_hp = _normalize_hp_block(
+            existing_hp_map.get(cls_name) if isinstance(existing_hp_map, Mapping) else None
+        )
+        hp_ok = mapped_hp != _empty_hp()
+        try:
+            hp_cur = int(hp_block.get("current", 0))
+            hp_max = int(hp_block.get("max", 0))
+        except Exception:
+            hp_cur = hp_max = 0
+        tpl_hp = int(template.get("hp_max_start", 0) or 0)
+        if not hp_ok and (hp_cur <= 0 or hp_max <= 0):
+            pl["hp"] = {"current": tpl_hp, "max": tpl_hp}
+            changed = True
+        elif hp_ok and not hp_block:
+            pl["hp"] = dict(mapped_hp)
+
+        pos_tuple = _coerce_pos(pl.get("pos") or pl.get("position"))
+        default_pos = (2000, 0, 0)
+        is_active_player = active_id and _sanitize_player_id(pl.get("id")) == active_id
+        if pos_tuple is None:
+            target_pos = fallback_pos or default_pos
+            pl["pos"] = [int(target_pos[0]), int(target_pos[1]), int(target_pos[2])]
+            changed = True
+        elif is_active_player and fallback_pos and pos_tuple == default_pos and fallback_pos != default_pos:
+            pl["pos"] = [int(fallback_pos[0]), int(fallback_pos[1]), int(fallback_pos[2])]
+            changed = True
+        else:
+            pl["pos"] = [int(pos_tuple[0]), int(pos_tuple[1]), int(pos_tuple[2])]
+
+        normalized_stats = _normalize_stats_block(pl.get("stats"))
+        normalized_hp = _normalize_hp_block(pl.get("hp"))
+        stats_map[cls_name] = normalized_stats
+        hp_map[cls_name] = normalized_hp
+        if active_id and _sanitize_player_id(pl.get("id")) == active_id:
+            active_stats = normalized_stats
+            active_hp = normalized_hp
+
+    if not changed:
+        return False
+
+    try:
+        if stats_map:
+            state["stats_by_class"] = stats_map
+        if hp_map:
+            state["hp_by_class"] = hp_map
+        if active_stats:
+            state["stats"] = dict(active_stats)
+        if active_hp:
+            state["hp"] = dict(active_hp)
+        if fallback_pos:
+            state["pos"] = [int(fallback_pos[0]), int(fallback_pos[1]), int(fallback_pos[2])]
+            state["position"] = list(state["pos"])
+        canonical = get_canonical_state(state)
+        state.clear()
+        state.update(canonical)
+    except Exception:
+        return True
+
+    return True
 
 
 def build_active_view(p: dict) -> Dict[str, Any]:
@@ -1972,35 +2113,11 @@ def _ensure_ready_target_map(
         if not key:
             continue
         current = _sanitize_ready_target(normalized.get(key))
-        if current:
-            normalized[key] = current
-            continue
-
-        fallback: Optional[str] = None
-        for source in _source_candidates_for_class(key, class_sources, active, state):
-            if not isinstance(source, Mapping):
-                continue
-            ready_map = source.get("ready_target_by_class")
-            if isinstance(ready_map, Mapping):
-                fallback = _sanitize_ready_target(ready_map.get(key))
-                if fallback:
-                    break
-            target_map = source.get("target_monster_id_by_class")
-            if isinstance(target_map, Mapping):
-                fallback = _sanitize_ready_target(target_map.get(key))
-                if fallback:
-                    break
-            candidate = source.get("ready_target")
-            if candidate is not None:
-                fallback = _sanitize_ready_target(candidate)
-                if fallback:
-                    break
-            candidate = source.get("target_monster_id")
-            if candidate is not None:
-                fallback = _sanitize_ready_target(candidate)
-                if fallback:
-                    break
-        normalized[key] = fallback
+        if current is None:
+            alt = f"Mutant {key}"
+            if alt in normalized and normalized.get(alt) is not None:
+                current = _sanitize_ready_target(normalized.get(alt))
+        normalized[key] = current
 
     sanitized_map = {
         cls_name: _sanitize_ready_target(value) for cls_name, value in normalized.items()
@@ -2746,6 +2863,11 @@ def load_state(*, source: str | None = None) -> Dict[str, Any]:
 
     if isinstance(state, MutableMapping):
         ensure_class_profiles(state)
+        try:
+            if _repair_from_templates(state):
+                _persist_canonical(state, reason="load_state.repaired_templates")
+        except Exception:
+            LOG.debug("Failed to repair state from templates", exc_info=True)
     repaired_snapshot = _snapshot_state(state)
     log_state = dict(state)
     active_view = build_active_view(state)

@@ -337,7 +337,8 @@ def load_catalog(path: Path | str | None = None) -> ItemsCatalog:
     global _CATALOG_CACHE
     if _CATALOG_CACHE is None:
         _CATALOG_CACHE = {}
-    key = str(path) if path is not None else "__default__"
+    resolved_path = str(SQLiteConnectionManager(path).path)
+    key = resolved_path
     cached = _CATALOG_CACHE.get(key)
     if cached is not None:
         return cached

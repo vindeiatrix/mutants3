@@ -581,6 +581,40 @@ def _extract_wielded_iid(payload: Any, cls: Optional[str]) -> Optional[str]:
     return None
 
 
+def _weapon_display_name(weapon_iid: Optional[str], catalog: Mapping[str, Mapping[str, Any]]) -> str:
+    """Best-effort label for the wielded weapon."""
+
+    def _name_from_catalog(item_id: str) -> Optional[str]:
+        meta = None
+        getter = getattr(catalog, "get", None)
+        if callable(getter):
+            try:
+                meta = getter(str(item_id))
+            except Exception:
+                meta = None
+        elif isinstance(catalog, Mapping):
+            meta = catalog.get(str(item_id))
+        if isinstance(meta, Mapping):
+            for key in ("name", "display_name", "title"):
+                candidate = meta.get(key)
+                if isinstance(candidate, str) and candidate.strip():
+                    return candidate
+        return None
+
+    item_id = None
+    if weapon_iid:
+        inst = itemsreg.get_instance(weapon_iid) or {}
+        item_id = inst.get("item_id") or inst.get("catalog_id") or inst.get("id")
+    label = _name_from_catalog(str(item_id)) if item_id is not None else None
+    if label:
+        return label
+    if item_id:
+        return str(item_id)
+    if weapon_iid:
+        return str(weapon_iid)
+    return "fists"
+
+
 def perform_melee_attack(ctx: Dict[str, Any]) -> Dict[str, Any]:
     """Execute a combat strike using the active player and return a summary payload."""
 
@@ -687,7 +721,8 @@ def perform_melee_attack(ctx: Dict[str, Any]) -> Dict[str, Any]:
     }
 
     label = _monster_display_name(target, target_id)
-    bus.push("COMBAT/HIT", f"You strike {label} for {final_damage} damage.")
+    weapon_label = _weapon_display_name(weapon_iid, catalog)
+    bus.push("COMBAT/HIT", f"You've hit {label} with your {weapon_label}!")
 
     if weapon_wear and weapon_wear.get("cracked"):
         turnlog.emit(

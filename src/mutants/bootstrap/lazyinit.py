@@ -216,6 +216,11 @@ def _ensure_player_state_file(
                 normalized = pstate.normalize_player_live_state(data)
                 canonical = pstate.get_canonical_state(normalized)
                 normalized_canonical = pstate.normalize_player_live_state(canonical)
+                try:
+                    if pstate._repair_from_templates(normalized_canonical):  # type: ignore[attr-defined]
+                        normalized_canonical = pstate.get_canonical_state(normalized_canonical)
+                except Exception:
+                    LOG.debug("state repair failed during ensure", exc_info=True)
                 before = json.dumps(data, sort_keys=True, ensure_ascii=False)
                 after = json.dumps(normalized_canonical, sort_keys=True, ensure_ascii=False)
                 if after != before:

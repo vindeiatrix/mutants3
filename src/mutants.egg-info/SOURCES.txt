@@ -136,6 +136,9 @@ tests/test_repl_flush_state.py
 tests/test_shadows_after_flee.py
 tests/test_shadows_peek.py
 tests/test_skull_description.py
+tests/test_state_repair_templates.py
+tests/test_statistics_formatting.py
 tests/test_statistics_ready_target.py
 tests/test_strike_rewards.py
 tests/test_travel_mechanics.py
+tests/test_wield_hit_message.py

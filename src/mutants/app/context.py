@@ -76,6 +76,11 @@ def build_context() -> Dict[str, Any]:
         state = pstate.ensure_class_profiles(state)
     if isinstance(state, dict):
         pstate.normalize_player_state_inplace(state)
+        try:
+            if pstate._repair_from_templates(state):  # type: ignore[attr-defined]
+                pstate.save_state(state, reason="ctx-repair-templates")
+        except Exception:
+            LOG.debug("Failed to repair player state in context build", exc_info=True)
 
     active_player = None
     active_class = None

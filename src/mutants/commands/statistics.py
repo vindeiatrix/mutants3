@@ -205,13 +205,30 @@ def statistics_cmd(arg: str, ctx) -> None:
     total_weight = 0
     for iid in inventory:
         inst = itemsreg.get_instance(iid)
-        if not inst:
-            names.append(str(iid))
-            continue
-        tpl_id = inst.get("item_id") or inst.get("catalog_id") or inst.get("id")
-        tpl = cat.get(str(tpl_id)) if tpl_id and cat else {}
-        names.append(item_label(inst, tpl or {}, show_charges=False))
-        weight = _coerce_weight(get_effective_weight(inst, tpl or {}))
+        tpl = {}
+        if inst:
+            tpl_id = inst.get("item_id") or inst.get("catalog_id") or inst.get("id")
+            tpl = cat.get(str(tpl_id)) if tpl_id and cat else {}
+            if not tpl and tpl_id:
+                try:
+                    tpl = items_catalog.catalog_defaults(str(tpl_id))
+                except Exception:
+                    tpl = {}
+            names.append(item_label(inst, tpl or {}, show_charges=False))
+            weight = _coerce_weight(get_effective_weight(inst, tpl or {}))
+        else:
+            tpl = cat.get(str(iid)) if cat else {}
+            if not tpl:
+                try:
+                    tpl = items_catalog.catalog_defaults(str(iid))
+                except Exception:
+                    tpl = {}
+            if tpl:
+                names.append(item_label({"item_id": str(iid)}, tpl or {}, show_charges=False))
+                weight = _coerce_weight(get_effective_weight({}, tpl or {}))
+            else:
+                names.append(str(iid))
+                weight = None
         if weight is not None:
             total_weight += max(0, weight)
 
