@@ -1,0 +1,160 @@
+Launching game (SQLite backend)...
+Mutants — classic BBS vibes.  Type 'help' for commands; 'theme mono' for no color.
+
+ 1. Mutant Thief    Level: 1   Year: 2000  ( 0  0)
+ 2. Mutant Priest   Level: 1   Year: 2000  ( 0  0)
+ 3. Mutant Wizard   Level: 1   Year: 2000  ( 0  0)
+ 4. Mutant Warrior  Level: 1   Year: 2000  ( 0  0)
+ 5. Mutant Mage     Level: 1   Year: 2000  ( 0  0)
+
+Type BURY [class number] to reset a player. Type X to exit.
+***
+Select (Bury, 1-5, ?) bury all
+Player reset.
+ 1. Mutant Thief    Level: 1   Year: 2000  ( 0  0)
+ 2. Mutant Priest   Level: 1   Year: 2000  ( 0  0)
+ 3. Mutant Wizard   Level: 1   Year: 2000  ( 0  0)
+ 4. Mutant Warrior  Level: 1   Year: 2000  ( 0  0)
+ 5. Mutant Mage     Level: 1   Year: 2000  ( 0  0)
+
+Type BURY [class number] to reset a player. Type X to exit.
+***
+Select (Bury, 1-5, ?) 4
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Scrap‑Armour, A Nuclear‑Rock.
+> w
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear‑Waste.
+> w
+Graffiti lines the city walls.
+Compass: (-2E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Bottle‑Cap, A Nuclear‑Decay, A Nuclear‑Decay (1).
+> get n
+***
+You pick up the Nuclear‑Decay.
+> d hp 43434
+***
+Set HP for Warrior to 43434 / 43434.
+> d m w
+Graffiti lines the city walls.
+Compass: (-2E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Bottle‑Cap, A Nuclear‑Decay.
+***
+Waste-Mauler-971 is here.
+***
+Spawned 1 x Waste‑Mauler‑971 at your location.
+> look
+Graffiti lines the city walls.
+Compass: (-2E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Bottle‑Cap, A Nuclear‑Decay.
+***
+Waste-Mauler-971 is here.
+***
+The wastes made me. Now I break you.
+***
+Waste‑Mauler‑971 has hit you with his Rebar‑Maul!
+> com w
+***
+You ready yourself against Waste‑Mauler‑971.
+***
+Waste‑Mauler‑971 picks up Nuclear‑Decay.
+> wie n
+Graffiti lines the city walls.
+Compass: (-2E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Bottle‑Cap.
+***
+You ready the Nuclear‑Decay for combat.
+***
+You strike Waste‑Mauler‑971 for 61 damage.
+***
+Waste‑Mauler‑971 yells: Get away from me!
+***
+Waste‑Mauler‑971 has just left east
+***
+You hear loud sounds of footsteps to the east.
+> look
+Graffiti lines the city walls.
+Compass: (-2E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Bottle‑Cap.
+***
+You hear faint sounds of yelling and screaming far to the east.
+***
+You hear faint sounds of footsteps far to the east.
+>  
+***
+Type ? if you need assistance.
+> e
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear‑Waste.
+***
+You see shadows to the east.
+> loo ea
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Scrap‑Armour, A Nuclear‑Rock.
+***
+Waste-Mauler-971 is here.
+> look
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear‑Waste.
+***
+You see shadows to the east.

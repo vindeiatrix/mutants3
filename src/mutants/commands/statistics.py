@@ -184,7 +184,6 @@ def statistics_cmd(arg: str, ctx) -> None:
     lines.append(_line("Year A.D. : ", f"{year}"))
 
     bus.push("SYSTEM/OK", "\n".join(lines))
-    bus.push("SYSTEM/OK", f"Ready to Combat: {ready_target_label}")
 
     # Inline inventory block (single event) to avoid extra separators between lines.
     inv_state, inv_player = pstate.get_active_pair(state_hint)

@@ -4,20 +4,15 @@
       "id": "p1",
       "class": "Thief",
       "pos": [
-        2400,
+        2000,
         0,
         0
       ],
-      "inventory": [
-        "76706acc62884d9297bd93ff951ef911"
-      ],
-      "ions": 118620,
+      "inventory": [],
+      "ions": 30000,
       "name": "Thief",
-      "Ions": 118620,
-      "is_active": true,
-      "riblets": 17,
-      "Riblets": 17,
-      "exp_points": 60
+      "Ions": 30000,
+      "is_active": false
     },
     {
       "id": "player_priest",
@@ -51,15 +46,22 @@
       "id": "player_warrior",
       "name": "Warrior",
       "class": "Warrior",
-      "is_active": false,
+      "is_active": true,
       "pos": [
-        2000,
-        0,
-        0
+        2300,
+        1,
+        1
       ],
-      "ions": 30000,
-      "inventory": [],
-      "Ions": 30000
+      "ions": 112415,
+      "inventory": [
+        "3ef7da26224045e2b0e62e48b9fc622f",
+        "ea49cabda7364ae38c033837d2dcc816",
+        "7f6c759d29874a3eb9f82094eccaeb92"
+      ],
+      "Ions": 112415,
+      "riblets": 37,
+      "Riblets": 37,
+      "exp_points": 148
     },
     {
       "id": "player_mage",
@@ -76,38 +78,42 @@
       "Ions": 30000
     }
   ],
-  "active_id": "p1",
+  "active_id": "player_warrior",
   "ions_by_class": {
-    "Thief": 118620,
+    "Thief": 30000,
     "Priest": 30000,
     "Wizard": 30000,
-    "Warrior": 30000,
+    "Warrior": 112415,
     "Mage": 30000
   },
-  "class": "Thief",
-  "name": "Thief",
+  "class": "Warrior",
+  "name": "Warrior",
   "pos": [
-    2400,
-    0,
-    0
+    2300,
+    1,
+    1
   ],
   "bags": {
-    "Thief": [
-      "76706acc62884d9297bd93ff951ef911"
-    ],
+    "Thief": [],
     "Priest": [],
     "Wizard": [],
-    "Warrior": [],
+    "Warrior": [
+      "3ef7da26224045e2b0e62e48b9fc622f",
+      "ea49cabda7364ae38c033837d2dcc816",
+      "7f6c759d29874a3eb9f82094eccaeb92"
+    ],
     "Mage": []
   },
   "inventory": [
-    "76706acc62884d9297bd93ff951ef911"
+    "3ef7da26224045e2b0e62e48b9fc622f",
+    "ea49cabda7364ae38c033837d2dcc816",
+    "7f6c759d29874a3eb9f82094eccaeb92"
   ],
   "riblets_by_class": {
-    "Thief": 17,
+    "Thief": 0,
     "Priest": 0,
     "Wizard": 0,
-    "Warrior": 0,
+    "Warrior": 37,
     "Mage": 0
   },
   "exhaustion_by_class": {
@@ -118,10 +124,10 @@
     "Mage": 0
   },
   "exp_by_class": {
-    "Thief": 60,
+    "Thief": 0,
     "Priest": 0,
     "Wizard": 0,
-    "Warrior": 0,
+    "Warrior": 148,
     "Mage": 0
   },
   "level_by_class": {
@@ -133,8 +139,8 @@
   },
   "hp_by_class": {
     "Thief": {
-      "current": 2323166,
-      "max": 2323232
+      "current": 18,
+      "max": 18
     },
     "Priest": {
       "current": 30,
@@ -145,8 +151,8 @@
       "max": 23
     },
     "Warrior": {
-      "current": 40,
-      "max": 40
+      "current": 232214,
+      "max": 232323
     },
     "Mage": {
       "current": 28,
@@ -206,25 +212,25 @@
       "armour": null
     },
     "Warrior": {
-      "armour": null
+      "armour": "7f6c759d29874a3eb9f82094eccaeb92"
     },
     "Mage": {
       "armour": null
     }
   },
   "ready_target_by_class": {
-    "Thief": "i.20251219.14a22753dc52",
-    "Priest": "i.20251219.5b742dc387ca",
-    "Wizard": "i.20251219.5b742dc387ca",
-    "Warrior": "i.20251219.5b742dc387ca",
-    "Mage": "i.20251219.5b742dc387ca"
+    "Thief": null,
+    "Priest": null,
+    "Wizard": null,
+    "Warrior": null,
+    "Mage": null
   },
   "target_monster_id_by_class": {
-    "Thief": "i.20251219.14a22753dc52",
-    "Priest": "i.20251219.5b742dc387ca",
-    "Wizard": "i.20251219.5b742dc387ca",
-    "Warrior": "i.20251219.5b742dc387ca",
-    "Mage": "i.20251219.5b742dc387ca"
+    "Thief": null,
+    "Priest": null,
+    "Wizard": null,
+    "Warrior": null,
+    "Mage": null
   },
   "status_effects_by_class": {
     "Thief": [],
@@ -274,41 +280,41 @@
   },
   "world_tile_effects": {},
   "armour": {
-    "wearing": null,
+    "wearing": "7f6c759d29874a3eb9f82094eccaeb92",
     "armour_class": 1
   },
-  "ions": 118620,
-  "Ions": 118620,
-  "riblets": 17,
-  "Riblets": 17,
+  "ions": 112415,
+  "Ions": 112415,
+  "riblets": 37,
+  "Riblets": 37,
   "exhaustion": 0,
-  "exp_points": 60,
+  "exp_points": 148,
   "level": 1,
   "hp": {
-    "current": 2323166,
-    "max": 2323232
+    "current": 232214,
+    "max": 232323
   },
   "stats": {
-    "str": 15,
-    "int": 9,
-    "wis": 8,
-    "dex": 14,
-    "con": 15,
-    "cha": 16
+    "str": 23,
+    "int": 12,
+    "wis": 14,
+    "dex": 20,
+    "con": 19,
+    "cha": 9
   },
-  "readied_spell": null,
+  "position": [
+    2300,
+    1,
+    1
+  ],
   "ready_target": null,
   "target_monster_id": null,
+  "readied_spell": null,
   "status_effects": [],
   "carried_weight": 0,
   "conditions": {
     "poisoned": false,
     "encumbered": false,
     "ion_starving": false
-  },
-  "position": [
-    2400,
-    0,
-    0
-  ]
+  }
 }

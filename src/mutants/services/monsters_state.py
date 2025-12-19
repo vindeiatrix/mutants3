@@ -1101,9 +1101,10 @@ class MonstersState:
             self._rebuild_pos_index()
 
         buckets = self._pos_index.get(year, {})
+        # Match movement deltas (DELTA) where positive Y is north.
         offsets = [
-            ((0, -1), "N"),
-            ((0, 1), "S"),
+            ((0, 1), "N"),
+            ((0, -1), "S"),
             ((1, 0), "E"),
             ((-1, 0), "W"),
         ]

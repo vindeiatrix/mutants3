@@ -1298,7 +1298,7 @@ def _flee_statement_action(
         monster=monster_id,
     )
     bus = _feedback_bus(ctx)
-    if hasattr(bus, "push"):
+    if hasattr(bus, "push") and _is_collocated(monster, ctx):
         try:
             bus.push("COMBAT/INFO", f"{label} yells: Get away from me!")
         except Exception:
@@ -1372,10 +1372,10 @@ def _flee_move_action(
     if target_pos is None:
         return {"ok": False, "reason": "missing_target_pos", "flee_move": False, "stop_turn": False}
 
-    # Announce flee before attempting movement.
+    # Announce flee before attempting movement (only when co-located).
     bus = _feedback_bus(ctx)
     label = _monster_display_name(monster)
-    if hasattr(bus, "push"):
+    if hasattr(bus, "push") and target_collocated:
         try:
             bus.push("COMBAT/INFO", f"{label} yells: Get away from me!")
         except Exception:
@@ -1408,10 +1408,6 @@ def _flee_move_action(
             if dir_token:
                 state_block["flee_dir"] = dir_token
         _mark_monsters_dirty(ctx, monster)
-    else:
-        # Clear direction so next yell can pick a fresh path.
-        if isinstance(state_block, MutableMapping) and "flee_dir" in state_block:
-            state_block.pop("flee_dir", None)
     return {"ok": success, "flee_move": True, "stop_turn": success}
 
 

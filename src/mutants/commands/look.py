@@ -74,7 +74,7 @@ def look_cmd(arg: str, ctx: Dict[str, Any]) -> None:
         # Suppress shadow cues for adjacent peeks; shadows are only shown for the current tile.
         vm = dict(vm)
         vm["shadows"] = []
-        ctx["_suppress_shadows_once"] = True
+        ctx["_suppress_shadows_once"] = False
         ctx["_shadow_hint_once"] = []
         ctx["peek_vm"] = vm
         ctx["render_next"] = True

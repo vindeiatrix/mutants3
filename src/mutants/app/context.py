@@ -430,6 +430,9 @@ def render_frame(ctx: Dict[str, Any]) -> None:
         palette=ctx["theme"].palette,
         width=ctx["theme"].width,
     )
+    # Expose vm for tests that inspect rendered payloads.
+    if isinstance(ctx, MutableMapping):
+        ctx["_last_vm"] = vm
     for line in lines:
         print(line)
     # Also log the human-facing ground list that was rendered.

@@ -1,0 +1,232 @@
+Launching game (SQLite backend)...
+Mutants — classic BBS vibes.  Type 'help' for commands; 'theme mono' for no color.
+
+ 1. Mutant Thief    Level: 1   Year: 2000  ( 0  0)
+ 2. Mutant Priest   Level: 1   Year: 2000  ( 0  0)
+ 3. Mutant Wizard   Level: 1   Year: 2000  ( 0  0)
+ 4. Mutant Warrior  Level: 1   Year: 2000  ( 0  0)
+ 5. Mutant Mage     Level: 1   Year: 2000  ( 0  0)
+
+Type BURY [class number] to reset a player. Type X to exit.
+***
+Select (Bury, 1-5, ?) bury all
+Player reset.
+ 1. Mutant Thief    Level: 1   Year: 2000  ( 0  0)
+ 2. Mutant Priest   Level: 1   Year: 2000  ( 0  0)
+ 3. Mutant Wizard   Level: 1   Year: 2000  ( 0  0)
+ 4. Mutant Warrior  Level: 1   Year: 2000  ( 0  0)
+ 5. Mutant Mage     Level: 1   Year: 2000  ( 0  0)
+
+Type BURY [class number] to reset a player. Type X to exit.
+***
+Select (Bury, 1-5, ?) 4
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Scrap‑Armour, A Nuclear‑Rock.
+> w    
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear‑Waste.
+> w  
+Graffiti lines the city walls.
+Compass: (-2E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Bottle‑Cap, A Nuclear‑Decay, A Nuclear‑Decay (1).
+> get n
+***
+You pick up the Nuclear‑Decay.
+> d m w
+Graffiti lines the city walls.
+Compass: (-2E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Bottle‑Cap, A Nuclear‑Decay.
+***
+Waste-Mauler-361 is here.
+***
+Spawned 1 x Waste‑Mauler‑361 at your location.
+> d hp 232323
+***
+Set HP for Warrior to 232323 / 232323.
+> com w
+***
+You ready yourself against Waste‑Mauler‑361.
+> wie n
+***
+You ready the Nuclear‑Decay for combat.
+***
+You strike Waste‑Mauler‑361 for 61 damage.
+***
+Waste‑Mauler‑361 yells: Get away from me!
+> look
+Graffiti lines the city walls.
+Compass: (-2E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Bottle‑Cap, A Nuclear‑Decay.
+***
+Waste‑Mauler‑361 yells: Get away from me!
+***
+Waste‑Mauler‑361 has just left west
+***
+You hear loud sounds of yelling and screaming to the west.
+***
+You hear loud sounds of footsteps to the west.
+> look
+Graffiti lines the city walls.
+Compass: (-2E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Bottle‑Cap, A Nuclear‑Decay.
+***
+Waste‑Mauler‑361 yells: Get away from me!
+***
+You hear faint sounds of yelling and screaming far to the west.
+***
+You hear faint sounds of footsteps far to the west.
+> look
+Graffiti lines the city walls.
+Compass: (-2E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Bottle‑Cap, A Nuclear‑Decay.
+***
+Waste‑Mauler‑361 yells: Get away from me!
+***
+You hear faint sounds of footsteps far to the southwest.
+> look
+Graffiti lines the city walls.
+Compass: (-2E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Bottle‑Cap, A Nuclear‑Decay.
+> look
+Graffiti lines the city walls.
+Compass: (-2E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Bottle‑Cap, A Nuclear‑Decay.
+> look
+Graffiti lines the city walls.
+Compass: (-2E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Bottle‑Cap, A Nuclear‑Decay.
+> look
+Graffiti lines the city walls.
+Compass: (-2E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Bottle‑Cap, A Nuclear‑Decay.
+> look
+Graffiti lines the city walls.
+Compass: (-2E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Bottle‑Cap, A Nuclear‑Decay.
+> look
+Graffiti lines the city walls.
+Compass: (-2E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Bottle‑Cap, A Nuclear‑Decay.
+> look
+Graffiti lines the city walls.
+Compass: (-2E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Bottle‑Cap, A Nuclear‑Decay.
+> w
+You're in a wrecked building.
+Compass: (-3E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Monster‑Bait.
+***
+Waste‑Mauler‑361 yells: Get away from me!
+***
+You hear faint sounds of footsteps far to the southwest.
+> w
+A sign reads: FOR SALE $ 25,000
+Compass: (-4E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+> w
+A sign reads: FOR SALE $ 25,000
+Compass: (-4E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+You're blocked!
+***
+Waste‑Mauler‑361 yells: Get away from me!
+***
+You hear loud sounds of yelling and screaming to the south.
+***
+You hear loud sounds of footsteps to the south.
+> s
+An eerie calm settles in the distance.
+Compass: (-4E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-361 is here.
+***
+Waste‑Mauler‑361 yells: Get away from me!

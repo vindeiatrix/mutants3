@@ -534,6 +534,8 @@ def _evaluate_flee_cascade(
         dir_token = _pick_flee_dir(mon_pos, target_pos, rng) if target_collocated or not state.get("flee_dir") else state.get("flee_dir")
         if dir_token:
             state["flee_dir"] = dir_token
+    # Once a flee gate triggers, latch flee mode so the monster never re-enters pursuit.
+    _set_flee_mode(monster, True)
 
     # Decide action after yell: mostly move, sometimes just yell.
     move_roll = int(rng.randrange(100))

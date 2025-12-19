@@ -309,6 +309,8 @@ def _apply_movement(
     start: tuple[int, int],
     target: tuple[int, int],
     ctx: Any,
+    *,
+    allow_path: bool = True,
 ) -> tuple[bool, dict[str, Any]]:
     loader = _resolve_world_loader(ctx)
     dynamics = _resolve_dynamics(ctx)
@@ -345,6 +347,10 @@ def _apply_movement(
         details["mode"] = "non-adjacent"
 
     if step_taken is None:
+        if not allow_path:
+            details.setdefault("mode", "blocked")
+            details.setdefault("reason", details.get("direct_reason", "blocked"))
+            return False, details
         path = world_years.find_path_between(
             year,
             start,
@@ -558,24 +564,25 @@ def attempt_flee_step(
         if abs(step[0] - int(away[1])) + abs(step[1] - int(away[2])) > current_distance:
             preferred_step = step
 
-    directions = list(_DIRECTIONS.keys())
-    try:
-        rng.shuffle(directions)
-    except Exception:
-        pass
-
-    candidates: list[tuple[int, tuple[int, int]]] = []
+    # When a flee direction is latched, keep using it even if blocked.
     if preferred_step is not None:
+        candidates = []
         pref_dist = abs(preferred_step[0] - int(away[1])) + abs(preferred_step[1] - int(away[2]))
         candidates.append((pref_dist, preferred_step))
-    for dx, dy in directions:
-        if preferred_step is not None and (int(sx) + dx, int(sy) + dy) == preferred_step:
-            continue
-        step = (int(sx) + int(dx), int(sy) + int(dy))
-        step_distance = abs(step[0] - int(away[1])) + abs(step[1] - int(away[2]))
-        if step_distance <= current_distance:
-            continue
-        candidates.append((step_distance, step))
+    else:
+        directions = list(_DIRECTIONS.keys())
+        try:
+            rng.shuffle(directions)
+        except Exception:
+            pass
+
+        candidates: list[tuple[int, tuple[int, int]]] = []
+        for dx, dy in directions:
+            step = (int(sx) + int(dx), int(sy) + int(dy))
+            step_distance = abs(step[0] - int(away[1])) + abs(step[1] - int(away[2]))
+            if step_distance <= current_distance:
+                continue
+            candidates.append((step_distance, step))
 
     if not candidates:
         _log(ctx, monster, success=False, reason="no-away-step", pos=pos, away=away)
@@ -591,7 +598,14 @@ def attempt_flee_step(
     has_bound_target = bool(monster.get("target_player_id") or pending_target)
 
     for _, step in candidates:
-        success, details = _apply_movement(monster, int(year), (int(sx), int(sy)), step, ctx)
+        success, details = _apply_movement(
+            monster,
+            int(year),
+            (int(sx), int(sy)),
+            step,
+            ctx,
+            allow_path=preferred_step is None,
+        )
         if success:
             meta = {"from": (int(sx), int(sy)), "step": step, "away": away}
             meta.update(details)

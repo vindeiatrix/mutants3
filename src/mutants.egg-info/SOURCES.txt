@@ -113,10 +113,12 @@ tests/test_class_menu.py
 tests/test_class_menu_state_persistence.py
 tests/test_class_state_isolation.py
 tests/test_context_ready_target.py
+tests/test_convert_position_persistence.py
 tests/test_equip_drop_bug.py
 tests/test_fix_command.py
 tests/test_logging_toggle.py
 tests/test_monster_ai_scope.py
+tests/test_monster_flee_direction.py
 tests/test_monster_loot_drops.py
 tests/test_monster_spawn.py
 tests/test_monster_target_persistence.py
@@ -127,9 +129,11 @@ tests/test_move_ready_target.py
 tests/test_player_state_active_view.py
 tests/test_player_state_canonical.py
 tests/test_player_state_clear_target.py
+tests/test_player_state_persist_every_tick.py
 tests/test_player_state_runtime_cache.py
 tests/test_position_sync.py
 tests/test_repl_flush_state.py
+tests/test_shadows_after_flee.py
 tests/test_shadows_peek.py
 tests/test_skull_description.py
 tests/test_statistics_ready_target.py

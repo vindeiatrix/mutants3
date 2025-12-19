@@ -1,0 +1,817 @@
+Launching game (SQLite backend)...
+Mutants — classic BBS vibes.  Type 'help' for commands; 'theme mono' for no color.
+
+ 1. Mutant Thief    Level: 1   Year: 2000  ( 0  0)
+ 2. Mutant Priest   Level: 1   Year: 2000  ( 0  0)
+ 3. Mutant Wizard   Level: 1   Year: 2000  ( 0  0)
+ 4. Mutant Warrior  Level: 1   Year: 2000  ( 0  0)
+ 5. Mutant Mage     Level: 1   Year: 2000  ( 0  0)
+
+Type BURY [class number] to reset a player. Type X to exit.
+***
+Select (Bury, 1-5, ?) bury all
+Player reset.
+ 1. Mutant Thief    Level: 1   Year: 2000  ( 0  0)
+ 2. Mutant Priest   Level: 1   Year: 2000  ( 0  0)
+ 3. Mutant Wizard   Level: 1   Year: 2000  ( 0  0)
+ 4. Mutant Warrior  Level: 1   Year: 2000  ( 0  0)
+ 5. Mutant Mage     Level: 1   Year: 2000  ( 0  0)
+
+Type BURY [class number] to reset a player. Type X to exit.
+***
+Select (Bury, 1-5, ?) 4
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Scrap‑Armour, A Nuclear‑Rock.
+> debug hp 23232
+***
+Set HP for Warrior to 23232 / 23232.
+> w    
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear‑Waste.
+> w
+Graffiti lines the city walls.
+Compass: (-2E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Bottle‑Cap, A Nuclear‑Decay, A Nuclear‑Decay (1).
+> get n
+***
+You pick up the Nuclear‑Decay.
+> d m w
+Graffiti lines the city walls.
+Compass: (-2E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Bottle‑Cap, A Nuclear‑Decay.
+***
+Waste-Mauler-453 is here.
+***
+Spawned 1 x Waste‑Mauler‑453 at your location.
+> com w
+***
+You ready yourself against Waste‑Mauler‑453.
+> wie n
+***
+You ready the Nuclear‑Decay for combat.
+***
+You strike Waste‑Mauler‑453 for 61 damage.
+***
+Waste‑Mauler‑453 yells: Get away from me!
+> look
+Graffiti lines the city walls.
+Compass: (-2E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Bottle‑Cap, A Nuclear‑Decay.
+***
+Waste‑Mauler‑453 yells: Get away from me!
+***
+Waste‑Mauler‑453 has just left south
+***
+You hear loud sounds of footsteps to the south.
+***
+You hear loud sounds of yelling and screaming to the south.
+> look
+Graffiti lines the city walls.
+Compass: (-2E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Bottle‑Cap, A Nuclear‑Decay.
+***
+You see shadows to the north.
+> n
+***
+You're blocked!
+> s
+You're in a wrecked building.
+Compass: (-2E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+On the ground lies:
+A Scrap‑Armour, A Nuclear‑Waste.
+***
+Waste-Mauler-453 is here.
+***
+Waste‑Mauler‑453 restores 12 HP (1050 ions).
+***
+Waste‑Mauler‑453's body is glowing!
+> look
+You're in a wrecked building.
+Compass: (-2E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+On the ground lies:
+A Scrap‑Armour, A Nuclear‑Waste.
+***
+Waste-Mauler-453 is here.
+***
+Waste‑Mauler‑453 yells: Get away from me!
+> look
+You're in a wrecked building.
+Compass: (-2E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+On the ground lies:
+A Scrap‑Armour, A Nuclear‑Waste.
+***
+Waste-Mauler-453 is here.
+***
+Waste‑Mauler‑453 yells: Get away from me!
+> look
+You're in a wrecked building.
+Compass: (-2E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+On the ground lies:
+A Scrap‑Armour, A Nuclear‑Waste.
+***
+Waste-Mauler-453 is here.
+***
+Waste‑Mauler‑453 restores 12 HP (1050 ions).
+***
+Waste‑Mauler‑453's body is glowing!
+> look
+You're in a wrecked building.
+Compass: (-2E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+On the ground lies:
+A Scrap‑Armour, A Nuclear‑Waste.
+***
+Waste-Mauler-453 is here.
+***
+Waste‑Mauler‑453 has hit you with his Rebar‑Smash!
+***
+You suffer 13 hit points of damage!
+> look
+You're in a wrecked building.
+Compass: (-2E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+On the ground lies:
+A Scrap‑Armour, A Nuclear‑Waste.
+***
+Waste-Mauler-453 is here.
+***
+Waste‑Mauler‑453 has hit you with his Rebar‑Smash!
+***
+You suffer 13 hit points of damage!
+> look
+You're in a wrecked building.
+Compass: (-2E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+On the ground lies:
+A Scrap‑Armour, A Nuclear‑Waste.
+***
+Waste-Mauler-453 is here.
+***
+Waste‑Mauler‑453 restores 12 HP (1050 ions).
+***
+Waste‑Mauler‑453's body is glowing!
+> look
+You're in a wrecked building.
+Compass: (-2E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+On the ground lies:
+A Scrap‑Armour, A Nuclear‑Waste.
+***
+Waste-Mauler-453 is here.
+***
+Waste‑Mauler‑453 restores 12 HP (1050 ions).
+***
+Waste‑Mauler‑453's body is glowing!
+> look
+You're in a wrecked building.
+Compass: (-2E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+On the ground lies:
+A Scrap‑Armour, A Nuclear‑Waste.
+***
+Waste-Mauler-453 is here.
+***
+Waste‑Mauler‑453 has hit you with his Rebar‑Maul!
+> look
+You're in a wrecked building.
+Compass: (-2E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+On the ground lies:
+A Scrap‑Armour, A Nuclear‑Waste.
+***
+Waste-Mauler-453 is here.
+***
+Waste‑Mauler‑453 has hit you with his Rebar‑Smash!
+***
+You suffer 13 hit points of damage!
+> look
+You're in a wrecked building.
+Compass: (-2E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+On the ground lies:
+A Scrap‑Armour, A Nuclear‑Waste.
+***
+Waste-Mauler-453 is here.
+***
+Waste‑Mauler‑453 has hit you with his Rebar‑Smash!
+***
+You suffer 13 hit points of damage!
+> look
+You're in a wrecked building.
+Compass: (-2E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+On the ground lies:
+A Scrap‑Armour, A Nuclear‑Waste.
+***
+Waste-Mauler-453 is here.
+***
+Waste‑Mauler‑453 has hit you with his Rebar‑Maul!
+> look
+You're in a wrecked building.
+Compass: (-2E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+On the ground lies:
+A Scrap‑Armour, A Nuclear‑Waste.
+***
+Waste-Mauler-453 is here.
+***
+Waste‑Mauler‑453 yells: Get away from me!
+> look
+You're in a wrecked building.
+Compass: (-2E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+On the ground lies:
+A Scrap‑Armour.
+***
+Waste-Mauler-453 is here.
+***
+Waste‑Mauler‑453 picks up Nuclear‑Waste.
+> look
+You're in a wrecked building.
+Compass: (-2E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+On the ground lies:
+A Scrap‑Armour.
+***
+Waste-Mauler-453 is here.
+***
+A blinding white flash erupts around Waste‑Mauler‑453!
+***
+Waste‑Mauler‑453 converts loot worth 15000 ions.
+> look
+You're in a wrecked building.
+Compass: (-2E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+On the ground lies:
+A Scrap‑Armour.
+***
+Waste-Mauler-453 is here.
+***
+Waste‑Mauler‑453 has hit you with his Rebar‑Smash!
+***
+You suffer 13 hit points of damage!
+> look
+You're in a wrecked building.
+Compass: (-2E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+On the ground lies:
+A Scrap‑Armour.
+***
+Waste-Mauler-453 is here.
+***
+Waste‑Mauler‑453 yells: Get away from me!
+> look
+You're in a wrecked building.
+Compass: (-2E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+On the ground lies:
+A Scrap‑Armour.
+***
+Waste-Mauler-453 is here.
+***
+Waste‑Mauler‑453 has hit you with his Rebar‑Maul!
+> look
+You're in a wrecked building.
+Compass: (-2E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+On the ground lies:
+A Scrap‑Armour.
+***
+Waste‑Mauler‑453 yells: Get away from me!
+***
+Waste‑Mauler‑453 has just left north
+***
+You hear loud sounds of yelling and screaming to the north.
+***
+You hear loud sounds of footsteps to the north.
+> n
+Graffiti lines the city walls.
+Compass: (-2E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Bottle‑Cap, A Nuclear‑Decay.
+***
+Waste‑Mauler‑453 yells: Get away from me!
+***
+Waste‑Mauler‑453 has just left east
+***
+You hear loud sounds of yelling and screaming to the east.
+***
+You hear loud sounds of footsteps to the east.
+> look
+Graffiti lines the city walls.
+Compass: (-2E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Bottle‑Cap, A Nuclear‑Decay.
+***
+You hear faint sounds of yelling and screaming far to the east.
+***
+You hear faint sounds of footsteps far to the east.
+> look
+Graffiti lines the city walls.
+Compass: (-2E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Bottle‑Cap, A Nuclear‑Decay.
+***
+You hear faint sounds of footsteps far to the east.
+> look
+Graffiti lines the city walls.
+Compass: (-2E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Bottle‑Cap, A Nuclear‑Decay.
+***
+You hear faint sounds of footsteps far to the east.
+> look
+Graffiti lines the city walls.
+Compass: (-2E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Bottle‑Cap, A Nuclear‑Decay.
+> e
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear‑Waste.
+> e
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Scrap‑Armour, A Nuclear‑Rock.
+> e
+The street is cracked here.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the east.
+> look
+The street is cracked here.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the east.
+> look
+The street is cracked here.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the east.
+> look
+The street is cracked here.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the east.
+> look
+The street is cracked here.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the east.
+> look
+The street is cracked here.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the east.
+> look ea
+Crumbling buildings surround you.
+Compass: (2E : 0N)
+east  - open gate.
+west  - area continues.
+***
+Waste-Mauler-453 is here.
+> look
+The street is cracked here.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the east.
+> look
+The street is cracked here.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the east.
+> look
+The street is cracked here.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the east.
+> look
+The street is cracked here.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the east.
+> look
+The street is cracked here.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the east.
+> look
+The street is cracked here.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You hear faint sounds of footsteps far to the east.
+> look
+The street is cracked here.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+> e
+Crumbling buildings surround you.
+Compass: (2E : 0N)
+east  - open gate.
+west  - area continues.
+***
+You see shadows to the east.
+> look ea
+Graffiti lines the city walls.
+Compass: (3E : 0N)
+north - area continues.
+south - area continues.
+west  - open gate.
+***
+Waste-Mauler-453 is here.
+> look ea
+Graffiti lines the city walls.
+Compass: (3E : 0N)
+north - area continues.
+south - area continues.
+west  - open gate.
+***
+Waste-Mauler-453 is here.
+> look ea
+Graffiti lines the city walls.
+Compass: (3E : 0N)
+north - area continues.
+south - area continues.
+west  - open gate.
+***
+Waste-Mauler-453 is here.
+> look ea
+Graffiti lines the city walls.
+Compass: (3E : 0N)
+north - area continues.
+south - area continues.
+west  - open gate.
+***
+Waste-Mauler-453 is here.
+> look
+Crumbling buildings surround you.
+Compass: (2E : 0N)
+east  - open gate.
+west  - area continues.
+***
+You see shadows to the east.
+> look
+Crumbling buildings surround you.
+Compass: (2E : 0N)
+east  - open gate.
+west  - area continues.
+***
+You see shadows to the east.
+> look
+Crumbling buildings surround you.
+Compass: (2E : 0N)
+east  - open gate.
+west  - area continues.
+***
+You see shadows to the east.
+> look
+Crumbling buildings surround you.
+Compass: (2E : 0N)
+east  - open gate.
+west  - area continues.
+***
+You see shadows to the east.
+> look
+Crumbling buildings surround you.
+Compass: (2E : 0N)
+east  - open gate.
+west  - area continues.
+***
+You see shadows to the east.
+> look
+Crumbling buildings surround you.
+Compass: (2E : 0N)
+east  - open gate.
+west  - area continues.
+***
+You see shadows to the east.
+> look
+Crumbling buildings surround you.
+Compass: (2E : 0N)
+east  - open gate.
+west  - area continues.
+***
+You see shadows to the east.
+> look
+Crumbling buildings surround you.
+Compass: (2E : 0N)
+east  - open gate.
+west  - area continues.
+***
+You see shadows to the east.
+> look
+Crumbling buildings surround you.
+Compass: (2E : 0N)
+east  - open gate.
+west  - area continues.
+***
+You see shadows to the east.
+> look
+Crumbling buildings surround you.
+Compass: (2E : 0N)
+east  - open gate.
+west  - area continues.
+***
+You see shadows to the east.
+> look
+Crumbling buildings surround you.
+Compass: (2E : 0N)
+east  - open gate.
+west  - area continues.
+***
+You see shadows to the east.
+> e
+Graffiti lines the city walls.
+Compass: (3E : 0N)
+north - area continues.
+south - area continues.
+west  - open gate.
+***
+Waste-Mauler-453 is here.
+***
+Waste‑Mauler‑453 has hit you with his Rebar‑Maul!
+> look
+Graffiti lines the city walls.
+Compass: (3E : 0N)
+north - area continues.
+south - area continues.
+west  - open gate.
+***
+Waste-Mauler-453 is here.
+***
+Waste‑Mauler‑453 has hit you with his Rebar‑Maul!
+> lok
+***
+Unknown command "lok" (commands require at least 3 letters).
+***
+Waste‑Mauler‑453 has hit you with his Rebar‑Maul!
+> look
+Graffiti lines the city walls.
+Compass: (3E : 0N)
+north - area continues.
+south - area continues.
+west  - open gate.
+***
+Waste-Mauler-453 is here.
+***
+Waste‑Mauler‑453 yells: Get away from me!
+> look
+Graffiti lines the city walls.
+Compass: (3E : 0N)
+north - area continues.
+south - area continues.
+west  - open gate.
+***
+Waste-Mauler-453 is here.
+***
+Waste‑Mauler‑453 has hit you with his Rebar‑Maul!
+> look
+Graffiti lines the city walls.
+Compass: (3E : 0N)
+north - area continues.
+south - area continues.
+west  - open gate.
+***
+Waste-Mauler-453 is here.
+***
+Waste‑Mauler‑453 has hit you with his Rebar‑Maul!
+> look
+Graffiti lines the city walls.
+Compass: (3E : 0N)
+north - area continues.
+south - area continues.
+west  - open gate.
+***
+Waste-Mauler-453 is here.
+***
+Waste‑Mauler‑453 has hit you with his Rebar‑Maul!
+> look
+Graffiti lines the city walls.
+Compass: (3E : 0N)
+north - area continues.
+south - area continues.
+west  - open gate.
+***
+Waste-Mauler-453 is here.
+***
+Waste‑Mauler‑453 has hit you with his Rebar‑Smash!
+***
+You suffer 13 hit points of damage!
+> look
+Graffiti lines the city walls.
+Compass: (3E : 0N)
+north - area continues.
+south - area continues.
+west  - open gate.
+***
+Waste-Mauler-453 is here.
+***
+Waste‑Mauler‑453 has hit you with his Rebar‑Maul!
+> look
+Graffiti lines the city walls.
+Compass: (3E : 0N)
+north - area continues.
+south - area continues.
+west  - open gate.
+***
+Waste-Mauler-453 is here.
+***
+Waste‑Mauler‑453 has hit you with his Rebar‑Maul!
+> look
+Graffiti lines the city walls.
+Compass: (3E : 0N)
+north - area continues.
+south - area continues.
+west  - open gate.
+***
+Waste‑Mauler‑453 yells: Get away from me!
+***
+Waste‑Mauler‑453 has just left north
+***
+You hear loud sounds of footsteps to the north.
+> look
+Graffiti lines the city walls.
+Compass: (3E : 0N)
+north - area continues.
+south - area continues.
+west  - open gate.
+***
+You see shadows to the south.

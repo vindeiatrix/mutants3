@@ -1,0 +1,154 @@
+Crumbling buildings surround you.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+An Ion‑Booster, A Rebar‑Maul, A Radioactive‑Fang, A Skull, A Spiked‑Plating.
+***
+Ion-Archivist-412 is here.
+***
+Ion‑Archivist‑412 has hit you with his Archivist‑Focus!
+***
+You suffer 1 hit points of damage!
+> stat
+***
+Name: Thief / Mutant Thief
+Exhaustion : 0
+Str:  15    Int:   9   Wis:   8
+Dex:  14    Con:  15   Cha:  16
+Hit Points  : 2323198 / 2323232
+Exp. Points : 28     Level: 1
+Riblets     : 7
+Ions        : 108341
+Wearing Armor : None  Armour Class: 1  (Dex bonus: +1, Armour: +0)
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D. : 2400
+***
+Ready to Combat: NO ONE
+***
+You are carrying the following items:  (Total Weight: 50 LB's)
+A Nuclear‑Decay.
+***
+Ion‑Archivist‑412 has hit you with his Archivist‑Focus!
+***
+You suffer 1 hit points of damage!
+> com i
+***
+You ready yourself against Ion‑Archivist‑412.
+***
+Ion‑Archivist‑412 has hit you with his Data‑Lash!
+***
+You suffer 15 hit points of damage!
+> wie n
+***
+You ready the Nuclear‑Decay for combat.
+***
+You strike Ion‑Archivist‑412 for 67 damage.
+***
+Ion‑Archivist‑412 has hit you with his Data‑Lash!
+***
+You suffer 15 hit points of damage!
+> look
+Crumbling buildings surround you.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+An Ion‑Booster, A Rebar‑Maul, A Radioactive‑Fang, A Skull, A Spiked‑Plating.
+***
+Ion-Archivist-412 is here.
+***
+Ion‑Archivist‑412 yells: Get away from me!
+> look
+Crumbling buildings surround you.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+An Ion‑Booster, A Rebar‑Maul, A Radioactive‑Fang, A Skull, A Spiked‑Plating.
+***
+Ion-Archivist-412 is here.
+***
+Ion‑Archivist‑412 has hit you with his Archivist‑Focus!
+***
+You suffer 1 hit points of damage!
+> look
+Crumbling buildings surround you.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+An Ion‑Booster, A Rebar‑Maul, A Radioactive‑Fang, A Skull, A Spiked‑Plating.
+***
+Ion‑Archivist‑412 yells: Get away from me!
+***
+Ion‑Archivist‑412 has just left north
+***
+You hear loud sounds of footsteps to the north.
+***
+You hear loud sounds of yelling and screaming to the north.
+> look
+Crumbling buildings surround you.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+An Ion‑Booster, A Rebar‑Maul, A Radioactive‑Fang, A Skull, A Spiked‑Plating.
+***
+Ion-Archivist-412 is here.
+***
+You see shadows to the north.
+***
+You hear loud sounds of yelling and screaming to the north.
+***
+Ion‑Archivist‑412 has just arrived from the north.
+> wie n
+***
+You ready the Nuclear‑Decay for combat.
+***
+You strike Ion‑Archivist‑412 for 76 damage.
+***
+You have slain Ion‑Archivist‑412!
+***
+Ground is full; Capacitor‑Charm dissipates.
+***
+Ground is full; Skull dissipates.
+***
+Ground is full; Data‑Cowl dissipates.
+***
+Your experience points are increased by 32!
+You collect 10 Riblets and 10279 ions from the slain body.
+***
+A Archivist‑Focus is falling from Ion‑Archivist‑412's body!
+***
+Ion‑Archivist‑412 is crumbling to dust!
+>
+***
+Type ? if you need assistance.
+> x
+ 1. Mutant Thief    Level: 1   Year: 2400  ( 0  0)
+ 2. Mutant Priest   Level: 1   Year: 2000  ( 0  0)
+ 3. Mutant Wizard   Level: 1   Year: 2000  ( 0  0)
+ 4. Mutant Warrior  Level: 1   Year: 2000  ( 0  0)
+ 5. Mutant Mage     Level: 1   Year: 2000  ( 0  0)
+
+Type BURY [class number] to reset a player. Type X to exit.
+***
+Select (Bury, 1-5, ?) x
+(.venv) PS C:\git2\mutants3> 

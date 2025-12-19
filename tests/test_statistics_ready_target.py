@@ -91,7 +91,7 @@ def test_statistics_retains_ready_target_when_separated(
     statistics_cmd("", ctx)
 
     assert any(
-        msg == ("SYSTEM/OK", f"Ready to Combat: {target_id}") for msg in ctx["feedback_bus"].messages
+        f"Ready to Combat: {target_id}" in msg[1] for msg in ctx["feedback_bus"].messages
     )
     assert player_state.get_ready_target_for_active(ctx["player_state"]) == target_id
 
@@ -106,4 +106,4 @@ def test_statistics_clears_ready_target_for_dead_monster(
 
     statistics_cmd("", ctx)
 
-    assert ("SYSTEM/OK", "Ready to Combat: NO ONE") in ctx["feedback_bus"].messages
+    assert any("Ready to Combat: NO ONE" in msg[1] for msg in ctx["feedback_bus"].messages)
