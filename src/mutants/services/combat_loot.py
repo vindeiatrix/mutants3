@@ -288,18 +288,13 @@ def describe_vaporized_entries(
     *,
     catalog: Mapping[str, Mapping[str, object]] | None = None,
 ) -> list[str]:
-    """Return player-facing messages for ``entries`` that vaporised."""
+    """Return player-facing messages for ``entries`` that vaporised.
 
-    if not entries:
-        return []
+    Suppressed for dev UI: we keep the vaporized bookkeeping but skip messages to
+    avoid cluttering the kill log.
+    """
 
-    messages: list[str] = []
-    for entry in entries:
-        if not isinstance(entry, Mapping):
-            continue
-        label = _entry_label(entry, catalog)
-        messages.append(_ground_full_message(label))
-    return messages
+    return []
 
 
 def drop_monster_loot(
@@ -381,11 +376,6 @@ def drop_monster_loot(
         summary_attempt_order.append(source)
         if free_slots <= 0:
             vaporized.append(_clone_entry(entry, source=source))
-            message = describe_vaporized_entries([entry], catalog=catalog)
-            if message:
-                summary_messages.extend(message)
-                if hasattr(bus, "push"):
-                    bus.push("COMBAT/INFO", message[0])
             continue
 
         iid = _resolve_instance_id(entry)
@@ -473,12 +463,8 @@ def enforce_capacity(
         iid = candidates[idx]
         inst = itemsreg.get_instance(iid)
         if inst:
-            label = _instance_label(inst, catalog)
             itemsreg.remove_instance(iid)
             removed.append(iid)
             overflow -= 1
-            if hasattr(bus, "push"):
-                bus.push("COMBAT/INFO", _ground_full_message(label))
         idx -= 1
     return removed
-
