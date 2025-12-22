@@ -129,6 +129,44 @@ def _debug_count(ctx) -> None:
     )
 
 
+def _debug_set(ctx, key: str, value: str) -> None:
+    """Lightweight setter for well-known debug fields on the active monster."""
+
+    bus = ctx["feedback_bus"]
+    key_norm = (key or "").strip().lower()
+    if key_norm not in {"flee_dir"}:
+        bus.push("SYSTEM/WARN", f"Unknown debug set key: {key}")
+        return
+
+    # Grab a monster on the current tile.
+    monsters = ctx.get("monsters")
+    if monsters is None:
+        bus.push("SYSTEM/WARN", "No monsters state available.")
+        return
+    try:
+        year, x, y = _pos_from_ctx(ctx)
+        mons = monsters.list_at(year, x, y)
+    except Exception:
+        mons = []
+    target = mons[0] if mons else None
+    if target is None:
+        bus.push("SYSTEM/WARN", "No monster on this tile.")
+        return
+
+    if key_norm == "flee_dir":
+        token = value.strip().upper() if isinstance(value, str) else ""
+        if token not in {"N", "S", "E", "W"}:
+            bus.push("SYSTEM/WARN", "flee_dir must be one of N,S,E,W")
+            return
+        state = target.get("_ai_state") if isinstance(target, MutableMapping) else None
+        if not isinstance(state, MutableMapping):
+            state = {}
+            target["_ai_state"] = state
+        state["flee_dir"] = token
+        state["flee_mode"] = True
+        bus.push("SYSTEM/OK", f"Set flee_dir to {token} for {target.get('monster_id') or target.get('id')}.")
+
+
 def _debug_monster(arg: str, ctx, *, count: int = 1) -> None:
     bus = ctx["feedback_bus"]
     monster_id = (arg or "").strip()
@@ -355,7 +393,7 @@ def debug_cmd(arg: str, ctx):
         ctx["feedback_bus"].push(
             "SYSTEM/INFO",
             "Usage: debug add <item_id> [qty] | debug monster <monster_id> | "
-            "debug where | debug count | debug ions <amount> | debug riblets <amount> | debug hp <amount>",
+            "debug where | debug count | debug ions <amount> | debug riblets <amount> | debug hp <amount> | debug set <key> <value>",
         )
         return
 
@@ -378,6 +416,10 @@ def debug_cmd(arg: str, ctx):
 
     if parts[0] == "count":
         _debug_count(ctx)
+        return
+
+    if parts[0] == "set" and len(parts) >= 3:
+        _debug_set(ctx, parts[1], parts[2])
         return
 
     if parts[0] in {"ions", "ion"}:
@@ -431,7 +473,7 @@ def debug_cmd(arg: str, ctx):
     ctx["feedback_bus"].push(
         "SYSTEM/INFO",
         "Usage: debug add <item_id> [qty] | debug monster <monster_id> | "
-        "debug where | debug count | debug ions <amount> | debug riblets <amount> | debug hp <amount>",
+        "debug where | debug count | debug ions <amount> | debug riblets <amount> | debug hp <amount> | debug set <key> <value>",
     )
 
 
@@ -443,6 +485,7 @@ _DEBUG_HELP_ENTRIES: Sequence[str] = (
     "debug ions <amount>",
     "debug riblets <amount>",
     "debug hp <amount>",
+    "debug set <key> <value> (keys: flee_dir)",
 )
 
 

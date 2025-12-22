@@ -1,0 +1,27 @@
+{
+  "name": "shadows_adjacent_flee",
+  "commands": [
+    "theme mono",
+    "bury all",
+    "1",
+    "debug hp 999999",
+    "travel 1997",
+    "debug add nuclear_decay",
+    "get nuclear-decay",
+    "s",
+    "d m junkyard_scrapper",
+    "com junk",
+    "wield nuclear-decay",
+    "debug set flee_dir=S",
+    "look",
+    "n",
+    "look",
+    "x"
+  ],
+  "expect": [
+    "You see shadows to the south."
+  ],
+  "purge_state": true,
+  "timeout_seconds": 120,
+  "stdin_delay_ms": 150
+}

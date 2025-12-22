@@ -77,6 +77,7 @@ def run_scenario(path: Path) -> int:
     expect = scenario.get("expect") or []
     timeout = float(scenario.get("timeout_seconds") or 40)
     delay_ms = int(scenario.get("stdin_delay_ms") or 150)
+    purge = bool(scenario.get("purge_state"))
 
     log_dir = TMP_DIR
     log_dir.mkdir(parents=True, exist_ok=True)
@@ -89,6 +90,8 @@ def run_scenario(path: Path) -> int:
     # Quick bootstrap: ensure state/db/schema exists without reinstalling the project each run.
     STATE_DIR.mkdir(parents=True, exist_ok=True)
     run([PY_EXE, "tools/sqlite_admin.py", "init"], cwd=ROOT, env=env, check=False, stdout=PIPE, stderr=STDOUT, text=True)
+    if purge:
+        run([PY_EXE, "tools/sqlite_admin.py", "purge"], cwd=ROOT, env=env, check=False, stdout=PIPE, stderr=STDOUT, text=True)
     # Import catalogs if empty (idempotent, cheap).
     run([PY_EXE, "tools/sqlite_admin.py", "catalog-import-items"], cwd=ROOT, env=env, check=False, stdout=PIPE, stderr=STDOUT, text=True)
     if not DB_PATH.exists():

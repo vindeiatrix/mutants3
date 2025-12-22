@@ -1,0 +1,177 @@
+> look
+Graffiti lines the city walls.
+Compass: (-2E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+An Ion‑Pack.
+> d m j
+Graffiti lines the city walls.
+Compass: (-2E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+An Ion‑Pack.
+***
+Junkyard-Scrapper-267 is here.
+***
+Spawned 1 x Junkyard‑Scrapper‑267 at your location.
+> w
+You're in a wrecked building.
+Compass: (-3E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+An Ion‑Pack.
+***
+You see shadows to the east.
+> look
+You're in a wrecked building.
+Compass: (-3E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+An Ion‑Pack.
+***
+You see shadows to the east.
+> look ea
+Graffiti lines the city walls.
+Compass: (-2E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+An Ion‑Pack.
+***
+Junkyard-Scrapper-267 is here.
+> e
+Graffiti lines the city walls.
+Compass: (-2E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+An Ion‑Pack.
+***
+Junkyard-Scrapper-267 is here.
+***
+Clank‑clank... scrap's mine!
+> look
+Graffiti lines the city walls.
+Compass: (-2E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+An Ion‑Pack.
+***
+Junkyard-Scrapper-267 is here.
+***
+Junkyard‑Scrapper‑267 has hit you with his Rusty‑Shiv!
+> w
+You're in a wrecked building.
+Compass: (-3E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+An Ion‑Pack.
+***
+You see shadows to the east.
+***
+You hear loud sounds of yelling and screaming to the east.
+***
+Junkyard‑Scrapper‑267 has just arrived from the east.
+> e
+Graffiti lines the city walls.
+Compass: (-2E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+An Ion‑Pack.
+***
+You see shadows to the west.
+***
+You hear loud sounds of yelling and screaming to the west.
+***
+Junkyard‑Scrapper‑267 has just arrived from the west.
+> com j
+***
+You ready yourself against Junkyard‑Scrapper‑267.
+***
+Junkyard‑Scrapper‑267 has hit you with his Rusty‑Shiv!
+> wie n
+***
+You ready the Nuclear‑Decay for combat.
+***
+You've hit Junkyard‑Scrapper‑267 with your Nuclear‑Decay!
+***
+Junkyard‑Scrapper‑267 yells: Get away from me!
+> look
+Graffiti lines the city walls.
+Compass: (-2E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+An Ion‑Pack.
+***
+Junkyard-Scrapper-267 is here.
+***
+Junkyard‑Scrapper‑267 yells: Get away from me!
+***
+Junkyard‑Scrapper‑267 has just left south
+***
+You hear loud sounds of yelling and screaming to the south.
+***
+You hear loud sounds of footsteps to the south.
+> look
+Graffiti lines the city walls.
+Compass: (-2E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+An Ion‑Pack.
+***
+You hear faint sounds of yelling and screaming far to the south.
+***
+You hear faint sounds of footsteps far to the south.
+> s
+You're in a wrecked building.
+Compass: (-2E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+You see shadows to the south.
+> x
+ 1. Mutant Thief    Level: 1   Year: 2000  ( 0  0)
+ 2. Mutant Priest   Level: 1   Year: 2000  ( 0  0)
+ 3. Mutant Wizard   Level: 1   Year: 2000  ( 0  0)
+ 4. Mutant Warrior  Level: 1   Year: 2000  (‑2 ‑1)
+ 5. Mutant Mage     Level: 1   Year: 2000  ( 0  0)
+
+Type BURY [class number] to reset a player. Type X to exit.
+***
+Select (Bury, 1-5, ?) x
+(.venv) PS C:\Git2\mutants3> 

@@ -683,9 +683,11 @@ def attempt_flee_step(
                 )
             except Exception:
                 LOG.debug("Failed to emit flee footsteps", exc_info=True)
-            # Always suppress shadows for the next frame after a flee move.
+            # Suppress shadows on the next frame only when we just left the player's tile,
+            # so we don't leak a shadow hint while exiting.
             try:
-                setattr(ctx, "_suppress_shadows_once", True)
+                if was_collocated:
+                    setattr(ctx, "_suppress_shadows_once", "collocated_leave")
             except Exception:
                 pass
             # If the monster just moved into the player's tile, emit arrival direction.

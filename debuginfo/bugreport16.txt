@@ -1,0 +1,218 @@
+(.venv) PS C:\Git2\mutants3> .\Run-Mutants.ps1
+Repo: C:\Git2\mutants3
+DB:   C:\Git2\mutants3\state\mutants.db
+ENV:  MUTANTS_STATE_BACKEND=sqlite; GAME_STATE_ROOT=C:\Git2\mutants3\state
+Obtaining file:///C:/Git2/mutants3
+  Installing build dependencies ... done
+  Checking if build backend supports build_editable ... done
+  Getting requirements to build editable ... done
+  Preparing editable metadata (pyproject.toml) ... done
+Building wheels for collected packages: mutants
+  Building editable for mutants (pyproject.toml) ... done
+  Created wheel for mutants: filename=mutants-0.0.0-0.editable-py3-none-any.whl size=2532 sha256=7516863dc2a717c0fd9f5a078c30dc65d3d1d5d82d4088a5e9d1693d2b1d8ed2
+  Stored in directory: C:\Users\michael.bowman\AppData\Local\Temp\pip-ephem-wheel-cache-lufuwomr\wheels\b8\16\79\15911a472ed15aea2aceb8a431ad64aff3d06b7f7f7fe0eff6
+Successfully built mutants
+Installing collected packages: mutants
+  Attempting uninstall: mutants
+    Found existing installation: mutants 0.0.0
+    Uninstalling mutants-0.0.0:
+      Successfully uninstalled mutants-0.0.0
+Successfully installed mutants-0.0.0
+Schema ensured at C:\Git2\mutants3\state\mutants.db
+Items catalog present (rows: 45).
+daily_litter: triggered
+Monsters catalog present (rows: 7).
+Monsters currently present (rows: 4).
+
+Launching game (SQLite backend)...
+Mutants — classic BBS vibes.  Type 'help' for commands; 'theme mono' for no color.
+
+ 1. Mutant Thief    Level: 1   Year: 2000  ( 0  0)
+ 2. Mutant Priest   Level: 1   Year: 2000  ( 0  0)
+ 3. Mutant Wizard   Level: 1   Year: 2000  ( 0  0)
+ 4. Mutant Warrior  Level: 1   Year: 2000  ( 0  0)
+ 5. Mutant Mage     Level: 1   Year: 2000  ( 0  0)
+
+Type BURY [class number] to reset a player. Type X to exit.
+***
+Select (Bury, 1-5, ?) 1
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Skull, A Skull (1), A Skull (2), A Skull (3), A Nuclear‑Decay, A Nuclear‑Decay
+ (1).
+> stat
+***
+Name: Thief / Mutant Thief
+Exhaustion    : 0
+Str: 15     Int: 9       Wis: 8
+Dex: 14     Con: 15      Cha: 16
+Hit Points    : 18 / 18
+Exp. Points   : 0  Level: 1
+Riblets       : 0
+Ions          : 0
+Wearing Armor : None  Armour Class: 1
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D.      : 2000
+
+You are carrying the following items:  (Total Weight: 0 LB's)
+Nothing.
+> get nuclear-d
+***
+You pick up the Nuclear‑Decay.
+> d hp 232323
+***
+Set HP for Thief to 232323 / 232323.
+> d m j
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Skull, A Skull (1), A Skull (2), A Skull (3), A Nuclear‑Decay.
+***
+Junkyard-Scrapper-353 is here.
+***
+Spawned 1 x Junkyard‑Scrapper‑353 at your location.
+> com j
+***
+You ready yourself against Junkyard‑Scrapper‑353.
+> wie n
+***
+You ready the Nuclear‑Decay for combat.
+***
+You've hit Junkyard‑Scrapper‑353 with your Nuclear‑Decay!
+***
+Junkyard‑Scrapper‑353 yells: Get away from me!
+> look
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Skull, A Skull (1), A Skull (2), A Skull (3), A Nuclear‑Decay.
+***
+You see shadows to the east.
+***
+Junkyard‑Scrapper‑353 yells: Get away from me!
+***
+Junkyard‑Scrapper‑353 has just left east
+***
+You hear loud sounds of footsteps to the east.
+***
+You hear loud sounds of yelling and screaming to the east.
+> look
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Skull, A Skull (1), A Skull (2), A Skull (3), A Nuclear‑Decay.
+***
+You hear faint sounds of yelling and screaming far to the east.
+***
+You hear faint sounds of footsteps far to the east.
+> e
+The street is cracked here.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cheese.
+***
+You hear faint sounds of yelling and screaming far to the east.
+***
+You hear faint sounds of footsteps far to the east.
+> e
+Crumbling buildings surround you.
+Compass: (2E : 0N)
+east  - open gate.
+west  - area continues.
+***
+You see shadows to the east.
+> look
+Crumbling buildings surround you.
+Compass: (2E : 0N)
+east  - open gate.
+west  - area continues.
+***
+You see shadows to the east.
+> e
+Graffiti lines the city walls.
+Compass: (3E : 0N)
+north - area continues.
+south - area continues.
+west  - open gate.
+***
+Waste-Mauler-924, and Junkyard-Scrapper-353 are here with you.
+***
+Junkyard‑Scrapper‑353 yells: Get away from me!
+***
+The wastes made me. Now I break you.
+> look
+Graffiti lines the city walls.
+Compass: (3E : 0N)
+north - area continues.
+south - area continues.
+west  - open gate.
+***
+Junkyard-Scrapper-353 is here.
+***
+You see shadows to the south.
+***
+Junkyard‑Scrapper‑353 yells: Get away from me!
+***
+Waste‑Mauler‑924 yells: Get away from me!
+***
+Waste‑Mauler‑924 has just left south
+***
+You hear loud sounds of footsteps to the south.
+> look
+Graffiti lines the city walls.
+Compass: (3E : 0N)
+north - area continues.
+south - area continues.
+west  - open gate.
+***
+You see shadows to the north.
+***
+Junkyard‑Scrapper‑353 yells: Get away from me!
+***
+Junkyard‑Scrapper‑353 has just left north
+***
+You hear loud sounds of yelling and screaming to the north.
+***
+You hear loud sounds of footsteps to the north.
+***
+You hear faint sounds of yelling and screaming far to the south.
+***
+You hear faint sounds of footsteps far to the south.
+> x
+ 1. Mutant Thief    Level: 1   Year: 2000  ( 3  0)
+ 2. Mutant Priest   Level: 1   Year: 2000  ( 0  0)
+ 3. Mutant Wizard   Level: 1   Year: 2000  ( 0  0)
+ 4. Mutant Warrior  Level: 1   Year: 2000  ( 0  0)
+ 5. Mutant Mage     Level: 1   Year: 2000  ( 0  0)
+
+Type BURY [class number] to reset a player. Type X to exit.
+***
+Select (Bury, 1-5, ?) x
+(.venv) PS C:\Git2\mutants3> 

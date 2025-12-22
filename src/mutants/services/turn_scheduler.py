@@ -91,6 +91,7 @@ class TurnScheduler:
         try:
             result = player_action()
             token, resolved, arg = self._normalize_result(result)
+            self._snapshot_pre_turn_visibility()
             self._run_monster_turns(token, resolved, arg)
             self._run_status_tick()
             self._run_free_actions(rng)
@@ -199,6 +200,54 @@ class TurnScheduler:
             token = str(result)
 
         return token, resolved, arg
+
+    # Snapshot helpers ------------------------------------------------
+    def _snapshot_pre_turn_visibility(self) -> None:
+        """Capture monsters and adjacent shadows before the monster turn."""
+
+        ctx = self._ctx
+        if not isinstance(ctx, MutableMapping):
+            return
+        monsters = ctx.get("monsters")
+        if monsters is None:
+            return
+        player_state = ctx.get("player_state")
+        player_pos = None
+        try:
+            from mutants.services import player_state as pstate
+
+            year, x, y = pstate.canonical_player_pos(player_state)
+            player_pos = (year, x, y)
+        except Exception:
+            return
+        try:
+            entries = monsters.list_at(year, x, y)
+        except Exception:
+            return
+        snapshot: list[dict[str, str]] = []
+        for mon in entries or []:
+            if not isinstance(mon, Mapping):
+                continue
+            hp_block = mon.get("hp") if isinstance(mon.get("hp"), Mapping) else {}
+            try:
+                if int(hp_block.get("current", mon.get("hp_cur", 1))) <= 0:
+                    continue
+            except Exception:
+                pass
+            name = mon.get("name") or mon.get("monster_id") or "The monster"
+            mid = mon.get("id") or mon.get("instance_id") or mon.get("monster_id")
+            snapshot.append({"name": str(name), "id": str(mid) if mid is not None else ""})
+        ctx["_monsters_were_here"] = snapshot
+
+        # Also snapshot adjacent shadows so LOOK can show them even if monsters flee away this turn.
+        if player_pos:
+            try:
+                from mutants.world import vision
+
+                shadows = vision.adjacent_monster_directions(monsters, player_pos)
+                ctx["_shadows_before_turn"] = list(shadows)
+            except Exception:
+                pass
 
     def _inject_rng(self, rng: Any) -> tuple[str, object]:
         ctx = self._ctx

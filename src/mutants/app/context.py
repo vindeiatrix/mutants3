@@ -412,13 +412,27 @@ def render_frame(ctx: Dict[str, Any]) -> None:
         vm = dict(vm)
         vm["monsters_here"] = []
     # Allow one-frame suppression of shadow cues (e.g., immediately after a flee leave).
-    if ctx.pop("_suppress_shadows_once", False):
+    suppress_shadows = ctx.pop("_suppress_shadows_once", False)
+    if suppress_shadows == "collocated_leave":
         vm = dict(vm)
         vm["shadows"] = []
     shadow_hint = ctx.pop("_shadow_hint_once", None)
     if shadow_hint:
         vm = dict(vm)
         vm["shadows"] = list(shadow_hint)
+    # If we captured adjacent shadows before the monster turn and have none now,
+    # reuse them so LOOK still shows nearby threats even when they fled this tick.
+    pre_turn_shadows = ctx.pop("_shadows_before_turn", None)
+    if pre_turn_shadows and not vm.get("shadows"):
+        vm = dict(vm)
+        vm["shadows"] = list(pre_turn_shadows)
+    # If monsters were collocated at turn start, prefer showing their presence
+    # for this frame and suppress shadows to avoid pre-emptive hints.
+    pre_turn_monsters = ctx.pop("_monsters_were_here", None)
+    if pre_turn_monsters and not vm.get("monsters_here"):
+        vm = dict(vm)
+        vm["monsters_here"] = list(pre_turn_monsters)
+        vm["shadows"] = []
     cues = audio_cues.drain(ctx)
     events = ctx["feedback_bus"].drain()
     if cues:
