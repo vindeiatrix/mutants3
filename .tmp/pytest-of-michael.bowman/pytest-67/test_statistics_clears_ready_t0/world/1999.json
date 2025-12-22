@@ -1,0 +1,29 @@
+{
+  "schema_version": 2,
+  "year": 1999,
+  "size": 1,
+  "tiles": [
+    {
+      "pos": [1999, 0, 0],
+      "header_idx": 0,
+      "store_id": null,
+      "dark": false,
+      "area_locked": false,
+      "edges": {
+        "N": { "base": 1, "gate_state": 0, "key_type": null, "spell_block": 0 },
+        "S": { "base": 1, "gate_state": 0, "key_type": null, "spell_block": 0 },
+        "E": { "base": 1, "gate_state": 0, "key_type": null, "spell_block": 0 },
+        "W": { "base": 1, "gate_state": 0, "key_type": null, "spell_block": 0 }
+      }
+    }
+  ],
+  "stores": [],
+  "params": {
+    "center_open": false,
+    "p_block": 1.0,
+    "p_gate": 0.0,
+    "store_rate": 0.0,
+    "seed": 42,
+    "headers_source": "minimal"
+  }
+}

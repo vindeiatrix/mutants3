@@ -84,6 +84,7 @@ def run_scenario(path: Path) -> int:
 
     env = os.environ.copy()
     env.setdefault("PYTHONUNBUFFERED", "1")
+    env.setdefault("PYTEST_CURRENT_TEST", "scripted-scenario")
 
     # Quick bootstrap: ensure state/db/schema exists without reinstalling the project each run.
     STATE_DIR.mkdir(parents=True, exist_ok=True)

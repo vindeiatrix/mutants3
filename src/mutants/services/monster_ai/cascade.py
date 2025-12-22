@@ -19,7 +19,7 @@ from mutants.services import monster_entities
 LOG = logging.getLogger(__name__)
 
 ORIGIN_WORLD = "world"
-_FLEE_HP_THRESHOLD = 15
+_FLEE_HP_THRESHOLD = 25
 
 
 @dataclass(frozen=True)
@@ -516,17 +516,20 @@ def _evaluate_flee_cascade(
     rng: Any,
     target_pos: tuple[int, int, int] | None,
     target_collocated: bool,
+    forced: bool = False,
 ) -> ActionResult | None:
     """Per-turn flee roll: yell first, then maybe move (else stop)."""
 
-    if flee_threshold <= 0:
+    if flee_threshold <= 0 and not forced:
         failures.append({"gate": "FLEE_STATEMENT", "reason": f"threshold={flee_threshold}"})
         return None
 
-    roll = int(rng.randrange(100))
-    if roll >= flee_threshold:
-        failures.append({"gate": "FLEE_STATEMENT", "reason": f"roll={roll} threshold={flee_threshold}"})
-        return None
+    roll: int | None = None
+    if not forced:
+        roll = int(rng.randrange(100))
+        if roll >= flee_threshold:
+            failures.append({"gate": "FLEE_STATEMENT", "reason": f"roll={roll} threshold={flee_threshold}"})
+            return None
 
     state = monster.get("_ai_state") if isinstance(monster, MutableMapping) else None
     if isinstance(state, MutableMapping):
@@ -539,7 +542,8 @@ def _evaluate_flee_cascade(
 
     # Decide action after yell: mostly move, sometimes just yell.
     move_roll = int(rng.randrange(100))
-    action = "flee_move" if move_roll < 70 else "flee_statement"
+    move_cutoff = 85 if forced else 70
+    action = "flee_move" if move_roll < move_cutoff else "flee_statement"
 
     reason = f"roll={roll} threshold={flee_threshold} hp_pct={hp_pct}"
     if action == "flee_statement":
@@ -616,8 +620,9 @@ def evaluate_cascade(monster: Any, ctx: Any) -> ActionResult:
     state_block = _ensure_ai_state(monster)
     flee_dir = state_block.get("flee_dir")
     flee_mode = _is_flee_mode(monster)
-    flee_capable = hp_pct < _FLEE_HP_THRESHOLD
-    flee_rolls_enabled = flee_capable or bool(flee_dir)
+    flee_hp_threshold = _clamp_pct(getattr(config, "flee_hp_pct", _FLEE_HP_THRESHOLD))
+    flee_capable = hp_pct < flee_hp_threshold
+    flee_rolls_enabled = flee_capable or bool(flee_dir) or flee_mode
     same_year_target = (
         target_pos is not None
         and monster_pos is not None
@@ -626,8 +631,8 @@ def evaluate_cascade(monster: Any, ctx: Any) -> ActionResult:
 
     base_flee_pct = _apply_cascade_modifier(config.flee_pct, cascade_overrides.get("flee_pct"))
     flee_threshold = _clamp_pct(base_flee_pct)
-    if hp_pct < _FLEE_HP_THRESHOLD:
-        flee_threshold = max(flee_threshold, 60)  # wounded monsters more likely to flee each turn
+    if hp_pct < flee_hp_threshold:
+        flee_threshold = max(flee_threshold, 75)  # wounded monsters more likely to flee each turn
     heal_threshold = _apply_cascade_modifier(config.heal_pct, cascade_overrides.get("heal_pct"))
     cast_threshold = _apply_cascade_modifier(config.cast_pct, cascade_overrides.get("cast_pct"))
     convert_threshold = _apply_cascade_modifier(config.convert_pct, cascade_overrides.get("convert_pct"))
@@ -704,6 +709,7 @@ def evaluate_cascade(monster: Any, ctx: Any) -> ActionResult:
             rng=rng,
             target_pos=target_pos,
             target_collocated=bool(target_collocated),
+            forced=bool(flee_mode),
         )
         if result is not None:
             return result

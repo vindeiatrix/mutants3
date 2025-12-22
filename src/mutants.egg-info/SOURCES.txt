@@ -118,6 +118,7 @@ tests/test_equip_drop_bug.py
 tests/test_fix_command.py
 tests/test_logging_toggle.py
 tests/test_monster_ai_scope.py
+tests/test_monster_convert_feedback.py
 tests/test_monster_flee_direction.py
 tests/test_monster_loot_drops.py
 tests/test_monster_spawn.py

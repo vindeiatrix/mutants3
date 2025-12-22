@@ -1,6 +1,0 @@
-{
-  "name": "bbs",
-  "width": 80,
-  "ansi_enabled": true,
-  "colors_path": "state/ui/colors.json"
-}

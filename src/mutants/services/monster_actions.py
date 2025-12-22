@@ -1110,18 +1110,14 @@ def _convert_item(
     bus = _feedback_bus(ctx)
     if hasattr(bus, "push"):
         label = _monster_display_name(monster)
-        bus.push("COMBAT/INFO", f"A blinding white flash erupts around {label}!")
-        convert_message = textutils.render_feedback_template(
-            textutils.TEMPLATE_MONSTER_CONVERT,
-            monster=label,
-            ions=best_value,
-        )
         bus.push(
             "COMBAT/INFO",
-            convert_message,
+            textutils.render_feedback_template(
+                textutils.TEMPLATE_MONSTER_CONVERT,
+                monster=label,
+            ),
             template=textutils.TEMPLATE_MONSTER_CONVERT,
             monster=label,
-            ions=best_value,
         )
     turnlog.emit(
         ctx,
@@ -1226,14 +1222,15 @@ def _heal_action(
             hp=applied,
             ions=heal_cost,
         )
-        bus.push(
-            "COMBAT/HEAL",
-            heal_message,
-            template=textutils.TEMPLATE_MONSTER_HEAL,
-            monster=label,
-            hp=applied,
-            ions=heal_cost,
-        )
+        if heal_message and str(heal_message).strip():
+            bus.push(
+                "COMBAT/HEAL",
+                heal_message,
+                template=textutils.TEMPLATE_MONSTER_HEAL,
+                monster=label,
+                hp=applied,
+                ions=heal_cost,
+            )
         bus.push(
             "COMBAT/HEAL_MONSTER",
             textutils.render_feedback_template(

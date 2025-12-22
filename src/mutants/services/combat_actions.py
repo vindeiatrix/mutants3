@@ -819,12 +819,12 @@ def perform_melee_attack(ctx: Dict[str, Any]) -> Dict[str, Any]:
                 armour_hint = {"item_id": starter_armour}
         sorted_drops = _sorted_drop_messages(drop_iterable or [], armour_hint)
         if sorted_drops:
-            # Reference spacing: a single blank line before the first loot line,
-            # tight separators between subsequent loot lines.
-            bus.push("SYSTEM/OK", "")
+            first = True
             for entry in sorted_drops:
                 label_text = combat_loot._entry_label(entry, catalog)
-                bus.push("SYSTEM/OK", f"A {label_text} is falling from {label}'s body!")
+                prefix = "\n" if first else ""
+                bus.push("SYSTEM/OK", f"{prefix}A {label_text} is falling from {label}'s body!")
+                first = False
         bus.push("COMBAT/INFO", f"{label} is crumbling to dust!")
         try:
             from mutants.services import monster_actions as monster_actions_mod
@@ -1044,10 +1044,12 @@ def perform_ranged_attack(
                 armour_hint = {"item_id": starter_armour}
         sorted_drops = _sorted_drop_messages(drop_iterable or [], armour_hint)
         if sorted_drops:
-            bus.push("SYSTEM/OK", "")
+            first = True
             for entry in sorted_drops:
                 label_text = combat_loot._entry_label(entry, catalog)
-                bus.push("SYSTEM/OK", f"A {label_text} is falling from {label}'s body!")
+                prefix = "\n" if first else ""
+                bus.push("SYSTEM/OK", f"{prefix}A {label_text} is falling from {label}'s body!")
+                first = False
         bus.push("COMBAT/INFO", f"{label} is crumbling to dust!")
         try:
             from mutants.services import monster_actions as monster_actions_mod
