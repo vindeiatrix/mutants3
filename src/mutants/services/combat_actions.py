@@ -899,12 +899,8 @@ def perform_ranged_attack(
     alignment = _validate_ranged_alignment(direction, player_pos, pos, max_range)
     if not alignment.get("ok"):
         reason = alignment.get("reason") or "invalid_direction"
-        if reason == "too_far":
-            bus.push("SYSTEM/WARN", "Your bolt can't reach that far.")
-        elif reason in {"off_axis", "wrong_direction"}:
+        if reason in {"off_axis", "wrong_direction"}:
             bus.push("SYSTEM/WARN", "Your target isn't in that direction.")
-        else:
-            bus.push("SYSTEM/WARN", "Nothing happens.")
         return {"ok": False, "reason": reason}
 
     _force_monster_aggro(target, state, ctx)

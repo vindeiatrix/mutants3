@@ -91,8 +91,16 @@ class TurnScheduler:
         try:
             result = player_action()
             token, resolved, arg = self._normalize_result(result)
+            try:
+                state_debug.log_turn_state(self._ctx, phase="player")
+            except Exception:
+                pass
             self._snapshot_pre_turn_visibility()
             self._run_monster_turns(token, resolved, arg)
+            try:
+                state_debug.log_turn_state(self._ctx, phase="post_monsters")
+            except Exception:
+                pass
             self._run_status_tick()
             self._run_free_actions(rng)
             self._run_monster_spawner()

@@ -1405,6 +1405,13 @@ def _flee_move_action(
             if dir_token:
                 state_block["flee_dir"] = dir_token
         _mark_monsters_dirty(ctx, monster)
+    else:
+        # Blocked fleeing monsters only yell when collocated with the player.
+        if hasattr(bus, "push") and target_collocated:
+            try:
+                bus.push("COMBAT/INFO", f"{label} yells: Get away from me!")
+            except Exception:
+                LOG.debug("Failed to push flee yell for %s (blocked)", label, exc_info=True)
     return {"ok": success, "flee_move": True, "stop_turn": success}
 
 

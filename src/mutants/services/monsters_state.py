@@ -1734,8 +1734,17 @@ def clear_all_targets(monsters: MonstersState | None = None) -> bool:
         if not isinstance(record, MutableMapping):
             continue
         if record.get("target_player_id") is None:
+            # Also clear any latent bound data on the AI state even if target_player_id was empty.
+            state_block = record.get("_ai_state") if isinstance(record.get("_ai_state"), MutableMapping) else None
+            if state_block:
+                for key in ("bound_player_id", "pending_pursuit", "target_positions", "flee_dir", "flee_mode"):
+                    state_block.pop(key, None)
             continue
         record["target_player_id"] = None
+        state_block = record.get("_ai_state") if isinstance(record.get("_ai_state"), MutableMapping) else None
+        if state_block:
+            for key in ("bound_player_id", "pending_pursuit", "target_positions", "flee_dir", "flee_mode"):
+                state_block.pop(key, None)
         cleared = True
         try:
             try:

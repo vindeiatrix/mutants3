@@ -16,16 +16,37 @@ from mutants.state import state_path
 _LOGGER: logging.Logger | None = None
 _LOG_MAX_BYTES = 5 * 1024 * 1024
 _LOG_BACKUPS = 3
+_MAX_MON_LOG = 25
 
 
 def _debug_enabled() -> bool:
-    raw = os.getenv("MUTANTS_STATE_DEBUG")
-    if raw is None:
-        return False
-    token = raw.strip().lower()
-    if token in {"0", "false", "off"}:
-        return False
-    return True
+    """Return True if state-debug logging is enabled.
+
+    Activation sources (any one is enough):
+      1) Env var MUTANTS_STATE_DEBUG truthy (1/true/on)
+      2) Env var MUTANTS_LOGGING truthy (matches the -Logging switch)
+      3) Presence of flag file state/logs/state_debug.flag
+    """
+
+    def _truthy(value: str | None) -> bool:
+        if value is None:
+            return False
+        token = value.strip().lower()
+        if not token:
+            return False
+        return token not in {"0", "false", "off", "no"}
+
+    if _truthy(os.getenv("MUTANTS_STATE_DEBUG")):
+        return True
+    if _truthy(os.getenv("MUTANTS_LOGGING")):
+        return True
+    try:
+        flag_path = Path(state_path("logs", "state_debug.flag"))
+        if flag_path.exists():
+            return True
+    except Exception:
+        pass
+    return False
 
 
 def _state_logger() -> logging.Logger | None:
@@ -187,6 +208,86 @@ def _equipment_snapshot(player: Mapping[str, Any] | None) -> dict[str, Any]:
 def log_tick(ctx: Any, tick: int) -> None:
     payload = {"event": "tick", "tick": int(tick)}
     payload.update(_base_context(ctx))
+    _emit(payload)
+
+
+def log_turn_state(ctx: Any, *, phase: str) -> None:
+    """Log per-turn state for ready target and nearby/bound monsters."""
+
+    logger = _state_logger()
+    if logger is None:
+        return
+
+    active_state = _active_state(ctx)
+    player = None
+    if isinstance(active_state, Mapping):
+        try:
+            player = pstate.get_active_player(active_state)  # type: ignore[attr-defined]
+        except Exception:
+            player = None
+
+    ready = None
+    if isinstance(active_state, Mapping):
+        try:
+            ready = pstate.get_ready_target_for_active(active_state)
+        except Exception:
+            ready = None
+
+    payload = {
+        "event": "turn_state",
+        "phase": phase,
+        "ready_target": ready,
+    }
+    payload.update(_base_context(ctx, active_state, player=player))
+
+    monsters = ctx.get("monsters") if isinstance(ctx, Mapping) else None
+    if monsters is not None:
+        try:
+            year, x, y = pstate.canonical_player_pos(active_state) if isinstance(active_state, Mapping) else (None, None, None)
+        except Exception:
+            year, x, y = (None, None, None)
+        bound: list[dict[str, Any]] = []
+        try:
+            active_id = None
+            if isinstance(active_state, Mapping):
+                active_id = active_state.get("active_id")
+            for mon in monsters.list_all():
+                if not isinstance(mon, Mapping):
+                    continue
+                target = mon.get("target_player_id")
+                ai = mon.get("_ai_state") if isinstance(mon.get("_ai_state"), Mapping) else {}
+                bound_player = ai.get("bound_player_id")
+                pos = mon.get("pos") if isinstance(mon.get("pos"), Sequence) else None
+                if target == active_id or bound_player == active_id:
+                    entry: dict[str, Any] = {
+                        "id": mon.get("id") or mon.get("instance_id"),
+                        "mon": mon.get("monster_id"),
+                        "target": target,
+                        "bound": bound_player,
+                    }
+                    if pos and len(pos) >= 3:
+                        entry["pos"] = [int(pos[0]), int(pos[1]), int(pos[2])]
+                    if ai.get("flee_dir"):
+                        entry["flee_dir"] = ai.get("flee_dir")
+                    bound.append(entry)
+                elif pos and len(bound) < _MAX_MON_LOG and year is not None and int(pos[0]) == int(year):
+                    try:
+                        if abs(int(pos[1]) - int(x)) + abs(int(pos[2]) - int(y)) <= 1:
+                            entry: dict[str, Any] = {
+                                "id": mon.get("id") or mon.get("instance_id"),
+                                "mon": mon.get("monster_id"),
+                                "target": target,
+                                "bound": bound_player,
+                                "pos": [int(pos[0]), int(pos[1]), int(pos[2])],
+                            }
+                            bound.append(entry)
+                    except Exception:
+                        continue
+            if bound:
+                payload["monsters"] = bound[:_MAX_MON_LOG]
+        except Exception:
+            pass
+
     _emit(payload)
 
 

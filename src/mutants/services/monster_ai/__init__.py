@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Any, Iterable, List, Mapping, MutableMapping, 
 
 from mutants.services import player_state as pstate
 from mutants.debug import turnlog
+from mutants.services import state_debug
 
 from mutants.services.combat_config import CombatConfig
 from mutants.services import monsters_state
@@ -319,6 +320,9 @@ def on_player_command(ctx: Any, *, token: str, resolved: str | None, arg: str | 
     monsters = _pull(ctx, "monsters")
     if monsters is None:
         return
+    # Respect the move flag set by the move command; default to False if absent.
+    if isinstance(ctx, MutableMapping) and "_last_move_passable" not in ctx:
+        ctx["_last_move_passable"] = False
     # Track whether we emitted any audio cues so callers can decide to flush feedback immediately.
     ctx["_ai_emitted_audio"] = False
 
@@ -333,8 +337,13 @@ def on_player_command(ctx: Any, *, token: str, resolved: str | None, arg: str | 
     arg_token = (arg or "").strip().lower()
     is_look = cmd == "look" and not arg_token
     is_move = cmd in {"north", "south", "east", "west", "n", "s", "e", "w"}
+    is_attack = cmd in {"attack", "att", "wield", "throw"}
 
-    allow_new_aggro = not is_travel and (is_move or is_look)
+    move_passable = bool(_pull(ctx, "_last_move_passable"))
+
+    allow_new_aggro = not is_travel and (
+        (is_move and move_passable) or is_look or is_attack
+    )
     suppress_aggro = not allow_new_aggro
 
     player_state = _pull(ctx, "player_state")
@@ -378,6 +387,12 @@ def on_player_command(ctx: Any, *, token: str, resolved: str | None, arg: str | 
 
     bus = _pull(ctx, "feedback_bus")
     mark_dirty = getattr(monsters, "mark_dirty", None)
+
+    # Log pre-turn state for debugging ready/bind drift.
+    try:
+        state_debug.log_turn_state(ctx, phase="pre")
+    except Exception:
+        pass
 
     pos = (year, x, y)
     # Limit tracking to monsters targeting this player in this year only.
@@ -439,25 +454,6 @@ def on_player_command(ctx: Any, *, token: str, resolved: str | None, arg: str | 
         if int(mon_pos[0]) != int(year):
             return
         collocated = mon_pos == pos
-        # If collocated and not yet targeting, bind immediately with a taunt (no wake gate).
-        if collocated and target is None:
-            outcome = actions_mod.roll_entry_target(
-                monster,
-                source_state,
-                rng,
-                config=config,
-                bus=bus,
-                woke=True,
-                ctx=ctx,
-            )
-            target = _normalize_id(monster.get("target_player_id"))
-            if callable(mark_dirty) and outcome.get("target_set"):
-                try:
-                    mark_dirty(monster)
-                except Exception:
-                    pass
-            if target != player_id:
-                return
 
         if (
             not collocated
@@ -576,4 +572,9 @@ def on_player_command(ctx: Any, *, token: str, resolved: str | None, arg: str | 
         if _normalize_pos(monster.get("pos")) != pos:
             continue
         _process_monster(monster, allow_target_roll=True, require_wake=True)
+
+    try:
+        state_debug.log_turn_state(ctx, phase="post")
+    except Exception:
+        pass
 

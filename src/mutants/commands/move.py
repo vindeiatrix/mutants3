@@ -56,6 +56,7 @@ def move(dir_code: str, ctx: Dict[str, Any]) -> None:
             sink.handle({"ts": "", "kind": "MOVE/DECISION", "text": json.dumps(payload)})
 
     if not dec.passable:
+        ctx["_last_move_passable"] = False
         ctx.pop("_move_lag_probe", None)
         if dec.reason == "closed_gate":
             ctx["feedback_bus"].push(
@@ -137,6 +138,7 @@ def move(dir_code: str, ctx: Dict[str, Any]) -> None:
         ions_after=ions_after,
     )
     # Successful movement requests a render of the new room.
+    ctx["_last_move_passable"] = True
     ctx["render_next"] = True
     # Do not echo success movement like "You head north." Original shows next room immediately.
 

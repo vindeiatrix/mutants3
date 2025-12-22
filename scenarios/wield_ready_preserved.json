@@ -1,0 +1,24 @@
+{
+  "name": "wield_ready_preserved",
+  "commands": [
+    "theme mono",
+    "bury all",
+    "4",
+    "debug hp 999999",
+    "debug add nuclear_decay",
+    "get nuclear-decay",
+    "d m waste_mauler",
+    "com waste",
+    "n",
+    "wield nuclear-decay",
+    "stat",
+    "x"
+  ],
+  "expect": [
+    "Your target is not in this room; you're still ready to combat it.",
+    "Ready to Combat: Waste"
+  ],
+  "timeout_seconds": 120,
+  "stdin_delay_ms": 200,
+  "purge_state": true
+}

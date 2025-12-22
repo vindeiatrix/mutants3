@@ -1,6 +1,0 @@
-{
-  "name": "mono",
-  "width": 80,
-  "ansi_enabled": false,
-  "colors_path": "state/ui/colors.json"
-}
