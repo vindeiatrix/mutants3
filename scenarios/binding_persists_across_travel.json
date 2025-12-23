@@ -1,0 +1,29 @@
+{
+  "name": "binding_persists_across_travel",
+  "commands": [
+    "theme mono",
+    "bury all",
+    "4",
+    "debug hp 999999",
+    "debug add nuclear-decay",
+    "get nuclear-decay",
+    "debug monster gate_warden",
+    "com gate",
+    "look",
+    "look",
+    "tra 2100",
+    "tra 2000",
+    "look",
+    "look",
+    "look",
+    "look"
+  ],
+  "expect": [
+    "Gate-Warden",
+    "ZAAAPPPPP!! You've been sent to the year 2100 A.D.",
+    "ZAAAPPPPP!! You've been sent to the year 2000 A.D."
+  ],
+  "timeout_seconds": 180,
+  "stdin_delay_ms": 200,
+  "purge_state": true
+}

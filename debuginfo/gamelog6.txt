@@ -1,0 +1,976 @@
+(.venv) PS C:\Git2\mutants3> .\Run-Mutants.ps1
+Repo: C:\Git2\mutants3
+DB:   C:\Git2\mutants3\state\mutants.db
+ENV:  MUTANTS_STATE_BACKEND=sqlite; GAME_STATE_ROOT=C:\Git2\mutants3\state
+Obtaining file:///C:/Git2/mutants3
+  Installing build dependencies ... done
+  Checking if build backend supports build_editable ... done
+  Getting requirements to build editable ... done
+  Preparing editable metadata (pyproject.toml) ... done
+Building wheels for collected packages: mutants
+  Building editable for mutants (pyproject.toml) ... done
+  Created wheel for mutants: filename=mutants-0.0.0-0.editable-py3-none-any.whl size=2532 sha256=2e7b4e8c60248deaa62ea17e0d22ad9f5033270d0aa6198be3184c25eb38b367
+  Stored in directory: C:\Users\michael.bowman\AppData\Local\Temp\pip-ephem-wheel-cache-5mamnevd\wheels\b8\16\79\15911a472ed15aea2aceb8a431ad64aff3d06b7f7f7fe0eff6
+Successfully built mutants
+Installing collected packages: mutants
+  Attempting uninstall: mutants
+    Found existing installation: mutants 0.0.0
+    Uninstalling mutants-0.0.0:
+      Successfully uninstalled mutants-0.0.0
+Successfully installed mutants-0.0.0
+Schema ensured at C:\Git2\mutants3\state\mutants.db
+Items catalog present (rows: 45).
+daily_litter: triggered
+Monsters catalog present (rows: 7).
+Monsters currently present (rows: 2).
+
+Launching game (SQLite backend)...
+Mutants — classic BBS vibes.  Type 'help' for commands; 'theme mono' for no color.
+
+ 1. Mutant Thief    Level: 1   Year: 2000  ( 0  0)
+ 2. Mutant Priest   Level: 1   Year: 2000  ( 0  0)
+ 3. Mutant Wizard   Level: 1   Year: 2000  ( 0  0)
+ 4. Mutant Warrior  Level: 1   Year: 2000  (‑1  0)
+ 5. Mutant Mage     Level: 1   Year: 2000  ( 0  0)
+
+Type BURY [class number] to reset a player. Type X to exit.
+***
+Select (Bury, 1-5, ?) 3
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the west.
+> stat
+***
+Name: Wizard / Mutant Wizard
+Exhaustion    : 0
+Str: 14     Int: 17      Wis: 17
+Dex: 13     Con: 14      Cha: 15
+Hit Points    : 23 / 23
+Exp. Points   : 0  Level: 1
+Riblets       : 0
+Ions          : 30000
+Wearing Armor : None  Armour Class: 1
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D.      : 2000
+
+You are carrying the following items:  (Total Weight: 0 LB's)
+Nothing.
+> d hp 32323
+***
+Set HP for Wizard to 32323 / 32323.
+> look
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the west.
+> w
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-761, and Waste-Mauler-762 are here with you.
+***
+The wastes made me. Now I break you.
+***
+Waste‑Mauler‑762 begins casting Arcane Burst...
+***
+Waste‑Mauler‑762 casts Arcane Burst!
+> look
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-761, and Waste-Mauler-762 are here with you.
+***
+Waste‑Mauler‑762 has hit you with his Rebar‑Smash!
+***
+You suffer 14 hit points of damage!
+> look
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-761, and Waste-Mauler-762 are here with you.
+***
+Waste‑Mauler‑762 has hit you with his Rebar‑Maul!
+***
+You suffer 1 hit points of damage!
+> look
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-761, and Waste-Mauler-762 are here with you.
+***
+Waste‑Mauler‑762 has hit you with his Rebar‑Maul!
+***
+You suffer 1 hit points of damage!
+> look
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-761, and Waste-Mauler-762 are here with you.
+***
+Waste‑Mauler‑762 has hit you with his Rebar‑Maul!
+***
+You suffer 1 hit points of damage!
+> look
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-761, and Waste-Mauler-762 are here with you.
+***
+Waste‑Mauler‑762 has hit you with his Rebar‑Smash!
+***
+You suffer 14 hit points of damage!
+> look
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-761, and Waste-Mauler-762 are here with you.
+***
+Waste‑Mauler‑762 has hit you with his Rebar‑Maul!
+***
+You suffer 1 hit points of damage!
+> look
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-761, and Waste-Mauler-762 are here with you.
+***
+Waste‑Mauler‑762 has hit you with his Rebar‑Smash!
+***
+You suffer 14 hit points of damage!
+***
+The wastes made me. Now I break you.
+***
+Waste‑Mauler‑761 has hit you with his Rebar‑Maul!
+***
+You suffer 1 hit points of damage!
+> look
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-761, and Waste-Mauler-762 are here with you.
+***
+Waste‑Mauler‑762 has hit you with his Rebar‑Maul!
+***
+You suffer 1 hit points of damage!
+***
+Waste‑Mauler‑761 has hit you with his Rebar‑Smash!
+***
+You suffer 14 hit points of damage!
+> stat
+***
+Name: Wizard / Mutant Wizard
+Exhaustion    : 0
+Str: 14     Int: 17      Wis: 17
+Dex: 13     Con: 14      Cha: 15
+Hit Points    : 32261 / 32323
+Exp. Points   : 0  Level: 1
+Riblets       : 0
+Ions          : 30000
+Wearing Armor : None  Armour Class: 1
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D.      : 2000
+
+You are carrying the following items:  (Total Weight: 0 LB's)
+Nothing.
+***
+Waste‑Mauler‑762 has hit you with his Rebar‑Smash!
+***
+You suffer 14 hit points of damage!
+***
+Waste‑Mauler‑761 has hit you with his Rebar‑Maul!
+***
+You suffer 1 hit points of damage!
+> look
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-761, and Waste-Mauler-762 are here with you.
+***
+Waste‑Mauler‑762 has hit you with his Rebar‑Maul!
+***
+You suffer 1 hit points of damage!
+***
+Waste‑Mauler‑761 has hit you with his Rebar‑Smash!
+***
+You suffer 14 hit points of damage!
+> look
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-761, and Waste-Mauler-762 are here with you.
+***
+Waste‑Mauler‑762 has hit you with his Rebar‑Maul!
+***
+You suffer 1 hit points of damage!
+***
+Waste‑Mauler‑761 has hit you with his Rebar‑Maul!
+***
+You suffer 1 hit points of damage!
+***
+Waste‑Mauler‑761 bounces on their heels.
+> look
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-761, and Waste-Mauler-762 are here with you.
+***
+Waste‑Mauler‑762 has hit you with his Rebar‑Maul!
+***
+You suffer 1 hit points of damage!
+***
+Waste‑Mauler‑761 has hit you with his Rebar‑Maul!
+***
+You suffer 1 hit points of damage!
+> look
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-761, and Waste-Mauler-762 are here with you.
+***
+Waste‑Mauler‑762 has hit you with his Rebar‑Maul!
+***
+You suffer 1 hit points of damage!
+***
+Waste‑Mauler‑761 has hit you with his Rebar‑Smash!
+***
+You suffer 14 hit points of damage!
+> look
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-761, and Waste-Mauler-762 are here with you.
+***
+Waste‑Mauler‑762 has hit you with his Rebar‑Maul!
+***
+You suffer 1 hit points of damage!
+***
+Waste‑Mauler‑761 has hit you with his Rebar‑Maul!
+***
+You suffer 1 hit points of damage!
+> look
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-761, and Waste-Mauler-762 are here with you.
+***
+Waste‑Mauler‑762 has hit you with his Rebar‑Maul!
+***
+You suffer 1 hit points of damage!
+***
+Waste‑Mauler‑761 has hit you with his Rebar‑Maul!
+***
+You suffer 1 hit points of damage!
+***
+Waste‑Mauler‑762 pleads with you.
+> look
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-761, and Waste-Mauler-762 are here with you.
+***
+Waste‑Mauler‑762 has hit you with his Rebar‑Maul!
+***
+You suffer 1 hit points of damage!
+***
+Waste‑Mauler‑761 has hit you with his Rebar‑Maul!
+***
+You suffer 1 hit points of damage!
+> e
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the west.
+***
+You hear loud sounds of yelling and screaming to the west.
+***
+Waste‑Mauler‑762 has just arrived from the west.
+***
+Waste‑Mauler‑761 has just arrived from the west.
+> d add n
+***
+spawned 1 x nuclear_decay at (2000, 0, 0) [4d6ca737fcae4c629596c5da2afd340b]
+***
+Waste‑Mauler‑762 has hit you with his Rebar‑Smash!
+***
+You suffer 14 hit points of damage!
+***
+Waste‑Mauler‑761 has hit you with his Rebar‑Maul!
+***
+You suffer 1 hit points of damage!
+> get n
+***
+You pick up the Nuclear‑Decay.
+***
+Waste‑Mauler‑762 has hit you with his Rebar‑Maul!
+***
+You suffer 1 hit points of damage!
+***
+Waste‑Mauler‑761 has hit you with his Rebar‑Smash!
+***
+You suffer 14 hit points of damage!
+> look
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-762, and Waste-Mauler-761 are here with you.
+***
+Waste‑Mauler‑762 has hit you with his Rebar‑Smash!
+***
+You suffer 14 hit points of damage!
+***
+Waste‑Mauler‑761 has hit you with his Rebar‑Maul!
+***
+You suffer 1 hit points of damage!
+> stat
+***
+Name: Wizard / Mutant Wizard
+Exhaustion    : 0
+Str: 14     Int: 17      Wis: 17
+Dex: 13     Con: 14      Cha: 15
+Hit Points    : 32161 / 32323
+Exp. Points   : 0  Level: 1
+Riblets       : 0
+Ions          : 30000
+Wearing Armor : None  Armour Class: 1
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D.      : 2000
+
+You are carrying the following items:  (Total Weight: 50 LB's)
+A Nuclear‑Decay.
+***
+Waste‑Mauler‑762 has hit you with his Rebar‑Maul!
+***
+You suffer 1 hit points of damage!
+***
+Waste‑Mauler‑761 has hit you with his Rebar‑Maul!
+***
+You suffer 1 hit points of damage!
+> look
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-762, and Waste-Mauler-761 are here with you.
+***
+Waste‑Mauler‑762 has hit you with his Rebar‑Maul!
+***
+You suffer 1 hit points of damage!
+***
+Waste‑Mauler‑761 has hit you with his Rebar‑Smash!
+***
+You suffer 14 hit points of damage!
+> com w
+***
+You ready yourself against Waste‑Mauler‑762.
+***
+Waste‑Mauler‑762 has hit you with his Rebar‑Maul!
+***
+You suffer 1 hit points of damage!
+***
+Waste‑Mauler‑761 has hit you with his Rebar‑Maul!
+***
+You suffer 1 hit points of damage!
+> wie n
+***
+You've hit Waste‑Mauler‑762 with your Nuclear‑Decay!
+***
+Waste‑Mauler‑762 has hit you with his Rebar‑Maul!
+***
+You suffer 1 hit points of damage!
+***
+Waste‑Mauler‑761 has hit you with his Rebar‑Maul!
+***
+You suffer 1 hit points of damage!
+***
+Waste‑Mauler‑762 sharpens their claws.
+> look
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-761 is here.
+***
+You see shadows to the north.
+***
+Waste‑Mauler‑762 yells: Get away from me!
+***
+Waste‑Mauler‑762 has just left north
+***
+Waste‑Mauler‑761 has hit you with his Rebar‑Maul!
+***
+You suffer 1 hit points of damage!
+***
+You hear loud sounds of yelling and screaming to the north.
+***
+You hear loud sounds of footsteps to the north.
+> com w
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-761 is here.
+***
+You see shadows to the north.
+***
+You ready yourself against Waste‑Mauler‑761.
+***
+Waste‑Mauler‑761 has hit you with his Rebar‑Maul!
+***
+You suffer 1 hit points of damage!
+***
+You hear faint sounds of yelling and screaming far to the north.
+***
+You hear faint sounds of footsteps far to the north.
+> wie n
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-761 is here.
+***
+You've hit Waste‑Mauler‑761 with your Nuclear‑Decay!
+***
+Waste‑Mauler‑761 yells: Get away from me!
+***
+You hear faint sounds of yelling and screaming far to the north.
+***
+You hear faint sounds of footsteps far to the north.
+> look
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-761 is here.
+***
+Waste‑Mauler‑761 yells: Get away from me!
+***
+Waste‑Mauler‑761 has just left north
+***
+You hear faint sounds of yelling and screaming far to the north.
+***
+You hear faint sounds of footsteps far to the north.
+***
+You hear loud sounds of yelling and screaming to the north.
+***
+You hear loud sounds of footsteps to the north.
+> look
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the north.
+***
+You hear faint sounds of yelling and screaming far to the north.
+***
+You hear faint sounds of footsteps far to the north.
+> look
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You hear faint sounds of footsteps far to the north.
+> n
+Relics of the war line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+> n
+You feel a cold breeze.
+Compass: (0E : 2N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+A Gold‑Chunk.
+***
+You see shadows to the north.
+***
+You hear faint sounds of yelling and screaming far to the north.
+***
+You hear faint sounds of footsteps far to the north.
+> n
+Broken glass covers the road.
+Compass: (0E : 3N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+On the ground lies:
+A Nuclear‑Decay.
+***
+You see shadows to the north.
+> look no
+Broken lamp posts line the streets.
+Compass: (0E : 4N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear‑Thong.
+***
+Waste-Mauler-762, and Waste-Mauler-761 are here with you.
+> look
+Broken glass covers the road.
+Compass: (0E : 3N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+On the ground lies:
+A Nuclear‑Decay.
+***
+You see shadows to the north.
+> n
+Broken lamp posts line the streets.
+Compass: (0E : 4N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear‑Thong.
+***
+Waste-Mauler-761 is here.
+***
+You see shadows to the west.
+***
+Waste‑Mauler‑762 yells: Get away from me!
+***
+Waste‑Mauler‑762 has just left west
+***
+Waste‑Mauler‑761 yells: Get away from me!
+***
+Waste‑Mauler‑761 yells: Get away from me!
+***
+You hear loud sounds of yelling and screaming to the west.
+***
+You hear loud sounds of footsteps to the west.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 4N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear‑Thong.
+***
+Waste-Mauler-761 is here.
+***
+Waste‑Mauler‑761 yells: Get away from me!
+***
+Waste‑Mauler‑761 has just left east
+***
+You hear loud sounds of yelling and screaming to the east.
+***
+You hear loud sounds of footsteps to the east.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 4N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear‑Thong.
+***
+You see shadows to the west.
+***
+You hear faint sounds of yelling and screaming far to the east.
+***
+You hear faint sounds of footsteps far to the east.
+> e
+Broken glass covers the road.
+Compass: (1E : 4N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Light‑Spear.
+***
+You see shadows to the east.
+***
+You hear faint sounds of footsteps far to the east.
+> e
+Broken glass covers the road.
+Compass: (2E : 4N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the east.
+***
+You hear faint sounds of footsteps far to the east.
+> e
+Crumbling buildings surround you.
+Compass: (3E : 4N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+An Ion‑Pack.
+***
+You see shadows to the east.
+> d add lightn
+***
+spawned 1 x lightning‑rod at (2000, 3, 4) [474be336e4d44e49afcf02c7ac746671]
+> poi e l
+***
+You're not carrying a l.
+> get l
+***
+You pick up the Lightning‑Rod.
+> poi e l
+***
+You release the Lightning‑Rod east!
+***
+You strike Waste‑Mauler‑761 for 6 damage.
+***
+You have slain Waste‑Mauler‑761!
+Your experience points are increased by 28!
+You collect 6 Riblets and 7906 ions from the slain body.
+***
+
+A Rebar‑Maul is falling from Waste‑Mauler‑761's body!
+***
+A Radioactive‑Fang is falling from Waste‑Mauler‑761's body!
+***
+A Skull is falling from Waste‑Mauler‑761's body!
+***
+A Spiked‑Plating is falling from Waste‑Mauler‑761's body!
+***
+Waste‑Mauler‑761 is crumbling to dust!
+> w
+Broken glass covers the road.
+Compass: (2E : 4N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+> w
+Broken glass covers the road.
+Compass: (1E : 4N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Light‑Spear.
+> w
+Broken lamp posts line the streets.
+Compass: (0E : 4N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear‑Thong.
+***
+You see shadows to the west.
+> poi w l
+***
+You release the Lightning‑Rod west!
+***
+You're not ready to combat anyone!
+> look we
+City Trading Centre.
+Compass: (-1E : 4N)
+south - area continues.
+east  - area continues.
+***
+On the ground lies:
+A Nuclear‑Rock.
+***
+Waste-Mauler-762 is here.
+> look
+Broken lamp posts line the streets.
+Compass: (0E : 4N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear‑Thong.
+***
+You see shadows to the west.
+> w
+City Trading Centre.
+Compass: (-1E : 4N)
+south - area continues.
+east  - area continues.
+***
+On the ground lies:
+A Nuclear‑Rock.
+***
+Waste-Mauler-762 is here.
+***
+Waste‑Mauler‑762 yells: Get away from me!
+> com w
+City Trading Centre.
+Compass: (-1E : 4N)
+south - area continues.
+east  - area continues.
+***
+On the ground lies:
+A Nuclear‑Rock.
+***
+Waste-Mauler-762 is here.
+***
+You ready yourself against Waste‑Mauler‑762.
+***
+Waste‑Mauler‑762 yells: Get away from me!
+***
+Waste‑Mauler‑762 has just left south
+***
+You hear loud sounds of yelling and screaming to the south.
+***
+You hear loud sounds of footsteps to the south.
+> poi s l
+***
+You release the Lightning‑Rod south!
+***
+You strike Waste‑Mauler‑762 for 6 damage.
+***
+You have slain Waste‑Mauler‑762!
+Your experience points are increased by 28!
+You collect 8 Riblets and 10516 ions from the slain body.
+***
+
+A Rebar‑Maul is falling from Waste‑Mauler‑762's body!
+***
+A Radioactive‑Fang is falling from Waste‑Mauler‑762's body!
+***
+A Skull is falling from Waste‑Mauler‑762's body!
+***
+A Spiked‑Plating is falling from Waste‑Mauler‑762's body!
+***
+Waste‑Mauler‑762 is crumbling to dust!
+> s
+The two moons are rising above.
+Compass: (-1E : 3N)
+north - area continues.
+south - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Rebar‑Maul, A Radioactive‑Fang, A Skull, A Spiked‑Plating.
+> get spi
+***
+You pick up the Spiked‑Plating.
+> wear spi
+***
+You've just put on the Spiked‑Plating.
+> w
+You're in a wrecked building.
+Compass: (-2E : 3N)
+north - area continues.
+south - area continues.
+east  - area continues.
+> stat
+***
+Name: Wizard / Mutant Wizard
+Exhaustion    : 0
+Str: 14     Int: 17      Wis: 17
+Dex: 13     Con: 14      Cha: 15
+Hit Points    : 32138 / 32323
+Exp. Points   : 56  Level: 1
+Riblets       : 14
+Ions          : 48422
+Wearing Armor : Spiked‑Plating  Armour Class: 7
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D.      : 2000
+
+You are carrying the following items:  (Total Weight: 51 LB's)
+A Nuclear‑Decay, A Lightning‑Rod.
+> tra 2100
+***
+ZAAAPPPPP!! You've been sent to the year 2100 A.D.
+> d m w
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Monster‑Bait.
+***
+Waste-Mauler-661 is here.
+***
+Spawned 1 x Waste‑Mauler‑661 at your location.
+> w
+The street is cracked here.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+An Ion‑Decay.
+***
+You see shadows to the east.
+> d m w
+The street is cracked here.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+An Ion‑Decay.
+***
+Waste-Mauler-662 is here.
+***
+You see shadows to the east.
+***
+Spawned 1 x Waste‑Mauler‑662 at your location.
+> stat
+***
+Name: Wizard / Mutant Wizard
+Exhaustion    : 0
+Str: 14     Int: 17      Wis: 17
+Dex: 13     Con: 14      Cha: 15
+Hit Points    : 32138 / 32323
+Exp. Points   : 56  Level: 1
+Riblets       : 14
+Ions          : 45422
+Wearing Armor : Spiked‑Plating  Armour Class: 7
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D.      : 2100
+
+You are carrying the following items:  (Total Weight: 51 LB's)
+A Nuclear‑Decay, A Lightning‑Rod.
+> x
+ 1. Mutant Thief    Level: 1   Year: 2000  ( 0  0)
+ 2. Mutant Priest   Level: 1   Year: 2000  ( 0  0)
+ 3. Mutant Wizard   Level: 1   Year: 2100  (‑1  0)
+ 4. Mutant Warrior  Level: 1   Year: 2000  (‑1  0)
+ 5. Mutant Mage     Level: 1   Year: 2000  ( 0  0)
+
+Type BURY [class number] to reset a player. Type X to exit.
+***
+Select (Bury, 1-5, ?) 1
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-662 is here.

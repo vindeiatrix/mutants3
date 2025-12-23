@@ -845,6 +845,7 @@ class MonstersState:
             fallback=hp_cur,
         )
         pos = payload.get("pos") if isinstance(payload.get("pos"), list) else [0, 0, 0]
+        # Never coerce a blank position into the current player's location; persist exactly what's on the monster.
         year = _sanitize_int(pos[0] if len(pos) > 0 else None, fallback=0)
         x = _sanitize_int(pos[1] if len(pos) > 1 else None, fallback=0)
         y = _sanitize_int(pos[2] if len(pos) > 2 else None, fallback=0)
@@ -1037,6 +1038,10 @@ class MonstersState:
                 candidates.append(mon)
         if candidates:
             return candidates
+        # If we have a target bucket but nothing in this year, keep the targeting flag
+        # and return an empty list so cross-year travelers don't drop pursuit.
+        if id_bucket and year is not None:
+            return []
         # Fallback: defensive scan when index is empty/stale. If none are found,
         # drop the targeting flag so future calls don't scan every monster.
         result: list[Dict[str, Any]] = []
@@ -1077,7 +1082,7 @@ class MonstersState:
                         if cached_pos is not None and (year is None or int(cached_pos[0]) == int(year)):
                             result.append(mon)
                             continue
-        if not result:
+        if not result and not self._by_target:
             self._has_targeting = False
         return result
 
@@ -1571,6 +1576,14 @@ def _normalize_monsters(monsters: List[Dict[str, Any]], *, catalog: Mapping[str,
         monster["hp"] = _sanitize_hp(monster.get("hp"))
 
         state_block = _ensure_ai_state(monster)
+        # Keep bound/target mirrored on load to avoid drift (e.g., after travel or cache reloads).
+        bound_id = state_block.get("bound_player_id")
+        target_id = monster.get("target_player_id")
+        if bound_id and not target_id:
+            monster["target_player_id"] = bound_id
+        elif target_id and not bound_id:
+            state_block["bound_player_id"] = target_id
+
         ai_state_json = _encode_ai_state(state_block)
         if ai_state_json is not None:
             monster["ai_state_json"] = ai_state_json

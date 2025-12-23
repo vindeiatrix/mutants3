@@ -329,6 +329,31 @@ class WorldRegistry:
         else:
             raise ValueError(f"World file for {year} must be a list or an object with 'tiles'")
 
+        # Repair pass: if two adjacent tiles exist but a hard wall separates them, open the edge
+        # so both remain reachable (no divider walls between existing rooms).
+        for (x, y) in list(yw._tiles_by_xy.keys()):
+            for dir_token, opp in (("N", "S"), ("S", "N"), ("E", "W"), ("W", "E")):
+                neighbor = yw._neighbor_xy(x, y, dir_token)
+                if neighbor not in yw._tiles_by_xy:
+                    continue
+                t = yw.get_tile(x, y)
+                e = t["edges"].get(dir_token, {})
+                base = e.get("base")
+                if base and base != BASE_OPEN and base != BASE_GATE:
+                    try:
+                        yw.set_edge(x, y, dir_token, base=BASE_OPEN)
+                    except Exception:
+                        pass
+                # mirror: ensure neighbor edge is also open
+                nt = yw.get_tile(*neighbor)
+                ne = nt["edges"].get(opp, {})
+                nbase = ne.get("base")
+                if nbase and nbase != BASE_OPEN and nbase != BASE_GATE:
+                    try:
+                        yw.set_edge(neighbor[0], neighbor[1], opp, base=BASE_OPEN)
+                    except Exception:
+                        pass
+
         self._by_year[year] = yw
         return yw
 

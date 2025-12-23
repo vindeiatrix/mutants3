@@ -454,6 +454,27 @@ def on_player_command(ctx: Any, *, token: str, resolved: str | None, arg: str | 
         if int(mon_pos[0]) != int(year):
             return
         collocated = mon_pos == pos
+        state_block = monster.get("_ai_state") if isinstance(monster, Mapping) else None
+        bound_id = _normalize_id(state_block.get("bound_player_id")) if isinstance(state_block, Mapping) else None
+        # Keep bound/target mirrored; if only one is present, repair it.
+        if isinstance(monster, MutableMapping):
+            if target and bound_id != target and isinstance(state_block, MutableMapping):
+                state_block["bound_player_id"] = target
+                bound_id = target
+            elif bound_id and target != bound_id:
+                monster["target_player_id"] = bound_id
+                target = bound_id
+            if callable(mark_dirty):
+                try:
+                    mark_dirty(monster)
+                except Exception:
+                    pass
+            marker = getattr(monsters, "mark_targeting", None)
+            if callable(marker):
+                try:
+                    marker(monster)
+                except Exception:
+                    pass
 
         if (
             not collocated

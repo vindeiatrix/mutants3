@@ -1,0 +1,33 @@
+{
+  "wake_on_look": 30,
+  "wake_on_entry": 50,
+  "flee_hp_pct": 25,
+  "flee_pct": 10,
+  "heal_at_pct": 85,
+  "heal_pct": 35,
+  "heal_cost": 150,
+  "convert_pct": 35,
+  "low_ion_pct": 70,
+  "cast_pct": 1,
+  "attack_pct": 70,
+  "pickup_pct": 20,
+  "emote_pct": 5,
+  "spell_cost": 8,
+  "spell_success_pct": 75,
+  "cracked_pickup_bonus": 10,
+  "cracked_flee_bonus": 5,
+  "post_kill_force_pickup_pct": 25,
+  "heal_cost_multiplier": {
+    "warrior": 750,
+    "priest": 750,
+    "mage": 1200,
+    "wizard": 1000,
+    "thief": 200,
+    "default": 200
+  },
+  "rng_seeds": {
+    "wake": null,
+    "gates": null,
+    "loot": null
+  }
+}

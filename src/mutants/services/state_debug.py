@@ -256,7 +256,7 @@ def log_turn_state(ctx: Any, *, phase: str) -> None:
                     continue
                 target = mon.get("target_player_id")
                 ai = mon.get("_ai_state") if isinstance(mon.get("_ai_state"), Mapping) else {}
-                bound_player = ai.get("bound_player_id")
+                bound_player = ai.get("bound_player_id") or target
                 pos = mon.get("pos") if isinstance(mon.get("pos"), Sequence) else None
                 if target == active_id or bound_player == active_id:
                     entry: dict[str, Any] = {
@@ -483,6 +483,31 @@ def _describe_iid(iid: Any) -> dict[str, Any]:
     else:
         name = None
     return {"iid": iid, "item_id": item_id, "name": name or item_id}
+
+
+def log_item_label(
+    *,
+    iid: str | None,
+    item_id: str | None,
+    resolved: str,
+    catalog_hit: bool,
+    reason: str | None,
+) -> None:
+    """Trace item label resolution to catch GUID fallbacks."""
+
+    if not _debug_enabled():
+        return
+
+    payload: dict[str, Any] = {
+        "event": "item_label",
+        "iid": iid,
+        "item_id": item_id,
+        "resolved": resolved,
+        "catalog_hit": bool(catalog_hit),
+    }
+    if reason:
+        payload["reason"] = reason
+    _emit(payload)
 
 
 def log_travel(

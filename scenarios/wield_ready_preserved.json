@@ -15,7 +15,8 @@
     "x"
   ],
   "expect": [
-    "Your target is not in this room; you're still ready to combat it.",
+    "Waste-Mauler-",
+    "isn't around here!",
     "Ready to Combat: Waste"
   ],
   "timeout_seconds": 120,

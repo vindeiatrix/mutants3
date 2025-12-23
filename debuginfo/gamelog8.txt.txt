@@ -1,0 +1,544 @@
+(.venv) PS C:\Git2\mutants3> .\Run-Mutants.ps1
+Creating SQLite database file...
+Repo: C:\Git2\mutants3
+DB:   C:\Git2\mutants3\state\mutants.db
+ENV:  MUTANTS_STATE_BACKEND=sqlite; GAME_STATE_ROOT=C:\Git2\mutants3\state
+Obtaining file:///C:/Git2/mutants3
+  Installing build dependencies ... done
+  Checking if build backend supports build_editable ... done
+  Getting requirements to build editable ... done
+  Preparing editable metadata (pyproject.toml) ... done
+Building wheels for collected packages: mutants
+  Building editable for mutants (pyproject.toml) ... done
+  Created wheel for mutants: filename=mutants-0.0.0-0.editable-py3-none-any.whl size=2532 sha256=14c4dcf25c08fbe8de9bc1a9a9222428e2476c968995629509f0edb59fe74f86
+  Stored in directory: C:\Users\michael.bowman\AppData\Local\Temp\pip-ephem-wheel-cache-xcj913l2\wheels\b8\16\79\15911a472ed15aea2aceb8a431ad64aff3d06b7f7f7fe0eff6
+Successfully built mutants
+Installing collected packages: mutants
+  Attempting uninstall: mutants
+    Found existing installation: mutants 0.0.0
+    Uninstalling mutants-0.0.0:
+      Successfully uninstalled mutants-0.0.0
+Successfully installed mutants-0.0.0
+Schema ensured at C:\Git2\mutants3\state\mutants.db
+Importing items catalog into SQLite...
+Imported 45 items into C:\Git2\mutants3\state\mutants.db
+daily_litter: triggered
+Importing monsters catalog into SQLite...
+Imported 7 monster(s) into catalog at C:\Git2\mutants3\state\mutants.db
+Monsters currently present (rows: 0).
+
+Launching game (SQLite backend)...
+Mutants — classic BBS vibes.  Type 'help' for commands; 'theme mono' for no color.
+
+ 1. Mutant Thief    Level: 1   Year: 2000  ( 0  0)
+ 2. Mutant Priest   Level: 1   Year: 2000  ( 0  0)
+ 3. Mutant Wizard   Level: 1   Year: 2000  ( 0  0)
+ 4. Mutant Warrior  Level: 1   Year: 2300  ( 0  0)
+ 5. Mutant Mage     Level: 1   Year: 2000  ( 0  0)
+
+Type BURY [class number] to reset a player. Type X to exit.
+***
+Select (Bury, 1-5, ?) bury all
+Player reset.
+ 1. Mutant Thief    Level: 1   Year: 2000  ( 0  0)
+ 2. Mutant Priest   Level: 1   Year: 2000  ( 0  0)
+ 3. Mutant Wizard   Level: 1   Year: 2000  ( 0  0)
+ 4. Mutant Warrior  Level: 1   Year: 2000  ( 0  0)
+ 5. Mutant Mage     Level: 1   Year: 2000  ( 0  0)
+
+Type BURY [class number] to reset a player. Type X to exit.
+***
+Select (Bury, 1-5, ?) 4
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+> w
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+> d hp 2323
+***
+Set HP for Warrior to 2323 / 2323.
+> d m j
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-874 is here.
+***
+Spawned 1 x Junkyard‑Scrapper‑874 at your location.
+> look
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-874 is here.
+***
+Clank‑clank... scrap's mine!
+***
+Junkyard‑Scrapper‑874 has hit you with his Rusty‑Shiv!
+> look
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-874 is here.
+***
+Junkyard‑Scrapper‑874 has hit you with his Rusty‑Shiv!
+> look
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-874 is here.
+***
+Junkyard‑Scrapper‑874 has hit you with his Rusty‑Shiv!
+> look
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-874 is here.
+***
+Junkyard‑Scrapper‑874 has hit you with his Rusty‑Shiv!
+> look
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-874 is here.
+***
+Junkyard‑Scrapper‑874 has hit you with his Rusty‑Shiv!
+> look
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-874 is here.
+***
+Junkyard‑Scrapper‑874 has hit you with his Rusty‑Shiv!
+> look
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-874 is here.
+***
+Junkyard‑Scrapper‑874 has hit you with his Rusty‑Shiv!
+> look
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-874 is here.
+***
+Junkyard‑Scrapper‑874 has hit you with his Rusty‑Shiv!
+> look
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-874 is here.
+***
+Junkyard‑Scrapper‑874 has hit you with his Rusty‑Shiv!
+***
+You suffer 6 hit points of damage!
+> look
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-874 is here.
+***
+Junkyard‑Scrapper‑874 has hit you with his Rusty‑Shiv!
+***
+You suffer 6 hit points of damage!
+> look
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-874 is here.
+***
+Junkyard‑Scrapper‑874 has hit you with his Rusty‑Shiv!
+> look
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-874 is here.
+***
+Junkyard‑Scrapper‑874 has hit you with his Rusty‑Shiv!
+***
+You suffer 6 hit points of damage!
+***
+Junkyard‑Scrapper‑874 is looking awfully sad.
+> look
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-874 is here.
+***
+Junkyard‑Scrapper‑874 has hit you with his Rusty‑Shiv!
+> look
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-874 is here.
+***
+Junkyard‑Scrapper‑874 has hit you with his Rusty‑Shiv!
+> look
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-874 is here.
+***
+Junkyard‑Scrapper‑874 has hit you with his Rusty‑Shiv!
+***
+You suffer 6 hit points of damage!
+> look
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-874 is here.
+***
+Junkyard‑Scrapper‑874 has hit you with his Rusty‑Shiv!
+> look
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-874 is here.
+***
+Junkyard‑Scrapper‑874 has hit you with his Rusty‑Shiv!
+> look
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-874 is here.
+***
+Junkyard‑Scrapper‑874 has hit you with his Rusty‑Shiv!
+> look
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-874 is here.
+***
+Junkyard‑Scrapper‑874 has hit you with his Rusty‑Shiv!
+***
+You suffer 6 hit points of damage!
+***
+Junkyard‑Scrapper‑874 whispers something unintelligible.
+> look
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-874 is here.
+***
+Junkyard‑Scrapper‑874 has hit you with his Rusty‑Shiv!
+> tra 2100
+***
+ZAAAPPPPP!! You've been sent to the year 2100 A.D.
+> x
+ 1. Mutant Thief    Level: 1   Year: 2000  ( 0  0)
+ 2. Mutant Priest   Level: 1   Year: 2000  ( 0  0)
+ 3. Mutant Wizard   Level: 1   Year: 2000  ( 0  0)
+ 4. Mutant Warrior  Level: 1   Year: 2100  ( 0  0)
+ 5. Mutant Mage     Level: 1   Year: 2000  ( 0  0)
+
+Type BURY [class number] to reset a player. Type X to exit.
+***
+Select (Bury, 1-5, ?) 4
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Monster‑Bait.
+> tra 2000
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the west.
+***
+ZAAAPPPPP!! You've been sent to the year 2000 A.D.
+***
+You hear loud sounds of yelling and screaming to the west.
+***
+Junkyard‑Scrapper‑874 has just arrived from the west.
+> look
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-874 is here.
+***
+Junkyard‑Scrapper‑874 has hit you with his Rusty‑Shiv!
+> look
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-874 is here.
+***
+Junkyard‑Scrapper‑874 has hit you with his Rusty‑Shiv!
+> look
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-874 is here.
+***
+Junkyard‑Scrapper‑874 has hit you with his Rusty‑Shiv!
+> look
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-874 is here.
+***
+Junkyard‑Scrapper‑874 has hit you with his Rusty‑Shiv!
+> look
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-874 is here.
+***
+Junkyard‑Scrapper‑874 has hit you with his Rusty‑Shiv!
+> look
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-874 is here.
+***
+Junkyard‑Scrapper‑874 has hit you with his Rusty‑Shiv!
+> look
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-874 is here.
+***
+Junkyard‑Scrapper‑874 has hit you with his Rusty‑Shiv!
+> look
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-874 is here.
+***
+Junkyard‑Scrapper‑874 has hit you with his Rusty‑Shiv!
+***
+You suffer 6 hit points of damage!
+> look
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-874 is here.
+***
+Junkyard‑Scrapper‑874 has hit you with his Rusty‑Shiv!
+***
+You suffer 6 hit points of damage!
+> look
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-874 is here.
+***
+Junkyard‑Scrapper‑874 has hit you with his Rusty‑Shiv!
+> look
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-874 is here.
+***
+Junkyard‑Scrapper‑874 has hit you with his Rusty‑Shiv!
+> look
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-874 is here.
+***
+Junkyard‑Scrapper‑874 has hit you with his Rusty‑Shiv!
+***
+You suffer 6 hit points of damage!
+> look
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-874 is here.
+***
+Junkyard‑Scrapper‑874 has hit you with his Rusty‑Shiv!
+> look
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-874 is here.
+***
+Junkyard‑Scrapper‑874 has hit you with his Rusty‑Shiv!
+> look
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-874 is here.
+***
+Junkyard‑Scrapper‑874 has hit you with his Rusty‑Shiv!
+> look
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-874 is here.
+***
+Junkyard‑Scrapper‑874 has hit you with his Rusty‑Shiv!
+> x
+ 1. Mutant Thief    Level: 1   Year: 2000  ( 0  0)
+ 2. Mutant Priest   Level: 1   Year: 2000  ( 0  0)
+ 3. Mutant Wizard   Level: 1   Year: 2000  ( 0  0)
+ 4. Mutant Warrior  Level: 1   Year: 2000  ( 0  0)
+ 5. Mutant Mage     Level: 1   Year: 2000  ( 0  0)
+
+Type BURY [class number] to reset a player. Type X to exit.
+***
+Select (Bury, 1-5, ?) x
+(.venv) PS C:\Git2\mutants3> 

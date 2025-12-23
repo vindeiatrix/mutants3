@@ -538,6 +538,12 @@ def _force_monster_aggro(
         return
 
     monster["target_player_id"] = player_id
+    # Keep bound/target mirrored.
+    state_block = monster.get("_ai_state")
+    if not isinstance(state_block, MutableMapping):
+        state_block = {}
+        monster["_ai_state"] = state_block
+    state_block["bound_player_id"] = player_id
     monsters_state_obj = ctx.get("monsters") if isinstance(ctx, Mapping) else None
     if monsters_state_obj is None and hasattr(ctx, "monsters"):
         try:

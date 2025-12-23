@@ -157,6 +157,16 @@ def handle_input(raw: str, ctx: dict) -> None:
         bus.push("SYSTEM/ERROR", "No player id for that slot.")
         return
 
+    # Persist monsters before cache reload so we don't drop in-memory spawns/aggro on class switches.
+    monsters_obj = ctx.get("monsters") if isinstance(ctx, dict) else None
+    try:
+        if hasattr(monsters_obj, "mark_dirty") and callable(monsters_obj.mark_dirty):
+            monsters_obj.mark_dirty(None)  # flush everything
+        if hasattr(monsters_obj, "save") and callable(monsters_obj.save):
+            monsters_obj.save()
+    except Exception:
+        LOG.debug("Failed to save monsters before class switch", exc_info=True)
+
     try:
         updated_state = pstate.set_active_player(state, str(target_id))
         pstate.save_state(updated_state, reason="change-active-class")
@@ -176,6 +186,15 @@ def handle_input(raw: str, ctx: dict) -> None:
     if isinstance(refreshed_state, dict):
         pstate.normalize_player_state_inplace(refreshed_state)
         ctx["player_state"] = refreshed_state
+
+    # Reload monsters cache when switching classes to avoid leaking state across years.
+    try:
+        from mutants.services import monsters_state
+
+        monsters_state.invalidate_cache()
+        ctx["monsters"] = monsters_state.load_state()
+    except Exception:
+        LOG.debug("Failed to reload monsters cache after class selection", exc_info=True)
 
     canonical_pos = pstate.canonical_player_pos(ctx.get("player_state"))
     pstate.sync_runtime_position(ctx, canonical_pos)

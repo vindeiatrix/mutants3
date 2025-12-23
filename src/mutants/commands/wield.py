@@ -207,7 +207,7 @@ def wield_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
     else:
         combat_ctx.pop("weapon_iid", None)
         combat_ctx.pop("weapon_item_id", None)
-        bus.push("SYSTEM/OK", f"You swing the {name} around, testing its weight.")
+        bus.push("SYSTEM/WARN", "You're not ready to combat anyone!")
 
     result: Dict[str, object] = {
         "ok": True,
@@ -221,9 +221,20 @@ def wield_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
     if ready_target_id and not monster_actor:
         target_in_tile = resolve_ready_target_in_tile(ctx)
         if not target_in_tile:
+            target_label = ready_target_id
+            monsters_obj = ctx.get("monsters") if isinstance(ctx, Mapping) else getattr(ctx, "monsters", None)
+            getter = getattr(monsters_obj, "get", None) if monsters_obj is not None else None
+            if callable(getter):
+                try:
+                    mon = getter(target_label)
+                except Exception:
+                    mon = None
+                if isinstance(mon, Mapping):
+                    name = mon.get("name") or mon.get("monster_id") or target_label
+                    target_label = str(name)
             bus.push(
                 "SYSTEM/INFO",
-                "Your target is not in this room; you're still ready to combat it.",
+                f"{target_label} isn't around here!",
             )
             strike_summary = {"ok": False, "reason": "target_not_here"}
         else:

@@ -374,6 +374,12 @@ def catalog_defaults(item_id: str) -> Dict[str, Any]:
     if not isinstance(template, dict):
         return defaults
 
+    for key in ("display", "display_name", "name", "title"):
+        val = template.get(key)
+        if isinstance(val, str) and val.strip():
+            defaults["display_name"] = val.strip()
+            break
+
     def _coerce_bool(value: Any) -> bool:
         if isinstance(value, str):
             lv = value.strip().lower()

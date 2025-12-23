@@ -1,0 +1,237 @@
+(.venv) PS C:\Git2\mutants3> .\Run-Mutants.ps1
+Creating SQLite database file...
+Repo: C:\Git2\mutants3
+DB:   C:\Git2\mutants3\state\mutants.db
+ENV:  MUTANTS_STATE_BACKEND=sqlite; GAME_STATE_ROOT=C:\Git2\mutants3\state
+Obtaining file:///C:/Git2/mutants3
+  Installing build dependencies ... done
+  Checking if build backend supports build_editable ... done
+  Getting requirements to build editable ... done
+  Preparing editable metadata (pyproject.toml) ... done
+Building wheels for collected packages: mutants
+  Building editable for mutants (pyproject.toml) ... done
+  Created wheel for mutants: filename=mutants-0.0.0-0.editable-py3-none-any.whl size=2532 sha256=e755dd0eb942407eb4a12124a9ed5ab17ca0c49c41706c7001df91b034347b96     
+  Stored in directory: C:\Users\michael.bowman\AppData\Local\Temp\pip-ephem-wheel-cache-rq1u1sdn\wheels\b8\16\79\15911a472ed15aea2aceb8a431ad64aff3d06b7f7f7fe0eff6
+Successfully built mutants
+Installing collected packages: mutants
+  Attempting uninstall: mutants
+    Found existing installation: mutants 0.0.0
+    Uninstalling mutants-0.0.0:
+      Successfully uninstalled mutants-0.0.0
+Successfully installed mutants-0.0.0
+Schema ensured at C:\Git2\mutants3\state\mutants.db
+Importing items catalog into SQLite...
+Imported 45 items into C:\Git2\mutants3\state\mutants.db
+daily_litter: triggered
+Importing monsters catalog into SQLite...
+Imported 7 monster(s) into catalog at C:\Git2\mutants3\state\mutants.db
+Monsters currently present (rows: 0).
+
+Launching game (SQLite backend)...
+Mutants — classic BBS vibes.  Type 'help' for commands; 'theme mono' for no color.
+
+ 1. Mutant Thief    Level: 1   Year: 2000  ( 0  0)
+ 2. Mutant Priest   Level: 1   Year: 2000  ( 0  0)
+ 3. Mutant Wizard   Level: 1   Year: 2000  (‑1  0)
+ 4. Mutant Warrior  Level: 1   Year: 2000  ( 0  1)
+ 5. Mutant Mage     Level: 1   Year: 2000  ( 0  0)
+
+Type BURY [class number] to reset a player. Type X to exit.
+***
+Select (Bury, 1-5, ?) bury all
+Player reset.
+ 1. Mutant Thief    Level: 1   Year: 2000  ( 0  0)
+ 2. Mutant Priest   Level: 1   Year: 2000  ( 0  0)
+ 3. Mutant Wizard   Level: 1   Year: 2000  ( 0  0)
+ 4. Mutant Warrior  Level: 1   Year: 2000  ( 0  0)
+ 5. Mutant Mage     Level: 1   Year: 2000  ( 0  0)
+
+Type BURY [class number] to reset a player. Type X to exit.
+***
+Select (Bury, 1-5, ?) 4
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+> w
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+> d hp 232323
+***
+Set HP for Warrior to 232323 / 232323.
+> d add n
+***
+spawned 1 x nuclear_decay at (2000, ‑1, 0) [b1deba8e78dc4c18b63ab612f1e6e8d1]
+> get n
+***
+You pick up the Nuclear‑Decay.
+> look
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+> stat
+***
+Name: Warrior / Mutant Warrior
+Exhaustion    : 0
+Str: 23     Int: 12      Wis: 14
+Dex: 20     Con: 19      Cha: 9
+Hit Points    : 232323 / 232323
+Exp. Points   : 0  Level: 1
+Riblets       : 0
+Ions          : 30000
+Wearing Armor : None  Armour Class: 2
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D.      : 2000
+
+You are carrying the following items:  (Total Weight: 50 LB's)
+A Nuclear‑Decay.
+> inv
+***
+You are carrying the following items:  (Total Weight: 50 LB's)
+A Nuclear‑Decay.
+> d m w
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-647 is here.
+***
+Spawned 1 x Waste‑Mauler‑647 at your location.
+> com w
+***
+You ready yourself against Waste‑Mauler‑647.
+> stat
+***
+Name: Warrior / Mutant Warrior
+Exhaustion    : 0
+Str: 23     Int: 12      Wis: 14
+Dex: 20     Con: 19      Cha: 9
+Hit Points    : 232323 / 232323
+Exp. Points   : 0  Level: 1
+Riblets       : 0
+Ions          : 30000
+Wearing Armor : None  Armour Class: 2
+Ready to Combat: Waste‑Mauler‑647
+Readied Spell  : No spell memorized.
+Year A.D.      : 2000
+
+You are carrying the following items:  (Total Weight: 50 LB's)
+A Nuclear‑Decay.
+> e
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the west.
+> wie n
+***
+Your target is not in this room; you're still ready to combat it.
+> stat
+***
+Name: Warrior / Mutant Warrior
+Exhaustion    : 0
+Str: 23     Int: 12      Wis: 14
+Dex: 20     Con: 19      Cha: 9
+Hit Points    : 232323 / 232323
+Exp. Points   : 0  Level: 1
+Riblets       : 0
+Ions          : 30000
+Wearing Armor : None  Armour Class: 2
+Ready to Combat: Waste‑Mauler‑647
+Readied Spell  : No spell memorized.
+Year A.D.      : 2000
+
+You are carrying the following items:  (Total Weight: 50 LB's)
+A Nuclear‑Decay.
+> tra 2100
+***
+ZAAAPPPPP!! You've been sent to the year 2100 A.D.
+> stat
+***
+Name: Warrior / Mutant Warrior
+Exhaustion    : 0
+Str: 23     Int: 12      Wis: 14
+Dex: 20     Con: 19      Cha: 9
+Hit Points    : 232323 / 232323
+Exp. Points   : 0  Level: 1
+Riblets       : 0
+Ions          : 27000
+Wearing Armor : None  Armour Class: 2
+Ready to Combat: Waste‑Mauler‑647
+Readied Spell  : No spell memorized.
+Year A.D.      : 2100
+
+You are carrying the following items:  (Total Weight: 50 LB's)
+A Nuclear‑Decay.
+> tra 2200
+***
+ZAAAPPPPP!! You've been sent to the year 2200 A.D.
+> stat
+***
+Name: Warrior / Mutant Warrior
+Exhaustion    : 0
+Str: 23     Int: 12      Wis: 14
+Dex: 20     Con: 19      Cha: 9
+Hit Points    : 232323 / 232323
+Exp. Points   : 0  Level: 1
+Riblets       : 0
+Ions          : 24000
+Wearing Armor : None  Armour Class: 2
+Ready to Combat: Waste‑Mauler‑647
+Readied Spell  : No spell memorized.
+Year A.D.      : 2200
+
+You are carrying the following items:  (Total Weight: 50 LB's)
+A Nuclear‑Decay.
+> x
+ 1. Mutant Thief    Level: 1   Year: 2000  ( 0  0)
+ 2. Mutant Priest   Level: 1   Year: 2000  ( 0  0)
+ 3. Mutant Wizard   Level: 1   Year: 2000  ( 0  0)
+ 4. Mutant Warrior  Level: 1   Year: 2200  ( 0  0)
+ 5. Mutant Mage     Level: 1   Year: 2000  ( 0  0)
+
+Type BURY [class number] to reset a player. Type X to exit.
+***
+Select (Bury, 1-5, ?) 4
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cheese.
+> stat
+***
+Name: Warrior / Mutant Warrior
+Exhaustion    : 0
+Str: 23     Int: 12      Wis: 14
+Dex: 20     Con: 19      Cha: 9
+Hit Points    : 232323 / 232323
+Exp. Points   : 0  Level: 1
+Riblets       : 0
+Ions          : 24000
+Wearing Armor : None  Armour Class: 2
+Ready to Combat: Waste‑Mauler‑647
+Readied Spell  : No spell memorized.
+Year A.D.      : 2200
+
+You are carrying the following items:  (Total Weight: 50 LB's)
+A Nuclear‑Decay.

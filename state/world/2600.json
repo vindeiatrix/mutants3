@@ -2,6 +2,266 @@
   "schema_version": 2,
   "year": 2600,
   "size": 30,
+  "stores": [
+    {
+      "id": 1,
+      "pos": [
+        2600,
+        -5,
+        -15
+      ],
+      "original_cost": 175000,
+      "state": "for_sale"
+    },
+    {
+      "id": 2,
+      "pos": [
+        2600,
+        -3,
+        -9
+      ],
+      "original_cost": 175000,
+      "state": "for_sale"
+    },
+    {
+      "id": 3,
+      "pos": [
+        2600,
+        -5,
+        0
+      ],
+      "original_cost": 175000,
+      "state": "for_sale"
+    },
+    {
+      "id": 4,
+      "pos": [
+        2600,
+        10,
+        -9
+      ],
+      "original_cost": 175000,
+      "state": "for_sale"
+    },
+    {
+      "id": 5,
+      "pos": [
+        2600,
+        -8,
+        -8
+      ],
+      "original_cost": 175000,
+      "state": "for_sale"
+    },
+    {
+      "id": 6,
+      "pos": [
+        2600,
+        1,
+        6
+      ],
+      "original_cost": 175000,
+      "state": "for_sale"
+    },
+    {
+      "id": 7,
+      "pos": [
+        2600,
+        -15,
+        -2
+      ],
+      "original_cost": 175000,
+      "state": "for_sale"
+    },
+    {
+      "id": 8,
+      "pos": [
+        2600,
+        4,
+        -10
+      ],
+      "original_cost": 175000,
+      "state": "for_sale"
+    },
+    {
+      "id": 9,
+      "pos": [
+        2600,
+        -13,
+        4
+      ],
+      "original_cost": 175000,
+      "state": "for_sale"
+    },
+    {
+      "id": 10,
+      "pos": [
+        2600,
+        -12,
+        12
+      ],
+      "original_cost": 175000,
+      "state": "for_sale"
+    },
+    {
+      "id": 11,
+      "pos": [
+        2600,
+        14,
+        3
+      ],
+      "original_cost": 175000,
+      "state": "for_sale"
+    },
+    {
+      "id": 12,
+      "pos": [
+        2600,
+        14,
+        9
+      ],
+      "original_cost": 175000,
+      "state": "for_sale"
+    },
+    {
+      "id": 13,
+      "pos": [
+        2600,
+        10,
+        -10
+      ],
+      "original_cost": 175000,
+      "state": "for_sale"
+    },
+    {
+      "id": 14,
+      "pos": [
+        2600,
+        9,
+        -8
+      ],
+      "original_cost": 175000,
+      "state": "for_sale"
+    },
+    {
+      "id": 15,
+      "pos": [
+        2600,
+        -9,
+        -2
+      ],
+      "original_cost": 175000,
+      "state": "for_sale"
+    },
+    {
+      "id": 16,
+      "pos": [
+        2600,
+        13,
+        4
+      ],
+      "original_cost": 175000,
+      "state": "for_sale"
+    },
+    {
+      "id": 17,
+      "pos": [
+        2600,
+        1,
+        11
+      ],
+      "original_cost": 175000,
+      "state": "for_sale"
+    },
+    {
+      "id": 18,
+      "pos": [
+        2600,
+        -7,
+        10
+      ],
+      "original_cost": 175000,
+      "state": "for_sale"
+    },
+    {
+      "id": 19,
+      "pos": [
+        2600,
+        -10,
+        -7
+      ],
+      "original_cost": 175000,
+      "state": "for_sale"
+    },
+    {
+      "id": 20,
+      "pos": [
+        2600,
+        -6,
+        8
+      ],
+      "original_cost": 175000,
+      "state": "for_sale"
+    },
+    {
+      "id": 21,
+      "pos": [
+        2600,
+        10,
+        1
+      ],
+      "original_cost": 175000,
+      "state": "for_sale"
+    },
+    {
+      "id": 22,
+      "pos": [
+        2600,
+        6,
+        -6
+      ],
+      "original_cost": 175000,
+      "state": "for_sale"
+    },
+    {
+      "id": 23,
+      "pos": [
+        2600,
+        -9,
+        6
+      ],
+      "original_cost": 175000,
+      "state": "for_sale"
+    },
+    {
+      "id": 24,
+      "pos": [
+        2600,
+        -1,
+        -13
+      ],
+      "original_cost": 175000,
+      "state": "for_sale"
+    },
+    {
+      "id": 25,
+      "pos": [
+        2600,
+        -12,
+        -8
+      ],
+      "original_cost": 175000,
+      "state": "for_sale"
+    }
+  ],
+  "params": {
+    "center_open": 4,
+    "p_block": 0.196,
+    "p_gate": 0.29,
+    "store_rate": 0.03,
+    "seed": 45,
+    "headers_source": "room_headers.py"
+  },
   "tiles": [
     {
       "pos": [
@@ -15,7 +275,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -58,7 +318,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -175,7 +435,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -360,7 +620,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -533,7 +793,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -545,7 +805,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -576,7 +836,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -607,7 +867,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -644,13 +904,13 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -687,7 +947,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -829,7 +1089,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -866,13 +1126,13 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -909,7 +1169,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -940,7 +1200,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -983,7 +1243,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -1162,7 +1422,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -1205,7 +1465,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -1291,7 +1551,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -1310,7 +1570,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -1353,13 +1613,13 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -1433,7 +1693,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -1476,7 +1736,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -1618,7 +1878,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -1643,7 +1903,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -1661,7 +1921,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -1686,7 +1946,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -1939,7 +2199,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -1951,7 +2211,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -1982,7 +2242,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -2025,7 +2285,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -2062,7 +2322,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -2210,7 +2470,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -2272,7 +2532,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -2315,7 +2575,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -2457,7 +2717,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -2475,7 +2735,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -2494,13 +2754,13 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -2531,13 +2791,13 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -2549,7 +2809,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -2574,7 +2834,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -2605,7 +2865,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -2642,13 +2902,13 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -2679,13 +2939,13 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -2722,7 +2982,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -2734,7 +2994,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -2913,7 +3173,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -2950,7 +3210,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -2975,7 +3235,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -3012,13 +3272,13 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -3055,7 +3315,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -3067,7 +3327,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -3098,7 +3358,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -3141,7 +3401,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -3178,7 +3438,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -3234,7 +3494,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -3271,13 +3531,13 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -3314,7 +3574,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -3326,7 +3586,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -3357,7 +3617,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -3394,7 +3654,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -3431,7 +3691,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -3505,7 +3765,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -3616,7 +3876,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -3653,7 +3913,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -3678,7 +3938,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -3721,7 +3981,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -3752,7 +4012,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -3795,13 +4055,13 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -3838,7 +4098,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -3937,7 +4197,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -3980,7 +4240,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -4023,13 +4283,13 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -4066,7 +4326,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -4085,7 +4345,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -4097,7 +4357,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -4122,19 +4382,19 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -4159,13 +4419,13 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -4202,7 +4462,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -4214,7 +4474,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -4233,7 +4493,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -4276,13 +4536,13 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -4455,7 +4715,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -4473,7 +4733,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -4492,25 +4752,25 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -4529,13 +4789,13 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -4547,7 +4807,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -4572,7 +4832,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -4621,7 +4881,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -4689,7 +4949,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -4732,7 +4992,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -4769,7 +5029,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -4788,7 +5048,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -4825,13 +5085,13 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -4868,7 +5128,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -4917,7 +5177,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -4936,7 +5196,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -4954,7 +5214,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -4979,7 +5239,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -5121,7 +5381,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -5139,7 +5399,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -5158,13 +5418,13 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -5201,7 +5461,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -5213,7 +5473,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -5244,13 +5504,13 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -5269,7 +5529,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -5281,7 +5541,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -5312,7 +5572,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -5380,7 +5640,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -5398,7 +5658,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -5423,7 +5683,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -5577,7 +5837,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -5620,7 +5880,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -5676,7 +5936,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -5719,13 +5979,13 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -5805,7 +6065,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -5861,7 +6121,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -5904,7 +6164,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -5935,7 +6195,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -5978,7 +6238,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -6021,7 +6281,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -6083,7 +6343,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -6126,7 +6386,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -6206,7 +6466,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -6243,7 +6503,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -6305,7 +6565,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -6317,7 +6577,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -6348,7 +6608,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -6360,7 +6620,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -6397,7 +6657,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -6564,7 +6824,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -6601,13 +6861,13 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -6644,7 +6904,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -6675,7 +6935,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -6687,13 +6947,13 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -6718,7 +6978,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -6749,7 +7009,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -6792,7 +7052,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -6841,7 +7101,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -7020,7 +7280,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -7057,7 +7317,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -7131,13 +7391,13 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -7193,7 +7453,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -7236,7 +7496,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -7322,7 +7582,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -7353,13 +7613,13 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -7433,7 +7693,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -7464,7 +7724,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -7711,7 +7971,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -7723,7 +7983,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -7754,7 +8014,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -7803,7 +8063,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -7908,7 +8168,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -7982,7 +8242,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -8019,7 +8279,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -8044,7 +8304,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -8087,7 +8347,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -8136,7 +8396,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -8167,13 +8427,13 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -8247,7 +8507,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -8278,7 +8538,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -8340,7 +8600,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -8383,7 +8643,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -8469,7 +8729,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -8537,7 +8797,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -8580,7 +8840,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -8636,7 +8896,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -8679,7 +8939,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -8722,7 +8982,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -8747,7 +9007,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -8790,7 +9050,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -8821,7 +9081,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -8839,7 +9099,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -8864,7 +9124,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -9024,7 +9284,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -9043,7 +9303,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -9055,7 +9315,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -9086,7 +9346,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -9098,7 +9358,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -9135,7 +9395,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -9283,7 +9543,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -9302,7 +9562,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -9339,19 +9599,19 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -9382,7 +9642,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -9394,7 +9654,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -9610,7 +9870,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -9653,7 +9913,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -9684,7 +9944,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -9709,7 +9969,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -9752,7 +10012,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -9838,7 +10098,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -10171,7 +10431,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -10190,7 +10450,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -10233,7 +10493,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -10350,7 +10610,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -10387,7 +10647,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -10412,7 +10672,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -10449,13 +10709,13 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -10467,7 +10727,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -10492,7 +10752,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -10609,7 +10869,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -10726,7 +10986,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -10745,7 +11005,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -10788,7 +11048,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -10800,7 +11060,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -10819,7 +11079,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -10862,7 +11122,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -11152,7 +11412,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -11195,7 +11455,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -11386,7 +11646,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -11423,7 +11683,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -11448,7 +11708,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -11466,7 +11726,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -11491,7 +11751,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -11503,7 +11763,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -11670,7 +11930,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -11713,7 +11973,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -11725,7 +11985,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -11781,7 +12041,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -11824,7 +12084,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -12348,7 +12608,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -12410,7 +12670,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -12453,7 +12713,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -12484,7 +12744,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -12502,7 +12762,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -12527,19 +12787,19 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -12558,7 +12818,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -12601,7 +12861,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -12965,7 +13225,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -13008,7 +13268,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -13051,7 +13311,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -13088,7 +13348,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -13162,7 +13422,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -13199,7 +13459,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -13409,7 +13669,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -13452,19 +13712,19 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -13532,7 +13792,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -13557,7 +13817,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -13600,7 +13860,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -13631,7 +13891,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -13649,7 +13909,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -13674,7 +13934,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -14087,7 +14347,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -14112,7 +14372,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -14124,7 +14384,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -14155,7 +14415,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -14167,7 +14427,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -14198,13 +14458,13 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -14223,7 +14483,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -14235,7 +14495,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -14266,19 +14526,19 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -14315,7 +14575,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -14445,7 +14705,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -14488,7 +14748,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -14556,7 +14816,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -14574,7 +14834,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -14599,13 +14859,13 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -14648,7 +14908,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -14716,7 +14976,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -15203,7 +15463,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -15240,7 +15500,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -15314,7 +15574,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -15333,7 +15593,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -15345,13 +15605,13 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -15376,19 +15636,19 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -15604,7 +15864,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -15703,7 +15963,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -15715,13 +15975,13 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -15746,7 +16006,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -15826,13 +16086,13 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -16295,7 +16555,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -16338,7 +16598,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -16369,7 +16629,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -16381,7 +16641,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -16412,7 +16672,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -16461,7 +16721,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -16498,7 +16758,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -16714,13 +16974,13 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -16751,7 +17011,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -16788,7 +17048,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -16831,7 +17091,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -16850,7 +17110,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -16893,7 +17153,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -16924,7 +17184,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -16936,13 +17196,13 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -16967,13 +17227,13 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -16998,7 +17258,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -17010,7 +17270,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -17041,7 +17301,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -17405,7 +17665,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -17448,7 +17708,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -17479,7 +17739,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -17491,13 +17751,13 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -17522,7 +17782,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -17553,7 +17813,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -17596,7 +17856,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -17676,7 +17936,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -17830,7 +18090,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -17849,7 +18109,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -17867,7 +18127,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -17892,7 +18152,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -17904,7 +18164,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -17935,7 +18195,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -18034,7 +18294,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -18052,7 +18312,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -18077,7 +18337,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -18089,7 +18349,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -18108,7 +18368,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -18126,7 +18386,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -18151,7 +18411,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -18527,7 +18787,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -18552,7 +18812,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -18589,13 +18849,13 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -18607,7 +18867,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -18632,7 +18892,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -18786,13 +19046,13 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -18811,7 +19071,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -18854,7 +19114,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -18922,7 +19182,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -18959,13 +19219,13 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -19002,7 +19262,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -19045,13 +19305,13 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -19070,7 +19330,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -19082,7 +19342,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -19113,7 +19373,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -19625,7 +19885,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -19643,7 +19903,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -19662,13 +19922,13 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -19705,7 +19965,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -19773,7 +20033,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -19816,7 +20076,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -19859,7 +20119,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -19902,7 +20162,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -19933,7 +20193,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -20044,7 +20304,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -20081,7 +20341,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -20161,7 +20421,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -20198,7 +20458,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -20217,7 +20477,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -20254,19 +20514,19 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -20297,7 +20557,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -20328,7 +20588,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -20371,7 +20631,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -20735,7 +20995,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -20747,7 +21007,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -20778,7 +21038,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -20821,7 +21081,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -20895,7 +21155,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -20932,7 +21192,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -20975,7 +21235,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -20994,7 +21254,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -21037,7 +21297,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -21049,7 +21309,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -21105,7 +21365,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -21142,13 +21402,13 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -21160,7 +21420,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -21179,13 +21439,13 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -21197,7 +21457,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -21222,7 +21482,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -21364,7 +21624,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -21382,7 +21642,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -21407,7 +21667,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -21487,7 +21747,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -21863,7 +22123,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -21937,7 +22197,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -22011,7 +22271,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -22048,7 +22308,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -22079,7 +22339,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -22215,7 +22475,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -22258,7 +22518,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -22326,7 +22586,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -22369,7 +22629,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -22603,7 +22863,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -22770,7 +23030,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -22782,7 +23042,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -22813,7 +23073,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -22893,7 +23153,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -22930,7 +23190,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -22967,7 +23227,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -23066,7 +23326,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -23103,19 +23363,19 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -23140,13 +23400,13 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -23177,13 +23437,13 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -23195,7 +23455,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -23220,7 +23480,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -23448,7 +23708,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -23547,7 +23807,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -23584,19 +23844,19 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -23627,13 +23887,13 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -23670,7 +23930,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -23843,7 +24103,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -23886,19 +24146,19 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -23929,7 +24189,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -23966,7 +24226,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -24009,7 +24269,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -24046,7 +24306,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -24065,7 +24325,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -24083,7 +24343,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -24108,7 +24368,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -24176,7 +24436,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -24219,7 +24479,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -24231,7 +24491,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -24447,7 +24707,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -24509,7 +24769,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -24521,7 +24781,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -24552,7 +24812,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -24564,7 +24824,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -24632,7 +24892,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -24712,7 +24972,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -24749,7 +25009,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -24786,7 +25046,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -24879,7 +25139,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -24922,7 +25182,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -24965,7 +25225,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -25002,13 +25262,13 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -25045,7 +25305,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -25082,7 +25342,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -25286,7 +25546,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -25298,7 +25558,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -25329,7 +25589,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -25397,7 +25657,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -25409,7 +25669,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -25440,7 +25700,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -25563,7 +25823,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -25637,7 +25897,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -25748,7 +26008,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -26081,7 +26341,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -26118,7 +26378,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -26248,7 +26508,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -26291,7 +26551,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -26322,7 +26582,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -26365,7 +26625,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -26396,7 +26656,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -26414,7 +26674,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -26439,13 +26699,13 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -26482,7 +26742,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -26525,7 +26785,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -26593,7 +26853,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -26655,7 +26915,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -26667,7 +26927,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -26698,7 +26958,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -26741,7 +27001,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -26840,7 +27100,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -26883,7 +27143,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -26988,7 +27248,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -27031,7 +27291,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -27062,7 +27322,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -27074,7 +27334,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -27105,7 +27365,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -27136,7 +27396,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -27179,13 +27439,13 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -27333,7 +27593,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -27395,7 +27655,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -27432,13 +27692,13 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -27475,7 +27735,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -27561,7 +27821,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -27592,13 +27852,13 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -27629,7 +27889,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -27703,13 +27963,13 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -27777,13 +28037,13 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -27857,7 +28117,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -27888,7 +28148,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -27999,7 +28259,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -28184,13 +28444,13 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -28209,7 +28469,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -28252,7 +28512,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -28295,13 +28555,13 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -28449,7 +28709,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -28542,7 +28802,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -28585,13 +28845,13 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -28616,7 +28876,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -28628,7 +28888,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -28653,13 +28913,13 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -28690,13 +28950,13 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -28708,7 +28968,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -28733,7 +28993,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -28745,7 +29005,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -28764,7 +29024,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -28807,7 +29067,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -28819,7 +29079,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -28850,7 +29110,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -28875,7 +29135,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -28893,7 +29153,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -28918,7 +29178,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -28949,7 +29209,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -28992,7 +29252,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -29004,7 +29264,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -29097,7 +29357,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -29115,7 +29375,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -29140,7 +29400,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -29208,7 +29468,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -29220,7 +29480,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -29251,7 +29511,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -29300,7 +29560,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -29411,7 +29671,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -29430,7 +29690,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -29467,13 +29727,13 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -29504,19 +29764,19 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -29547,7 +29807,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -29627,7 +29887,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -29707,7 +29967,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -29744,7 +30004,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -29966,7 +30226,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -30244,7 +30504,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -30287,7 +30547,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -30336,7 +30596,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -30392,7 +30652,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -30404,7 +30664,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -30435,7 +30695,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -30478,7 +30738,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -30632,7 +30892,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -30743,7 +31003,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -30774,7 +31034,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -31095,7 +31355,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -31138,7 +31398,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -31169,7 +31429,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -31206,19 +31466,19 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -31249,7 +31509,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -31280,7 +31540,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -31292,7 +31552,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -31323,7 +31583,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -31403,7 +31663,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -31520,7 +31780,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -31551,7 +31811,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -31594,7 +31854,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -31650,7 +31910,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -31662,7 +31922,7 @@
           "spell_block": 0
         },
         "E": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -31693,7 +31953,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -31724,7 +31984,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -31767,7 +32027,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -31835,7 +32095,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -31878,7 +32138,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -31890,7 +32150,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -32334,7 +32594,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -32390,7 +32650,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -32408,7 +32668,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -32433,7 +32693,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -32519,7 +32779,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -32667,7 +32927,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -32723,7 +32983,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -32766,7 +33026,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -32778,7 +33038,7 @@
           "spell_block": 0
         },
         "W": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -32797,7 +33057,7 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -32834,13 +33094,13 @@
       "area_locked": false,
       "edges": {
         "N": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -32877,7 +33137,7 @@
           "spell_block": 0
         },
         "S": {
-          "base": 1,
+          "base": 0,
           "gate_state": 0,
           "key_type": null,
           "spell_block": 0
@@ -33303,265 +33563,5 @@
         }
       }
     }
-  ],
-  "stores": [
-    {
-      "id": 1,
-      "pos": [
-        2600,
-        -5,
-        -15
-      ],
-      "original_cost": 175000,
-      "state": "for_sale"
-    },
-    {
-      "id": 2,
-      "pos": [
-        2600,
-        -3,
-        -9
-      ],
-      "original_cost": 175000,
-      "state": "for_sale"
-    },
-    {
-      "id": 3,
-      "pos": [
-        2600,
-        -5,
-        0
-      ],
-      "original_cost": 175000,
-      "state": "for_sale"
-    },
-    {
-      "id": 4,
-      "pos": [
-        2600,
-        10,
-        -9
-      ],
-      "original_cost": 175000,
-      "state": "for_sale"
-    },
-    {
-      "id": 5,
-      "pos": [
-        2600,
-        -8,
-        -8
-      ],
-      "original_cost": 175000,
-      "state": "for_sale"
-    },
-    {
-      "id": 6,
-      "pos": [
-        2600,
-        1,
-        6
-      ],
-      "original_cost": 175000,
-      "state": "for_sale"
-    },
-    {
-      "id": 7,
-      "pos": [
-        2600,
-        -15,
-        -2
-      ],
-      "original_cost": 175000,
-      "state": "for_sale"
-    },
-    {
-      "id": 8,
-      "pos": [
-        2600,
-        4,
-        -10
-      ],
-      "original_cost": 175000,
-      "state": "for_sale"
-    },
-    {
-      "id": 9,
-      "pos": [
-        2600,
-        -13,
-        4
-      ],
-      "original_cost": 175000,
-      "state": "for_sale"
-    },
-    {
-      "id": 10,
-      "pos": [
-        2600,
-        -12,
-        12
-      ],
-      "original_cost": 175000,
-      "state": "for_sale"
-    },
-    {
-      "id": 11,
-      "pos": [
-        2600,
-        14,
-        3
-      ],
-      "original_cost": 175000,
-      "state": "for_sale"
-    },
-    {
-      "id": 12,
-      "pos": [
-        2600,
-        14,
-        9
-      ],
-      "original_cost": 175000,
-      "state": "for_sale"
-    },
-    {
-      "id": 13,
-      "pos": [
-        2600,
-        10,
-        -10
-      ],
-      "original_cost": 175000,
-      "state": "for_sale"
-    },
-    {
-      "id": 14,
-      "pos": [
-        2600,
-        9,
-        -8
-      ],
-      "original_cost": 175000,
-      "state": "for_sale"
-    },
-    {
-      "id": 15,
-      "pos": [
-        2600,
-        -9,
-        -2
-      ],
-      "original_cost": 175000,
-      "state": "for_sale"
-    },
-    {
-      "id": 16,
-      "pos": [
-        2600,
-        13,
-        4
-      ],
-      "original_cost": 175000,
-      "state": "for_sale"
-    },
-    {
-      "id": 17,
-      "pos": [
-        2600,
-        1,
-        11
-      ],
-      "original_cost": 175000,
-      "state": "for_sale"
-    },
-    {
-      "id": 18,
-      "pos": [
-        2600,
-        -7,
-        10
-      ],
-      "original_cost": 175000,
-      "state": "for_sale"
-    },
-    {
-      "id": 19,
-      "pos": [
-        2600,
-        -10,
-        -7
-      ],
-      "original_cost": 175000,
-      "state": "for_sale"
-    },
-    {
-      "id": 20,
-      "pos": [
-        2600,
-        -6,
-        8
-      ],
-      "original_cost": 175000,
-      "state": "for_sale"
-    },
-    {
-      "id": 21,
-      "pos": [
-        2600,
-        10,
-        1
-      ],
-      "original_cost": 175000,
-      "state": "for_sale"
-    },
-    {
-      "id": 22,
-      "pos": [
-        2600,
-        6,
-        -6
-      ],
-      "original_cost": 175000,
-      "state": "for_sale"
-    },
-    {
-      "id": 23,
-      "pos": [
-        2600,
-        -9,
-        6
-      ],
-      "original_cost": 175000,
-      "state": "for_sale"
-    },
-    {
-      "id": 24,
-      "pos": [
-        2600,
-        -1,
-        -13
-      ],
-      "original_cost": 175000,
-      "state": "for_sale"
-    },
-    {
-      "id": 25,
-      "pos": [
-        2600,
-        -12,
-        -8
-      ],
-      "original_cost": 175000,
-      "state": "for_sale"
-    }
-  ],
-  "params": {
-    "center_open": 4,
-    "p_block": 0.196,
-    "p_gate": 0.29,
-    "store_rate": 0.03,
-    "seed": 45,
-    "headers_source": "room_headers.py"
-  }
+  ]
 }

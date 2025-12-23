@@ -1,18 +1,18 @@
 {
   "players": [
     {
-      "id": "player_thief",
-      "name": "Thief",
+      "id": "p1",
       "class": "Thief",
-      "is_active": false,
       "pos": [
         2000,
         0,
         0
       ],
-      "ions": 30000,
       "inventory": [],
+      "ions": 30000,
+      "name": "Thief",
       "Ions": 30000,
+      "is_active": false,
       "stats": {
         "str": 15,
         "int": 9,
@@ -79,18 +79,20 @@
       }
     },
     {
-      "id": "p1",
+      "id": "player_warrior",
+      "name": "Warrior",
       "class": "Warrior",
+      "is_active": true,
       "pos": [
         2000,
         0,
-        0
+        1
       ],
-      "name": "Warrior",
-      "inventory": [],
       "ions": 30000,
+      "inventory": [
+        "39485c40c5304c7f81d66969a1ed384c"
+      ],
       "Ions": 30000,
-      "is_active": true,
       "stats": {
         "str": 23,
         "int": 12,
@@ -100,8 +102,8 @@
         "cha": 9
       },
       "hp": {
-        "current": 40,
-        "max": 40
+        "current": 999999,
+        "max": 999999
       },
       "riblets": 0,
       "Riblets": 0,
@@ -134,7 +136,7 @@
       }
     }
   ],
-  "active_id": "p1",
+  "active_id": "player_warrior",
   "ions_by_class": {
     "Thief": 30000,
     "Priest": 30000,
@@ -147,16 +149,20 @@
   "pos": [
     2000,
     0,
-    0
+    1
   ],
   "bags": {
-    "Warrior": [],
     "Thief": [],
     "Priest": [],
     "Wizard": [],
+    "Warrior": [
+      "39485c40c5304c7f81d66969a1ed384c"
+    ],
     "Mage": []
   },
-  "inventory": [],
+  "inventory": [
+    "39485c40c5304c7f81d66969a1ed384c"
+  ],
   "riblets_by_class": {
     "Thief": 0,
     "Priest": 0,
@@ -199,8 +205,8 @@
       "max": 23
     },
     "Warrior": {
-      "current": 40,
-      "max": 40
+      "current": 999999,
+      "max": 999999
     },
     "Mage": {
       "current": 28,
@@ -339,8 +345,8 @@
   "exp_points": 0,
   "level": 1,
   "hp": {
-    "current": 40,
-    "max": 40
+    "current": 999999,
+    "max": 999999
   },
   "stats": {
     "str": 23,
@@ -355,9 +361,9 @@
     0,
     1
   ],
+  "readied_spell": null,
   "ready_target": null,
   "target_monster_id": null,
-  "readied_spell": null,
   "status_effects": [],
   "carried_weight": 0,
   "conditions": {

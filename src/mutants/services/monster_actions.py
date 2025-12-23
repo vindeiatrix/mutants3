@@ -948,6 +948,9 @@ def roll_entry_target(
     if previous == player_id:
         if player_pos is not None:
             tracking_mod.record_target_position(monster, player_id, player_pos)
+        # Keep bound/id mirrored with target when already set.
+        if isinstance(state_block, MutableMapping):
+            state_block["bound_player_id"] = player_id
         return {"ok": True, "target_set": False, "taunt": None, "woke": True}
 
     config_obj = config if isinstance(config, CombatConfig) else _ENTRY_DEFAULT_CONFIG

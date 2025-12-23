@@ -3883,8 +3883,13 @@ def clear_target(*, reason: Optional[str] = None, monsters: Any | None = None) -
         if not isinstance(record, Mapping):
             continue
         target_token = _sanitize_player_id(record.get("target_player_id"))
-        if target_token not in player_ids:
+        state_block = record.get("_ai_state") if isinstance(record.get("_ai_state"), MutableMapping) else None
+        bound_token = _sanitize_player_id(state_block.get("bound_player_id")) if state_block else None
+
+        # Only touch monsters that are explicitly tied to the active player(s).
+        if target_token not in player_ids and bound_token not in player_ids:
             continue
+
         monster_id = (
             record.get("id")
             or record.get("instance_id")
@@ -3895,9 +3900,24 @@ def clear_target(*, reason: Optional[str] = None, monsters: Any | None = None) -
         monster = monsters.get(str(monster_id))
         if not isinstance(monster, MutableMapping):
             continue
-        if _sanitize_player_id(monster.get("target_player_id")) != target_token:
-            continue
-        monster["target_player_id"] = None
+
+        # Clear target/bound and any pursuit/flee breadcrumbs for those players.
+        if target_token in player_ids:
+            monster["target_player_id"] = None
+        if state_block is None and isinstance(monster.get("_ai_state"), MutableMapping):
+            state_block = monster.get("_ai_state")
+        if isinstance(state_block, MutableMapping):
+            if bound_token in player_ids:
+                state_block.pop("bound_player_id", None)
+            state_block.pop("pending_pursuit", None)
+            state_block.pop("flee_dir", None)
+            state_block.pop("flee_mode", None)
+            positions_map = state_block.get("target_positions")
+            if isinstance(positions_map, MutableMapping):
+                for pid in list(positions_map.keys()):
+                    if _sanitize_player_id(pid) in player_ids:
+                        positions_map.pop(pid, None)
+
         try:
             try:
                 monsters.mark_dirty(monster_id)

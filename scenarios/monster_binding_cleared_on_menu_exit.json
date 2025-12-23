@@ -1,0 +1,43 @@
+{
+  "name": "monster_binding_cleared_on_menu_exit",
+  "commands": [
+    "theme mono",
+    "bury all",
+    "4",
+    "debug hp 999999",
+    "debug ions 99999",
+    "debug add nuclear-decay",
+    "get nuclear-decay",
+    "debug monster waste_mauler",
+    "com waste",
+    "wield nuclear-decay",
+    "look",
+    "tra 2100",
+    "x",
+    "4",
+    "tra 2000",
+    "look",
+    "look",
+    "look",
+    "look",
+    "look",
+    "look",
+    "look",
+    "look",
+    "look",
+    "look",
+    "look",
+    "look",
+    "look",
+    "look",
+    "look"
+  ],
+  "expect": [
+    "Waste-Mauler",
+    "ZAAAPPPPP!! You've been sent to the year 2100 A.D.",
+    "ZAAAPPPPP!! You've been sent to the year 2000 A.D."
+  ],
+  "timeout_seconds": 180,
+  "stdin_delay_ms": 200,
+  "purge_state": true
+}

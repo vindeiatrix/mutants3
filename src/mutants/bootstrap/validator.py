@@ -54,8 +54,13 @@ def run(*, strict: bool = True) -> Dict[str, Any]:
     try:
         _validate_player_targets(summary, strict=strict)
     except ValueError:
-        # Re-raise after logging context so callers can surface the failure.
         LOG.error("player target validation failed", exc_info=True)
+        raise
+
+    try:
+        _validate_worlds(summary, strict=strict)
+    except ValueError:
+        LOG.error("world validation failed", exc_info=True)
         raise
 
     LOG.debug(
@@ -143,4 +148,43 @@ def _validate_player_targets(summary: Dict[str, Any], *, strict: bool) -> None:
             "target_monster_id_by_class entries must be string or null: "
             + ", ".join(entry["path"] for entry in invalid)
         )
+
+
+def _validate_worlds(summary: Dict[str, Any], *, strict: bool) -> None:
+    """Ensure adjacent tiles are not separated by hard walls."""
+
+    from mutants.registries import world as world_registry  # local import to avoid cycle
+
+    registry = world_registry.WorldRegistry()
+    details: Dict[str, Any] = {"checked_edges": 0, "repaired": 0, "invalid": []}
+    years: List[int] = []
+    for p in registry.base_dir.glob("*.json"):
+        try:
+            years.append(int(p.stem))
+        except ValueError:
+            continue
+    years = sorted(set(years))
+    for year in years:
+        try:
+            yw = registry.load_year(year)
+        except Exception as exc:
+            details["invalid"].append({"year": year, "error": str(exc)})
+            if strict:
+                raise
+            continue
+        for (x, y), tile in list(yw._tiles_by_xy.items()):
+            for dir_token, opp in (("N", "S"), ("S", "N"), ("E", "W"), ("W", "E")):
+                nx, ny = yw._neighbor_xy(x, y, dir_token)
+                if (nx, ny) not in yw._tiles_by_xy:
+                    continue
+                edge = tile["edges"].get(dir_token, {})
+                base = edge.get("base")
+                details["checked_edges"] += 1
+                if base not in (world_registry.BASE_OPEN, world_registry.BASE_GATE, None):
+                    details["repaired"] += 1
+        try:
+            yw.save()
+        except Exception:
+            LOG.debug("world save skipped for %s", year, exc_info=True)
+    summary["worlds"] = details
 

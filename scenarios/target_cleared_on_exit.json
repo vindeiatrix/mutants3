@@ -1,0 +1,21 @@
+{
+  "name": "target_cleared_on_exit",
+  "commands": [
+    "theme mono",
+    "bury all",
+    "4",
+    "debug hp 999999",
+    "debug monster waste_mauler",
+    "com waste",
+    "x",
+    "4",
+    "stat",
+    "x"
+  ],
+  "expect": [
+    "Ready to Combat: NO ONE"
+  ],
+  "timeout_seconds": 120,
+  "stdin_delay_ms": 200,
+  "purge_state": true
+}
