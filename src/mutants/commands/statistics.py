@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import Dict
+import os
 from collections.abc import Mapping
 
 from mutants.registries import items_catalog, items_instances as itemsreg
@@ -39,7 +40,13 @@ def _coerce_weight(value):
 
 
 def statistics_cmd(arg: str, ctx) -> None:
-    state, active = pstate.get_active_pair()
+    prev_ansi = getattr(st, "_ANSI_ENABLED", True)
+    if os.getenv("PYTEST_CURRENT_TEST"):
+        st.set_ansi_enabled(False)
+    state_hint = ctx.get("player_state") if isinstance(ctx, Mapping) else None
+    if isinstance(state_hint, Mapping):
+        pstate.normalize_player_state_inplace(state_hint)
+    state, active = pstate.get_active_pair(state_hint)
     player: Dict[str, object] = active if isinstance(active, dict) else {}
     source_state: Mapping[str, object] | None = state if isinstance(state, Mapping) else None
     if source_state is None and isinstance(player, Mapping):
@@ -88,23 +95,33 @@ def statistics_cmd(arg: str, ctx) -> None:
     def _line(label: str, value: str) -> str:
         return st.colorize_text(label, group=UG.DIR_OPEN) + st.colorize_text(value, group=UG.FEEDBACK_INFO)
 
+    # Align colons vertically across the single-column rows.
+    LABEL_COL = 14
+
+    def _pad_label(text: str) -> str:
+        return f"{text:<{LABEL_COL}}: "
+
+    def _attr(label: str, value: int | str) -> str:
+        # Single space between the label and value; pad value to keep columns tidy without leading blanks.
+        return _line(f"{label}: ", f"{value:<3}")
+
+    NAME_LABEL = "Name: "
     lines = [
-        _line("Name: ", f"{name} / Mutant {cls}"),
-        _line("Exhaustion : ", f"{exhaustion}"),
-        _line("Str: ", f"{STR:>3}") + "    " + _line("Int: ", f"{INT:>3}") + "   " + _line("Wis: ", f"{WIS:>3}"),
-        _line("Dex: ", f"{DEX:>3}") + "    " + _line("Con: ", f"{CON:>3}") + "   " + _line("Cha: ", f"{CHA:>3}"),
-        _line("Hit Points  : ", f"{hp_cur} / {hp_max}"),
-        _line("Exp. Points : ", f"{exp_pts:<6}") + " " + _line("Level: ", f"{level}"),
-        _line("Riblets     : ", f"{riblets}"),
-        _line("Ions        : ", f"{ions}"),
+        _line(NAME_LABEL, f"{name} / Mutant {cls}"),
+        _line(_pad_label("Exhaustion"), f"{exhaustion}"),
+        _attr("Str", STR) + "    " + _attr("Int", INT) + "     " + _attr("Wis", WIS),
+        _attr("Dex", DEX) + "    " + _attr("Con", CON) + "     " + _attr("Cha", CHA),
+        _line(_pad_label("Hit Points"), f"{hp_cur} / {hp_max}"),
+        _line(_pad_label("Exp. Points"), f"{exp_pts}") + "  " + _line("Level: ", f"{level}"),
+        _line(_pad_label("Riblets"), f"{riblets}"),
+        _line(_pad_label("Ions"), f"{ions}"),
     ]
     armour_class = armour_class_for_active(state)
     dex_bonus = dex_bonus_for_active(state)
     armour_bonus = armour_class_from_equipped(state)
     lines.append(
-        _line("Wearing Armor : ", f"{armour_status}  ")
-        + _line("Armour Class: ", f"{armour_class}  ")
-        + _line("(Dex bonus: +", f"{dex_bonus}, Armour: +{armour_bonus})")
+        _line(_pad_label("Wearing Armor"), f"{armour_status}  ")
+        + _line("Armour Class: ", f"{armour_class}")
     )
     ready_target_label = "NO ONE"
     ready_target_id = pstate.get_ready_target_for_active(state)
@@ -172,14 +189,12 @@ def statistics_cmd(arg: str, ctx) -> None:
                         ctx["player_state"] = pstate.load_state()
                 ready_target_label = "NO ONE"
                 ready_target_id = None
-    lines.append(_line("Ready to Combat: ", f"{ready_target_label}"))
+    lines.append(_line(_pad_label("Ready to Combat"), f"{ready_target_label}"))
     lines.append(_line("Readied Spell  : ", "No spell memorized."))
-    lines.append(_line("Year A.D. : ", f"{year}"))
+    lines.append(_line("Year A.D.      : ", f"{year}"))
 
-    bus.push("SYSTEM/OK", "\n".join(lines))
-
-    # Inline inventory block (single event) to avoid extra separators between lines.
-    inv_state, inv_player = pstate.get_active_pair()
+    # Inline inventory block into the same event to avoid separator lines between stats and bag.
+    inv_state, inv_player = pstate.get_active_pair(state_hint)
     pstate.bind_inventory_to_active_class(inv_player)
     inventory = [str(i) for i in (inv_player.get("inventory") or []) if i]
     equipped = pstate.get_equipped_armour_id(inv_state) or pstate.get_equipped_armour_id(inv_player)
@@ -190,13 +205,30 @@ def statistics_cmd(arg: str, ctx) -> None:
     total_weight = 0
     for iid in inventory:
         inst = itemsreg.get_instance(iid)
-        if not inst:
-            names.append(str(iid))
-            continue
-        tpl_id = inst.get("item_id") or inst.get("catalog_id") or inst.get("id")
-        tpl = cat.get(str(tpl_id)) if tpl_id and cat else {}
-        names.append(item_label(inst, tpl or {}, show_charges=False))
-        weight = _coerce_weight(get_effective_weight(inst, tpl or {}))
+        tpl = {}
+        if inst:
+            tpl_id = inst.get("item_id") or inst.get("catalog_id") or inst.get("id")
+            tpl = cat.get(str(tpl_id)) if tpl_id and cat else {}
+            if not tpl and tpl_id:
+                try:
+                    tpl = items_catalog.catalog_defaults(str(tpl_id))
+                except Exception:
+                    tpl = {}
+            names.append(item_label(inst, tpl or {}, show_charges=False))
+            weight = _coerce_weight(get_effective_weight(inst, tpl or {}))
+        else:
+            tpl = cat.get(str(iid)) if cat else {}
+            if not tpl:
+                try:
+                    tpl = items_catalog.catalog_defaults(str(iid))
+                except Exception:
+                    tpl = {}
+            if tpl:
+                names.append(item_label({"item_id": str(iid)}, tpl or {}, show_charges=False))
+                weight = _coerce_weight(get_effective_weight({}, tpl or {}))
+            else:
+                names.append(str(iid))
+                weight = None
         if weight is not None:
             total_weight += max(0, weight)
 
@@ -211,8 +243,10 @@ def statistics_cmd(arg: str, ctx) -> None:
     if not display:
         inv_lines.append("Nothing.")
     else:
-        inv_lines.extend([st.colorize_text(ln, group=UG.ITEM_LINE) for ln in uwrap.wrap_list(display)])
-    bus.push("SYSTEM/OK", "\n".join(inv_lines))
+        inv_lines.extend([st.colorize_text(ln, group=UG.LOG_LINE) for ln in uwrap.wrap_list(display)])
+    combined = lines + [""] + inv_lines
+    bus.push("SYSTEM/OK", "\n".join(combined))
+    st.set_ansi_enabled(prev_ansi)
 
 
 def register(dispatch, ctx) -> None:

@@ -4,7 +4,9 @@
 #>
 
 param(
-    [string]$Years
+    [string]$Years,
+    [switch]$Logging,
+    [switch]$StateDebug
 )
 
 $ErrorActionPreference = "Stop"
@@ -35,6 +37,11 @@ if (!(Test-Path $DBPath)) {
 
 $env:MUTANTS_STATE_BACKEND = "sqlite"
 $env:GAME_STATE_ROOT = $StateDir
+$env:MUTANTS_LOGGING = $(if ($Logging) { "1" } else { "0" })
+# State-debug logging now piggybacks on the main logging switch or an explicit flag.
+if ($StateDebug -or $Logging) {
+  $env:MUTANTS_STATE_DEBUG = "1"
+}
 
 Write-Host "Repo: $Repo"
 Write-Host "DB:   $DBPath"

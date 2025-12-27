@@ -6,6 +6,7 @@ import re
 from typing import Any, Dict, List, Mapping, Tuple
 
 from ..registries import items_catalog, items_instances as itemsreg
+from ..services import state_debug
 from ..state import state_path
 
 CATALOG_PATH = state_path("items", "catalog.json")
@@ -229,22 +230,53 @@ def render_ground_list(item_ids: List[str]) -> str:
 
 def item_label(inst, tpl, *, show_charges: bool = False) -> str:
     """Return the display name for an item instance."""
-    # Fallback chain for item identifier
     item_id = tpl.get("item_id") or inst.get("item_id")
-
-    # Detect if item_id has degenerated to the instance ID (GUID)
     iid = inst.get("iid") or inst.get("instance_id")
-    if str(item_id) == str(iid) and tpl.get("name"):
-        # If so, prefer the template name if available
-        base = tpl.get("name")
-    else:
-        # Otherwise, canonicalize the item_id as usual
-        base = canonical_name(str(item_id)) if item_id else tpl.get("name") or "Item"
+
+    tpl_name = None
+    for key in ("display", "display_name", "name", "title"):
+        val = tpl.get(key)
+        if isinstance(val, str) and val.strip():
+            tpl_name = val.strip()
+            break
+    inst_name = None
+    for key in ("display_name", "name", "title"):
+        val = inst.get(key)
+        if isinstance(val, str) and val.strip():
+            inst_name = val.strip()
+            break
+
+    catalog_hit = bool(tpl)
+    reason = None
+    if not item_id:
+        reason = "missing_item_id"
+    elif iid and str(item_id) == str(iid):
+        reason = "item_id_equals_iid"
+
+    base = tpl_name or inst_name
+    if not base:
+        base = canonical_name(str(item_id)) if item_id else "Item"
 
     if show_charges and (tpl.get("uses_charges") or tpl.get("charges_max") is not None):
         ch = inst.get("charges")
         if ch is not None:
-            return f"{base} ({int(ch)})"
+            resolved = f"{base} ({int(ch)})"
+            state_debug.log_item_label(
+                iid=str(iid) if iid is not None else None,
+                item_id=str(item_id) if item_id is not None else None,
+                resolved=resolved,
+                catalog_hit=catalog_hit,
+                reason=reason,
+            )
+            return resolved
+
+    state_debug.log_item_label(
+        iid=str(iid) if iid is not None else None,
+        item_id=str(item_id) if item_id is not None else None,
+        resolved=base,
+        catalog_hit=catalog_hit,
+        reason=reason,
+    )
     return base
 
 

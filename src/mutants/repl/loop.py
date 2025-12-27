@@ -1,5 +1,6 @@
 from __future__ import annotations
 import logging
+from typing import Any, MutableMapping
 
 from mutants.app.context import build_context, render_frame, flush_feedback
 from mutants.repl.dispatch import Dispatch
@@ -10,6 +11,7 @@ from mutants.ui import styles as st
 from mutants.ui import groups as UG
 from mutants.ui.class_menu import handle_input, render_menu
 from mutants.services import player_state as pstate
+from mutants.services import monsters_state as mon_state
 import sys
 
 
@@ -21,6 +23,25 @@ def _clear_target_on_exit(reason: str = "shutdown") -> None:
         pstate.clear_target(reason=reason)
     except Exception:  # pragma: no cover - defensive guard
         LOG.exception("Failed to clear ready target during shutdown")
+
+
+def _flush_state(ctx: MutableMapping[str, Any]) -> None:
+    """Best-effort flush of runtime player and monsters before exit."""
+    try:
+        pstate.save_player_state(ctx)
+    except Exception:
+        LOG.debug("Failed to save player state on exit", exc_info=True)
+    try:
+        monsters = ctx.get("monsters") if isinstance(ctx, MutableMapping) else None
+        if monsters is None:
+            monsters = getattr(ctx, "monsters", None)
+        if monsters is None:
+            monsters = mon_state.current_state() if hasattr(mon_state, "current_state") else None
+        save = getattr(monsters, "save", None)
+        if callable(save):
+            save()
+    except Exception:
+        LOG.debug("Failed to save monsters on exit", exc_info=True)
 
 
 def main() -> None:
@@ -58,6 +79,7 @@ def main() -> None:
             raw = input(make_prompt(ctx))
         except (EOFError, KeyboardInterrupt):
             print()  # newline on ^D/^C
+            _flush_state(ctx)
             _clear_target_on_exit("quit")
             break
 
@@ -74,6 +96,7 @@ def main() -> None:
                 token, _, arg = raw.strip().partition(" ")
                 dispatch.call(token, arg)
         except SystemExit:
+            _flush_state(ctx)
             _clear_target_on_exit("quit")
             break
 
@@ -83,4 +106,5 @@ def main() -> None:
         else:
             flush_feedback(ctx)
 
+    _flush_state(ctx)
     _clear_target_on_exit("quit")

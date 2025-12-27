@@ -1,0 +1,2921 @@
+
+# Log file open.
+
+s
+***
+An old hydro line has fallen here.
+Compass: (-3E : -1N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+A Skull. 
+***
+You see shadows to the south.
+>
+s
+***
+You're in a maintenance shop.
+Compass: (-3E : -2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+On the ground lies:
+An Ion-Pack. 
+***
+Zombie-489 is here.
+***
+You see shadows to the south.
+***
+Zombie-489 Slurs: Uh me hurt you, Vindeiatrix!
+***
+Zombie-489 is removing his Plate-Mail.
+>44
+***
+You're 44ing!
+***
+Zombie-489 has hit you with his Iron-Boots!
+>
+
+com z
+***
+You're ready to combat Zombie-489!
+***
+The Zombie-489 stabs you!
+***
+You suffer 6 hit points of damage!
+***
+Zombie-489 has just put on his Iron-Boots.
+>
+wie he
+***
+You've hit Zombie-489 with your Hell-Blade!
+***
+Zombie-489's body is glowing!
+>
+look
+***
+You're in a maintenance shop.
+Compass: (-3E : -2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+On the ground lies:
+An Ion-Pack. 
+***
+Zombie-489 is here.
+***
+You see shadows to the south.
+>
+look
+***
+You're in a maintenance shop.
+Compass: (-3E : -2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+On the ground lies:
+An Ion-Pack. 
+***
+Zombie-489 is here.
+***
+You see shadows to the south.
+***
+Zombie-489 has hit you with his Iron-Mace!
+***
+Zombie-489's Iron-Mace has just cracked in half!
+>
+look
+***
+You're in a maintenance shop.
+Compass: (-3E : -2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+On the ground lies:
+An Ion-Pack. 
+***
+Zombie-489 is here.
+***
+You see shadows to the south.
+***
+Zombie-489 picked up the Ion-Pack.
+>
+look
+***
+You're in a maintenance shop.
+Compass: (-3E : -2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+Zombie-489 is here.
+***
+You see shadows to the south.
+***
+Zombie-489 has hit you with his Ion-Pack!
+>
+look
+***
+You're in a maintenance shop.
+Compass: (-3E : -2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+Zombie-489 is here.
+***
+You see shadows to the south.
+***
+Zombie-489 dropped his Broken-Weapon.
+>
+look
+***
+You're in a maintenance shop.
+Compass: (-3E : -2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+On the ground lies:
+A Broken-Weapon. 
+***
+Zombie-489 is here.
+***
+You see shadows to the south.
+***
+Zombie-489 has hit you with his Ion-Pack!
+>
+look
+***
+You're in a maintenance shop.
+Compass: (-3E : -2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+On the ground lies:
+A Broken-Weapon. 
+***
+Zombie-489 is here.
+***
+You see shadows to the south.
+***
+Zombie-489 has hit you with his Ion-Pack!
+>
+wie he
+***
+You've hit Zombie-489 with your Hell-Blade!
+***
+Zombie-489 has hit you with his Ion-Pack!
+>
+look
+***
+You're in a maintenance shop.
+Compass: (-3E : -2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+On the ground lies:
+A Broken-Weapon. 
+***
+Zombie-489 is here.
+***
+You see shadows to the south.
+>
+look
+***
+You're in a maintenance shop.
+Compass: (-3E : -2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+On the ground lies:
+A Broken-Weapon. 
+***
+Zombie-489 is here.
+***
+You see shadows to the south.
+***
+Zombie-489 screams: Get away from me, Vindeiatrix!!!
+***
+Zombie-489 has just left north
+***
+You hear loud sounds of footsteps to the north.
+>
+n
+***
+An old hydro line has fallen here.
+Compass: (-3E : -1N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+A Skull. 
+***
+Zombie-489 is here.
+***
+Zombie-489 picked up the Skull.
+>
+look
+***
+An old hydro line has fallen here.
+Compass: (-3E : -1N)
+north - area continues.
+south - area continues.
+***
+Zombie-489 is here.
+***
+Zombie-489 has hit you with his Ion-Pack!
+***
+You see a blinding white flash illuminate from Zombie-489's body!
+>
+look
+***
+An old hydro line has fallen here.
+Compass: (-3E : -1N)
+north - area continues.
+south - area continues.
+***
+Zombie-489 is here.
+***
+Zombie-489 has hit you with his Ion-Pack!
+>
+look
+***
+An old hydro line has fallen here.
+Compass: (-3E : -1N)
+north - area continues.
+south - area continues.
+***
+Zombie-489 is here.
+>
+look
+***
+An old hydro line has fallen here.
+Compass: (-3E : -1N)
+north - area continues.
+south - area continues.
+***
+Zombie-489 is here.
+***
+Zombie-489 has hit you with his Ion-Pack!
+>
+look
+
+***
+An old hydro line has fallen here.
+Compass: (-3E : -1N)
+north - area continues.
+south - area continues.
+***
+Zombie-489 is here.
+***
+Zombie-489 screams: Get away from me, Vindeiatrix!!!
+>look
+***
+An old hydro line has fallen here.
+Compass: (-3E : -1N)
+north - area continues.
+south - area continues.
+***
+Zombie-489 is here.
+***
+Zombie-489 has hit you with his Ion-Pack!
+>
+look
+***
+An old hydro line has fallen here.
+Compass: (-3E : -1N)
+north - area continues.
+south - area continues.
+***
+Zombie-489 is here.
+***
+Zombie-489 screams: Get away from me, Vindeiatrix!!!
+***
+Zombie-489 has just left north
+***
+You hear loud sounds of footsteps to the north.
+>
+look
+***
+An old hydro line has fallen here.
+Compass: (-3E : -1N)
+north - area continues.
+south - area continues.
+***
+You see shadows to the north.
+>
+look
+***
+An old hydro line has fallen here.
+Compass: (-3E : -1N)
+north - area continues.
+south - area continues.
+***
+You see shadows to the north.
+>
+look
+***
+An old hydro line has fallen here.
+Compass: (-3E : -1N)
+north - area continues.
+south - area continues.
+***
+You see shadows to the north.
+>
+look
+***
+An old hydro line has fallen here.
+Compass: (-3E : -1N)
+north - area continues.
+south - area continues.
+***
+You see shadows to the north.
+>
+hea
+***
+Your body glows at it heals 14 points!
+***
+You're healed to the maximum!
+>
+hea
+***
+Nothing happens!
+>
+loo no
+***
+You're looking north...
+***
+City Trading Centre
+Compass: (-3E : 0N)
+south - area continues.
+east  - open gate.
+west  - area continues.
+***
+On the ground lies:
+An Ion-Pack, A Skull. 
+***
+Zombie-489 is here.
+>
+look
+***
+An old hydro line has fallen here.
+Compass: (-3E : -1N)
+north - area continues.
+south - area continues.
+***
+You see shadows to the north.
+>
+n
+***
+City Trading Centre
+Compass: (-3E : 0N)
+south - area continues.
+east  - open gate.
+west  - area continues.
+***
+On the ground lies:
+An Ion-Pack, A Skull. 
+***
+Zombie-489 is here.
+***
+Zombie-489 has hit you with his Ion-Pack!
+>
+look
+***
+City Trading Centre
+Compass: (-3E : 0N)
+south - area continues.
+east  - open gate.
+west  - area continues.
+***
+On the ground lies:
+An Ion-Pack, A Skull. 
+***
+Zombie-489 is here.
+***
+Zombie-489 picked up the Ion-Pack.
+>
+look
+***
+City Trading Centre
+Compass: (-3E : 0N)
+south - area continues.
+east  - open gate.
+west  - area continues.
+***
+On the ground lies:
+A Skull. 
+***
+Zombie-489 is here.
+***
+Zombie-489 screams: Get away from me, Vindeiatrix!!!
+***
+Zombie-489 has just left west
+***
+You hear loud sounds of footsteps to the west.
+>
+look
+***
+City Trading Centre
+Compass: (-3E : 0N)
+south - area continues.
+east  - open gate.
+west  - area continues.
+***
+On the ground lies:
+A Skull. 
+***
+You see shadows to the west.
+>
+look
+***
+City Trading Centre
+Compass: (-3E : 0N)
+south - area continues.
+east  - open gate.
+west  - area continues.
+***
+On the ground lies:
+A Skull. 
+***
+You see shadows to the west.
+***
+You hear faint sounds of footsteps far to the west.
+>
+look
+***
+City Trading Centre
+Compass: (-3E : 0N)
+south - area continues.
+east  - open gate.
+west  - area continues.
+***
+On the ground lies:
+A Skull. 
+>
+w
+***
+An eerie calm settles in the distance.
+Compass: (-4E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Great-Club, An Ion-Decay, A Skull. 
+***
+You see shadows to the north, west.
+>
+w
+***
+An eerie calm settles in the distance.
+Compass: (-5E : 0N)
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Bottle-Cap, A Broken-Weapon, A Skull. 
+***
+Zombie-489 is here.
+***
+Zombie-489 has hit you with his Ion-Pack!
+>
+wie he
+***
+You've hit Zombie-489 with your Hell-Blade!
+***
+You have slain Zombie-489!
+Your experience points are increased by 6666!
+You collect 3880 Riblets and 21593 ions from the slain body.
+***
+
+An Ion-Pack is falling from Zombie-489's body!
+***
+An Ion-Pack is falling from Zombie-489's body!
+***
+A Plate-Mail is falling from Zombie-489's body!
+***
+Zombie-489 is crumbling to dust!
+>
+hea
+***
+Nothing happens!
+>
+e
+***
+An eerie calm settles in the distance.
+Compass: (-4E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Great-Club, An Ion-Decay, A Skull. 
+***
+You see shadows to the north.
+>
+n
+***
+An eerie calm settles in the distance.
+Compass: (-4E : 1N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+An Axe, A Skull. 
+***
+Golden-Serpant-89 is here.
+***
+Golden-Serpant-89 hisss: You invaded my privacy, Vindeiatrix!
+***
+Golden-Serpant-89 has hit you with his Fang-Dagger!
+***
+Golden-Serpant-89's Fang-Dagger has just cracked in half!
+>
+
+com g
+***
+You're ready to combat Golden-Serpant-89!
+***
+Golden-Serpant-89 dropped his Broken-Weapon.
+>
+wie he
+***
+You've hit Golden-Serpant-89 with your Hell-Blade!
+***
+Golden-Serpant-89's armour has just cracked down the center!
+>
+look
+***
+An eerie calm settles in the distance.
+Compass: (-4E : 1N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+An Axe, A Skull, A Broken-Weapon. 
+***
+Golden-Serpant-89 is here.
+>
+look
+***
+An eerie calm settles in the distance.
+Compass: (-4E : 1N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+An Axe, A Skull, A Broken-Weapon. 
+***
+Golden-Serpant-89 is here.
+***
+Golden-Serpant-89's body is glowing!
+>
+look
+***
+An eerie calm settles in the distance.
+Compass: (-4E : 1N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+An Axe, A Skull, A Broken-Weapon. 
+***
+Golden-Serpant-89 is here.
+>
+look
+***
+An eerie calm settles in the distance.
+Compass: (-4E : 1N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+An Axe, A Skull, A Broken-Weapon. 
+***
+Golden-Serpant-89 is here.
+>
+look
+***
+An eerie calm settles in the distance.
+Compass: (-4E : 1N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+An Axe, A Skull, A Broken-Weapon. 
+***
+Golden-Serpant-89 is here.
+>
+look
+***
+An eerie calm settles in the distance.
+Compass: (-4E : 1N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+An Axe, A Skull, A Broken-Weapon. 
+***
+Golden-Serpant-89 is here.
+>
+look
+***
+An eerie calm settles in the distance.
+Compass: (-4E : 1N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+An Axe, A Skull, A Broken-Weapon. 
+***
+Golden-Serpant-89 is here.
+>
+look
+***
+An eerie calm settles in the distance.
+Compass: (-4E : 1N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+An Axe, A Skull, A Broken-Weapon. 
+***
+Golden-Serpant-89 is here.
+>
+look
+***
+An eerie calm settles in the distance.
+Compass: (-4E : 1N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+An Axe, A Skull, A Broken-Weapon. 
+***
+Golden-Serpant-89 is here.
+>
+look
+***
+An eerie calm settles in the distance.
+Compass: (-4E : 1N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+An Axe, A Skull, A Broken-Weapon. 
+***
+Golden-Serpant-89 is here.
+***
+Golden-Serpant-89 picked up the Axe.
+>
+look
+***
+An eerie calm settles in the distance.
+Compass: (-4E : 1N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+A Skull, A Broken-Weapon. 
+***
+Golden-Serpant-89 is here.
+***
+Golden-Serpant-89 has hit you with his Axe!
+***
+Golden-Serpant-89's Axe has just cracked in half!
+>
+look
+***
+An eerie calm settles in the distance.
+Compass: (-4E : 1N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+A Skull, A Broken-Weapon. 
+***
+Golden-Serpant-89 is here.
+***
+The Golden-Serpant-89 bites you!
+***
+You suffer 6 hit points of damage!
+***
+Golden-Serpant-89 dropped his Broken-Weapon.
+>
+look
+***
+An eerie calm settles in the distance.
+Compass: (-4E : 1N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Skull, A Broken-Weapon (1). 
+***
+Golden-Serpant-89 is here.
+>
+look
+***
+An eerie calm settles in the distance.
+Compass: (-4E : 1N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Skull, A Broken-Weapon (1). 
+***
+Golden-Serpant-89 is here.
+>
+look
+***
+An eerie calm settles in the distance.
+Compass: (-4E : 1N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Skull, A Broken-Weapon (1). 
+***
+Golden-Serpant-89 is here.
+>
+look
+
+***
+An eerie calm settles in the distance.
+Compass: (-4E : 1N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Skull, A Broken-Weapon (1). 
+***
+Golden-Serpant-89 is here.
+>look
+***
+An eerie calm settles in the distance.
+Compass: (-4E : 1N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Skull, A Broken-Weapon (1). 
+***
+Golden-Serpant-89 is here.
+***
+Golden-Serpant-89 picked up the Skull.
+>
+look
+
+***
+An eerie calm settles in the distance.
+Compass: (-4E : 1N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1). 
+***
+Golden-Serpant-89 is here.
+***
+Golden-Serpant-89 has hit you with his Skull!
+***
+You see a blinding white flash illuminate from Golden-Serpant-89's body!
+>look
+***
+An eerie calm settles in the distance.
+Compass: (-4E : 1N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1). 
+***
+Golden-Serpant-89 is here.
+***
+Golden-Serpant-89's body is glowing!
+>
+look
+***
+An eerie calm settles in the distance.
+Compass: (-4E : 1N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1). 
+***
+Golden-Serpant-89 is here.
+***
+The Golden-Serpant-89 bites you!
+***
+You suffer 6 hit points of damage!
+>
+wie he
+***
+You've hit Golden-Serpant-89 with your Hell-Blade!
+>
+look
+***
+An eerie calm settles in the distance.
+Compass: (-4E : 1N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1). 
+***
+Golden-Serpant-89 is here.
+>
+look
+***
+An eerie calm settles in the distance.
+Compass: (-4E : 1N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1). 
+***
+Golden-Serpant-89 is here.
+>
+look he
+***
+The Hell-Blade possesses a magical aura. Concentrating stronger, you realize
+this is a +16 Hell-Blade!
+>
+hea
+
+***
+Your body glows at it heals 14 points!
+***
+You're healed to the maximum!
+***
+Golden-Serpant-89 is crying.
+>look
+***
+An eerie calm settles in the distance.
+Compass: (-4E : 1N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1). 
+***
+Golden-Serpant-89 is here.
+>
+look
+***
+An eerie calm settles in the distance.
+Compass: (-4E : 1N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1). 
+***
+Golden-Serpant-89 is here.
+>
+look
+***
+An eerie calm settles in the distance.
+Compass: (-4E : 1N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1). 
+***
+Golden-Serpant-89 is here.
+>
+look
+***
+An eerie calm settles in the distance.
+Compass: (-4E : 1N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1). 
+***
+Golden-Serpant-89 is here.
+***
+Golden-Serpant-89 screams: Get away from me, Vindeiatrix!!!
+***
+Golden-Serpant-89 has just left south
+***
+You hear loud sounds of footsteps to the south.
+>
+look
+***
+An eerie calm settles in the distance.
+Compass: (-4E : 1N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1). 
+***
+You see shadows to the south.
+>
+look
+***
+An eerie calm settles in the distance.
+Compass: (-4E : 1N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1). 
+***
+You see shadows to the south.
+>44
+***
+You're 44ing!
+>
+s
+***
+An eerie calm settles in the distance.
+Compass: (-4E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Great-Club, An Ion-Decay, A Skull. 
+***
+Golden-Serpant-89 is here.
+***
+Golden-Serpant-89 picked up the Great-Club.
+>
+look
+***
+An eerie calm settles in the distance.
+Compass: (-4E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+An Ion-Decay, A Skull. 
+***
+Golden-Serpant-89 is here.
+***
+Golden-Serpant-89 has hit you with his Great-Club!
+***
+Golden-Serpant-89's Great-Club has just cracked in half!
+>
+look
+***
+An eerie calm settles in the distance.
+Compass: (-4E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+An Ion-Decay, A Skull. 
+***
+Golden-Serpant-89 is here.
+***
+Golden-Serpant-89 picked up the Ion-Decay.
+>
+look
+***
+An eerie calm settles in the distance.
+Compass: (-4E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Skull. 
+***
+Golden-Serpant-89 is here.
+***
+Golden-Serpant-89 picked up the Skull.
+>
+look
+***
+An eerie calm settles in the distance.
+Compass: (-4E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+Golden-Serpant-89 is here.
+***
+You see a blinding white flash illuminate from Golden-Serpant-89's body!
+>
+look
+***
+An eerie calm settles in the distance.
+Compass: (-4E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+Golden-Serpant-89 is here.
+***
+Golden-Serpant-89 has hit you with his Ion-Decay!
+>
+look
+***
+An eerie calm settles in the distance.
+Compass: (-4E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+Golden-Serpant-89 is here.
+***
+Golden-Serpant-89 dropped his Broken-Weapon.
+>
+look
+***
+An eerie calm settles in the distance.
+Compass: (-4E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon. 
+***
+Golden-Serpant-89 is here.
+>
+look
+***
+An eerie calm settles in the distance.
+Compass: (-4E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon. 
+***
+Golden-Serpant-89 is here.
+>
+look
+***
+An eerie calm settles in the distance.
+Compass: (-4E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon. 
+***
+Golden-Serpant-89 is here.
+***
+Golden-Serpant-89 screams: Get away from me, Vindeiatrix!!!
+***
+Golden-Serpant-89 has just left east
+***
+You hear loud sounds of footsteps to the east.
+>
+look
+***
+An eerie calm settles in the distance.
+Compass: (-4E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon. 
+***
+You see shadows to the east.
+>
+look
+***
+An eerie calm settles in the distance.
+Compass: (-4E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon. 
+***
+You see shadows to the east.
+***
+You hear faint sounds of footsteps far to the east.
+>
+e
+***
+City Trading Centre
+Compass: (-3E : 0N)
+south - area continues.
+east  - open gate.
+west  - area continues.
+***
+On the ground lies:
+A Skull. 
+***
+You see shadows to the east.
+>
+e
+***
+You see rubble everywhere.
+Compass: (-2E : 0N)
+east  - area continues.
+west  - open gate.
+***
+On the ground lies:
+A Nuclear-thong, A Skull, A Skull (1), A Skull (2). 
+***
+Golden-Serpant-89 is here.
+***
+Golden-Serpant-89 has hit you with his Ion-Decay!
+>
+look
+***
+You see rubble everywhere.
+Compass: (-2E : 0N)
+east  - area continues.
+west  - open gate.
+***
+On the ground lies:
+A Nuclear-thong, A Skull, A Skull (1), A Skull (2). 
+***
+Golden-Serpant-89 is here.
+***
+Golden-Serpant-89 picked up the Skull.
+>
+look
+***
+You see rubble everywhere.
+Compass: (-2E : 0N)
+east  - area continues.
+west  - open gate.
+***
+On the ground lies:
+A Nuclear-thong, A Skull, A Skull (1). 
+***
+Golden-Serpant-89 is here.
+***
+You see a blinding white flash illuminate from Golden-Serpant-89's body!
+>
+look
+***
+You see rubble everywhere.
+Compass: (-2E : 0N)
+east  - area continues.
+west  - open gate.
+***
+On the ground lies:
+A Nuclear-thong, A Skull, A Skull (1). 
+***
+Golden-Serpant-89 is here.
+***
+Golden-Serpant-89 picked up the Nuclear-thong.
+>
+look
+***
+You see rubble everywhere.
+Compass: (-2E : 0N)
+east  - area continues.
+west  - open gate.
+***
+On the ground lies:
+A Skull, A Skull (1). 
+***
+Golden-Serpant-89 is here.
+***
+Golden-Serpant-89 has hit you with his Ion-Decay!
+>
+look
+
+***
+You see rubble everywhere.
+Compass: (-2E : 0N)
+east  - area continues.
+west  - open gate.
+***
+On the ground lies:
+A Skull, A Skull (1). 
+***
+Golden-Serpant-89 is here.
+***
+Golden-Serpant-89 picked up the Skull.
+>look
+***
+You see rubble everywhere.
+Compass: (-2E : 0N)
+east  - area continues.
+west  - open gate.
+***
+On the ground lies:
+A Skull. 
+***
+Golden-Serpant-89 is here.
+***
+You see a blinding white flash illuminate from Golden-Serpant-89's body!
+>
+look
+***
+You see rubble everywhere.
+Compass: (-2E : 0N)
+east  - area continues.
+west  - open gate.
+***
+On the ground lies:
+A Skull. 
+***
+Golden-Serpant-89 is here.
+***
+Golden-Serpant-89 picked up the Skull.
+>
+look
+***
+You see rubble everywhere.
+Compass: (-2E : 0N)
+east  - area continues.
+west  - open gate.
+***
+Golden-Serpant-89 is here.
+***
+Golden-Serpant-89 has hit you with his Ion-Decay!
+***
+You see a blinding white flash illuminate from Golden-Serpant-89's body!
+>
+look
+***
+You see rubble everywhere.
+Compass: (-2E : 0N)
+east  - area continues.
+west  - open gate.
+***
+Golden-Serpant-89 is here.
+***
+Golden-Serpant-89 screams: Get away from me, Vindeiatrix!!!
+***
+Golden-Serpant-89 has just left west
+***
+You hear loud sounds of footsteps to the west.
+>
+look
+***
+You see rubble everywhere.
+Compass: (-2E : 0N)
+east  - area continues.
+west  - open gate.
+***
+You see shadows to the west.
+>
+look
+***
+You see rubble everywhere.
+Compass: (-2E : 0N)
+east  - area continues.
+west  - open gate.
+***
+You see shadows to the west.
+***
+You hear faint sounds of footsteps far to the west.
+>
+look
+***
+You see rubble everywhere.
+Compass: (-2E : 0N)
+east  - area continues.
+west  - open gate.
+>
+hea
+***
+Nothing happens!
+>
+look
+***
+You see rubble everywhere.
+Compass: (-2E : 0N)
+east  - area continues.
+west  - open gate.
+>
+look
+
+***
+You see rubble everywhere.
+Compass: (-2E : 0N)
+east  - area continues.
+west  - open gate.
+>look
+***
+You see rubble everywhere.
+Compass: (-2E : 0N)
+east  - area continues.
+west  - open gate.
+>
+look
+***
+You see rubble everywhere.
+Compass: (-2E : 0N)
+east  - area continues.
+west  - open gate.
+>
+w
+***
+City Trading Centre
+Compass: (-3E : 0N)
+south - area continues.
+east  - open gate.
+west  - area continues.
+***
+On the ground lies:
+A Skull. 
+***
+You see shadows to the west.
+>
+w
+***
+An eerie calm settles in the distance.
+Compass: (-4E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon. 
+***
+Golden-Serpant-89 is here.
+***
+Golden-Serpant-89 screams: Get away from me, Vindeiatrix!!!
+>
+look
+***
+An eerie calm settles in the distance.
+Compass: (-4E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon. 
+***
+Golden-Serpant-89 is here.
+***
+Golden-Serpant-89 screams: Get away from me, Vindeiatrix!!!
+***
+Golden-Serpant-89 has just left north
+***
+You hear loud sounds of footsteps to the north.
+>
+look
+***
+An eerie calm settles in the distance.
+Compass: (-4E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon. 
+***
+You see shadows to the north.
+>
+look
+***
+An eerie calm settles in the distance.
+Compass: (-4E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon. 
+***
+You see shadows to the north.
+>
+n
+***
+An eerie calm settles in the distance.
+Compass: (-4E : 1N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1). 
+***
+Golden-Serpant-89 is here.
+>
+n
+***
+You hear volcanoes erupt in the distance.
+Compass: (-4E : 2N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+A Bottle-Cap, A Grey-Dagger, A Blizzard-Staff, A Skull, A Bottle-Cap (1), A
+Skull (1). 
+***
+You see shadows to the south.
+***
+You hear faint sounds of footsteps far to the south.
+>
+s
+***
+An eerie calm settles in the distance.
+Compass: (-4E : 1N)
+north - area continues.
+south - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1). 
+***
+You see shadows to the south.
+>
+s
+***
+An eerie calm settles in the distance.
+Compass: (-4E : 0N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon. 
+***
+Golden-Serpant-89 is here.
+>
+wie he
+***
+You've hit Golden-Serpant-89 with your Hell-Blade!
+***
+You have slain Golden-Serpant-89!
+Your experience points are increased by 6666!
+You collect 6280 Riblets and 19864 ions from the slain body.
+***
+
+A Nuclear-thong is falling from Golden-Serpant-89's body!
+***
+An Ion-Decay is falling from Golden-Serpant-89's body!
+***
+A Skull is falling from Golden-Serpant-89's body!
+***
+Golden-Serpant-89 is crumbling to dust!
+>
+hea
+***
+Nothing happens!
+>
+stat
+***
+
+Name: Vindeiatrix / Mutant Warrior
+Exhaustion    : 0  
+Str: 126    Int: 22    Wis: 22 
+Dex: 92     Con: 97    Cha: 29 
+Hit Points    : 93  / 93 
+Exp. Points   : 4829082 Level: 9  
+Riblets       : 24480  
+Ions          : 995451 
+Wearing Armor : Eazy-Armour  Armour Class: 465
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D.      : 2700
+
+You are carrying the following items:  (Total Weight: 129 LB's)
+Hell-Blade, Lightning-Rod.
+>
+tra 2800
+***
+ZAAAAPPPPP!! You've been sent to the year 2800 A.D.
+>
+hea
+***
+Nothing happens!
+>
+look
+***
+Broken glass covers the road.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear-Rock. 
+>
+e
+***
+You're in a maintenance shop.
+Compass: (1E : 0N)
+north - area continues.
+south - open gate.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear-thong. 
+>
+e
+***
+Crumbling buildings surround you.
+Compass: (2E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear-thong, A Monster-Bait. 
+>
+e
+***
+You hear volcanoes erupt in the distance.
+Compass: (3E : 0N)
+north - open gate.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear-thong. 
+***
+You see shadows to the east.
+>
+e
+***
+An old hydro line has fallen here.
+Compass: (4E : 0N)
+north - area continues.
+south - open gate.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cheese. 
+***
+Troll-170 is here.
+>
+
+com t
+***
+You're ready to combat Troll-170!
+>
+wie he
+***
+You've hit Troll-170 with your Hell-Blade!
+***
+The Troll-170 grunts: Just run away, Vindeiatrix!
+***
+Troll-170 is getting ready to combat you!
+***
+Troll-170 laughs: You can't fool me!!
+***
+You see a blinding white flash illuminate from Troll-170's body!
+>
+look
+***
+An old hydro line has fallen here.
+Compass: (4E : 0N)
+north - area continues.
+south - open gate.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cheese. 
+***
+Troll-170 is here.
+***
+Troll-170's body is glowing!
+>
+look
+***
+An old hydro line has fallen here.
+Compass: (4E : 0N)
+north - area continues.
+south - open gate.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cheese. 
+***
+Troll-170 is here.
+***
+The Troll-170 bites you!
+***
+You suffer 6 hit points of damage!
+***
+Troll-170 picked up the Cheese.
+>
+look
+***
+An old hydro line has fallen here.
+Compass: (4E : 0N)
+north - area continues.
+south - open gate.
+east  - area continues.
+west  - area continues.
+***
+Troll-170 is here.
+***
+Troll-170's body is glowing!
+>
+look
+***
+An old hydro line has fallen here.
+Compass: (4E : 0N)
+north - area continues.
+south - open gate.
+east  - area continues.
+west  - area continues.
+***
+Troll-170 is here.
+***
+Troll-170's body is glowing!
+>
+look
+
+***
+An old hydro line has fallen here.
+Compass: (4E : 0N)
+north - area continues.
+south - open gate.
+east  - area continues.
+west  - area continues.
+***
+Troll-170 is here.
+***
+Troll-170 has hit you with his Troll-Sword!
+***
+Troll-170's Troll-Sword has just cracked in half!
+>look
+***
+An old hydro line has fallen here.
+Compass: (4E : 0N)
+north - area continues.
+south - open gate.
+east  - area continues.
+west  - area continues.
+***
+Troll-170 is here.
+***
+Troll-170's body is glowing!
+>
+look
+***
+An old hydro line has fallen here.
+Compass: (4E : 0N)
+north - area continues.
+south - open gate.
+east  - area continues.
+west  - area continues.
+***
+Troll-170 is here.
+***
+Troll-170 has hit you with his Cheese!
+>
+wie he
+***
+You've hit Troll-170 with your Hell-Blade!
+***
+Troll-170 dropped his Broken-Weapon.
+>
+look
+***
+An old hydro line has fallen here.
+Compass: (4E : 0N)
+north - area continues.
+south - open gate.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon. 
+***
+Troll-170 is here.
+***
+Troll-170 has hit you with his Cheese!
+>
+look
+***
+An old hydro line has fallen here.
+Compass: (4E : 0N)
+north - area continues.
+south - open gate.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon. 
+***
+Troll-170 is here.
+>
+look
+***
+An old hydro line has fallen here.
+Compass: (4E : 0N)
+north - area continues.
+south - open gate.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon. 
+***
+Troll-170 is here.
+***
+Troll-170 screams: Get away from me, Vindeiatrix!!!
+***
+Troll-170 has just left north
+***
+You hear loud sounds of footsteps to the north.
+>
+look
+***
+An old hydro line has fallen here.
+Compass: (4E : 0N)
+north - area continues.
+south - open gate.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon. 
+***
+You see shadows to the north.
+>
+look
+***
+An old hydro line has fallen here.
+Compass: (4E : 0N)
+north - area continues.
+south - open gate.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon. 
+***
+You see shadows to the north.
+>
+look
+***
+An old hydro line has fallen here.
+Compass: (4E : 0N)
+north - area continues.
+south - open gate.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon. 
+***
+You see shadows to the north.
+>
+look
+***
+An old hydro line has fallen here.
+Compass: (4E : 0N)
+north - area continues.
+south - open gate.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon. 
+***
+You see shadows to the north.
+***
+You hear faint sounds of footsteps far to the north.
+>
+loo no
+***
+You're looking north...
+***
+The street is cracked here.
+Compass: (4E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+>
+n
+***
+The street is cracked here.
+Compass: (4E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the north.
+>
+loo no
+***
+You're looking north...
+***
+The two moons are rising above.
+Compass: (4E : 2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Troll-Sword, A Skull, A Great-Club, A Troll-Staff, A Skull (1), A Troll-Skin.
+
+***
+Troll-170 is here.
+***
+You hear faint sounds of footsteps far to the north.
+>
+n
+***
+The two moons are rising above.
+Compass: (4E : 2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Troll-Sword, A Skull, A Great-Club, A Troll-Staff, A Skull (1), A Troll-Skin.
+
+***
+You see shadows to the north.
+>
+loo no
+***
+You're looking north...
+***
+You see rubble everywhere.
+Compass: (4E : 3N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Master-Key, A Silver-Key, A Skull, A Troll-Sword, A Troll-Staff. 
+***
+Troll-170 is here.
+>
+look
+***
+The two moons are rising above.
+Compass: (4E : 2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Troll-Sword, A Skull, A Great-Club, A Troll-Staff, A Skull (1), A Troll-Skin.
+
+***
+You see shadows to the north.
+>
+look
+***
+The two moons are rising above.
+Compass: (4E : 2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Troll-Sword, A Skull, A Great-Club, A Troll-Staff, A Skull (1), A Troll-Skin.
+
+***
+You see shadows to the north.
+>
+look
+***
+The two moons are rising above.
+Compass: (4E : 2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Troll-Sword, A Skull, A Great-Club, A Troll-Staff, A Skull (1), A Troll-Skin.
+
+***
+You see shadows to the north.
+>
+look
+***
+The two moons are rising above.
+Compass: (4E : 2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Troll-Sword, A Skull, A Great-Club, A Troll-Staff, A Skull (1), A Troll-Skin.
+
+***
+You see shadows to the north.
+>
+44
+look
+***
+You're 44ing!
+>***
+The two moons are rising above.
+Compass: (4E : 2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Troll-Sword, A Skull, A Great-Club, A Troll-Staff, A Skull (1), A Troll-Skin.
+
+***
+You see shadows to the north.
+>
+hea
+***
+Your body glows at it heals 14 points!
+***
+You're healed to the maximum!
+***
+You hear faint sounds of footsteps far to the north.
+>
+n
+***
+You see rubble everywhere.
+Compass: (4E : 3N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Master-Key, A Silver-Key, A Skull, A Troll-Sword, A Troll-Staff. 
+***
+You see shadows to the north.
+>
+loo no
+***
+You're looking north...
+***
+Relics of the war line the streets.
+Compass: (4E : 4N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Grey-Dagger, A Blizzard-Staff, A Skull, A Monster-Bait, A
+Skull (1). 
+***
+Troll-170 is here.
+>
+look
+***
+You see rubble everywhere.
+Compass: (4E : 3N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Master-Key, A Silver-Key, A Skull, A Troll-Sword, A Troll-Staff. 
+***
+You see shadows to the north.
+***
+You hear faint sounds of footsteps far to the north.
+>
+n
+***
+Relics of the war line the streets.
+Compass: (4E : 4N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Grey-Dagger, A Blizzard-Staff, A Skull, A Monster-Bait, A
+Skull (1). 
+***
+You see shadows to the north.
+>
+loo no
+***
+You're looking north...
+***
+You see rubble everywhere.
+Compass: (4E : 5N)
+north - area continues.
+south - area continues.
+east  - open gate.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Master-Key, A Skull, A Skull (1). 
+***
+Troll-170 is here.
+***
+You hear faint sounds of footsteps far to the north.
+>
+n
+***
+You see rubble everywhere.
+Compass: (4E : 5N)
+north - area continues.
+south - area continues.
+east  - open gate.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Master-Key, A Skull, A Skull (1). 
+***
+You see shadows to the north.
+>
+loo no
+***
+You're looking north...
+***
+A sign reads: FOR SALE $ 225000
+Compass: (4E : 6N)
+north - area continues.
+south - area continues.
+east  - open gate.
+west  - area continues.
+***
+On the ground lies:
+A Monster-Bait, A Bastard-Sword, A Skull, A Skull (1), A Master-Key, A Skull
+(2). 
+***
+Troll-170 is here.
+>
+loo no
+***
+You're looking north...
+***
+A sign reads: FOR SALE $ 225000
+Compass: (4E : 6N)
+north - area continues.
+south - area continues.
+east  - open gate.
+west  - area continues.
+***
+On the ground lies:
+A Monster-Bait, A Bastard-Sword, A Skull, A Skull (1), A Master-Key, A Skull
+(2). 
+***
+Troll-170 is here.
+>
+loo no
+***
+You're looking north...
+***
+A sign reads: FOR SALE $ 225000
+Compass: (4E : 6N)
+north - area continues.
+south - area continues.
+east  - open gate.
+west  - area continues.
+***
+On the ground lies:
+A Monster-Bait, A Bastard-Sword, A Skull, A Skull (1), A Master-Key, A Skull
+(2). 
+***
+Troll-170 is here.
+>
+loo no
+***
+You're looking north...
+***
+A sign reads: FOR SALE $ 225000
+Compass: (4E : 6N)
+north - area continues.
+south - area continues.
+east  - open gate.
+west  - area continues.
+***
+On the ground lies:
+A Monster-Bait, A Bastard-Sword, A Skull, A Skull (1), A Master-Key, A Skull
+(2). 
+***
+Troll-170 is here.
+>
+loo no
+***
+You're looking north...
+***
+A sign reads: FOR SALE $ 225000
+Compass: (4E : 6N)
+north - area continues.
+south - area continues.
+east  - open gate.
+west  - area continues.
+***
+On the ground lies:
+A Monster-Bait, A Bastard-Sword, A Skull, A Skull (1), A Master-Key, A Skull
+(2). 
+***
+Troll-170 is here.
+>
+loo no
+***
+You're looking north...
+***
+A sign reads: FOR SALE $ 225000
+Compass: (4E : 6N)
+north - area continues.
+south - area continues.
+east  - open gate.
+west  - area continues.
+***
+On the ground lies:
+A Monster-Bait, A Bastard-Sword, A Skull, A Skull (1), A Master-Key, A Skull
+(2). 
+***
+Troll-170 is here.
+***
+You hear faint sounds of footsteps far to the north.
+>
+loo no
+***
+You're looking north...
+***
+A sign reads: FOR SALE $ 225000
+Compass: (4E : 6N)
+north - area continues.
+south - area continues.
+east  - open gate.
+west  - area continues.
+***
+On the ground lies:
+A Monster-Bait, A Bastard-Sword, A Skull, A Skull (1), A Master-Key, A Skull
+(2). 
+>
+n
+***
+A sign reads: FOR SALE $ 225000
+Compass: (4E : 6N)
+north - area continues.
+south - area continues.
+east  - open gate.
+west  - area continues.
+***
+On the ground lies:
+A Monster-Bait, A Bastard-Sword, A Skull, A Skull (1), A Master-Key, A Skull
+(2). 
+***
+You see shadows to the north.
+>
+n
+***
+Crumbling buildings surround you.
+Compass: (4E : 7N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Fang-Dagger, A Skull, A Gold-Spear, A Skull (1). 
+***
+Troll-170 is here.
+>
+hea
+***
+Nothing happens!
+***
+Troll-170 picked up the Fang-Dagger.
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (4E : 7N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Skull, A Gold-Spear, A Skull (1). 
+***
+Troll-170 is here.
+***
+Troll-170 has hit you with his Fang-Dagger!
+***
+Troll-170's Fang-Dagger has just cracked in half!
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (4E : 7N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Skull, A Gold-Spear, A Skull (1). 
+***
+Troll-170 is here.
+***
+Troll-170 screams: Get away from me, Vindeiatrix!!!
+***
+Troll-170 has just left north
+***
+You hear loud sounds of footsteps to the north.
+>
+n
+***
+You're in a maintenance shop.
+Compass: (4E : 8N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Master-Key, A Brass-Key, A Silver-Key, A Skull, A Troll-Sword, A Troll-Staff.
+
+***
+Troll-170 is here.
+***
+Troll-170 has hit you with his Cheese!
+>
+look
+***
+You're in a maintenance shop.
+Compass: (4E : 8N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Master-Key, A Brass-Key, A Silver-Key, A Skull, A Troll-Sword, A Troll-Staff.
+
+***
+Troll-170 is here.
+***
+Troll-170 picked up the Master-Key.
+>
+look
+***
+You're in a maintenance shop.
+Compass: (4E : 8N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Brass-Key, A Silver-Key, A Skull, A Troll-Sword, A Troll-Staff. 
+***
+Troll-170 is here.
+***
+Troll-170 picked up the Skull.
+>
+look
+***
+You're in a maintenance shop.
+Compass: (4E : 8N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Brass-Key, A Silver-Key, A Troll-Sword, A Troll-Staff. 
+***
+Troll-170 is here.
+***
+Troll-170 has hit you with his Skull!
+***
+You see a blinding white flash illuminate from Troll-170's body!
+>
+look
+***
+You're in a maintenance shop.
+Compass: (4E : 8N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Brass-Key, A Silver-Key, A Troll-Sword, A Troll-Staff. 
+***
+Troll-170 is here.
+***
+Troll-170 has hit you with his Cheese!
+>
+look
+***
+You're in a maintenance shop.
+Compass: (4E : 8N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Brass-Key, A Silver-Key, A Troll-Sword, A Troll-Staff. 
+***
+Troll-170 is here.
+***
+Troll-170 picked up the Brass-Key.
+>
+look
+***
+You're in a maintenance shop.
+Compass: (4E : 8N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Silver-Key, A Troll-Sword, A Troll-Staff. 
+***
+Troll-170 is here.
+***
+Troll-170 picked up the Troll-Staff.
+>
+look
+***
+You're in a maintenance shop.
+Compass: (4E : 8N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Silver-Key, A Troll-Sword. 
+***
+Troll-170 is here.
+***
+Troll-170 screams: Get away from me, Vindeiatrix!!!
+***
+Troll-170 has just left north
+***
+You hear loud sounds of footsteps to the north.
+>
+look
+***
+You're in a maintenance shop.
+Compass: (4E : 8N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Silver-Key, A Troll-Sword. 
+***
+You see shadows to the north.
+>
+n
+***
+You hear volcanoes erupt in the distance.
+Compass: (4E : 9N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Horned-Dagger, A Skull, A Skull (1), A Fang-Dagger, A Skull (2). 
+***
+Troll-170 is here.
+***
+Troll-170 picked up the Skull.
+>
+hea
+***
+Nothing happens!
+***
+Troll-170 laughs: You can't fool me!!
+***
+You see a blinding white flash illuminate from Troll-170's body!
+***
+You see a blinding white flash illuminate from Troll-170's body!
+>
+look
+***
+You hear volcanoes erupt in the distance.
+Compass: (4E : 9N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Horned-Dagger, A Skull, A Fang-Dagger, A Skull (1). 
+***
+Troll-170 is here.
+***
+Troll-170 has hit you with his Cheese!
+>
+look
+***
+You hear volcanoes erupt in the distance.
+Compass: (4E : 9N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Horned-Dagger, A Skull, A Fang-Dagger, A Skull (1). 
+***
+Troll-170 is here.
+***
+Troll-170 has hit you with his Cheese!
+>
+look
+***
+You hear volcanoes erupt in the distance.
+Compass: (4E : 9N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Horned-Dagger, A Skull, A Fang-Dagger, A Skull (1). 
+***
+Troll-170 is here.
+***
+Troll-170 picked up the Skull.
+>
+look
+***
+You hear volcanoes erupt in the distance.
+Compass: (4E : 9N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Horned-Dagger, A Fang-Dagger, A Skull. 
+***
+Troll-170 is here.
+***
+Troll-170 screams: Get away from me, Vindeiatrix!!!
+***
+Troll-170 has just left south
+***
+You hear loud sounds of footsteps to the south.
+>
+look
+***
+You hear volcanoes erupt in the distance.
+Compass: (4E : 9N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Horned-Dagger, A Fang-Dagger, A Skull. 
+***
+You see shadows to the south.
+>
+s
+***
+You're in a maintenance shop.
+Compass: (4E : 8N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Silver-Key, A Troll-Sword. 
+***
+Troll-170 is here.
+***
+You see a blinding white flash illuminate from Troll-170's body!
+>
+look
+***
+You're in a maintenance shop.
+Compass: (4E : 8N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Silver-Key, A Troll-Sword. 
+***
+Troll-170 is here.
+***
+Troll-170 screams: Get away from me, Vindeiatrix!!!
+***
+Troll-170 has just left south
+***
+You hear loud sounds of footsteps to the south.
+>
+s
+***
+Crumbling buildings surround you.
+Compass: (4E : 7N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Skull, A Gold-Spear, A Skull (1). 
+***
+Troll-170 is here.
+***
+Troll-170 picked up the Skull.
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (4E : 7N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Gold-Spear, A Skull. 
+***
+Troll-170 is here.
+***
+Troll-170 screams: Get away from me, Vindeiatrix!!!
+***
+Troll-170 has just left east
+***
+You hear loud sounds of footsteps to the east.
+>
+e
+***
+Crumbling buildings surround you.
+Compass: (5E : 7N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Bola, A Crystal-Key, A Skull, A Skull (1). 
+***
+Troll-170 is here.
+***
+You see a blinding white flash illuminate from Troll-170's body!
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (5E : 7N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Bola, A Crystal-Key, A Skull, A Skull (1). 
+***
+Troll-170 is here.
+***
+Troll-170 picked up the Bola.
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (5E : 7N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Crystal-Key, A Skull, A Skull (1). 
+***
+Troll-170 is here.
+***
+Troll-170 has hit you with his Bola!
+***
+Troll-170's Bola has just cracked in half!
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (5E : 7N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Crystal-Key, A Skull, A Skull (1). 
+***
+Troll-170 is here.
+***
+Troll-170 picked up the Skull.
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (5E : 7N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Crystal-Key, A Skull. 
+***
+Troll-170 is here.
+***
+You see a blinding white flash illuminate from Troll-170's body!
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (5E : 7N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Crystal-Key, A Skull. 
+***
+Troll-170 is here.
+***
+Troll-170 picked up the Crystal-Key.
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (5E : 7N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Skull. 
+***
+Troll-170 is here.
+***
+Troll-170 dropped his Broken-Weapon.
+>
+look
+***
+Crumbling buildings surround you.
+Compass: (5E : 7N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Broken-Weapon, A Broken-Weapon (1), A Skull. 
+***
+Troll-170 is here.
+***
+Troll-170 screams: Get away from me, Vindeiatrix!!!
+***
+Troll-170 has just left east
+***
+You hear loud sounds of footsteps to the east.
+>
+e
+***
+An old hydro line has fallen here.
+Compass: (6E : 7N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Troll-Sword, A Gold-Spear, A Skull, An Ion-Booster, A Skull (1), A
+Troll-Skin. 
+***
+Troll-170 is here.
+***
+Troll-170 screams: Get away from me, Vindeiatrix!!!
+***
+Troll-170 has just left south
+***
+You hear loud sounds of footsteps to the south.
+>
+s
+***
+You're in a wrecked building.
+Compass: (6E : 6N)
+north - area continues.
+south - area continues.
+east  - open gate.
+west  - area continues.
+***
+On the ground lies:
+A Horned-Dagger, A Broken-Weapon, A Skull, A Skull (1). 
+***
+Troll-170 is here.
+***
+Troll-170 screams: Get away from me, Vindeiatrix!!!
+***
+Troll-170 has just left east
+***
+You hear loud sounds of footsteps to the east.
+>
+e
+***
+A sign reads: FOR SALE $ 225000
+Compass: (7E : 6N)
+north - area continues.
+south - open gate.
+east  - open gate.
+west  - open gate.
+***
+On the ground lies:
+A Master-Key, A Brass-Key, A Silver-Key, A Skull. 
+***
+Troll-170 is here.
+***
+Troll-170 picked up the Brass-Key.
+>
+look
+***
+A sign reads: FOR SALE $ 225000
+Compass: (7E : 6N)
+north - area continues.
+south - open gate.
+east  - open gate.
+west  - open gate.
+***
+On the ground lies:
+A Master-Key, A Silver-Key, A Skull. 
+***
+Troll-170 is here.
+***
+The Troll-170 bites you!
+***
+You suffer 6 hit points of damage!
+***
+Troll-170 dropped his Broken-Weapon.
+>
+look
+***
+A sign reads: FOR SALE $ 225000
+Compass: (7E : 6N)
+north - area continues.
+south - open gate.
+east  - open gate.
+west  - open gate.
+***
+On the ground lies:
+A Master-Key, A Broken-Weapon, A Silver-Key, A Skull. 
+***
+Troll-170 is here.
+***
+Troll-170 has hit you with his Cheese!
+>44
+
+***
+You're 44ing!
+***
+Troll-170 screams: Get away from me, Vindeiatrix!!!
+***
+Troll-170 has just left north
+***
+You hear loud sounds of footsteps to the north.
+>look
+***
+A sign reads: FOR SALE $ 225000
+Compass: (7E : 6N)
+north - area continues.
+south - open gate.
+east  - open gate.
+west  - open gate.
+***
+On the ground lies:
+A Master-Key, A Broken-Weapon, A Silver-Key, A Skull. 
+***
+You see shadows to the north.
+***
+You hear faint sounds of footsteps far to the north.
+>
+hea
+***
+Your body glows at it heals 14 points!
+***
+You're healed to the maximum!
+>
+n
+***
+Crumbling buildings surround you.
+Compass: (7E : 7N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Troll-Sword, A Great-Club, A Skull, A Skull (1), A Troll-Skin. 
+***
+You see shadows to the north.
+***
+You hear faint sounds of footsteps far to the north.
+>
+n
+***
+A sign reads: FOR SALE $ 225000
+Compass: (7E : 8N)
+north - area continues.
+south - area continues.
+east  - open gate.
+west  - open gate.
+***
+On the ground lies:
+A Cleric-Rod, A Golden-Needle, A Skull, A Skull (1). 
+***
+You see shadows to the north.
+>
+n
+***
+The two moons are rising above.
+Compass: (7E : 9N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Master-Key, A Brass-Key, A Silver-Key, A Skull. 
+***
+Troll-170 is here.
+***
+Troll-170 screams: Get away from me, Vindeiatrix!!!
+***
+Troll-170 has just left north
+***
+You hear loud sounds of footsteps to the north.
+>
+n
+***
+You feel a cold breeze.
+Compass: (7E : 10N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Master-Key, A Brass-Key, A Silver-Key, A Skull. 
+***
+Troll-170 is here.
+***
+Troll-170 picked up the Master-Key.
+>
+wie he
+***
+You've hit Troll-170 with your Hell-Blade!
+***
+You have slain Troll-170!
+Your experience points are increased by 5333!
+You collect 6280 Riblets and 64841 ions from the slain body.
+***
+
+A Brass-Key is falling from Troll-170's body!
+***
+A Cheese is falling from Troll-170's body!
+***
+A Master-Key is falling from Troll-170's body!
+***
+Troll-170 is crumbling to dust!
+>
+hea
+***
+Nothing happens!
+>
+>>> Zyberian@thepenaltybox.org logged off
+>***
+Type ? if you need assistance.
+>
+

@@ -1,0 +1,25 @@
+{
+  "name": "cross_year_monster_leak",
+  "commands": [
+    "theme mono",
+    "bury all",
+    "3",
+    "debug hp 999999",
+    "tra 2100",
+    "d m waste_mauler",
+    "w",
+    "d m waste_mauler",
+    "x",
+    "1",
+    "look",
+    "stat"
+  ],
+  "expect": [
+    "ZAAAPPPPP!! You've been sent to the year 2100 A.D.",
+    "Spawned 1 x Waste",
+    "Ready to Combat: NO ONE"
+  ],
+  "timeout_seconds": 120,
+  "stdin_delay_ms": 200,
+  "purge_state": true
+}

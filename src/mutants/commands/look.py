@@ -27,6 +27,8 @@ def _active(state: Dict[str, Any]) -> Dict[str, Any]:
 def look_cmd(arg: str, ctx: Dict[str, Any]) -> None:
     token = (arg or "").strip()
     if not token:
+        # Explicit room refresh should always show current monsters.
+        ctx["_force_show_monsters"] = True
         ctx["render_next"] = True
         return
 
@@ -69,6 +71,11 @@ def look_cmd(arg: str, ctx: Dict[str, Any]) -> None:
             ctx.get("monsters"),
             ctx.get("items"),
         )
+        # Suppress shadow cues for adjacent peeks; shadows are only shown for the current tile.
+        vm = dict(vm)
+        vm["shadows"] = []
+        ctx["_suppress_shadows_once"] = False
+        ctx["_shadow_hint_once"] = []
         ctx["peek_vm"] = vm
         ctx["render_next"] = True
         return

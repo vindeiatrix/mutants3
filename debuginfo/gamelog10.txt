@@ -1,0 +1,3093 @@
+(.venv) PS C:\Git2\mutants3> .\Run-Mutants.ps1 -Logging
+Creating SQLite database file...
+Repo: C:\Git2\mutants3
+DB:   C:\Git2\mutants3\state\mutants.db
+ENV:  MUTANTS_STATE_BACKEND=sqlite; GAME_STATE_ROOT=C:\Git2\mutants3\state
+Obtaining file:///C:/Git2/mutants3
+  Installing build dependencies ... done
+  Checking if build backend supports build_editable ... done
+  Getting requirements to build editable ... done
+  Preparing editable metadata (pyproject.toml) ... done
+Building wheels for collected packages: mutants
+  Building editable for mutants (pyproject.toml) ... done
+  Created wheel for mutants: filename=mutants-0.0.0-0.editable-py3-none-any.whl size=2532 sha256=3aeb4f6f885399097475b5d92af0b2d75c616e3c5547ee632355addfcfc7fa02
+  Stored in directory: C:\Users\michael.bowman\AppData\Local\Temp\pip-ephem-wheel-cache-qmdqyc8m\wheels\b8\16\79\15911a472ed15aea2aceb8a431ad64aff3d06b7f7f7fe0eff6
+Successfully built mutants
+Installing collected packages: mutants
+  Attempting uninstall: mutants
+    Found existing installation: mutants 0.0.0
+    Uninstalling mutants-0.0.0:
+      Successfully uninstalled mutants-0.0.0
+Successfully installed mutants-0.0.0
+Schema ensured at C:\Git2\mutants3\state\mutants.db
+Importing items catalog into SQLite...
+Imported 45 items into C:\Git2\mutants3\state\mutants.db
+daily_litter: triggered
+Importing monsters catalog into SQLite...
+Imported 7 monster(s) into catalog at C:\Git2\mutants3\state\mutants.db
+Monsters currently present (rows: 0).
+
+Launching game (SQLite backend)...
+Mutants — classic BBS vibes.  Type 'help' for commands; 'theme mono' for no color.
+
+ 1. Mutant Thief    Level: 1   Year: 2000  ( 0  0)
+ 2. Mutant Priest   Level: 1   Year: 2000  ( 0  0)
+ 3. Mutant Wizard   Level: 1   Year: 2000  ( 0  0)
+ 4. Mutant Warrior  Level: 1   Year: 2000  ( 0  0)
+ 5. Mutant Mage     Level: 1   Year: 2000  ( 0  0)
+
+Type BURY [class number] to reset a player. Type X to exit.
+***
+Select (Bury, 1-5, ?)
+***
+Type ? if you need assistance.
+Select (Bury, 1-5, ?) 4
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+> stat
+***
+Name: Warrior / Mutant Warrior
+Exhaustion    : 0
+Str: 23     Int: 12      Wis: 14
+Dex: 20     Con: 19      Cha: 9
+Hit Points    : 40 / 40
+Exp. Points   : 0  Level: 1
+Riblets       : 0
+Ions          : 30000
+Wearing Armor : None  Armour Class: 2
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D.      : 2000
+
+You are carrying the following items:  (Total Weight: 0 LB's)
+Nothing.
+> d add n
+***
+spawned 1 x nuclear_decay at (2000, 0, 0) [e12369326f684571a2fc79b04785163a]
+> get n
+***
+You pick up the Nuclear‑Decay.
+> d hp 232332
+***
+Set HP for Warrior to 232332 / 232332.
+> inv
+***
+You are carrying the following items:  (Total Weight: 50 LB's)
+A Nuclear‑Decay.
+> stat
+***
+Name: Warrior / Mutant Warrior
+Exhaustion    : 0
+Str: 23     Int: 12      Wis: 14
+Dex: 20     Con: 19      Cha: 9
+Hit Points    : 232332 / 232332
+Exp. Points   : 0  Level: 1
+Riblets       : 0
+Ions          : 30000
+Wearing Armor : None  Armour Class: 2
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D.      : 2000
+
+You are carrying the following items:  (Total Weight: 50 LB's)
+A Nuclear‑Decay.
+> w
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+> d m w
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-995 is here.
+***
+Spawned 1 x Waste‑Mauler‑995 at your location.
+> d m j
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-995, and Junkyard-Scrapper-836 are here with you.
+***
+Spawned 1 x Junkyard‑Scrapper‑836 at your location.
+> stat
+***
+Name: Warrior / Mutant Warrior
+Exhaustion    : 0
+Str: 23     Int: 12      Wis: 14
+Dex: 20     Con: 19      Cha: 9
+Hit Points    : 232332 / 232332
+Exp. Points   : 0  Level: 1
+Riblets       : 0
+Ions          : 30000
+Wearing Armor : None  Armour Class: 2
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D.      : 2000
+
+You are carrying the following items:  (Total Weight: 50 LB's)
+A Nuclear‑Decay.
+> e
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the west.
+> look we
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-995, and Junkyard-Scrapper-836 are here with you.
+> w
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-995, and Junkyard-Scrapper-836 are here with you.
+> com w
+***
+You ready yourself against Waste‑Mauler‑995.
+> wie n
+***
+You've hit Waste‑Mauler‑995 with your Nuclear‑Decay!
+***
+Waste‑Mauler‑995's body is glowing!
+> e
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the west.
+***
+You hear loud sounds of yelling and screaming to the west.
+***
+Waste‑Mauler‑995 has just arrived from the west.
+> stat
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-995 is here.
+***
+Name: Warrior / Mutant Warrior
+Exhaustion    : 0
+Str: 23     Int: 12      Wis: 14
+Dex: 20     Con: 19      Cha: 9
+Hit Points    : 232332 / 232332
+Exp. Points   : 0  Level: 1
+Riblets       : 0
+Ions          : 30000
+Wearing Armor : None  Armour Class: 2
+Ready to Combat: Waste‑Mauler‑995
+Readied Spell  : No spell memorized.
+Year A.D.      : 2000
+
+You are carrying the following items:  (Total Weight: 50 LB's)
+A Nuclear‑Decay.
+***
+Waste‑Mauler‑995 yells: Get away from me!
+***
+Waste‑Mauler‑995 has just left east
+***
+You hear loud sounds of yelling and screaming to the east.
+***
+You hear loud sounds of footsteps to the east.
+> look
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the west.
+***
+You hear faint sounds of footsteps far to the east.
+> look
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the west.
+***
+You hear faint sounds of yelling and screaming far to the east.
+***
+You hear faint sounds of footsteps far to the east.
+> look
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the west.
+> look
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the west.
+> w
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-836 is here.
+***
+Clank‑clank... scrap's mine!
+***
+Junkyard‑Scrapper‑836 has hit you with his Rusty‑Shiv!
+> com j
+***
+You ready yourself against Junkyard‑Scrapper‑836.
+***
+Junkyard‑Scrapper‑836 has hit you with his Rusty‑Shiv!
+***
+You suffer 6 hit points of damage!
+> wie n
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Junkyard-Scrapper-836 is here.
+***
+You've hit Junkyard‑Scrapper‑836 with your Nuclear‑Decay!
+***
+Junkyard‑Scrapper‑836 yells: Get away from me!
+***
+Junkyard‑Scrapper‑836 has just left north
+***
+You hear loud sounds of yelling and screaming to the north.
+***
+You hear loud sounds of footsteps to the north.
+> w
+Graffiti lines the city walls.
+Compass: (-2E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You hear faint sounds of yelling and screaming far to the northeast.
+***
+You hear faint sounds of footsteps far to the northeast.
+> w
+You're in a wrecked building.
+Compass: (-3E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear‑Waste.
+***
+You hear faint sounds of footsteps far to the northeast.
+> w
+A sign reads: FOR SALE $ 25,000
+Compass: (-4E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+On the ground lies:
+A Nuclear‑Waste.
+> w
+A sign reads: FOR SALE $ 25,000
+Compass: (-4E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+On the ground lies:
+A Nuclear‑Waste.
+***
+You're blocked!
+***
+You hear faint sounds of yelling and screaming far to the northeast.
+***
+You hear faint sounds of footsteps far to the northeast.
+> w
+***
+You're blocked!
+> w
+***
+You're blocked!
+> w
+***
+You're blocked!
+> n
+Crumbling buildings surround you.
+Compass: (-4E : 1N)
+south - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Scrap‑Armour.
+> n
+***
+You're blocked!
+> s
+A sign reads: FOR SALE $ 25,000
+Compass: (-4E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+On the ground lies:
+A Nuclear‑Waste.
+> s
+An eerie calm settles in the distance.
+Compass: (-4E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+> s
+You hear volcanoes erupt in the distance.
+Compass: (-4E : -2N)
+north - area continues.
+east  - open gate.
+> e
+An old hydro line has fallen here.
+Compass: (-3E : -2N)
+north - area continues.
+east  - open gate.
+west  - open gate.
+***
+On the ground lies:
+A Cheese, A Light‑Spear.
+> e
+You see rubble everywhere.
+Compass: (-2E : -2N)
+north - area continues.
+east  - area continues.
+west  - open gate.
+***
+On the ground lies:
+An Ion‑Decay, A Nuclear‑Waste.
+> tra 2100
+***
+ZAAAPPPPP!! You've been sent to the year 2100 A.D.
+> stat
+***
+Name: Warrior / Mutant Warrior
+Exhaustion    : 0
+Str: 23     Int: 12      Wis: 14
+Dex: 20     Con: 19      Cha: 9
+Hit Points    : 232326 / 232332
+Exp. Points   : 0  Level: 1
+Riblets       : 0
+Ions          : 27000
+Wearing Armor : None  Armour Class: 2
+Ready to Combat: Junkyard‑Scrapper‑836
+Readied Spell  : No spell memorized.
+Year A.D.      : 2100
+
+You are carrying the following items:  (Total Weight: 50 LB's)
+A Nuclear‑Decay.
+> wie n
+***
+Junkyard‑Scrapper‑836 isn't around here!
+> stat
+***
+Name: Warrior / Mutant Warrior
+Exhaustion    : 0
+Str: 23     Int: 12      Wis: 14
+Dex: 20     Con: 19      Cha: 9
+Hit Points    : 232326 / 232332
+Exp. Points   : 0  Level: 1
+Riblets       : 0
+Ions          : 27000
+Wearing Armor : None  Armour Class: 2
+Ready to Combat: Junkyard‑Scrapper‑836
+Readied Spell  : No spell memorized.
+Year A.D.      : 2100
+
+You are carrying the following items:  (Total Weight: 50 LB's)
+A Nuclear‑Decay.
+> x
+ 1. Mutant Thief    Level: 1   Year: 2000  ( 0  0)
+ 2. Mutant Priest   Level: 1   Year: 2000  ( 0  0)
+ 3. Mutant Wizard   Level: 1   Year: 2000  ( 0  0)
+ 4. Mutant Warrior  Level: 1   Year: 2100  ( 0  0)
+ 5. Mutant Mage     Level: 1   Year: 2000  ( 0  0)
+
+Type BURY [class number] to reset a player. Type X to exit.
+***
+Select (Bury, 1-5, ?) 4
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Monster‑Bait.
+> stat
+***
+Name: Warrior / Mutant Warrior
+Exhaustion    : 0
+Str: 23     Int: 12      Wis: 14
+Dex: 20     Con: 19      Cha: 9
+Hit Points    : 232326 / 232332
+Exp. Points   : 0  Level: 1
+Riblets       : 0
+Ions          : 27000
+Wearing Armor : None  Armour Class: 2
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D.      : 2100
+
+You are carrying the following items:  (Total Weight: 50 LB's)
+A Nuclear‑Decay.
+> look
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Monster‑Bait.
+> e
+An eerie calm settles in the distance.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Bottle‑Cap, A Cheese.
+> wie n
+***
+You're not ready to combat anyone!
+> s
+Crumbling buildings surround you.
+Compass: (1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+> s
+The street is cracked here.
+Compass: (1E : -2N)
+north - area continues.
+east  - area continues.
+***
+On the ground lies:
+A Scrap‑Armour, A Bottle‑Cap.
+> e
+You see rubble everywhere.
+Compass: (2E : -2N)
+north - area continues.
+east  - open gate.
+west  - area continues.
+> e
+An old hydro line has fallen here.
+Compass: (3E : -2N)
+north - area continues.
+east  - open gate.
+west  - open gate.
+> e
+You hear volcanoes erupt in the distance.
+Compass: (4E : -2N)
+north - area continues.
+west  - open gate.
+> n
+An eerie calm settles in the distance.
+Compass: (4E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+> n
+A sign reads: FOR SALE $ 50,000
+Compass: (4E : 0N)
+north - area continues.
+south - area continues.
+west  - area continues.
+> e
+***
+You're blocked!
+> w
+You're in a wrecked building.
+Compass: (3E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear‑Rock.
+> w
+Graffiti lines the city walls.
+Compass: (2E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cigarette‑Butt.
+> get c
+***
+You pick up the Cigarette‑Butt.
+> e 
+You're in a wrecked building.
+Compass: (3E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear‑Rock.
+> get n
+***
+You pick up the Nuclear‑Rock.
+> inv
+***
+You are carrying the following items:  (Total Weight: 61 LB's)
+A Nuclear‑Decay, A Cigarette‑Butt, A Nuclear‑Rock.
+> con cig
+***
+The Cigarette‑Butt vanishes with a flash!
+You convert the Cigarette‑Butt into 11000 ions.
+> stat
+***
+Name: Warrior / Mutant Warrior
+Exhaustion    : 0
+Str: 23     Int: 12      Wis: 14
+Dex: 20     Con: 19      Cha: 9
+Hit Points    : 232326 / 232332
+Exp. Points   : 0  Level: 1
+Riblets       : 0
+Ions          : 38000
+Wearing Armor : None  Armour Class: 2
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D.      : 2100
+
+You are carrying the following items:  (Total Weight: 60 LB's)
+A Nuclear‑Decay, A Nuclear‑Rock.
+> w
+Graffiti lines the city walls.
+Compass: (2E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+> w
+An eerie calm settles in the distance.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Bottle‑Cap, A Cheese.
+> n
+An eerie calm settles in the distance.
+Compass: (1E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+> w
+Relics of the war line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Monster‑Bait.
+> w
+Crumbling buildings surround you.
+Compass: (-1E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+> stat
+***
+Name: Warrior / Mutant Warrior
+Exhaustion    : 0
+Str: 23     Int: 12      Wis: 14
+Dex: 20     Con: 19      Cha: 9
+Hit Points    : 232326 / 232332
+Exp. Points   : 0  Level: 1
+Riblets       : 0
+Ions          : 38000
+Wearing Armor : None  Armour Class: 2
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D.      : 2100
+
+You are carrying the following items:  (Total Weight: 60 LB's)
+A Nuclear‑Decay, A Nuclear‑Rock.
+> w
+You're in a wrecked building.
+Compass: (-2E : 1N)
+north - area continues.
+east  - area continues.
+west  - closed gate.
+***
+On the ground lies:
+An Ion‑Booster.
+> open we
+***
+You've just opened the west gate.
+> look
+You're in a wrecked building.
+Compass: (-2E : 1N)
+north - area continues.
+east  - area continues.
+west  - open gate.
+***
+On the ground lies:
+An Ion‑Booster.
+> w
+You're in a maintenance shop.
+Compass: (-3E : 1N)
+south - area continues.
+east  - open gate.
+west  - area continues.
+***
+On the ground lies:
+A Light‑Spear.
+> w
+You feel a cold breeze.
+Compass: (-4E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+On the ground lies:
+A Cigarette‑Butt, A Monster‑Bait.
+> n
+Relics of the war line the streets.
+Compass: (-4E : 2N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+> w
+You feel a cold breeze.
+Compass: (-5E : 2N)
+east  - area continues.
+west  - area continues.
+> w
+Broken glass covers the road.
+Compass: (-6E : 2N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear‑Thong, A Nuclear‑Rock.
+> s
+You hear volcanoes erupt in the distance.
+Compass: (-6E : 1N)
+north - area continues.
+south - open gate.
+east  - area continues.
+***
+On the ground lies:
+A Nuclear‑Decay.
+> w
+***
+You're blocked!
+> s
+The two moons are rising above.
+Compass: (-6E : 0N)
+north - open gate.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear‑Thong, An Ion‑Booster.
+> w
+You hear volcanoes erupt in the distance.
+Compass: (-7E : 0N)
+north - open gate.
+south - area continues.
+east  - area continues.
+> w
+***
+You're blocked!
+> w
+***
+You're blocked!
+> s
+Graffiti lines the city walls.
+Compass: (-7E : -1N)
+north - area continues.
+south - open gate.
+west  - area continues.
+***
+On the ground lies:
+A Monster‑Bait.
+> w
+Graffiti lines the city walls.
+Compass: (-8E : -1N)
+south - area continues.
+east  - area continues.
+***
+On the ground lies:
+A Cheese, A Monster‑Bait, A Short‑Sword.
+> w
+***
+You're blocked!
+> s
+An old hydro line has fallen here.
+Compass: (-8E : -2N)
+north - area continues.
+south - area continues.
+east  - open gate.
+west  - open gate.
+> stat
+***
+Name: Warrior / Mutant Warrior
+Exhaustion    : 0
+Str: 23     Int: 12      Wis: 14
+Dex: 20     Con: 19      Cha: 9
+Hit Points    : 232326 / 232332
+Exp. Points   : 0  Level: 1
+Riblets       : 0
+Ions          : 38000
+Wearing Armor : None  Armour Class: 2
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D.      : 2100
+
+You are carrying the following items:  (Total Weight: 60 LB's)
+A Nuclear‑Decay, A Nuclear‑Rock.
+> tra 2200
+***
+ZAAAPPPPP!! You've been sent to the year 2200 A.D.
+> d ions 23232323
+***
+Set ions for Warrior to 23232323.
+> d m w
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cheese.
+***
+Waste-Mauler-998 is here.
+***
+Spawned 1 x Waste‑Mauler‑998 at your location.
+> look
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cheese.
+***
+Waste-Mauler-998 is here.
+> stat
+***
+Name: Warrior / Mutant Warrior
+Exhaustion    : 0
+Str: 23     Int: 12      Wis: 14
+Dex: 20     Con: 19      Cha: 9
+Hit Points    : 232326 / 232332
+Exp. Points   : 0  Level: 1
+Riblets       : 0
+Ions          : 23232323
+Wearing Armor : None  Armour Class: 2
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D.      : 2200
+
+You are carrying the following items:  (Total Weight: 60 LB's)
+A Nuclear‑Decay, A Nuclear‑Rock.
+> w
+You see rubble everywhere.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Bottle‑Cap, A Nuclear‑Decay.
+***
+You see shadows to the east.
+> e
+An eerie calm settles in the distance.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-998 is here.
+***
+The wastes made me. Now I break you.
+***
+Waste‑Mauler‑998 picks up Cheese.
+> e
+The two moons are rising above.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cigarette‑Butt.
+***
+You see shadows to the west.
+***
+You hear loud sounds of yelling and screaming to the west.
+***
+Waste‑Mauler‑998 has just arrived from the west.
+> stat
+***
+Name: Warrior / Mutant Warrior
+Exhaustion    : 0
+Str: 23     Int: 12      Wis: 14
+Dex: 20     Con: 19      Cha: 9
+Hit Points    : 232326 / 232332
+Exp. Points   : 0  Level: 1
+Riblets       : 0
+Ions          : 23232323
+Wearing Armor : None  Armour Class: 2
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D.      : 2200
+
+You are carrying the following items:  (Total Weight: 60 LB's)
+A Nuclear‑Decay, A Nuclear‑Rock.
+***
+Waste‑Mauler‑998 has hit you with his Cheese!
+> tra 2100
+***
+ZAAAPPPPP!! You've been sent to the year 2100 A.D.
+> x
+ 1. Mutant Thief    Level: 1   Year: 2000  ( 0  0)
+ 2. Mutant Priest   Level: 1   Year: 2000  ( 0  0)
+ 3. Mutant Wizard   Level: 1   Year: 2000  ( 0  0)
+ 4. Mutant Warrior  Level: 1   Year: 2100  ( 0  0)
+ 5. Mutant Mage     Level: 1   Year: 2000  ( 0  0)
+
+Type BURY [class number] to reset a player. Type X to exit.
+***
+Select (Bury, 1-5, ?) 3
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+> stat
+***
+Name: Wizard / Mutant Wizard
+Exhaustion    : 0
+Str: 14     Int: 17      Wis: 17
+Dex: 13     Con: 14      Cha: 15
+Hit Points    : 23 / 23
+Exp. Points   : 0  Level: 1
+Riblets       : 0
+Ions          : 30000
+Wearing Armor : None  Armour Class: 1
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D.      : 2000
+
+You are carrying the following items:  (Total Weight: 0 LB's)
+Nothing.
+> w
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+> w
+Graffiti lines the city walls.
+Compass: (-2E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+> s
+You're in a wrecked building.
+Compass: (-2E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+> s
+You see rubble everywhere.
+Compass: (-2E : -2N)
+north - area continues.
+east  - area continues.
+west  - open gate.
+***
+On the ground lies:
+An Ion‑Decay, A Nuclear‑Waste.
+> get n
+***
+You pick up the Nuclear‑Waste.
+> stat
+***
+Name: Wizard / Mutant Wizard
+Exhaustion    : 0
+Str: 14     Int: 17      Wis: 17
+Dex: 13     Con: 14      Cha: 15
+Hit Points    : 23 / 23
+Exp. Points   : 0  Level: 1
+Riblets       : 0
+Ions          : 30000
+Wearing Armor : None  Armour Class: 1
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D.      : 2000
+
+You are carrying the following items:  (Total Weight: 30 LB's)
+A Nuclear‑Waste.
+> get i
+***
+You pick up the Ion‑Decay.
+> x
+ 1. Mutant Thief    Level: 1   Year: 2000  ( 0  0)
+ 2. Mutant Priest   Level: 1   Year: 2000  ( 0  0)
+ 3. Mutant Wizard   Level: 1   Year: 2000  (‑2 ‑2)
+ 4. Mutant Warrior  Level: 1   Year: 2100  ( 0  0)
+ 5. Mutant Mage     Level: 1   Year: 2000  ( 0  0)
+
+Type BURY [class number] to reset a player. Type X to exit.
+***
+Select (Bury, 1-5, ?) 4
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Monster‑Bait.
+> stat
+***
+Name: Warrior / Mutant Warrior
+Exhaustion    : 0
+Str: 23     Int: 12      Wis: 14
+Dex: 20     Con: 19      Cha: 9
+Hit Points    : 232326 / 232332
+Exp. Points   : 0  Level: 1
+Riblets       : 0
+Ions          : 23229323
+Wearing Armor : None  Armour Class: 2
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D.      : 2100
+
+You are carrying the following items:  (Total Weight: 60 LB's)
+A Nuclear‑Decay, A Nuclear‑Rock.
+> w
+The street is cracked here.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+An Ion‑Decay.
+> e
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Monster‑Bait.
+> e
+An eerie calm settles in the distance.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Bottle‑Cap, A Cheese.
+> n
+An eerie calm settles in the distance.
+Compass: (1E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+> w m d
+Relics of the war line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Monster‑Bait.
+> look
+Relics of the war line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Monster‑Bait.
+> d m w
+Relics of the war line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Monster‑Bait.
+***
+Waste-Mauler-1001 is here.
+***
+Spawned 1 x Waste‑Mauler‑1001 at your location.
+> look
+Relics of the war line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Monster‑Bait.
+***
+Waste-Mauler-1001 is here.
+***
+The wastes made me. Now I break you.
+***
+Waste‑Mauler‑1001 has hit you with his Rebar‑Maul!
+> w
+Crumbling buildings surround you.
+Compass: (-1E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the east.
+***
+You hear loud sounds of yelling and screaming to the east.
+***
+Waste‑Mauler‑1001 has just arrived from the east.
+> x
+ 1. Mutant Thief    Level: 1   Year: 2000  ( 0  0)
+ 2. Mutant Priest   Level: 1   Year: 2000  ( 0  0)
+ 3. Mutant Wizard   Level: 1   Year: 2000  (‑2 ‑2)
+ 4. Mutant Warrior  Level: 1   Year: 2100  (‑1  1)
+ 5. Mutant Mage     Level: 1   Year: 2000  ( 0  0)
+
+Type BURY [class number] to reset a player. Type X to exit.
+***
+Select (Bury, 1-5, ?) 3
+You see rubble everywhere.
+Compass: (-2E : -2N)
+north - area continues.
+east  - area continues.
+west  - open gate.
+***
+Waste-Mauler-1001 is here.
+> stat
+***
+Name: Wizard / Mutant Wizard
+Exhaustion    : 0
+Str: 14     Int: 17      Wis: 17
+Dex: 13     Con: 14      Cha: 15
+Hit Points    : 23 / 23
+Exp. Points   : 0  Level: 1
+Riblets       : 0
+Ions          : 30000
+Wearing Armor : None  Armour Class: 1
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D.      : 2000
+
+You are carrying the following items:  (Total Weight: 40 LB's)
+A Nuclear‑Waste, An Ion‑Decay.
+> x
+ 1. Mutant Thief    Level: 1   Year: 2000  ( 0  0)
+ 2. Mutant Priest   Level: 1   Year: 2000  ( 0  0)
+ 3. Mutant Wizard   Level: 1   Year: 2000  (‑2 ‑2)
+ 4. Mutant Warrior  Level: 1   Year: 2100  (‑1  1)
+ 5. Mutant Mage     Level: 1   Year: 2000  ( 0  0)
+
+Type BURY [class number] to reset a player. Type X to exit.
+***
+Select (Bury, 1-5, ?) 4
+Crumbling buildings surround you.
+Compass: (-1E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-1001 is here.
+> stat
+***
+Name: Warrior / Mutant Warrior
+Exhaustion    : 0
+Str: 23     Int: 12      Wis: 14
+Dex: 20     Con: 19      Cha: 9
+Hit Points    : 232326 / 232332
+Exp. Points   : 0  Level: 1
+Riblets       : 0
+Ions          : 23229323
+Wearing Armor : None  Armour Class: 2
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D.      : 2100
+
+You are carrying the following items:  (Total Weight: 60 LB's)
+A Nuclear‑Decay, A Nuclear‑Rock.
+> w
+You're in a wrecked building.
+Compass: (-2E : 1N)
+north - area continues.
+east  - area continues.
+west  - open gate.
+***
+On the ground lies:
+An Ion‑Booster.
+***
+You see shadows to the east.
+> e
+Crumbling buildings surround you.
+Compass: (-1E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Waste-Mauler-1001 is here.
+***
+The wastes made me. Now I break you.
+***
+Waste‑Mauler‑1001 has hit you with his Rebar‑Maul!
+> w
+You're in a wrecked building.
+Compass: (-2E : 1N)
+north - area continues.
+east  - area continues.
+west  - open gate.
+***
+On the ground lies:
+An Ion‑Booster.
+***
+You see shadows to the east.
+***
+You hear loud sounds of yelling and screaming to the east.
+***
+Waste‑Mauler‑1001 has just arrived from the east.
+> w
+You're in a maintenance shop.
+Compass: (-3E : 1N)
+south - area continues.
+east  - open gate.
+west  - area continues.
+***
+On the ground lies:
+A Light‑Spear.
+***
+You see shadows to the east.
+***
+Waste‑Mauler‑1001 has just arrived from the east.
+> get l
+***
+You pick up the Light‑Spear.
+***
+Waste‑Mauler‑1001 has hit you with his Rebar‑Maul!
+> con lig
+***
+The Light‑Spear vanishes with a flash!
+You convert the Light‑Spear into 11000 ions.
+***
+Waste‑Mauler‑1001 has hit you with his Rebar‑Maul!
+> s
+Graffiti lines the city walls.
+Compass: (-3E : 0N)
+north - area continues.
+south - area continues.
+east  - open gate.
+***
+On the ground lies:
+A Cheese.
+***
+You see shadows to the north.
+***
+You hear loud sounds of yelling and screaming to the north.
+***
+Waste‑Mauler‑1001 has just arrived from the north.
+> w
+***
+You're blocked!
+***
+Waste‑Mauler‑1001 has hit you with his Rebar‑Smash!
+***
+You suffer 13 hit points of damage!
+> stat
+***
+Name: Warrior / Mutant Warrior
+Exhaustion    : 0
+Str: 23     Int: 12      Wis: 14
+Dex: 20     Con: 19      Cha: 9
+Hit Points    : 232313 / 232332
+Exp. Points   : 0  Level: 1
+Riblets       : 0
+Ions          : 23240323
+Wearing Armor : None  Armour Class: 2
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D.      : 2100
+
+You are carrying the following items:  (Total Weight: 60 LB's)
+A Nuclear‑Decay, A Nuclear‑Rock.
+***
+Waste‑Mauler‑1001 picks up Cheese.
+> s
+Broken glass covers the road.
+Compass: (-3E : -1N)
+north - area continues.
+south - area continues.
+west  - area continues.
+***
+You see shadows to the north.
+***
+You hear loud sounds of yelling and screaming to the north.
+***
+Waste‑Mauler‑1001 has just arrived from the north.
+> s
+The street is cracked here.
+Compass: (-3E : -2N)
+north - area continues.
+***
+You see shadows to the north.
+***
+Waste‑Mauler‑1001 has just arrived from the north.
+> e
+***
+You're blocked!
+***
+Waste‑Mauler‑1001 has hit you with his Cheese!
+> w
+***
+You're blocked!
+***
+Waste‑Mauler‑1001 has hit you with his Rebar‑Smash!
+***
+You suffer 13 hit points of damage!
+> look
+The street is cracked here.
+Compass: (-3E : -2N)
+north - area continues.
+***
+Waste-Mauler-1001 is here.
+***
+Waste‑Mauler‑1001 has hit you with his Cheese!
+> n
+Broken glass covers the road.
+Compass: (-3E : -1N)
+north - area continues.
+south - area continues.
+west  - area continues.
+***
+You see shadows to the south.
+***
+Waste‑Mauler‑1001 has just arrived from the south.
+> stat
+***
+Name: Warrior / Mutant Warrior
+Exhaustion    : 0
+Str: 23     Int: 12      Wis: 14
+Dex: 20     Con: 19      Cha: 9
+Hit Points    : 232300 / 232332
+Exp. Points   : 0  Level: 1
+Riblets       : 0
+Ions          : 23240323
+Wearing Armor : None  Armour Class: 2
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D.      : 2100
+
+You are carrying the following items:  (Total Weight: 60 LB's)
+A Nuclear‑Decay, A Nuclear‑Rock.
+***
+Waste‑Mauler‑1001 has hit you with his Cheese!
+> x
+ 1. Mutant Thief    Level: 1   Year: 2000  ( 0  0)
+ 2. Mutant Priest   Level: 1   Year: 2000  ( 0  0)
+ 3. Mutant Wizard   Level: 1   Year: 2000  (‑2 ‑2)
+ 4. Mutant Warrior  Level: 1   Year: 2100  (‑3 ‑1)
+ 5. Mutant Mage     Level: 1   Year: 2000  ( 0  0)
+
+Type BURY [class number] to reset a player. Type X to exit.
+***
+Select (Bury, 1-5, ?) 3
+You see rubble everywhere.
+Compass: (-2E : -2N)
+north - area continues.
+east  - area continues.
+west  - open gate.
+***
+Waste-Mauler-1001 is here.
+> w
+An old hydro line has fallen here.
+Compass: (-3E : -2N)
+north - area continues.
+east  - open gate.
+west  - open gate.
+***
+On the ground lies:
+A Cheese, A Light‑Spear.
+> e
+You see rubble everywhere.
+Compass: (-2E : -2N)
+north - area continues.
+east  - area continues.
+west  - open gate.
+> e
+The street is cracked here.
+Compass: (-1E : -2N)
+north - area continues.
+west  - area continues.
+> w
+You see rubble everywhere.
+Compass: (-2E : -2N)
+north - area continues.
+east  - area continues.
+west  - open gate.
+> w
+An old hydro line has fallen here.
+Compass: (-3E : -2N)
+north - area continues.
+east  - open gate.
+west  - open gate.
+***
+On the ground lies:
+A Cheese, A Light‑Spear.
+> s
+***
+You're blocked!
+> n
+A sign reads: FOR SALE $ 25,000
+Compass: (-3E : -1N)
+north - area continues.
+south - area continues.
+west  - area continues.
+> w
+An eerie calm settles in the distance.
+Compass: (-4E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+> e
+A sign reads: FOR SALE $ 25,000
+Compass: (-3E : -1N)
+north - area continues.
+south - area continues.
+west  - area continues.
+> e
+***
+You're blocked!
+> e
+***
+You're blocked!
+> n
+You're in a wrecked building.
+Compass: (-3E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear‑Waste.
+> e
+Graffiti lines the city walls.
+Compass: (-2E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+> e
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+> e
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+> w
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+> w
+Graffiti lines the city walls.
+Compass: (-2E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+> s
+You're in a wrecked building.
+Compass: (-2E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+> s
+You see rubble everywhere.
+Compass: (-2E : -2N)
+north - area continues.
+east  - area continues.
+west  - open gate.
+>
+***
+Type ? if you need assistance.
+> stat
+***
+Name: Wizard / Mutant Wizard
+Exhaustion    : 0
+Str: 14     Int: 17      Wis: 17
+Dex: 13     Con: 14      Cha: 15
+Hit Points    : 23 / 23
+Exp. Points   : 0  Level: 1
+Riblets       : 0
+Ions          : 30000
+Wearing Armor : None  Armour Class: 1
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D.      : 2000
+
+You are carrying the following items:  (Total Weight: 40 LB's)
+A Nuclear‑Waste, An Ion‑Decay.
+> x
+ 1. Mutant Thief    Level: 1   Year: 2000  ( 0  0)
+ 2. Mutant Priest   Level: 1   Year: 2000  ( 0  0)
+ 3. Mutant Wizard   Level: 1   Year: 2000  (‑2 ‑2)
+ 4. Mutant Warrior  Level: 1   Year: 2100  (‑3 ‑1)
+ 5. Mutant Mage     Level: 1   Year: 2000  ( 0  0)
+
+Type BURY [class number] to reset a player. Type X to exit.
+***
+Select (Bury, 1-5, ?) 4
+Broken glass covers the road.
+Compass: (-3E : -1N)
+north - area continues.
+south - area continues.
+west  - area continues.
+***
+Waste-Mauler-1001 is here.
+> stat
+***
+Name: Warrior / Mutant Warrior
+Exhaustion    : 0
+Str: 23     Int: 12      Wis: 14
+Dex: 20     Con: 19      Cha: 9
+Hit Points    : 232300 / 232332
+Exp. Points   : 0  Level: 1
+Riblets       : 0
+Ions          : 23240323
+Wearing Armor : None  Armour Class: 2
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D.      : 2100
+
+You are carrying the following items:  (Total Weight: 60 LB's)
+A Nuclear‑Decay, A Nuclear‑Rock.
+> com w
+***
+You ready yourself against Waste‑Mauler‑1001.
+> wie n
+***
+You've hit Waste‑Mauler‑1001 with your Nuclear‑Decay!
+***
+Waste‑Mauler‑1001 yells: Get away from me!
+***
+Waste‑Mauler‑1001 yells: Get away from me!
+> look
+Broken glass covers the road.
+Compass: (-3E : -1N)
+north - area continues.
+south - area continues.
+west  - area continues.
+***
+Waste-Mauler-1001 is here.
+***
+Waste‑Mauler‑1001 yells: Get away from me!
+***
+Waste‑Mauler‑1001 has just left south
+***
+You hear loud sounds of yelling and screaming to the south.
+***
+You hear loud sounds of footsteps to the south.
+> s
+The street is cracked here.
+Compass: (-3E : -2N)
+north - area continues.
+***
+Waste-Mauler-1001 is here.
+***
+Waste‑Mauler‑1001 yells: Get away from me!
+***
+Waste‑Mauler‑1001 yells: Get away from me!
+> stat
+The street is cracked here.
+Compass: (-3E : -2N)
+north - area continues.
+***
+Waste-Mauler-1001 is here.
+***
+Name: Warrior / Mutant Warrior
+Exhaustion    : 0
+Str: 23     Int: 12      Wis: 14
+Dex: 20     Con: 19      Cha: 9
+Hit Points    : 232300 / 232332
+Exp. Points   : 0  Level: 1
+Riblets       : 0
+Ions          : 23240323
+Wearing Armor : None  Armour Class: 2
+Ready to Combat: Waste‑Mauler‑1001
+Readied Spell  : No spell memorized.
+Year A.D.      : 2100
+
+You are carrying the following items:  (Total Weight: 60 LB's)
+A Nuclear‑Decay, A Nuclear‑Rock.
+***
+Waste‑Mauler‑1001 yells: Get away from me!
+***
+Waste‑Mauler‑1001 has just left north
+***
+You hear loud sounds of yelling and screaming to the north.
+***
+You hear loud sounds of footsteps to the north.
+>
+***
+Type ? if you need assistance.
+> n
+Broken glass covers the road.
+Compass: (-3E : -1N)
+north - area continues.
+south - area continues.
+west  - area continues.
+***
+Waste-Mauler-1001 is here.
+***
+Waste‑Mauler‑1001 yells: Get away from me!
+***
+Waste‑Mauler‑1001 yells: Get away from me!
+> look w
+You're in a wrecked building.
+Compass: (-4E : -1N)
+east  - area continues.
+west  - open gate.
+***
+Waste-Mauler-1001 is here.
+***
+Waste‑Mauler‑1001 yells: Get away from me!
+***
+Waste‑Mauler‑1001 yells: Get away from me!
+> look wa
+Broken glass covers the road.
+Compass: (-3E : -1N)
+north - area continues.
+south - area continues.
+west  - area continues.
+***
+Waste-Mauler-1001 is here.
+***
+Try north, south, east, or west.
+***
+Waste‑Mauler‑1001 yells: Get away from me!
+***
+Waste‑Mauler‑1001 has just left south
+***
+You hear loud sounds of footsteps to the south.
+***
+You hear loud sounds of yelling and screaming to the south.
+> s
+The street is cracked here.
+Compass: (-3E : -2N)
+north - area continues.
+***
+Waste-Mauler-1001 is here.
+***
+Waste‑Mauler‑1001 yells: Get away from me!
+> inv
+***
+You are carrying the following items:  (Total Weight: 60 LB's)
+A Nuclear‑Decay, A Nuclear‑Rock.
+***
+Waste‑Mauler‑1001 yells: Get away from me!
+***
+Waste‑Mauler‑1001 yells: Get away from me!
+> stat
+***
+Name: Warrior / Mutant Warrior
+Exhaustion    : 0
+Str: 23     Int: 12      Wis: 14
+Dex: 20     Con: 19      Cha: 9
+Hit Points    : 232300 / 232332
+Exp. Points   : 0  Level: 1
+Riblets       : 0
+Ions          : 23240323
+Wearing Armor : None  Armour Class: 2
+Ready to Combat: Waste‑Mauler‑1001
+Readied Spell  : No spell memorized.
+Year A.D.      : 2100
+
+You are carrying the following items:  (Total Weight: 60 LB's)
+A Nuclear‑Decay, A Nuclear‑Rock.
+***
+Waste‑Mauler‑1001 yells: Get away from me!
+***
+Waste‑Mauler‑1001 yells: Get away from me!
+> con nuclear-r
+***
+The Nuclear‑Rock vanishes with a flash!
+You convert the Nuclear‑Rock into 15000 ions.
+***
+Waste‑Mauler‑1001 yells: Get away from me!
+***
+Waste‑Mauler‑1001 yells: Get away from me!
+> look
+The street is cracked here.
+Compass: (-3E : -2N)
+north - area continues.
+***
+Waste-Mauler-1001 is here.
+***
+Waste‑Mauler‑1001 yells: Get away from me!
+***
+Waste‑Mauler‑1001 yells: Get away from me!
+> stat
+***
+Name: Warrior / Mutant Warrior
+Exhaustion    : 0
+Str: 23     Int: 12      Wis: 14
+Dex: 20     Con: 19      Cha: 9
+Hit Points    : 232300 / 232332
+Exp. Points   : 0  Level: 1
+Riblets       : 0
+Ions          : 23255323
+Wearing Armor : None  Armour Class: 2
+Ready to Combat: Waste‑Mauler‑1001
+Readied Spell  : No spell memorized.
+Year A.D.      : 2100
+
+You are carrying the following items:  (Total Weight: 50 LB's)
+A Nuclear‑Decay.
+***
+Waste‑Mauler‑1001 yells: Get away from me!
+***
+Waste‑Mauler‑1001 yells: Get away from me!
+> x
+ 1. Mutant Thief    Level: 1   Year: 2000  ( 0  0)
+ 2. Mutant Priest   Level: 1   Year: 2000  ( 0  0)
+ 3. Mutant Wizard   Level: 1   Year: 2000  (‑2 ‑2)
+ 4. Mutant Warrior  Level: 1   Year: 2100  (‑3 ‑2)
+ 5. Mutant Mage     Level: 1   Year: 2000  ( 0  0)
+
+Type BURY [class number] to reset a player. Type X to exit.
+***
+Select (Bury, 1-5, ?) 3
+You see rubble everywhere.
+Compass: (-2E : -2N)
+north - area continues.
+east  - area continues.
+west  - open gate.
+***
+Waste-Mauler-1001 is here.
+> stat
+***
+Name: Wizard / Mutant Wizard
+Exhaustion    : 0
+Str: 14     Int: 17      Wis: 17
+Dex: 13     Con: 14      Cha: 15
+Hit Points    : 23 / 23
+Exp. Points   : 0  Level: 1
+Riblets       : 0
+Ions          : 30000
+Wearing Armor : None  Armour Class: 1
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D.      : 2000
+
+You are carrying the following items:  (Total Weight: 40 LB's)
+A Nuclear‑Waste, An Ion‑Decay.
+> x
+ 1. Mutant Thief    Level: 1   Year: 2000  ( 0  0)
+ 2. Mutant Priest   Level: 1   Year: 2000  ( 0  0)
+ 3. Mutant Wizard   Level: 1   Year: 2000  (‑2 ‑2)
+ 4. Mutant Warrior  Level: 1   Year: 2100  (‑3 ‑2)
+ 5. Mutant Mage     Level: 1   Year: 2000  ( 0  0)
+
+Type BURY [class number] to reset a player. Type X to exit.
+***
+Select (Bury, 1-5, ?) 1
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+> stat
+***
+Name: Thief / Mutant Thief
+Exhaustion    : 0
+Str: 15     Int: 9       Wis: 8
+Dex: 14     Con: 15      Cha: 16
+Hit Points    : 18 / 18
+Exp. Points   : 0  Level: 1
+Riblets       : 0
+Ions          : 30000
+Wearing Armor : None  Armour Class: 1
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D.      : 2000
+
+You are carrying the following items:  (Total Weight: 0 LB's)
+Nothing.
+> w
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+> w
+Graffiti lines the city walls.
+Compass: (-2E : 0N)
+south - area continues.
+east  - area continues.
+west  - area continues.
+> e
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+> s
+Crumbling buildings surround you.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Scrap‑Armour.
+> get sc
+***
+You pick up the Scrap‑Armour.
+> x
+ 1. Mutant Thief    Level: 1   Year: 2000  (‑1 ‑1)
+ 2. Mutant Priest   Level: 1   Year: 2000  ( 0  0)
+ 3. Mutant Wizard   Level: 1   Year: 2000  (‑2 ‑2)
+ 4. Mutant Warrior  Level: 1   Year: 2100  (‑3 ‑2)
+ 5. Mutant Mage     Level: 1   Year: 2000  ( 0  0)
+
+Type BURY [class number] to reset a player. Type X to exit.
+***
+Select (Bury, 1-5, ?) 5
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+> e
+The street is cracked here.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+> d b n
+***
+Usage: debug add <item_id> [qty] | debug monster <monster_id> | debug where | debug count | debug ions <amount> | debug riblets <amount> | debug hp <amount> | debug set <key> <value>
+> d add n
+***
+spawned 1 x nuclear_decay at (2000, 1, 0) [96ed8e85324844d48ae97d8e1908ecfa]
+> get n
+***
+You pick up the Nuclear‑Decay.
+> stat
+***
+Name: Mage / Mutant Mage
+Exhaustion    : 0
+Str: 18     Int: 23      Wis: 20
+Dex: 16     Con: 15      Cha: 20
+Hit Points    : 28 / 28
+Exp. Points   : 0  Level: 1
+Riblets       : 0
+Ions          : 30000
+Wearing Armor : None  Armour Class: 1
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D.      : 2000
+
+You are carrying the following items:  (Total Weight: 50 LB's)
+A Nuclear‑Decay.
+> look
+The street is cracked here.
+Compass: (1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+> e
+Crumbling buildings surround you.
+Compass: (2E : 0N)
+east  - open gate.
+west  - area continues.
+***
+You see shadows to the east.
+> look ea
+Graffiti lines the city walls.
+Compass: (3E : 0N)
+north - area continues.
+south - area continues.
+west  - open gate.
+***
+Waste-Mauler-995 is here.
+> d hp 23232
+***
+Set HP for Mage to 23232 / 23232.
+> e
+Graffiti lines the city walls.
+Compass: (3E : 0N)
+north - area continues.
+south - area continues.
+west  - open gate.
+***
+Waste-Mauler-995 is here.
+***
+The wastes made me. Now I break you.
+***
+Waste‑Mauler‑995 yells: Get away from me!
+> com w
+Graffiti lines the city walls.
+Compass: (3E : 0N)
+north - area continues.
+south - area continues.
+west  - open gate.
+***
+Waste-Mauler-995 is here.
+***
+You ready yourself against Waste‑Mauler‑995.
+***
+Waste‑Mauler‑995 yells: Get away from me!
+***
+Waste‑Mauler‑995 has just left south
+***
+You hear loud sounds of yelling and screaming to the south.
+***
+You hear loud sounds of footsteps to the south.
+> s
+Broken glass covers the road.
+Compass: (3E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+Waste-Mauler-995 is here.
+***
+Waste‑Mauler‑995 yells: Get away from me!
+***
+Waste‑Mauler‑995 yells: Get away from me!
+> wie n
+***
+You've hit Waste‑Mauler‑995 with your Nuclear‑Decay!
+***
+You have slain Waste‑Mauler‑995!
+Your experience points are increased by 28!
+You collect 9 Riblets and 10103 ions from the slain body.
+***
+
+A Rebar‑Maul is falling from Waste‑Mauler‑995's body!
+***
+A Radioactive‑Fang is falling from Waste‑Mauler‑995's body!
+***
+A Skull is falling from Waste‑Mauler‑995's body!
+***
+A Spiked‑Plating is falling from Waste‑Mauler‑995's body!
+***
+Waste‑Mauler‑995 is crumbling to dust!
+>
+***
+Type ? if you need assistance.
+> look
+Broken glass covers the road.
+Compass: (3E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+On the ground lies:
+A Rebar‑Maul, A Radioactive‑Fang, A Skull, A Spiked‑Plating.
+> get sp
+***
+You pick up the Spiked‑Plating.
+> wear spi
+***
+You've just put on the Spiked‑Plating.
+> stat
+***
+Name: Mage / Mutant Mage
+Exhaustion    : 0
+Str: 18     Int: 23      Wis: 20
+Dex: 16     Con: 15      Cha: 20
+Hit Points    : 23232 / 23232
+Exp. Points   : 28  Level: 1
+Riblets       : 9
+Ions          : 40103
+Wearing Armor : Spiked‑Plating  Armour Class: 7
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D.      : 2000
+
+You are carrying the following items:  (Total Weight: 50 LB's)
+A Nuclear‑Decay.
+> x
+ 1. Mutant Thief    Level: 1   Year: 2000  (‑1 ‑1)
+ 2. Mutant Priest   Level: 1   Year: 2000  ( 0  0)
+ 3. Mutant Wizard   Level: 1   Year: 2000  (‑2 ‑2)
+ 4. Mutant Warrior  Level: 1   Year: 2100  (‑3 ‑2)
+ 5. Mutant Mage     Level: 1   Year: 2000  ( 3 ‑1)
+
+Type BURY [class number] to reset a player. Type X to exit.
+***
+Select (Bury, 1-5, ?) 3
+You see rubble everywhere.
+Compass: (-2E : -2N)
+north - area continues.
+east  - area continues.
+west  - open gate.
+> stat
+***
+Name: Wizard / Mutant Wizard
+Exhaustion    : 0
+Str: 14     Int: 17      Wis: 17
+Dex: 13     Con: 14      Cha: 15
+Hit Points    : 23 / 23
+Exp. Points   : 0  Level: 1
+Riblets       : 0
+Ions          : 30000
+Wearing Armor : None  Armour Class: 1
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D.      : 2000
+
+You are carrying the following items:  (Total Weight: 40 LB's)
+A Nuclear‑Waste, An Ion‑Decay.
+> x
+ 1. Mutant Thief    Level: 1   Year: 2000  (‑1 ‑1)
+ 2. Mutant Priest   Level: 1   Year: 2000  ( 0  0)
+ 3. Mutant Wizard   Level: 1   Year: 2000  (‑2 ‑2)
+ 4. Mutant Warrior  Level: 1   Year: 2100  (‑3 ‑2)
+ 5. Mutant Mage     Level: 1   Year: 2000  ( 3 ‑1)
+
+Type BURY [class number] to reset a player. Type X to exit.
+***
+Select (Bury, 1-5, ?) 4
+The street is cracked here.
+Compass: (-3E : -2N)
+north - area continues.
+***
+Waste-Mauler-1001 is here.
+> stat
+***
+Name: Warrior / Mutant Warrior
+Exhaustion    : 0
+Str: 23     Int: 12      Wis: 14
+Dex: 20     Con: 19      Cha: 9
+Hit Points    : 232300 / 232332
+Exp. Points   : 0  Level: 1
+Riblets       : 0
+Ions          : 23255323
+Wearing Armor : None  Armour Class: 2
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D.      : 2100
+
+You are carrying the following items:  (Total Weight: 50 LB's)
+A Nuclear‑Decay.
+> inv
+***
+You are carrying the following items:  (Total Weight: 50 LB's)
+A Nuclear‑Decay.
+> x
+ 1. Mutant Thief    Level: 1   Year: 2000  (‑1 ‑1)
+ 2. Mutant Priest   Level: 1   Year: 2000  ( 0  0)
+ 3. Mutant Wizard   Level: 1   Year: 2000  (‑2 ‑2)
+ 4. Mutant Warrior  Level: 1   Year: 2100  (‑3 ‑2)
+ 5. Mutant Mage     Level: 1   Year: 2000  ( 3 ‑1)
+
+Type BURY [class number] to reset a player. Type X to exit.
+***
+Select (Bury, 1-5, ?) 3
+You see rubble everywhere.
+Compass: (-2E : -2N)
+north - area continues.
+east  - area continues.
+west  - open gate.
+***
+Waste-Mauler-1001 is here.
+> inv
+***
+You are carrying the following items:  (Total Weight: 40 LB's)
+A Nuclear‑Waste, An Ion‑Decay.
+> x
+ 1. Mutant Thief    Level: 1   Year: 2000  (‑1 ‑1)
+ 2. Mutant Priest   Level: 1   Year: 2000  ( 0  0)
+ 3. Mutant Wizard   Level: 1   Year: 2000  (‑2 ‑2)
+ 4. Mutant Warrior  Level: 1   Year: 2100  (‑3 ‑2)
+ 5. Mutant Mage     Level: 1   Year: 2000  ( 3 ‑1)
+
+Type BURY [class number] to reset a player. Type X to exit.
+***
+Select (Bury, 1-5, ?) 4
+The street is cracked here.
+Compass: (-3E : -2N)
+north - area continues.
+***
+Waste-Mauler-1001 is here.
+> com w
+***
+You ready yourself against Waste‑Mauler‑1001.
+> stat
+***
+Name: Warrior / Mutant Warrior
+Exhaustion    : 0
+Str: 23     Int: 12      Wis: 14
+Dex: 20     Con: 19      Cha: 9
+Hit Points    : 232300 / 232332
+Exp. Points   : 0  Level: 1
+Riblets       : 0
+Ions          : 23255323
+Wearing Armor : None  Armour Class: 2
+Ready to Combat: Waste‑Mauler‑1001
+Readied Spell  : No spell memorized.
+Year A.D.      : 2100
+
+You are carrying the following items:  (Total Weight: 50 LB's)
+A Nuclear‑Decay.
+> wie n
+***
+You've hit Waste‑Mauler‑1001 with your Nuclear‑Decay!
+***
+You have slain Waste‑Mauler‑1001!
+Your experience points are increased by 28!
+You collect 4 Riblets and 8497 ions from the slain body.
+***
+
+A Rebar‑Maul is falling from Waste‑Mauler‑1001's body!
+***
+A Radioactive‑Fang is falling from Waste‑Mauler‑1001's body!
+***
+A Cheese is falling from Waste‑Mauler‑1001's body!
+***
+A Skull is falling from Waste‑Mauler‑1001's body!
+***
+A Spiked‑Plating is falling from Waste‑Mauler‑1001's body!
+***
+Waste‑Mauler‑1001 is crumbling to dust!
+> get ch
+***
+You pick up the Cheese.
+> get re
+***
+You pick up the Rebar‑Maul.
+> look
+The street is cracked here.
+Compass: (-3E : -2N)
+north - area continues.
+***
+On the ground lies:
+A Radioactive‑Fang, A Skull, A Spiked‑Plating.
+> stat
+***
+Name: Warrior / Mutant Warrior
+Exhaustion    : 0
+Str: 23     Int: 12      Wis: 14
+Dex: 20     Con: 19      Cha: 9
+Hit Points    : 232300 / 232332
+Exp. Points   : 28  Level: 1
+Riblets       : 4
+Ions          : 23263820
+Wearing Armor : None  Armour Class: 2
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D.      : 2100
+
+You are carrying the following items:  (Total Weight: 65 LB's)
+A Nuclear‑Decay, A Cheese, A Rebar‑Maul.
+> n
+Broken glass covers the road.
+Compass: (-3E : -1N)
+north - area continues.
+south - area continues.
+west  - area continues.
+> n
+Graffiti lines the city walls.
+Compass: (-3E : 0N)
+north - area continues.
+south - area continues.
+east  - open gate.
+> e
+Crumbling buildings surround you.
+Compass: (-2E : 0N)
+east  - area continues.
+west  - open gate.
+> e
+The street is cracked here.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+An Ion‑Decay.
+> n
+Crumbling buildings surround you.
+Compass: (-1E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+> e
+Relics of the war line the streets.
+Compass: (0E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Monster‑Bait.
+> e
+An eerie calm settles in the distance.
+Compass: (1E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+> e
+City Trading Centre.
+Compass: (2E : 1N)
+north - open gate.
+east  - open gate.
+west  - area continues.
+***
+On the ground lies:
+An Ion‑Booster.
+> stat
+***
+Name: Warrior / Mutant Warrior
+Exhaustion    : 0
+Str: 23     Int: 12      Wis: 14
+Dex: 20     Con: 19      Cha: 9
+Hit Points    : 232300 / 232332
+Exp. Points   : 28  Level: 1
+Riblets       : 4
+Ions          : 23263820
+Wearing Armor : None  Armour Class: 2
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D.      : 2100
+
+You are carrying the following items:  (Total Weight: 65 LB's)
+A Nuclear‑Decay, A Cheese, A Rebar‑Maul.
+> x
+ 1. Mutant Thief    Level: 1   Year: 2000  (‑1 ‑1)
+ 2. Mutant Priest   Level: 1   Year: 2000  ( 0  0)
+ 3. Mutant Wizard   Level: 1   Year: 2000  (‑2 ‑2)
+ 4. Mutant Warrior  Level: 1   Year: 2100  ( 2  1)
+ 5. Mutant Mage     Level: 1   Year: 2000  ( 3 ‑1)
+
+Type BURY [class number] to reset a player. Type X to exit.
+***
+Select (Bury, 1-5, ?) 5
+Broken glass covers the road.
+Compass: (3E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+On the ground lies:
+A Rebar‑Maul, A Radioactive‑Fang, A Skull.
+> stat
+***
+Name: Mage / Mutant Mage
+Exhaustion    : 0
+Str: 18     Int: 23      Wis: 20
+Dex: 16     Con: 15      Cha: 20
+Hit Points    : 23232 / 23232
+Exp. Points   : 28  Level: 1
+Riblets       : 9
+Ions          : 40103
+Wearing Armor : Spiked‑Plating  Armour Class: 7
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D.      : 2000
+
+You are carrying the following items:  (Total Weight: 50 LB's)
+A Nuclear‑Decay.
+> inv
+***
+You are carrying the following items:  (Total Weight: 50 LB's)
+A Nuclear‑Decay.
+> x
+ 1. Mutant Thief    Level: 1   Year: 2000  (‑1 ‑1)
+ 2. Mutant Priest   Level: 1   Year: 2000  ( 0  0)
+ 3. Mutant Wizard   Level: 1   Year: 2000  (‑2 ‑2)
+ 4. Mutant Warrior  Level: 1   Year: 2100  ( 2  1)
+ 5. Mutant Mage     Level: 1   Year: 2000  ( 3 ‑1)
+
+Type BURY [class number] to reset a player. Type X to exit.
+***
+Select (Bury, 1-5, ?) 4
+City Trading Centre.
+Compass: (2E : 1N)
+north - open gate.
+east  - open gate.
+west  - area continues.
+***
+On the ground lies:
+An Ion‑Booster.
+> stat
+***
+Name: Warrior / Mutant Warrior
+Exhaustion    : 0
+Str: 23     Int: 12      Wis: 14
+Dex: 20     Con: 19      Cha: 9
+Hit Points    : 232300 / 232332
+Exp. Points   : 28  Level: 1
+Riblets       : 4
+Ions          : 23263820
+Wearing Armor : None  Armour Class: 2
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D.      : 2100
+
+You are carrying the following items:  (Total Weight: 65 LB's)
+A Nuclear‑Decay, A Cheese, A Rebar‑Maul.
+> inv
+***
+You are carrying the following items:  (Total Weight: 65 LB's)
+A Nuclear‑Decay, A Cheese, A Rebar‑Maul.
+> x
+ 1. Mutant Thief    Level: 1   Year: 2000  (‑1 ‑1)
+ 2. Mutant Priest   Level: 1   Year: 2000  ( 0  0)
+ 3. Mutant Wizard   Level: 1   Year: 2000  (‑2 ‑2)
+ 4. Mutant Warrior  Level: 1   Year: 2100  ( 2  1)
+ 5. Mutant Mage     Level: 1   Year: 2000  ( 3 ‑1)
+
+Type BURY [class number] to reset a player. Type X to exit.
+***
+Select (Bury, 1-5, ?) 3
+You see rubble everywhere.
+Compass: (-2E : -2N)
+north - area continues.
+east  - area continues.
+west  - open gate.
+> stat
+***
+Name: Wizard / Mutant Wizard
+Exhaustion    : 0
+Str: 14     Int: 17      Wis: 17
+Dex: 13     Con: 14      Cha: 15
+Hit Points    : 23 / 23
+Exp. Points   : 0  Level: 1
+Riblets       : 0
+Ions          : 30000
+Wearing Armor : None  Armour Class: 1
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D.      : 2000
+
+You are carrying the following items:  (Total Weight: 40 LB's)
+A Nuclear‑Waste, An Ion‑Decay.
+> inv
+***
+You are carrying the following items:  (Total Weight: 40 LB's)
+A Nuclear‑Waste, An Ion‑Decay.
+> x
+ 1. Mutant Thief    Level: 1   Year: 2000  (‑1 ‑1)
+ 2. Mutant Priest   Level: 1   Year: 2000  ( 0  0)
+ 3. Mutant Wizard   Level: 1   Year: 2000  (‑2 ‑2)
+ 4. Mutant Warrior  Level: 1   Year: 2100  ( 2  1)
+ 5. Mutant Mage     Level: 1   Year: 2000  ( 3 ‑1)
+
+Type BURY [class number] to reset a player. Type X to exit.
+***
+Select (Bury, 1-5, ?) 4
+City Trading Centre.
+Compass: (2E : 1N)
+north - open gate.
+east  - open gate.
+west  - area continues.
+***
+On the ground lies:
+An Ion‑Booster.
+> stat
+***
+Name: Warrior / Mutant Warrior
+Exhaustion    : 0
+Str: 23     Int: 12      Wis: 14
+Dex: 20     Con: 19      Cha: 9
+Hit Points    : 232300 / 232332
+Exp. Points   : 28  Level: 1
+Riblets       : 4
+Ions          : 23263820
+Wearing Armor : None  Armour Class: 2
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D.      : 2100
+
+You are carrying the following items:  (Total Weight: 65 LB's)
+A Nuclear‑Decay, A Cheese, A Rebar‑Maul.
+> tra 2400
+***
+ZAAAPPPPP!! You've been sent to the year 2400 A.D.
+> d m i
+Crumbling buildings surround you.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+An Ion‑Booster.
+***
+Ion-Archivist-480 is here.
+***
+Spawned 1 x Ion‑Archivist‑480 at your location.
+> w
+The street is cracked here.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the east.
+> look ea
+Crumbling buildings surround you.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+An Ion‑Booster.
+***
+Ion-Archivist-480 is here.
+> e
+Crumbling buildings surround you.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+An Ion‑Booster.
+***
+Ion-Archivist-480 is here.
+***
+Knowledge is voltage. You are unshielded.
+***
+Ion‑Archivist‑480 is getting ready to combat you!
+***
+Ion‑Archivist‑480 has hit you with his Archivist‑Focus!
+> w
+The street is cracked here.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the east.
+***
+You hear loud sounds of yelling and screaming to the east.
+***
+Ion‑Archivist‑480 has just arrived from the east.
+> com i
+***
+You ready yourself against Ion‑Archivist‑480.
+***
+Ion‑Archivist‑480 has hit you with his Archivist‑Focus!
+> wie n
+***
+You've hit Ion‑Archivist‑480 with your Nuclear‑Decay!
+***
+Ion‑Archivist‑480's body is glowing!
+> look
+The street is cracked here.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Ion-Archivist-480 is here.
+***
+Ion‑Archivist‑480 yells: Get away from me!
+***
+Ion‑Archivist‑480 has just left north
+***
+You hear loud sounds of footsteps to the north.
+***
+You hear loud sounds of yelling and screaming to the north.
+> inv
+The street is cracked here.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the north.
+***
+You are carrying the following items:  (Total Weight: 65 LB's)
+A Nuclear‑Decay, A Cheese, A Rebar‑Maul.
+***
+You hear faint sounds of yelling and screaming far to the north.
+***
+You hear faint sounds of footsteps far to the north.
+> n
+You feel a cold breeze.
+Compass: (-1E : 1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Short‑Sword, A Cheese.
+***
+You see shadows to the north.
+> n
+An old hydro line has fallen here.
+Compass: (-1E : 2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Gold‑Chunk.
+***
+Ion-Archivist-480 is here.
+***
+Ion‑Archivist‑480 yells: Get away from me!
+> stat
+An old hydro line has fallen here.
+Compass: (-1E : 2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Gold‑Chunk.
+***
+Ion-Archivist-480 is here.
+***
+Name: Warrior / Mutant Warrior
+Exhaustion    : 0
+Str: 23     Int: 12      Wis: 14
+Dex: 20     Con: 19      Cha: 9
+Hit Points    : 232300 / 232332
+Exp. Points   : 28  Level: 1
+Riblets       : 4
+Ions          : 23254820
+Wearing Armor : None  Armour Class: 2
+Ready to Combat: Ion‑Archivist‑480
+Readied Spell  : No spell memorized.
+Year A.D.      : 2400
+
+You are carrying the following items:  (Total Weight: 65 LB's)
+A Nuclear‑Decay, A Cheese, A Rebar‑Maul.
+***
+Ion‑Archivist‑480 yells: Get away from me!
+***
+Ion‑Archivist‑480 has just left west
+***
+You hear loud sounds of yelling and screaming to the west.
+***
+You hear loud sounds of footsteps to the west.
+> w
+Graffiti lines the city walls.
+Compass: (-2E : 2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Ion-Archivist-480 is here.
+***
+Ion‑Archivist‑480 yells: Get away from me!
+> stat
+Graffiti lines the city walls.
+Compass: (-2E : 2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+Ion-Archivist-480 is here.
+***
+Name: Warrior / Mutant Warrior
+Exhaustion    : 0
+Str: 23     Int: 12      Wis: 14
+Dex: 20     Con: 19      Cha: 9
+Hit Points    : 232300 / 232332
+Exp. Points   : 28  Level: 1
+Riblets       : 4
+Ions          : 23254820
+Wearing Armor : None  Armour Class: 2
+Ready to Combat: Ion‑Archivist‑480
+Readied Spell  : No spell memorized.
+Year A.D.      : 2400
+
+You are carrying the following items:  (Total Weight: 65 LB's)
+A Nuclear‑Decay, A Cheese, A Rebar‑Maul.
+***
+Ion‑Archivist‑480 yells: Get away from me!
+***
+Ion‑Archivist‑480 has just left east
+***
+You hear loud sounds of yelling and screaming to the east.
+***
+You hear loud sounds of footsteps to the east.
+> debug add lightn
+Graffiti lines the city walls.
+Compass: (-2E : 2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Lightning‑Rod.
+***
+You see shadows to the east.
+***
+spawned 1 x lightning‑rod at (2400, ‑2, 2) [b8d0150b49b84b56870a3694bd7b6e4e]
+***
+You hear faint sounds of footsteps far to the east.
+> get l
+Graffiti lines the city walls.
+Compass: (-2E : 2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You pick up the Lightning‑Rod.
+***
+You hear faint sounds of yelling and screaming far to the east.
+***
+You hear faint sounds of footsteps far to the east.
+> poi e l
+Graffiti lines the city walls.
+Compass: (-2E : 2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You release the Lightning‑Rod east!
+***
+You strike Ion‑Archivist‑480 for 6 damage.
+***
+You hear faint sounds of yelling and screaming far to the east.
+***
+You hear faint sounds of footsteps far to the east.
+> e
+An old hydro line has fallen here.
+Compass: (-1E : 2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Gold‑Chunk.
+***
+You hear faint sounds of yelling and screaming far to the east.
+***
+You hear faint sounds of footsteps far to the east.
+> e
+You're in an abandoned building.
+Compass: (0E : 2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You hear faint sounds of yelling and screaming far to the east.
+***
+You hear faint sounds of footsteps far to the east.
+> e
+Graffiti lines the city walls.
+Compass: (1E : 2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cigarette‑Butt.
+> e
+You see rubble everywhere.
+Compass: (2E : 2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+An Ion‑Pack.
+***
+You hear faint sounds of yelling and screaming far to the east.
+***
+You hear faint sounds of footsteps far to the east.
+> poi e l
+***
+You release the Lightning‑Rod east!
+***
+You strike Ion‑Archivist‑480 for 6 damage.
+> e
+The wind is whistling through open windows.
+Compass: (3E : 2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You hear faint sounds of yelling and screaming far to the east.
+***
+You hear faint sounds of footsteps far to the east.
+> e
+Graffiti lines the city walls.
+Compass: (4E : 2N)
+north - open gate.
+south - open gate.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear‑Decay.
+***
+You hear faint sounds of yelling and screaming far to the east.
+***
+You hear faint sounds of footsteps far to the east.
+> e
+City Trading Centre.
+Compass: (5E : 2N)
+north - open gate.
+south - open gate.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Nuclear‑Waste.
+***
+You hear faint sounds of yelling and screaming far to the east.
+***
+You hear faint sounds of footsteps far to the east.
+> e
+City Trading Centre.
+Compass: (6E : 2N)
+north - area continues.
+south - open gate.
+east  - area continues.
+west  - area continues.
+***
+You hear faint sounds of yelling and screaming far to the east.
+***
+You hear faint sounds of footsteps far to the east.
+> e
+City Trading Centre.
+Compass: (7E : 2N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+You hear faint sounds of yelling and screaming far to the east.
+***
+You hear faint sounds of footsteps far to the east.
+> e
+You're in a maintenance shop.
+Compass: (8E : 2N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+You hear faint sounds of yelling and screaming far to the east.
+***
+You hear faint sounds of footsteps far to the east.
+> e
+You see rubble everywhere.
+Compass: (9E : 2N)
+east  - area continues.
+west  - area continues.
+> e
+The street is cracked here.
+Compass: (10E : 2N)
+north - open gate.
+south - area continues.
+east  - open gate.
+west  - area continues.
+***
+You see shadows to the east.
+***
+You hear faint sounds of footsteps far to the east.
+> e
+You see rubble everywhere.
+Compass: (11E : 2N)
+north - area continues.
+south - open gate.
+east  - area continues.
+west  - open gate.
+***
+You see shadows to the east.
+***
+You hear faint sounds of yelling and screaming far to the east.
+***
+You hear faint sounds of footsteps far to the east.
+> e
+Relics of the war line the streets.
+Compass: (12E : 2N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the east.
+***
+You hear faint sounds of yelling and screaming far to the east.
+***
+You hear faint sounds of footsteps far to the east.
+> e
+The two moons are rising above.
+Compass: (13E : 2N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+You see shadows to the east.
+> e
+The two moons are rising above.
+Compass: (14E : 2N)
+north - open gate.
+west  - area continues.
+***
+Ion-Archivist-480 is here.
+***
+Ion‑Archivist‑480 yells: Get away from me!
+***
+Ion‑Archivist‑480 has just left west
+***
+You hear loud sounds of footsteps to the west.
+> e
+The two moons are rising above.
+Compass: (14E : 2N)
+north - open gate.
+west  - area continues.
+***
+You see shadows to the west.
+***
+You're blocked!
+***
+You hear faint sounds of yelling and screaming far to the west.
+***
+You hear faint sounds of footsteps far to the west.
+> poi w l
+***
+You release the Lightning‑Rod west!
+***
+You strike Ion‑Archivist‑480 for 6 damage.
+***
+You have slain Ion‑Archivist‑480!
+Your experience points are increased by 32!
+You collect 8 Riblets and 7394 ions from the slain body.
+***
+
+A Archivist‑Focus is falling from Ion‑Archivist‑480's body!
+***
+A Capacitor‑Charm is falling from Ion‑Archivist‑480's body!
+***
+A Skull is falling from Ion‑Archivist‑480's body!
+***
+A Data‑Cowl is falling from Ion‑Archivist‑480's body!
+***
+Ion‑Archivist‑480 is crumbling to dust!
+> w
+The two moons are rising above.
+Compass: (13E : 2N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+> w
+Relics of the war line the streets.
+Compass: (12E : 2N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+An Archivist‑Focus, A Capacitor‑Charm, A Skull, A Data‑Cowl.
+> stat
+***
+Name: Warrior / Mutant Warrior
+Exhaustion    : 0
+Str: 23     Int: 12      Wis: 14
+Dex: 20     Con: 19      Cha: 9
+Hit Points    : 232300 / 232332
+Exp. Points   : 60  Level: 1
+Riblets       : 12
+Ions          : 23262214
+Wearing Armor : None  Armour Class: 2
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D.      : 2400
+
+You are carrying the following items:  (Total Weight: 66 LB's)
+A Nuclear‑Decay, A Cheese, A Rebar‑Maul, A Lightning‑Rod.
+> get data
+***
+You pick up the Data‑Cowl.
+> wea data
+***
+You've just put on the Data‑Cowl.
+> stat
+***
+Name: Warrior / Mutant Warrior
+Exhaustion    : 0
+Str: 23     Int: 12      Wis: 14
+Dex: 20     Con: 19      Cha: 9
+Hit Points    : 232300 / 232332
+Exp. Points   : 60  Level: 1
+Riblets       : 12
+Ions          : 23262214
+Wearing Armor : Data‑Cowl  Armour Class: 7
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D.      : 2400
+
+You are carrying the following items:  (Total Weight: 66 LB's)
+A Nuclear‑Decay, A Cheese, A Rebar‑Maul, A Lightning‑Rod.
+> x
+ 1. Mutant Thief    Level: 1   Year: 2000  (‑1 ‑1)
+ 2. Mutant Priest   Level: 1   Year: 2000  ( 0  0)
+ 3. Mutant Wizard   Level: 1   Year: 2000  (‑2 ‑2)
+ 4. Mutant Warrior  Level: 1   Year: 2400  (12  2)
+ 5. Mutant Mage     Level: 1   Year: 2000  ( 3 ‑1)
+
+Type BURY [class number] to reset a player. Type X to exit.
+***
+Select (Bury, 1-5, ?) 4
+Relics of the war line the streets.
+Compass: (12E : 2N)
+north - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+An Archivist‑Focus, A Capacitor‑Charm, A Skull.
+> stat
+***
+Name: Warrior / Mutant Warrior
+Exhaustion    : 0
+Str: 23     Int: 12      Wis: 14
+Dex: 20     Con: 19      Cha: 9
+Hit Points    : 232300 / 232332
+Exp. Points   : 60  Level: 1
+Riblets       : 12
+Ions          : 23262214
+Wearing Armor : Data‑Cowl  Armour Class: 7
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D.      : 2400
+
+You are carrying the following items:  (Total Weight: 66 LB's)
+A Nuclear‑Decay, A Cheese, A Rebar‑Maul, A Lightning‑Rod.
+> inv
+***
+You are carrying the following items:  (Total Weight: 66 LB's)
+A Nuclear‑Decay, A Cheese, A Rebar‑Maul, A Lightning‑Rod.
+> x
+ 1. Mutant Thief    Level: 1   Year: 2000  (‑1 ‑1)
+ 2. Mutant Priest   Level: 1   Year: 2000  ( 0  0)
+ 3. Mutant Wizard   Level: 1   Year: 2000  (‑2 ‑2)
+ 4. Mutant Warrior  Level: 1   Year: 2400  (12  2)
+ 5. Mutant Mage     Level: 1   Year: 2000  ( 3 ‑1)
+
+Type BURY [class number] to reset a player. Type X to exit.
+***
+Select (Bury, 1-5, ?) 5
+Broken glass covers the road.
+Compass: (3E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+***
+On the ground lies:
+A Rebar‑Maul, A Radioactive‑Fang, A Skull.
+> inv
+***
+You are carrying the following items:  (Total Weight: 50 LB's)
+A Nuclear‑Decay.
+> x
+ 1. Mutant Thief    Level: 1   Year: 2000  (‑1 ‑1)
+ 2. Mutant Priest   Level: 1   Year: 2000  ( 0  0)
+ 3. Mutant Wizard   Level: 1   Year: 2000  (‑2 ‑2)
+ 4. Mutant Warrior  Level: 1   Year: 2400  (12  2)
+ 5. Mutant Mage     Level: 1   Year: 2000  ( 3 ‑1)
+
+Type BURY [class number] to reset a player. Type X to exit.
+***
+Select (Bury, 1-5, ?) 3
+You see rubble everywhere.
+Compass: (-2E : -2N)
+north - area continues.
+east  - area continues.
+west  - open gate.
+> inv
+***
+You are carrying the following items:  (Total Weight: 40 LB's)
+A Nuclear‑Waste, An Ion‑Decay.
+> x
+ 1. Mutant Thief    Level: 1   Year: 2000  (‑1 ‑1)
+ 2. Mutant Priest   Level: 1   Year: 2000  ( 0  0)
+ 3. Mutant Wizard   Level: 1   Year: 2000  (‑2 ‑2)
+ 4. Mutant Warrior  Level: 1   Year: 2400  (12  2)
+ 5. Mutant Mage     Level: 1   Year: 2000  ( 3 ‑1)
+
+Type BURY [class number] to reset a player. Type X to exit.
+***
+Select (Bury, 1-5, ?) 1
+Crumbling buildings surround you.
+Compass: (-1E : -1N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+> inv
+***
+You are carrying the following items:  (Total Weight: 8 LB's)
+A Scrap‑Armour.
+> stat
+***
+Name: Thief / Mutant Thief
+Exhaustion    : 0
+Str: 15     Int: 9       Wis: 8
+Dex: 14     Con: 15      Cha: 16
+Hit Points    : 18 / 18
+Exp. Points   : 0  Level: 1
+Riblets       : 0
+Ions          : 30000
+Wearing Armor : None  Armour Class: 1
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D.      : 2000
+
+You are carrying the following items:  (Total Weight: 8 LB's)
+A Scrap‑Armour.
+> x
+ 1. Mutant Thief    Level: 1   Year: 2000  (‑1 ‑1)
+ 2. Mutant Priest   Level: 1   Year: 2000  ( 0  0)
+ 3. Mutant Wizard   Level: 1   Year: 2000  (‑2 ‑2)
+ 4. Mutant Warrior  Level: 1   Year: 2400  (12  2)
+ 5. Mutant Mage     Level: 1   Year: 2000  ( 3 ‑1)
+
+Type BURY [class number] to reset a player. Type X to exit.
+***
+Select (Bury, 1-5, ?) x
+(.venv) PS C:\Git2\mutants3> 

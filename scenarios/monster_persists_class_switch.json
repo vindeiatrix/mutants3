@@ -1,0 +1,24 @@
+{
+  "name": "monster_persists_class_switch",
+  "commands": [
+    "theme mono",
+    "bury all",
+    "4",
+    "debug hp 999999",
+    "debug monster waste_mauler",
+    "look",
+    "x",
+    "5",
+    "x",
+    "4",
+    "look",
+    "look"
+  ],
+  "expect": [
+    "Waste-Mauler",
+    "Waste-Mauler"
+  ],
+  "timeout_seconds": 120,
+  "stdin_delay_ms": 200,
+  "purge_state": true
+}

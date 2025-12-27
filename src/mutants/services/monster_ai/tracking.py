@@ -125,9 +125,26 @@ def _iter_monsters(monsters: Any) -> Iterable[MutableMapping[str, Any]]:
     if monsters is None:
         return []
 
-    if hasattr(monsters, "list_all"):
+    entries: Iterable[Any] = []
+
+    list_targeting = getattr(monsters, "list_targeting_player", None)
+    list_year = getattr(monsters, "list_in_year", None)
+    list_all = getattr(monsters, "list_all", None)
+
+    # Prefer narrowest; caller filters by player_id outside.
+    if callable(list_targeting):
         try:
-            entries = monsters.list_all()  # type: ignore[attr-defined]
+            entries = list_all() if callable(list_all) else []  # type: ignore[misc]
+        except Exception:
+            entries = []
+    elif callable(list_year):
+        try:
+            entries = list_year(None)  # type: ignore[misc]
+        except Exception:
+            entries = []
+    elif callable(list_all):
+        try:
+            entries = list_all()
         except Exception:
             entries = []
     elif isinstance(monsters, Sequence) and not isinstance(monsters, (str, bytes)):
@@ -160,7 +177,17 @@ def update_target_positions(
 
     reentries: Set[str] = set()
 
-    for monster in _iter_monsters(monsters):
+    # Prefer a direct targeted list when available to avoid scanning all monsters.
+    list_targeting = getattr(monsters, "list_targeting_player", None)
+    if callable(list_targeting):
+        try:
+            candidates = list_targeting(player_id, year=normalized_pos[0])  # type: ignore[misc]
+        except Exception:
+            candidates = []
+    else:
+        candidates = _iter_monsters(monsters)
+
+    for monster in candidates:
         target = _normalize_player_id(monster.get("target_player_id"))
         bound = None
         state = monster.get("_ai_state") if isinstance(monster, Mapping) else None

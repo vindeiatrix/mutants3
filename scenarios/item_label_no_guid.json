@@ -1,0 +1,24 @@
+{
+  "name": "item_label_no_guid",
+  "commands": [
+    "theme mono",
+    "bury all",
+    "4",
+    "debug hp 999999",
+    "debug add nuclear-decay",
+    "get nuclear-decay",
+    "inv",
+    "tra 2100",
+    "inv",
+    "tra 2000",
+    "inv"
+  ],
+  "expect": [
+    "Nuclear",
+    "Nuclear",
+    "Nuclear"
+  ],
+  "timeout_seconds": 120,
+  "stdin_delay_ms": 200,
+  "purge_state": true
+}

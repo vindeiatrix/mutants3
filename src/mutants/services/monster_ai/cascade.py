@@ -19,7 +19,7 @@ from mutants.services import monster_entities
 LOG = logging.getLogger(__name__)
 
 ORIGIN_WORLD = "world"
-_FLEE_HP_THRESHOLD = 15
+_FLEE_HP_THRESHOLD = 25
 
 
 @dataclass(frozen=True)
@@ -282,6 +282,19 @@ def _coerce_pos(value: Any) -> tuple[int, int, int] | None:
     return combat_loot.coerce_pos(value)
 
 
+def _ensure_ai_state(monster: Any) -> MutableMapping[str, Any]:
+    state = monster.get("_ai_state") if isinstance(monster, MutableMapping) else None
+    if isinstance(state, MutableMapping):
+        return state
+    if isinstance(state, Mapping):
+        state = dict(state)
+    else:
+        state = {}
+    if isinstance(monster, MutableMapping):
+        monster["_ai_state"] = state
+    return state
+
+
 def _sanitize_ground_items(raw: Any) -> list[Mapping[str, Any]]:
     if isinstance(raw, Sequence) and not isinstance(raw, (str, bytes)):
         result: list[Mapping[str, Any]] = []
@@ -461,6 +474,37 @@ def _gate_result(
     )
 
 
+def _pick_flee_dir(monster_pos: tuple[int, int, int] | None, target_pos: tuple[int, int, int] | None, rng: Any) -> str | None:
+    if monster_pos is None or target_pos is None:
+        return None
+    _, mx, my = monster_pos
+    _, tx, ty = target_pos
+    dx = mx - tx
+    dy = my - ty
+    options: list[tuple[int, str]] = []
+    if dx > 0:
+        options.append((abs(dx), "E"))
+    elif dx < 0:
+        options.append((abs(dx), "W"))
+    if dy > 0:
+        options.append((abs(dy), "N"))
+    elif dy < 0:
+        options.append((abs(dy), "S"))
+    if not options:
+        # choose random cardinal when collocated
+        try:
+            return ["N", "S", "E", "W"][rng.randrange(4)]
+        except Exception:
+            import random as _rand
+            return _rand.choice(["N", "S", "E", "W"])
+    options.sort(key=lambda entry: entry[0], reverse=True)
+    best = [opt for opt in options if opt[0] == options[0][0]]
+    try:
+        return best[rng.randrange(len(best))][1]
+    except Exception:
+        return best[0][1]
+
+
 def _evaluate_flee_cascade(
     monster: Mapping[str, Any],
     ctx: Any,
@@ -470,72 +514,62 @@ def _evaluate_flee_cascade(
     flee_threshold: int,
     failures: list[Mapping[str, Any]],
     rng: Any,
+    target_pos: tuple[int, int, int] | None,
+    target_collocated: bool,
+    forced: bool = False,
 ) -> ActionResult | None:
-    """Dedicated flee cascade for monsters already in flee mode.
+    """Per-turn flee roll: yell first, then maybe move (else stop)."""
 
-    First time in flee mode: always announce. Thereafter, roll independently
-    for another statement and for a flee move; on double failure, fall through
-    to the normal cascade so monsters can still act (attack/pickup/heal/etc.).
-    """
+    if flee_threshold <= 0 and not forced:
+        failures.append({"gate": "FLEE_STATEMENT", "reason": f"threshold={flee_threshold}"})
+        return None
+
+    roll: int | None = None
+    if not forced:
+        roll = int(rng.randrange(100))
+        if roll >= flee_threshold:
+            failures.append({"gate": "FLEE_STATEMENT", "reason": f"roll={roll} threshold={flee_threshold}"})
+            return None
 
     state = monster.get("_ai_state") if isinstance(monster, MutableMapping) else None
-    announced = False
-    if isinstance(state, Mapping):
-        announced = bool(state.get("flee_announced"))
-    if not announced and isinstance(state, MutableMapping):
-        state["flee_announced"] = True
-        reason = f"flee_mode_active hp_pct={hp_pct}"
+    if isinstance(state, MutableMapping):
+        mon_pos = _coerce_pos(monster.get("pos"))
+        dir_token = _pick_flee_dir(mon_pos, target_pos, rng) if target_collocated or not state.get("flee_dir") else state.get("flee_dir")
+        if dir_token:
+            state["flee_dir"] = dir_token
+    # Once a flee gate triggers, latch flee mode so the monster never re-enters pursuit.
+    _set_flee_mode(monster, True)
+
+    # Decide action after yell: mostly move, sometimes just yell.
+    move_roll = int(rng.randrange(100))
+    move_cutoff = 85 if forced else 70
+    action = "flee_move" if move_roll < move_cutoff else "flee_statement"
+
+    reason = f"roll={roll} threshold={flee_threshold} hp_pct={hp_pct}"
+    if action == "flee_statement":
         return _gate_result(
             monster,
             ctx,
             gate="FLEE_STATEMENT",
             action="flee_statement",
-            roll=None,
-            threshold=None,
+            roll=roll,
+            threshold=flee_threshold,
             reason=reason,
             triggered=True,
             data=data_common,
         )
 
-    if flee_threshold > 0:
-        roll = int(rng.randrange(100))
-        reason = f"roll={roll} threshold={flee_threshold} hp_pct={hp_pct}"
-        if roll < flee_threshold:
-            return _gate_result(
-                monster,
-                ctx,
-                gate="FLEE_STATEMENT",
-                action="flee_statement",
-                roll=roll,
-                threshold=flee_threshold,
-                reason=reason,
-                triggered=True,
-                data=data_common,
-            )
-        failures.append({"gate": "FLEE_STATEMENT", "reason": reason})
-    else:
-        failures.append({"gate": "FLEE_STATEMENT", "reason": f"threshold={flee_threshold}"})
-
-    if flee_threshold > 0:
-        roll = int(rng.randrange(100))
-        reason = f"roll={roll} threshold={flee_threshold} hp_pct={hp_pct}"
-        if roll < flee_threshold:
-            return _gate_result(
-                monster,
-                ctx,
-                gate="FLEE_MOVE",
-                action="flee_move",
-                roll=roll,
-                threshold=flee_threshold,
-                reason=reason,
-                triggered=True,
-                data=data_common,
-            )
-        failures.append({"gate": "FLEE_MOVE", "reason": reason})
-    else:
-        failures.append({"gate": "FLEE_MOVE", "reason": f"threshold={flee_threshold}"})
-
-    return None
+    return _gate_result(
+        monster,
+        ctx,
+        gate="FLEE_MOVE",
+        action="flee_move",
+        roll=roll,
+        threshold=flee_threshold,
+        reason=reason,
+        triggered=True,
+        data=data_common,
+    )
 
 
 def evaluate_cascade(monster: Any, ctx: Any) -> ActionResult:
@@ -583,12 +617,12 @@ def evaluate_cascade(monster: Any, ctx: Any) -> ActionResult:
     target_collocated = False
     if target_id:
         target_pos, target_collocated = tracking_mod.get_target_position(monster, target_id)
+    state_block = _ensure_ai_state(monster)
+    flee_dir = state_block.get("flee_dir")
     flee_mode = _is_flee_mode(monster)
-    flee_capable = hp_pct < _FLEE_HP_THRESHOLD
-    if flee_capable and not flee_mode:
-        _set_flee_mode(monster, True)
-        flee_mode = True
-    flee_rolls_enabled = flee_mode or flee_capable
+    flee_hp_threshold = _clamp_pct(getattr(config, "flee_hp_pct", _FLEE_HP_THRESHOLD))
+    flee_capable = hp_pct < flee_hp_threshold
+    flee_rolls_enabled = flee_capable or bool(flee_dir) or flee_mode
     same_year_target = (
         target_pos is not None
         and monster_pos is not None
@@ -597,6 +631,8 @@ def evaluate_cascade(monster: Any, ctx: Any) -> ActionResult:
 
     base_flee_pct = _apply_cascade_modifier(config.flee_pct, cascade_overrides.get("flee_pct"))
     flee_threshold = _clamp_pct(base_flee_pct)
+    if hp_pct < flee_hp_threshold:
+        flee_threshold = max(flee_threshold, 75)  # wounded monsters more likely to flee each turn
     heal_threshold = _apply_cascade_modifier(config.heal_pct, cascade_overrides.get("heal_pct"))
     cast_threshold = _apply_cascade_modifier(config.cast_pct, cascade_overrides.get("cast_pct"))
     convert_threshold = _apply_cascade_modifier(config.convert_pct, cascade_overrides.get("convert_pct"))
@@ -661,8 +697,8 @@ def evaluate_cascade(monster: Any, ctx: Any) -> ActionResult:
     def _record_failure(name: str, reason: str) -> None:
         failures.append({"gate": name, "reason": reason})
 
-    # Early flee rolls (statement then movement); fall through to cascade on failures.
-    if flee_mode:
+    # Early flee roll; fall through on failure.
+    if flee_rolls_enabled:
         result = _evaluate_flee_cascade(
             monster,
             ctx,
@@ -671,6 +707,9 @@ def evaluate_cascade(monster: Any, ctx: Any) -> ActionResult:
             flee_threshold=flee_threshold,
             failures=failures,
             rng=rng,
+            target_pos=target_pos,
+            target_collocated=bool(target_collocated),
+            forced=bool(flee_mode),
         )
         if result is not None:
             return result
@@ -867,6 +906,30 @@ def evaluate_cascade(monster: Any, ctx: Any) -> ActionResult:
         _record_failure("EMOTE", reason)
     else:
         _record_failure("EMOTE", f"threshold={emote_threshold}")
+
+    # If we're on the player's tile (or best-effort detects we are) and nothing else fired, force an attack attempt.
+    collocated_fallback = target_collocated
+    if not collocated_fallback:
+        try:
+            state, active = pstate.get_active_pair(ctx.get("player_state"))
+            ply_pos = _coerce_pos(active.get("pos")) if isinstance(active, Mapping) else None
+            mon_pos = _coerce_pos(monster.get("pos"))
+            if ply_pos and mon_pos and int(ply_pos[0]) == int(mon_pos[0]) and int(ply_pos[1]) == int(mon_pos[1]) and int(ply_pos[2]) == int(mon_pos[2]):
+                collocated_fallback = True
+        except Exception:
+            collocated_fallback = False
+    if collocated_fallback:
+        return _gate_result(
+            monster,
+            ctx,
+            gate="ATTACK",
+            action="attack",
+            roll=None,
+            threshold=None,
+            reason="collocated_fallback",
+            triggered=True,
+            data={**data_common, "failures": failures},
+        )
 
     # IDLE gate (fallback)
     reason = ", ".join(f"{entry['gate']}:{entry['reason']}" for entry in failures)

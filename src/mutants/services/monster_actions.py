@@ -210,12 +210,12 @@ def _monsters_state(ctx: MutableMapping[str, Any]) -> Optional[Any]:
     return monsters
 
 
-def _mark_monsters_dirty(ctx: MutableMapping[str, Any]) -> None:
+def _mark_monsters_dirty(ctx: MutableMapping[str, Any], monster: Mapping[str, Any] | str | None = None) -> None:
     monsters = _monsters_state(ctx)
     marker = getattr(monsters, "mark_dirty", None)
     if callable(marker):
         try:
-            marker()
+            marker(monster)
         except Exception:  # pragma: no cover - defensive
             LOG.exception("Failed to mark monsters state dirty")
 
@@ -395,15 +395,19 @@ def _remove_picked_up(monster: MutableMapping[str, Any], iid: str) -> None:
             pass
 
 
+_CATALOG_CACHE: Mapping[str, Mapping[str, Any]] | None = None
+
+
 def _load_catalog() -> Mapping[str, Mapping[str, Any]]:
+    """Cheap catalog accessor; caches after first load to avoid repeated I/O."""
+    global _CATALOG_CACHE
+    if _CATALOG_CACHE is not None:
+        return _CATALOG_CACHE
     try:
-        # `items_catalog.load_catalog` returns an `ItemsCatalog` wrapper (not a
-        # `Mapping` subclass), but it still exposes `.get`/`.require`, which is
-        # what the callers in this module expect. Returning it directly keeps the
-        # full catalog contents available to pickup/convert logic.
-        return items_catalog.load_catalog()
+        _CATALOG_CACHE = items_catalog.load_catalog()
     except FileNotFoundError:
-        return {}
+        _CATALOG_CACHE = {}
+    return _CATALOG_CACHE
 
 
 def _resolve_item_id(inst: Mapping[str, Any]) -> str:
@@ -669,7 +673,8 @@ def _handle_player_death(
     bus: Any,
 ) -> None:
     try:
-        pstate.clear_target(reason="player-death")
+        monsters_ctx = ctx.get("monsters") if isinstance(ctx, Mapping) else None
+        pstate.clear_target(reason="player-death", monsters=monsters_ctx)
     except Exception:  # pragma: no cover - defensive guard
         LOG.exception("Failed to clear player target after death")
 
@@ -751,7 +756,7 @@ def _handle_player_death(
     if not queued:
         player_death.handle_player_death(player_id, monster, state=state, active=active)
 
-    _mark_monsters_dirty(ctx)
+    _mark_monsters_dirty(ctx, monster)
 
 
 def _apply_player_damage(
@@ -814,7 +819,7 @@ def _apply_player_damage(
             ctx if isinstance(ctx, MutableMapping) else None,
         )
         if resolved_iid:
-            _mark_monsters_dirty(ctx)
+            _mark_monsters_dirty(ctx, monster)
     new_hp = max(0, current - final_damage)
     try:
         pstate.set_hp_for_active(state, {"current": new_hp, "max": maximum})
@@ -905,6 +910,7 @@ def roll_entry_target(
     config: CombatConfig | None = None,
     bus: Any | None = None,
     woke: bool | None = None,
+    ctx: Mapping[str, Any] | None = None,
 ) -> Dict[str, Any]:
     try:
         state, active = pstate.get_active_pair(player_state)
@@ -942,6 +948,9 @@ def roll_entry_target(
     if previous == player_id:
         if player_pos is not None:
             tracking_mod.record_target_position(monster, player_id, player_pos)
+        # Keep bound/id mirrored with target when already set.
+        if isinstance(state_block, MutableMapping):
+            state_block["bound_player_id"] = player_id
         return {"ok": True, "target_set": False, "taunt": None, "woke": True}
 
     config_obj = config if isinstance(config, CombatConfig) else _ENTRY_DEFAULT_CONFIG
@@ -954,8 +963,28 @@ def roll_entry_target(
         return {"ok": True, "target_set": False, "taunt": None, "woke": False}
 
     monster["target_player_id"] = player_id
+    state_block = _ai_state(monster) if isinstance(monster, MutableMapping) else None
+    if isinstance(state_block, MutableMapping):
+        state_block["bound_player_id"] = player_id
+        state_block["ever_collocated"] = True
+        try:
+            state_block["last_collocated_tick"] = int(
+                getattr(turnlog, "tick", lambda *_: 1)(ctx)
+            )
+        except Exception:
+            state_block["last_collocated_tick"] = 1
     if player_pos is not None:
         tracking_mod.record_target_position(monster, player_id, player_pos)
+    try:
+        monsters_state_obj = ctx.get("monsters") if isinstance(ctx, Mapping) else None
+    except Exception:
+        monsters_state_obj = None
+    target_marker = getattr(monsters_state_obj, "mark_targeting", None)
+    if callable(target_marker):
+        try:
+            target_marker(monster)
+        except Exception:
+            pass
 
     raw_taunt = monster.get("taunt")
     taunt = raw_taunt.strip() if isinstance(raw_taunt, str) else None
@@ -1017,7 +1046,7 @@ def _pickup_from_ground(
     bag.append(entry)
     _add_picked_up(monster, iid_str)
     _refresh_monster(monster)
-    _mark_monsters_dirty(ctx)
+    _mark_monsters_dirty(ctx, monster)
     bus = _feedback_bus(ctx)
     name = None
     if isinstance(entry, Mapping):
@@ -1080,22 +1109,18 @@ def _convert_item(
     itemsreg.remove_instance(iid)
     monster["ions"] = max(0, int(monster.get("ions", 0))) + best_value
     _refresh_monster(monster)
-    _mark_monsters_dirty(ctx)
+    _mark_monsters_dirty(ctx, monster)
     bus = _feedback_bus(ctx)
     if hasattr(bus, "push"):
         label = _monster_display_name(monster)
-        bus.push("COMBAT/INFO", f"A blinding white flash erupts around {label}!")
-        convert_message = textutils.render_feedback_template(
-            textutils.TEMPLATE_MONSTER_CONVERT,
-            monster=label,
-            ions=best_value,
-        )
         bus.push(
             "COMBAT/INFO",
-            convert_message,
+            textutils.render_feedback_template(
+                textutils.TEMPLATE_MONSTER_CONVERT,
+                monster=label,
+            ),
             template=textutils.TEMPLATE_MONSTER_CONVERT,
             monster=label,
-            ions=best_value,
         )
     turnlog.emit(
         ctx,
@@ -1131,7 +1156,7 @@ def _remove_broken_armour(
         return False
     monster["armour_slot"] = None
     _refresh_monster(monster)
-    _mark_monsters_dirty(ctx)
+    _mark_monsters_dirty(ctx, monster)
     bus = _feedback_bus(ctx)
     if hasattr(bus, "push"):
         bus.push("COMBAT/INFO", f"{_monster_display_name(monster)} discards broken armour.")
@@ -1189,7 +1214,7 @@ def _heal_action(
     monster["ions"] = ledger["ions"]
 
     _refresh_monster(monster)
-    _mark_monsters_dirty(ctx)
+    _mark_monsters_dirty(ctx, monster)
 
     label = _monster_display_name(monster)
     bus = _feedback_bus(ctx)
@@ -1200,14 +1225,15 @@ def _heal_action(
             hp=applied,
             ions=heal_cost,
         )
-        bus.push(
-            "COMBAT/HEAL",
-            heal_message,
-            template=textutils.TEMPLATE_MONSTER_HEAL,
-            monster=label,
-            hp=applied,
-            ions=heal_cost,
-        )
+        if heal_message and str(heal_message).strip():
+            bus.push(
+                "COMBAT/HEAL",
+                heal_message,
+                template=textutils.TEMPLATE_MONSTER_HEAL,
+                monster=label,
+                hp=applied,
+                ions=heal_cost,
+            )
         bus.push(
             "COMBAT/HEAL_MONSTER",
             textutils.render_feedback_template(
@@ -1272,12 +1298,54 @@ def _flee_statement_action(
         monster=monster_id,
     )
     bus = _feedback_bus(ctx)
-    if hasattr(bus, "push"):
+    if hasattr(bus, "push") and _is_collocated(monster, ctx):
         try:
             bus.push("COMBAT/INFO", f"{label} yells: Get away from me!")
         except Exception:
             LOG.debug("Failed to push flee yell for %s", monster_id, exc_info=True)
     return {"ok": True, "flee_statement": True, "stop_turn": False}
+
+
+def _select_flee_dir(
+    monster: Mapping[str, Any],
+    target_pos: tuple[int, int, int] | None,
+    rng: random.Random,
+) -> str | None:
+    mon_pos = combat_loot.coerce_pos(monster.get("pos"))
+    if mon_pos is None:
+        try:
+            return ["N", "S", "E", "W"][rng.randrange(4)]
+        except Exception:
+            return None
+    if target_pos is None:
+        try:
+            return ["N", "S", "E", "W"][rng.randrange(4)]
+        except Exception:
+            return None
+    _, mx, my = mon_pos
+    _, tx, ty = target_pos
+    dx = mx - tx
+    dy = my - ty
+    options: list[tuple[int, str]] = []
+    if dx > 0:
+        options.append((abs(dx), "E"))
+    elif dx < 0:
+        options.append((abs(dx), "W"))
+    if dy > 0:
+        options.append((abs(dy), "N"))
+    elif dy < 0:
+        options.append((abs(dy), "S"))
+    if not options:
+        try:
+            return ["N", "S", "E", "W"][rng.randrange(4)]
+        except Exception:
+            return None
+    options.sort(key=lambda entry: entry[0], reverse=True)
+    best = [opt for opt in options if opt[0] == options[0][0]]
+    try:
+        return best[rng.randrange(len(best))][1]
+    except Exception:
+        return best[0][1]
 
 
 def _flee_move_action(
@@ -1289,11 +1357,65 @@ def _flee_move_action(
     target_id = _sanitize_player_id(monster.get("target_player_id"))
     if target_id:
         target_pos, _ = tracking_mod.get_target_position(monster, target_id)
+    target_collocated = False
+    if target_pos is not None:
+        mon_pos = combat_loot.coerce_pos(monster.get("pos"))
+        if mon_pos and (int(mon_pos[1]), int(mon_pos[2])) == (int(target_pos[1]), int(target_pos[2])):
+            target_collocated = True
+    # Fall back to the live player position so we always flee from where the player is now.
+    if target_pos is None:
+        try:
+            state, active = pstate.get_active_pair(ctx.get("player_state"))
+            target_pos = pstate.canonical_player_pos(active or state)
+        except Exception:
+            target_pos = None
+    if target_pos is None:
+        return {"ok": False, "reason": "missing_target_pos", "flee_move": False, "stop_turn": False}
 
-    success = attempt_flee_step(monster, target_pos, rng, ctx=ctx)
+    # Announce flee before attempting movement (only when co-located).
+    bus = _feedback_bus(ctx)
+    label = _monster_display_name(monster)
+    if hasattr(bus, "push") and target_collocated:
+        try:
+            bus.push("COMBAT/INFO", f"{label} yells: Get away from me!")
+        except Exception:
+            LOG.debug("Failed to push flee yell for %s", label, exc_info=True)
+
+    # Choose/retain flee direction.
+    state_block = _ai_state(monster)
+    flee_dir = state_block.get("flee_dir") if isinstance(state_block, Mapping) else None
+    if target_pos is not None and (target_collocated or not flee_dir):
+        flee_dir = _select_flee_dir(monster, target_pos, rng)
+        if flee_dir:
+            state_block["flee_dir"] = flee_dir
+
+    start_pos = combat_loot.coerce_pos(monster.get("pos"))
+    success = attempt_flee_step(monster, target_pos, rng, ctx=ctx, preferred_direction=flee_dir)
     if success:
-        _mark_monsters_dirty(ctx)
-    return {"ok": success, "flee_move": True, "stop_turn": True}
+        end_pos = combat_loot.coerce_pos(monster.get("pos"))
+        if start_pos and end_pos:
+            dx = int(end_pos[1]) - int(start_pos[1])
+            dy = int(end_pos[2]) - int(start_pos[2])
+            dir_token = None
+            if dx == 1:
+                dir_token = "E"
+            elif dx == -1:
+                dir_token = "W"
+            elif dy == 1:
+                dir_token = "N"
+            elif dy == -1:
+                dir_token = "S"
+            if dir_token:
+                state_block["flee_dir"] = dir_token
+        _mark_monsters_dirty(ctx, monster)
+    else:
+        # Blocked fleeing monsters only yell when collocated with the player.
+        if hasattr(bus, "push") and target_collocated:
+            try:
+                bus.push("COMBAT/INFO", f"{label} yells: Get away from me!")
+            except Exception:
+                LOG.debug("Failed to push flee yell for %s (blocked)", label, exc_info=True)
+    return {"ok": success, "flee_move": True, "stop_turn": success}
 
 
 def _pursue_action(
@@ -1330,7 +1452,7 @@ def _pursue_action(
     config_obj = config if isinstance(config, CombatConfig) else None
     success = attempt_pursuit(monster, target_pos, rng, ctx=ctx, config=config_obj)
     if success:
-        _mark_monsters_dirty(ctx)
+        _mark_monsters_dirty(ctx, monster)
     return {"ok": success, "pursued": success, "target_pos": target_pos}
 
 
@@ -1411,7 +1533,7 @@ def _cast_action(
             )
 
     _refresh_monster(monster)
-    _mark_monsters_dirty(ctx)
+    _mark_monsters_dirty(ctx, monster)
 
     turnlog.emit(
         ctx,
@@ -1540,12 +1662,19 @@ def execute_random_action(monster: Any, ctx: Any, *, rng: Any | None = None, cas
                             LOG.debug("Failed to emit forced pursue footsteps", exc_info=True)
                         moved = True
             if moved:
-                _mark_monsters_dirty(ctx)
+                try:
+                    monsters_obj = ctx.get("monsters") if isinstance(ctx, Mapping) else getattr(ctx, "monsters", None)
+                    updater = getattr(monsters_obj, "update_position_cache", None)
+                    if callable(updater) and mpos:
+                        updater(monster, previous_pos=mpos)
+                except Exception:
+                    pass
+                _mark_monsters_dirty(ctx, monster)
                 return {"ok": True, "pursued": True, "stop_turn": True}
     if pursuit_target is not None:
         success = attempt_pursuit(monster, pursuit_target, random_obj, ctx=ctx)
         if success:
-            _mark_monsters_dirty(ctx)
+            _mark_monsters_dirty(ctx, monster)
             return None
     cascade_result = evaluate_cascade(monster, ctx)
     action_name = cascade_result.action
@@ -1553,6 +1682,8 @@ def execute_random_action(monster: Any, ctx: Any, *, rng: Any | None = None, cas
         emote_mod.schedule_free_emote(monster, ctx, gate=cascade_result.gate)
         if action_name == "emote":
             action_name = None
+    if not action_name and _is_collocated(monster, ctx):
+        action_name = "attack"
     if not action_name:
         return None
     if cast_guard is None:
@@ -1607,4 +1738,3 @@ def execute_random_action(monster: Any, ctx: Any, *, rng: Any | None = None, cas
     except Exception:  # pragma: no cover - defensive guard
         LOG.exception("Monster action %s failed", action_name)
     return payload if isinstance(payload, Mapping) else None
-

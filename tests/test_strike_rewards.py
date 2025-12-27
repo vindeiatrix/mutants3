@@ -299,12 +299,16 @@ def test_kill_block_announces_rewards_and_drops(monkeypatch):
 
     assert result["killed"] is True
 
-    kill_texts = [text for kind, text in events if kind in {"COMBAT/KILL", "COMBAT/INFO"}]
+    kill_texts = [
+        text
+        for _kind, text in events
+        if _kind in {"COMBAT/KILL", "COMBAT/INFO", "SYSTEM/OK"}
+    ]
     assert kill_texts == [
         "You have slain junkyard_scrapper!",
         "Your experience points are increased by 5!",
         "You collect 2 Riblets and 2 ions from the slain body.",
-        "A Hell-Blade is falling from junkyard_scrapper's body!",
+        "\nA Hell-Blade is falling from junkyard_scrapper's body!",
         "A Skull is falling from junkyard_scrapper's body!",
         "A Demon-Cloth is falling from junkyard_scrapper's body!",
         "junkyard_scrapper is crumbling to dust!",

@@ -1,0 +1,1 @@
+{"players": [{"id": "player_thief", "class": "Thief", "pos": null, "inventory": ["nuclear_decay", "bottle_cap"], "hp": {"current": 0, "max": 0}, "stats": {"str": 0, "int": 0, "wis": 0, "dex": 0, "con": 0, "cha": 0}}], "active_id": "player_thief", "pos": [2000, -2, 0]}

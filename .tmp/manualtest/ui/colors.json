@@ -1,0 +1,23 @@
+{
+  "defaults": "white",
+  "map": {
+    "compass.line": "green",
+    "compass.*": "green",
+
+    "room.title": "red",
+    "room.desc": "red",
+
+    "dir.open": "cyan",
+    "dir.blocked": "red",
+
+    "header": "yellow",
+    "footer": "white",
+
+    "feedback.info": "yellow",
+    "feedback.warn": "yellow",
+    "feedback.err": "red",
+
+    "log.line": "white",
+    "item.line": "cyan"
+  }
+}

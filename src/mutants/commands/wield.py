@@ -12,6 +12,7 @@ from ..services.equip_debug import _edbg_enabled, _edbg_log
 from ..services.items_weight import get_effective_weight
 from ..util.textnorm import normalize_item_query
 from .convert import _choose_inventory_item, _display_name
+from ._helpers import resolve_ready_target_in_tile
 from .wear import _bag_count, _catalog_template, _pos_repr
 
 
@@ -202,11 +203,11 @@ def wield_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
     if ready_target_id:
         combat_ctx["weapon_iid"] = iid
         combat_ctx["weapon_item_id"] = item_id
-        bus.push("SYSTEM/OK", f"You ready the {name} for combat.")
+        # Only report the strike message; skip redundant readying text.
     else:
         combat_ctx.pop("weapon_iid", None)
         combat_ctx.pop("weapon_item_id", None)
-        bus.push("SYSTEM/OK", f"You swing the {name} around, testing its weight.")
+        bus.push("SYSTEM/WARN", "You're not ready to combat anyone!")
 
     result: Dict[str, object] = {
         "ok": True,
@@ -218,35 +219,54 @@ def wield_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
 
     strike_summary: Optional[Dict[str, object]] = None
     if ready_target_id and not monster_actor:
-        try:
-            strike_result = perform_melee_attack(ctx)
-        except Exception as exc:  # pragma: no cover - defensive guard
-            strike_summary = {
-                "ok": False,
-                "reason": "auto_strike_failed",
-                "error": str(exc),
-            }
-            if _edbg_enabled():
-                _edbg_log(
-                    "[ equip ] auto_strike failure",
-                    cmd="wield",
-                    prefix=repr(prefix),
-                    target=ready_target_id,
-                    error=str(exc),
-                )
+        target_in_tile = resolve_ready_target_in_tile(ctx)
+        if not target_in_tile:
+            target_label = ready_target_id
+            monsters_obj = ctx.get("monsters") if isinstance(ctx, Mapping) else getattr(ctx, "monsters", None)
+            getter = getattr(monsters_obj, "get", None) if monsters_obj is not None else None
+            if callable(getter):
+                try:
+                    mon = getter(target_label)
+                except Exception:
+                    mon = None
+                if isinstance(mon, Mapping):
+                    name = mon.get("name") or mon.get("monster_id") or target_label
+                    target_label = str(name)
+            bus.push(
+                "SYSTEM/INFO",
+                f"{target_label} isn't around here!",
+            )
+            strike_summary = {"ok": False, "reason": "target_not_here"}
         else:
-            if isinstance(strike_result, dict):
-                strike_summary = dict(strike_result)
+            try:
+                strike_result = perform_melee_attack(ctx)
+            except Exception as exc:  # pragma: no cover - defensive guard
+                strike_summary = {
+                    "ok": False,
+                    "reason": "auto_strike_failed",
+                    "error": str(exc),
+                }
+                if _edbg_enabled():
+                    _edbg_log(
+                        "[ equip ] auto_strike failure",
+                        cmd="wield",
+                        prefix=repr(prefix),
+                        target=ready_target_id,
+                        error=str(exc),
+                    )
             else:
-                strike_summary = {"ok": False, "reason": "auto_strike_invalid"}
-            if _edbg_enabled():
-                _edbg_log(
-                    "[ equip ] auto_strike",
-                    cmd="wield",
-                    prefix=repr(prefix),
-                    target=ready_target_id,
-                    strike_ok=strike_summary.get("ok"),
-                )
+                if isinstance(strike_result, dict):
+                    strike_summary = dict(strike_result)
+                else:
+                    strike_summary = {"ok": False, "reason": "auto_strike_invalid"}
+                if _edbg_enabled():
+                    _edbg_log(
+                        "[ equip ] auto_strike",
+                        cmd="wield",
+                        prefix=repr(prefix),
+                        target=ready_target_id,
+                        strike_ok=strike_summary.get("ok"),
+                    )
     if strike_summary is not None:
         result["strike"] = strike_summary
 

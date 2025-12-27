@@ -23,8 +23,10 @@ TEMPLATE_MONSTER_SPELL_FAILURE = "combat.monster.spell.failure"
 _TEMPLATE_FORMATS: dict[str, str] = {
     TEMPLATE_MONSTER_MELEE_HIT: "{monster} has hit you with his {weapon}!",
     TEMPLATE_MONSTER_RANGED_HIT: "{monster} has shot you with his {weapon}!",
-    TEMPLATE_MONSTER_CONVERT: "{monster} converts loot worth {ions} ions.",
-    TEMPLATE_MONSTER_HEAL: "{monster} restores {hp} HP ({ions} ions).",
+    # Reference only shows the flash, not the ion amount.
+    TEMPLATE_MONSTER_CONVERT: "A blinding white flash erupts around {monster}!",
+    # Suppress explicit heal amount; keep only the visual flourish elsewhere.
+    TEMPLATE_MONSTER_HEAL: "",
     TEMPLATE_MONSTER_HEAL_VISUAL: "{monster}'s body is glowing!",
     TEMPLATE_MONSTER_DROP: "{monster} has dropped {item}.",
     TEMPLATE_MONSTER_SPELL_ATTEMPT: "{monster} begins casting {spell}...",

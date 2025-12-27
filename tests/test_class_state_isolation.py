@@ -20,9 +20,11 @@ from mutants.services import player_state
 def _reload_state_modules() -> None:
     import mutants.state as state_mod
     import mutants.env as env_mod
+    import mutants.services.player_state as pstate_mod
 
     importlib.reload(state_mod)
     importlib.reload(env_mod)
+    importlib.reload(pstate_mod)
 
 
 def _build_command_runner():
@@ -286,13 +288,15 @@ def test_full_statistics_page_rendering(game_env: Path):
     ctx, run = _build_command_runner()
     thief_stat = _normalize(run("stat"))
     assert "mutant thief" in thief_stat
-    assert "str:   7" in thief_stat
-    assert "int:  15" in thief_stat
-    assert "hit points  : 12 / 21" in thief_stat
-    assert "exp. points : 777" in thief_stat
+    assert "str: 7" in thief_stat
+    assert "int: 15" in thief_stat
+    assert "hit points    : 12 / 21" in thief_stat
+    assert "exp. points   : 777" in thief_stat
     assert "level: 4" in thief_stat
-    assert "riblets     : 33" in thief_stat
-    assert "ions        : 11111" in thief_stat
+    assert "riblets       : 33" in thief_stat
+    assert "ions          : 11111" in thief_stat
+    assert "readied spell  : no spell memorized." in thief_stat
+    assert "year a.d.      : 2000" in thief_stat
 
     state = player_state.load_state()
     player_state.set_active_player(state, mage_id)
@@ -301,11 +305,13 @@ def test_full_statistics_page_rendering(game_env: Path):
     ctx, run = _build_command_runner()
     mage_stat = _normalize(run("stat"))
     assert "mutant mage" in mage_stat
-    assert "ions        : 30000" in mage_stat
-    assert "riblets     : 0" in mage_stat
-    assert "exp. points : 0" in mage_stat
+    assert "ions          : 30000" in mage_stat
+    assert "riblets       : 0" in mage_stat
+    assert "exp. points   : 0" in mage_stat
     assert "level: 1" in mage_stat
     assert "wearing armor : none" in mage_stat
-    assert "hit points  : 28 / 28" in mage_stat
-    assert "str:  18" in mage_stat
-    assert "int:  23" in mage_stat
+    assert "hit points    : 28 / 28" in mage_stat
+    assert "str: 18" in mage_stat
+    assert "int: 23" in mage_stat
+    assert "readied spell  : no spell memorized." in mage_stat
+    assert "year a.d.      : 2000" in mage_stat

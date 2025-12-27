@@ -1,0 +1,33 @@
+{
+  "name": "kill_block",
+  "commands": [
+    "theme mono",
+    "bury all",
+    "4",
+    "debug hp 999999",
+    "debug add nuclear_decay",
+    "get nuclear-decay",
+    "tra 1999",
+    "d m waste_mauler",
+    "com waste",
+    "wield nuclear-decay",
+    "com waste",
+    "wield nuclear-decay",
+    "com waste",
+    "wield nuclear-decay",
+    "com waste",
+    "wield nuclear-decay",
+    "com waste",
+    "wield nuclear-decay",
+    "x"
+  ],
+  "expect": [
+    "You have slain",
+    "You collect",
+    "***",
+    "is falling from",
+    "is crumbling to dust"
+  ],
+  "timeout_seconds": 120,
+  "stdin_delay_ms": 200
+}

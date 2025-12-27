@@ -229,20 +229,38 @@ def convert_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
     itemsreg.remove_instance(iid)
 
     try:
-        state = pstate.load_state()
-        
+        # Preserve current runtime state (including position) when persisting.
+        runtime_state = ctx.get("player_state") if isinstance(ctx, dict) else None
+        if isinstance(runtime_state, dict):
+            state = dict(runtime_state)
+        else:
+            state = pstate.load_state()
+        if not isinstance(state, dict):
+            state = {}
+        pstate.ensure_class_profiles(state)
+        pstate.normalize_player_state_inplace(state)
+        # Keep canonical position in sync with runtime.
+        if isinstance(runtime_state, dict):
+            try:
+                pos = pstate.canonical_player_pos(runtime_state)
+                pstate.update_player_pos(state, pstate.get_active_class(state), pos)
+            except Exception:
+                pass
+
         # 1. Persist inventory change
-        active_class = pstate.get_active_class(player)
+        active_class = pstate.get_active_class(state)
         pstate.update_player_inventory(state, active_class, player["inventory"])
-        
+
         # 2. Persist ion change (set_ions_for_active saves the full state)
         pstate.set_ions_for_active(state, new_total)
-        # 3. Update runtime context so the game loop sees the changes!
-        if "player_state" in ctx:
+
+        # 3. Update runtime context so the game loop sees the changes.
+        if isinstance(ctx, dict):
             ctx["player_state"] = state
-        # Force reload of the active player object on next access
-        if "_runtime_player" in ctx:
-            del ctx["_runtime_player"]
+            ctx.pop("_runtime_player", None)
+            player_ctx = pstate.ensure_player_state(ctx)
+            if isinstance(player_ctx, dict):
+                player_ctx["_dirty"] = True
 
         if pstate._pdbg_enabled():
             pstate._pdbg_setup_file_logging()

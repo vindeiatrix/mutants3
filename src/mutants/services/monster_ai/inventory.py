@@ -43,12 +43,12 @@ def _monster_display_name(monster: Mapping[str, Any]) -> str:
     return "The monster"
 
 
-def _mark_monsters_dirty(ctx: Mapping[str, Any]) -> None:
+def _mark_monsters_dirty(ctx: Mapping[str, Any], monster: Mapping[str, Any] | str | None = None) -> None:
     monsters = ctx.get("monsters") if isinstance(ctx, Mapping) else None
     marker = getattr(monsters, "mark_dirty", None)
     if callable(marker):
         try:
-            marker()
+            marker(monster)
         except Exception:  # pragma: no cover - defensive
             pass
 
@@ -159,7 +159,7 @@ def _drop_armour(monster: MutableMapping[str, Any], ctx: MutableMapping[str, Any
         return False
     monster["armour_slot"] = None
     _refresh_monster(monster)
-    _mark_monsters_dirty(ctx)
+    _mark_monsters_dirty(ctx, monster)
     catalog = _load_catalog()
     inst = itemsreg.get_instance(str(iid)) or {"item_id": itemsreg.BROKEN_ARMOUR_ID}
     label = item_display.item_label(inst, catalog.get(str(inst.get("item_id"))) or {}, show_charges=False)
@@ -218,7 +218,7 @@ def _drop_weapon(monster: MutableMapping[str, Any], ctx: MutableMapping[str, Any
     if monster.get("wielded") == iid:
         monster["wielded"] = None
     _refresh_monster(monster)
-    _mark_monsters_dirty(ctx)
+    _mark_monsters_dirty(ctx, monster)
     catalog = _load_catalog()
     inst = itemsreg.get_instance(iid) or {"item_id": entry.get("item_id")}
     tpl = catalog.get(str(inst.get("item_id"))) or {}

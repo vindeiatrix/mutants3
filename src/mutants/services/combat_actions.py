@@ -538,6 +538,24 @@ def _force_monster_aggro(
         return
 
     monster["target_player_id"] = player_id
+    # Keep bound/target mirrored.
+    state_block = monster.get("_ai_state")
+    if not isinstance(state_block, MutableMapping):
+        state_block = {}
+        monster["_ai_state"] = state_block
+    state_block["bound_player_id"] = player_id
+    monsters_state_obj = ctx.get("monsters") if isinstance(ctx, Mapping) else None
+    if monsters_state_obj is None and hasattr(ctx, "monsters"):
+        try:
+            monsters_state_obj = getattr(ctx, "monsters")
+        except Exception:
+            monsters_state_obj = None
+    target_marker = getattr(monsters_state_obj, "mark_targeting", None)
+    if callable(target_marker):
+        try:
+            target_marker(monster)
+        except Exception:
+            pass
     try:
         pos = pstate.canonical_player_pos(state)
     except Exception:
@@ -545,16 +563,10 @@ def _force_monster_aggro(
     if pos is not None:
         tracking_mod.record_target_position(monster, player_id, pos)
 
-    monsters_state_obj = ctx.get("monsters") if isinstance(ctx, Mapping) else None
-    if monsters_state_obj is None and hasattr(ctx, "monsters"):
-        try:
-            monsters_state_obj = getattr(ctx, "monsters")
-        except Exception:
-            monsters_state_obj = None
     marker = getattr(monsters_state_obj, "mark_dirty", None)
     if callable(marker):
         try:
-            marker()
+            marker(monster)
         except Exception:
             pass
 
@@ -573,6 +585,40 @@ def _extract_wielded_iid(payload: Any, cls: Optional[str]) -> Optional[str]:
             if candidate:
                 return candidate
     return None
+
+
+def _weapon_display_name(weapon_iid: Optional[str], catalog: Mapping[str, Mapping[str, Any]]) -> str:
+    """Best-effort label for the wielded weapon."""
+
+    def _name_from_catalog(item_id: str) -> Optional[str]:
+        meta = None
+        getter = getattr(catalog, "get", None)
+        if callable(getter):
+            try:
+                meta = getter(str(item_id))
+            except Exception:
+                meta = None
+        elif isinstance(catalog, Mapping):
+            meta = catalog.get(str(item_id))
+        if isinstance(meta, Mapping):
+            for key in ("name", "display_name", "title"):
+                candidate = meta.get(key)
+                if isinstance(candidate, str) and candidate.strip():
+                    return candidate
+        return None
+
+    item_id = None
+    if weapon_iid:
+        inst = itemsreg.get_instance(weapon_iid) or {}
+        item_id = inst.get("item_id") or inst.get("catalog_id") or inst.get("id")
+    label = _name_from_catalog(str(item_id)) if item_id is not None else None
+    if label:
+        return label
+    if item_id:
+        return str(item_id)
+    if weapon_iid:
+        return str(weapon_iid)
+    return "fists"
 
 
 def perform_melee_attack(ctx: Dict[str, Any]) -> Dict[str, Any]:
@@ -681,7 +727,8 @@ def perform_melee_attack(ctx: Dict[str, Any]) -> Dict[str, Any]:
     }
 
     label = _monster_display_name(target, target_id)
-    bus.push("COMBAT/HIT", f"You strike {label} for {final_damage} damage.")
+    weapon_label = _weapon_display_name(weapon_iid, catalog)
+    bus.push("COMBAT/HIT", f"You've hit {label} with your {weapon_label}!")
 
     if weapon_wear and weapon_wear.get("cracked"):
         turnlog.emit(
@@ -778,9 +825,12 @@ def perform_melee_attack(ctx: Dict[str, Any]) -> Dict[str, Any]:
                 armour_hint = {"item_id": starter_armour}
         sorted_drops = _sorted_drop_messages(drop_iterable or [], armour_hint)
         if sorted_drops:
+            first = True
             for entry in sorted_drops:
                 label_text = combat_loot._entry_label(entry, catalog)
-                bus.push("COMBAT/INFO", f"A {label_text} is falling from {label}'s body!")
+                prefix = "\n" if first else ""
+                bus.push("SYSTEM/OK", f"{prefix}A {label_text} is falling from {label}'s body!")
+                first = False
         bus.push("COMBAT/INFO", f"{label} is crumbling to dust!")
         try:
             from mutants.services import monster_actions as monster_actions_mod
@@ -793,7 +843,7 @@ def perform_melee_attack(ctx: Dict[str, Any]) -> Dict[str, Any]:
         marker = getattr(monsters, "mark_dirty", None)
         if callable(marker):
             try:
-                marker()
+                marker(monster)
             except Exception:
                 pass
     return result
@@ -855,12 +905,8 @@ def perform_ranged_attack(
     alignment = _validate_ranged_alignment(direction, player_pos, pos, max_range)
     if not alignment.get("ok"):
         reason = alignment.get("reason") or "invalid_direction"
-        if reason == "too_far":
-            bus.push("SYSTEM/WARN", "Your bolt can't reach that far.")
-        elif reason in {"off_axis", "wrong_direction"}:
+        if reason in {"off_axis", "wrong_direction"}:
             bus.push("SYSTEM/WARN", "Your target isn't in that direction.")
-        else:
-            bus.push("SYSTEM/WARN", "Nothing happens.")
         return {"ok": False, "reason": reason}
 
     _force_monster_aggro(target, state, ctx)
@@ -999,9 +1045,13 @@ def perform_ranged_attack(
             if starter_armour:
                 armour_hint = {"item_id": starter_armour}
         sorted_drops = _sorted_drop_messages(drop_iterable or [], armour_hint)
-        for entry in sorted_drops or []:
-            label_text = combat_loot._entry_label(entry, catalog)
-            bus.push("COMBAT/INFO", f"A {label_text} is falling from {label}'s body!")
+        if sorted_drops:
+            first = True
+            for entry in sorted_drops:
+                label_text = combat_loot._entry_label(entry, catalog)
+                prefix = "\n" if first else ""
+                bus.push("SYSTEM/OK", f"{prefix}A {label_text} is falling from {label}'s body!")
+                first = False
         bus.push("COMBAT/INFO", f"{label} is crumbling to dust!")
         try:
             from mutants.services import monster_actions as monster_actions_mod
@@ -1014,7 +1064,7 @@ def perform_ranged_attack(
         marker = getattr(monsters, "mark_dirty", None)
         if callable(marker):
             try:
-                marker()
+                marker(monster)
             except Exception:
                 pass
 

@@ -44,12 +44,28 @@ def inv_cmd(arg: str, ctx):
 
     for iid in inv:
         inst = itemsreg.get_instance(iid)
-        if not inst:
-            names.append(str(iid))
-            continue
-        tpl_id = inst.get("item_id") or inst.get("catalog_id") or inst.get("id")
-        tpl = cat.get(str(tpl_id)) if tpl_id else {}
-        names.append(item_label(inst, tpl or {}, show_charges=False))
+        tpl_id = None
+        tpl = {}
+        if inst:
+            tpl_id = inst.get("item_id") or inst.get("catalog_id") or inst.get("id")
+            tpl = cat.get(str(tpl_id)) if tpl_id else {}
+            if not tpl:
+                try:
+                    tpl = items_catalog.catalog_defaults(str(tpl_id))
+                except Exception:
+                    tpl = {}
+            names.append(item_label(inst, tpl or {}, show_charges=False))
+        else:
+            tpl = cat.get(str(iid)) if cat else {}
+            if not tpl:
+                try:
+                    tpl = items_catalog.catalog_defaults(str(iid))
+                except Exception:
+                    tpl = {}
+            if tpl:
+                names.append(item_label({"item_id": str(iid)}, tpl or {}, show_charges=False))
+            else:
+                names.append(str(iid))
 
         weight = _resolve_weight(inst, tpl or {})
         if weight is not None:
@@ -67,7 +83,7 @@ def inv_cmd(arg: str, ctx):
         body_lines.append("Nothing.")
     else:
         for ln in uwrap.wrap_list(display):
-            body_lines.append(st.colorize_text(ln, group=UG.ITEM_LINE))
+            body_lines.append(st.colorize_text(ln, group=UG.LOG_LINE))
     block = "\n".join([header, *body_lines])
     bus.push("SYSTEM/OK", block)
 

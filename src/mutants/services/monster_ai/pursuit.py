@@ -309,6 +309,8 @@ def _apply_movement(
     start: tuple[int, int],
     target: tuple[int, int],
     ctx: Any,
+    *,
+    allow_path: bool = True,
 ) -> tuple[bool, dict[str, Any]]:
     loader = _resolve_world_loader(ctx)
     dynamics = _resolve_dynamics(ctx)
@@ -345,6 +347,10 @@ def _apply_movement(
         details["mode"] = "non-adjacent"
 
     if step_taken is None:
+        if not allow_path:
+            details.setdefault("mode", "blocked")
+            details.setdefault("reason", details.get("direct_reason", "blocked"))
+            return False, details
         path = world_years.find_path_between(
             year,
             start,
@@ -362,7 +368,17 @@ def _apply_movement(
             return False, details
 
     monster["pos"] = [year, step_taken[0], step_taken[1]]
-    monsters_state._refresh_monster_derived(monster)
+    try:
+        monsters_state._refresh_monster_derived(monster)
+    except Exception:
+        pass
+    try:
+        monsters_obj = ctx.get("monsters") if isinstance(ctx, Mapping) else getattr(ctx, "monsters", None)
+        updater = getattr(monsters_obj, "update_position_cache", None)
+        if callable(updater):
+            updater(monster, previous_pos=(year, start[0], start[1]))
+    except Exception:
+        pass
     return True, details
 
 
@@ -516,6 +532,7 @@ def attempt_flee_step(
     rng: Any,
     *,
     ctx: Any | None = None,
+    preferred_direction: str | None = None,
 ) -> bool:
     """Try to take a single step strictly away from ``away_from_pos``."""
 
@@ -532,19 +549,40 @@ def attempt_flee_step(
 
     current_distance = abs(int(sx) - int(away[1])) + abs(int(sy) - int(away[2]))
 
-    directions = list(_DIRECTIONS.keys())
-    try:
-        rng.shuffle(directions)
-    except Exception:
-        pass
+    preferred_step: tuple[int, int] | None = None
+    if preferred_direction in ("N", "S", "E", "W"):
+        pdx, pdy = 0, 0
+        if preferred_direction == "N":
+            pdy = 1
+        elif preferred_direction == "S":
+            pdy = -1
+        elif preferred_direction == "E":
+            pdx = 1
+        elif preferred_direction == "W":
+            pdx = -1
+        step = (int(sx) + pdx, int(sy) + pdy)
+        if abs(step[0] - int(away[1])) + abs(step[1] - int(away[2])) > current_distance:
+            preferred_step = step
 
-    candidates: list[tuple[int, tuple[int, int]]] = []
-    for dx, dy in directions:
-        step = (int(sx) + int(dx), int(sy) + int(dy))
-        step_distance = abs(step[0] - int(away[1])) + abs(step[1] - int(away[2]))
-        if step_distance <= current_distance:
-            continue
-        candidates.append((step_distance, step))
+    # When a flee direction is latched, keep using it even if blocked.
+    if preferred_step is not None:
+        candidates = []
+        pref_dist = abs(preferred_step[0] - int(away[1])) + abs(preferred_step[1] - int(away[2]))
+        candidates.append((pref_dist, preferred_step))
+    else:
+        directions = list(_DIRECTIONS.keys())
+        try:
+            rng.shuffle(directions)
+        except Exception:
+            pass
+
+        candidates: list[tuple[int, tuple[int, int]]] = []
+        for dx, dy in directions:
+            step = (int(sx) + int(dx), int(sy) + int(dy))
+            step_distance = abs(step[0] - int(away[1])) + abs(step[1] - int(away[2]))
+            if step_distance <= current_distance:
+                continue
+            candidates.append((step_distance, step))
 
     if not candidates:
         _log(ctx, monster, success=False, reason="no-away-step", pos=pos, away=away)
@@ -560,7 +598,14 @@ def attempt_flee_step(
     has_bound_target = bool(monster.get("target_player_id") or pending_target)
 
     for _, step in candidates:
-        success, details = _apply_movement(monster, int(year), (int(sx), int(sy)), step, ctx)
+        success, details = _apply_movement(
+            monster,
+            int(year),
+            (int(sx), int(sy)),
+            step,
+            ctx,
+            allow_path=preferred_step is None,
+        )
         if success:
             meta = {"from": (int(sx), int(sy)), "step": step, "away": away}
             meta.update(details)
@@ -638,9 +683,11 @@ def attempt_flee_step(
                 )
             except Exception:
                 LOG.debug("Failed to emit flee footsteps", exc_info=True)
-            # Always suppress shadows for the next frame after a flee move.
+            # Suppress shadows on the next frame only when we just left the player's tile,
+            # so we don't leak a shadow hint while exiting.
             try:
-                setattr(ctx, "_suppress_shadows_once", True)
+                if was_collocated:
+                    setattr(ctx, "_suppress_shadows_once", "collocated_leave")
             except Exception:
                 pass
             # If the monster just moved into the player's tile, emit arrival direction.

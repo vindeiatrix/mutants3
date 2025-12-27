@@ -129,12 +129,55 @@ def _debug_count(ctx) -> None:
     )
 
 
-def _debug_monster(arg: str, ctx) -> None:
+def _debug_set(ctx, key: str, value: str) -> None:
+    """Lightweight setter for well-known debug fields on the active monster."""
+
+    bus = ctx["feedback_bus"]
+    key_norm = (key or "").strip().lower()
+    if key_norm not in {"flee_dir"}:
+        bus.push("SYSTEM/WARN", f"Unknown debug set key: {key}")
+        return
+
+    # Grab a monster on the current tile.
+    monsters = ctx.get("monsters")
+    if monsters is None:
+        bus.push("SYSTEM/WARN", "No monsters state available.")
+        return
+    try:
+        year, x, y = _pos_from_ctx(ctx)
+        mons = monsters.list_at(year, x, y)
+    except Exception:
+        mons = []
+    target = mons[0] if mons else None
+    if target is None:
+        bus.push("SYSTEM/WARN", "No monster on this tile.")
+        return
+
+    if key_norm == "flee_dir":
+        token = value.strip().upper() if isinstance(value, str) else ""
+        if token not in {"N", "S", "E", "W"}:
+            bus.push("SYSTEM/WARN", "flee_dir must be one of N,S,E,W")
+            return
+        state = target.get("_ai_state") if isinstance(target, MutableMapping) else None
+        if not isinstance(state, MutableMapping):
+            state = {}
+            target["_ai_state"] = state
+        state["flee_dir"] = token
+        state["flee_mode"] = True
+        bus.push("SYSTEM/OK", f"Set flee_dir to {token} for {target.get('monster_id') or target.get('id')}.")
+
+
+def _debug_monster(arg: str, ctx, *, count: int = 1) -> None:
     bus = ctx["feedback_bus"]
     monster_id = (arg or "").strip()
     if not monster_id:
         bus.push("SYSTEM/WARN", "Usage: debug monster <monster_id>")
         return
+    try:
+        count_int = int(count)
+    except Exception:
+        count_int = 1
+    count_int = max(1, min(100, count_int))
 
     pos = _pos_from_ctx(ctx)
     coords = [int(pos[0]), int(pos[1]), int(pos[2])]
@@ -173,41 +216,50 @@ def _debug_monster(arg: str, ctx) -> None:
         candidate = ctx.get("monsters")
         if hasattr(candidate, "add_instance") and hasattr(candidate, "list_all"):
             monsters_state_obj = candidate
-    if monsters_state_obj is not None:
-        instance = monster_manual_spawn.spawn_monster_into_state(
-            monster_id=template.monster_id,
-            pos=coords,
-            monsters_cat=mon_cat,
-            items_cat=item_cat,
-            items_reg=item_reg,
-            monsters_state_obj=monsters_state_obj,
-        )
-    else:
-        # Fallback: write directly to the store if no cache is available.
-        mon_reg = monsters_instances.load_monsters_instances()
-        instance = monster_manual_spawn.spawn_monster_at(
-            monster_id=template.monster_id,
-            pos=coords,
-            monsters_cat=mon_cat,
-            monsters_reg=mon_reg,
-            items_cat=item_cat,
-            items_reg=item_reg,
-        )
+    instances_spawned = []
+    for _ in range(count_int):
+        if monsters_state_obj is not None:
+            instance = monster_manual_spawn.spawn_monster_into_state(
+                monster_id=template.monster_id,
+                pos=coords,
+                monsters_cat=mon_cat,
+                items_cat=item_cat,
+                items_reg=item_reg,
+                monsters_state_obj=monsters_state_obj,
+            )
+        else:
+            # Fallback: write directly to the store if no cache is available.
+            mon_reg = monsters_instances.load_monsters_instances()
+            instance = monster_manual_spawn.spawn_monster_at(
+                monster_id=template.monster_id,
+                pos=coords,
+                monsters_cat=mon_cat,
+                monsters_reg=mon_reg,
+                items_cat=item_cat,
+                items_reg=item_reg,
+            )
+        if instance is not None:
+            instances_spawned.append(instance)
 
-    if instance is None:
+    if not instances_spawned:
         bus.push("SYSTEM/WARN", f"Failed to spawn {monster_id}.")
         return
 
-    name = instance.get("name") or template.name
+    name = instances_spawned[0].get("name") or template.name
     state_debug.log_inventory_update(
         ctx,
         player,
         command="debug_monster",
         arg=arg,
         before=before_snapshot,
-        extra={"monster_id": monster_id, "pos": coords, "instance_id": instance.get("id")},
+        extra={
+            "monster_id": monster_id,
+            "pos": coords,
+            "instance_ids": [inst.get("id") for inst in instances_spawned],
+        },
     )
-    bus.push("SYSTEM/OK", f"Spawned {name} at your location.")
+    spawned_count = len(instances_spawned)
+    bus.push("SYSTEM/OK", f"Spawned {spawned_count} x {name} at your location.")
     ctx["render_next"] = True
 
 
@@ -341,13 +393,17 @@ def debug_cmd(arg: str, ctx):
         ctx["feedback_bus"].push(
             "SYSTEM/INFO",
             "Usage: debug add <item_id> [qty] | debug monster <monster_id> | "
-            "debug where | debug count | debug ions <amount> | debug riblets <amount> | debug hp <amount>",
+            "debug where | debug count | debug ions <amount> | debug riblets <amount> | debug hp <amount> | debug set <key> <value>",
         )
         return
 
-    if parts[0] == "monster":
+    if parts[0] in {"monster", "m"}:
         monster_id = parts[1] if len(parts) >= 2 else ""
-        _debug_monster(monster_id, ctx)
+        try:
+            qty = int(parts[2]) if len(parts) >= 3 else 1
+        except Exception:
+            qty = 1
+        _debug_monster(monster_id, ctx, count=qty)
         return
 
     if parts[0] == "add":
@@ -360,6 +416,10 @@ def debug_cmd(arg: str, ctx):
 
     if parts[0] == "count":
         _debug_count(ctx)
+        return
+
+    if parts[0] == "set" and len(parts) >= 3:
+        _debug_set(ctx, parts[1], parts[2])
         return
 
     if parts[0] in {"ions", "ion"}:
@@ -413,18 +473,19 @@ def debug_cmd(arg: str, ctx):
     ctx["feedback_bus"].push(
         "SYSTEM/INFO",
         "Usage: debug add <item_id> [qty] | debug monster <monster_id> | "
-        "debug where | debug count | debug ions <amount> | debug riblets <amount> | debug hp <amount>",
+        "debug where | debug count | debug ions <amount> | debug riblets <amount> | debug hp <amount> | debug set <key> <value>",
     )
 
 
 _DEBUG_HELP_ENTRIES: Sequence[str] = (
     "debug add <item_id> [qty]",
-    "debug monster <monster_id>",
+    "debug monster <monster_id> [qty] (alias: d m <id> [qty])",
     "debug where",
     "debug count",
     "debug ions <amount>",
     "debug riblets <amount>",
     "debug hp <amount>",
+    "debug set <key> <value> (keys: flee_dir)",
 )
 
 
@@ -437,4 +498,6 @@ def render_debug_help() -> str:
 
 def register(dispatch, ctx) -> None:
     dispatch.register("debug", lambda arg: debug_cmd(arg, ctx))
+    dispatch.register("d", lambda arg: debug_cmd(arg, ctx))
+    dispatch.alias("d", "debug")
     dispatch.register("give", lambda arg: debug_add_cmd(arg, ctx))
