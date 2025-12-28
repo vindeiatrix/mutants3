@@ -260,7 +260,12 @@ def convert_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
             ctx.pop("_runtime_player", None)
             player_ctx = pstate.ensure_player_state(ctx)
             if isinstance(player_ctx, dict):
-                player_ctx["_dirty"] = True
+                # Keep the runtime cache aligned with the persisted state to
+                # avoid re-saving a stale inventory via the turn scheduler.
+                player_ctx["inventory"] = list(player.get("inventory") or [])
+                bags_map = player_ctx.setdefault("bags", {})
+                bags_map[str(klass)] = list(player_ctx["inventory"])
+                player_ctx["_dirty"] = False
 
         if pstate._pdbg_enabled():
             pstate._pdbg_setup_file_logging()

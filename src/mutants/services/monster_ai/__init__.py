@@ -339,11 +339,9 @@ def on_player_command(ctx: Any, *, token: str, resolved: str | None, arg: str | 
     is_move = cmd in {"north", "south", "east", "west", "n", "s", "e", "w"}
     is_attack = cmd in {"attack", "att", "wield", "throw"}
 
-    move_passable = bool(_pull(ctx, "_last_move_passable"))
-
-    allow_new_aggro = not is_travel and (
-        (is_move and move_passable) or is_look or is_attack
-    )
+    # Treat any move as eligible for aggro/wake rolls; callers can still suppress
+    # by explicitly setting ``allow_new_aggro`` or using the travel command.
+    allow_new_aggro = not is_travel and (is_move or is_look or is_attack)
     suppress_aggro = not allow_new_aggro
 
     player_state = _pull(ctx, "player_state")
@@ -387,6 +385,19 @@ def on_player_command(ctx: Any, *, token: str, resolved: str | None, arg: str | 
 
     bus = _pull(ctx, "feedback_bus")
     mark_dirty = getattr(monsters, "mark_dirty", None)
+
+    def _mark_dirty(mon: MutableMapping[str, Any]) -> None:
+        if not callable(mark_dirty):
+            return
+        try:
+            mark_dirty(mon)
+        except TypeError:
+            try:
+                mark_dirty()
+            except Exception:
+                pass
+        except Exception:
+            pass
 
     # Log pre-turn state for debugging ready/bind drift.
     try:
@@ -435,11 +446,8 @@ def on_player_command(ctx: Any, *, token: str, resolved: str | None, arg: str | 
                     updater(monster, previous_pos=previous)
             except Exception:
                 pass
-        if moved and callable(mark_dirty):
-            try:
-                mark_dirty(monster)
-            except Exception:
-                pass
+        if moved:
+            _mark_dirty(monster)
         return moved
 
     def _process_monster(monster: Mapping[str, Any], *, allow_target_roll: bool, require_wake: bool) -> None:
@@ -458,17 +466,17 @@ def on_player_command(ctx: Any, *, token: str, resolved: str | None, arg: str | 
         bound_id = _normalize_id(state_block.get("bound_player_id")) if isinstance(state_block, Mapping) else None
         # Keep bound/target mirrored; if only one is present, repair it.
         if isinstance(monster, MutableMapping):
+            changed = False
             if target and bound_id != target and isinstance(state_block, MutableMapping):
                 state_block["bound_player_id"] = target
                 bound_id = target
+                changed = True
             elif bound_id and target != bound_id:
                 monster["target_player_id"] = bound_id
                 target = bound_id
-            if callable(mark_dirty):
-                try:
-                    mark_dirty(monster)
-                except Exception:
-                    pass
+                changed = True
+            if changed:
+                _mark_dirty(monster)
             marker = getattr(monsters, "mark_targeting", None)
             if callable(marker):
                 try:
@@ -512,11 +520,8 @@ def on_player_command(ctx: Any, *, token: str, resolved: str | None, arg: str | 
                 woke=woke if require_wake else None,
                 ctx=ctx,
             )
-            if callable(mark_dirty) and outcome.get("target_set"):
-                try:
-                    mark_dirty(monster)
-                except Exception:  # pragma: no cover - best effort
-                    pass
+            if outcome.get("target_set"):
+                _mark_dirty(monster)
             target = _normalize_id(monster.get("target_player_id"))
             if target != player_id:
                 return

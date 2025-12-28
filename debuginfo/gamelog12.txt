@@ -1,0 +1,119 @@
+(.venv) PS C:\git\mutants3> .\Run-Mutants.ps1 -Logging
+Repo: C:\git\mutants3
+DB:   C:\git\mutants3\state\mutants.db
+ENV:  MUTANTS_STATE_BACKEND=sqlite; GAME_STATE_ROOT=C:\git\mutants3\state
+Obtaining file:///C:/git/mutants3
+  Installing build dependencies ... done
+  Checking if build backend supports build_editable ... done
+  Getting requirements to build editable ... done
+  Preparing editable metadata (pyproject.toml) ... done
+Building wheels for collected packages: mutants
+  Building editable for mutants (pyproject.toml) ... done
+  Created wheel for mutants: filename=mutants-0.0.0-0.editable-py3-none-any.whl size=2532 sha256=c32bb345cc1b45f6519a6d54230244192201a659329bc92522de6abd73fa912a
+  Stored in directory: C:\Users\micha\AppData\Local\Temp\pip-ephem-wheel-cache-f140wkye\wheels\b4\69\10\ae1882fbb90498758babc0f588fba11f403383ef66d2b42682
+Successfully built mutants
+Installing collected packages: mutants
+  Attempting uninstall: mutants
+    Found existing installation: mutants 0.0.0
+    Uninstalling mutants-0.0.0:
+      Successfully uninstalled mutants-0.0.0
+Successfully installed mutants-0.0.0
+Schema ensured at C:\git\mutants3\state\mutants.db
+Items catalog present (rows: 45).
+daily_litter: triggered
+Monsters catalog present (rows: 7).
+Monsters currently present (rows: 0).
+
+Launching game (SQLite backend)...
+Mutants — classic BBS vibes.  Type 'help' for commands; 'theme mono' for no color.
+
+ 1. Mutant Thief    Level: 1   Year: 2000  ( 0  0)
+ 2. Mutant Priest   Level: 1   Year: 2000  ( 0  0)
+ 3. Mutant Wizard   Level: 1   Year: 2000  ( 0  0)
+ 4. Mutant Warrior  Level: 1   Year: 2000  ( 0  0)
+ 5. Mutant Mage     Level: 1   Year: 2000  ( 0  0)
+
+Type BURY [class number] to reset a player. Type X to exit.
+***
+Select (Bury, 1-5, ?) 4
+The street is cracked here.
+Compass: (0E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+> w
+An eerie calm settles in the distance.
+Compass: (-1E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+> stat
+***
+Name: Warrior / Mutant Warrior
+Exhaustion    : 0
+Str: 23     Int: 12      Wis: 14
+Dex: 20     Con: 19      Cha: 9
+Hit Points    : 40 / 40
+Exp. Points   : 0  Level: 1
+Riblets       : 0
+Ions          : 30000
+Wearing Armor : None  Armour Class: 2
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D.      : 2000
+
+You are carrying the following items:  (Total Weight: 0 LB's)
+Nothing.
+> w
+Graffiti lines the city walls.
+Compass: (-2E : 0N)
+north - area continues.
+south - area continues.
+east  - area continues.
+west  - area continues.
+***
+On the ground lies:
+A Cigarette‑Butt, A Monster‑Bait.
+> get c
+***
+You pick up the Cigarette‑Butt.
+> stat
+***
+Name: Warrior / Mutant Warrior
+Exhaustion    : 0
+Str: 23     Int: 12      Wis: 14
+Dex: 20     Con: 19      Cha: 9
+Hit Points    : 40 / 40
+Exp. Points   : 0  Level: 1
+Riblets       : 0
+Ions          : 30000
+Wearing Armor : None  Armour Class: 2
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D.      : 2000
+
+You are carrying the following items:  (Total Weight: 1 LB's)
+A Cigarette‑Butt.
+> con c
+***
+The Cigarette‑Butt vanishes with a flash!
+You convert the Cigarette‑Butt into 11000 ions.
+> stat
+***
+Name: Warrior / Mutant Warrior
+Exhaustion    : 0
+Str: 23     Int: 12      Wis: 14
+Dex: 20     Con: 19      Cha: 9
+Hit Points    : 40 / 40
+Exp. Points   : 0  Level: 1
+Riblets       : 0
+Ions          : 41000
+Wearing Armor : None  Armour Class: 2
+Ready to Combat: NO ONE
+Readied Spell  : No spell memorized.
+Year A.D.      : 2000
+
+You are carrying the following items:  (Total Weight: 0 LB's)
+A 741d7894930b4a0bb8069bf3f412df25.

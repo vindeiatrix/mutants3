@@ -1,0 +1,21 @@
+{
+  "name": "convert_removes_item",
+  "commands": [
+    "theme mono",
+    "bury all",
+    "4",
+    "debug add cigarette_butt",
+    "get c",
+    "con c",
+    "inv",
+    "x"
+  ],
+  "expect": [
+    "convert the",
+    "Total Weight: 0 LB",
+    "Nothing."
+  ],
+  "timeout_seconds": 60,
+  "stdin_delay_ms": 150,
+  "purge_state": true
+}
