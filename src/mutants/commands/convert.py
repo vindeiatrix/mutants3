@@ -185,12 +185,10 @@ def convert_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
     except Exception:
         snapshot_state = None
 
+    runtime_cls = klass if isinstance(klass, str) and klass else pstate.get_active_class(player)
     if snapshot_state is not None:
-        klass_from_state = pstate.get_active_class(snapshot_state)
-        if isinstance(klass_from_state, str) and klass_from_state:
-            klass = klass_from_state
         ion_map = snapshot_state.get("ions_by_class")
-        if isinstance(ion_map, dict) and isinstance(klass, str) and klass in ion_map:
+        if isinstance(ion_map, dict) and isinstance(runtime_cls, str) and runtime_cls in ion_map:
             state_before = pstate.get_ions_for_active(snapshot_state)
             if before:
                 before = min(before, state_before)
@@ -202,7 +200,7 @@ def convert_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
                 before = alt
 
     if not isinstance(klass, str) or not klass:
-        klass = pstate.get_active_class(player)
+        klass = runtime_cls or pstate.get_active_class(player)
 
     new_total = max(0, before + value)
 
@@ -237,21 +235,33 @@ def convert_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
             state = pstate.load_state()
         if not isinstance(state, dict):
             state = {}
+
+        # Force the active identity/class to the current player so persistence does not bleed
+        # into a different class when the on-disk active_id is stale.
+        player_id = player.get("id")
+        if player_id:
+            state["active_id"] = player_id
+        if runtime_cls:
+            state["class"] = runtime_cls
+
         pstate.ensure_class_profiles(state)
         pstate.normalize_player_state_inplace(state)
         # Keep canonical position in sync with runtime.
         if isinstance(runtime_state, dict):
             try:
                 pos = pstate.canonical_player_pos(runtime_state)
-                pstate.update_player_pos(state, pstate.get_active_class(state), pos)
+                pstate.update_player_pos(state, runtime_cls, pos)
             except Exception:
                 pass
 
-        # 1. Persist inventory change
-        active_class = pstate.get_active_class(state)
-        pstate.update_player_inventory(state, active_class, player["inventory"])
+        # 1. Persist inventory change for the current class, not whatever is on disk.
+        target_cls = runtime_cls or pstate.get_active_class(state)
+        pstate.update_player_inventory(state, target_cls, player["inventory"])
 
         # 2. Persist ion change (set_ions_for_active saves the full state)
+        # Ensure the active class reflects the target class so ions land in the right bucket.
+        if target_cls:
+            state["class"] = target_cls
         pstate.set_ions_for_active(state, new_total)
 
         # 3. Update runtime context so the game loop sees the changes.

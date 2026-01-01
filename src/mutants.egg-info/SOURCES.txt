@@ -109,6 +109,7 @@ src/mutants/ui/themes.py
 src/mutants/ui/uicontract.py
 src/mutants/ui/viewmodels.py
 src/mutants/ui/wrap.py
+tests/test_audio_cues_partition.py
 tests/test_class_menu.py
 tests/test_class_menu_state_persistence.py
 tests/test_class_state_isolation.py
@@ -125,6 +126,8 @@ tests/test_player_state_canonical.py
 tests/test_player_state_clear_target.py
 tests/test_player_state_runtime_cache.py
 tests/test_position_sync.py
+tests/test_ready_target_partition.py
+tests/test_shadows_partition.py
 tests/test_skull_description.py
 tests/test_statistics_ready_target.py
 tests/test_strike_rewards.py

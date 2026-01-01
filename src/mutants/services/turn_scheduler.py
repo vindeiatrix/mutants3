@@ -246,6 +246,7 @@ class TurnScheduler:
             mid = mon.get("id") or mon.get("instance_id") or mon.get("monster_id")
             snapshot.append({"name": str(name), "id": str(mid) if mid is not None else ""})
         ctx["_monsters_were_here"] = snapshot
+        ctx["_monsters_were_here_pos"] = player_pos
 
         # Also snapshot adjacent shadows so LOOK can show them even if monsters flee away this turn.
         if player_pos:
@@ -254,6 +255,7 @@ class TurnScheduler:
 
                 shadows = vision.adjacent_monster_directions(monsters, player_pos)
                 ctx["_shadows_before_turn"] = list(shadows)
+                ctx["_shadows_before_turn_pos"] = player_pos
             except Exception:
                 pass
 

@@ -389,9 +389,50 @@ def _log_move_lag(ctx: Dict[str, Any], probe: Mapping[str, Any]) -> None:
         pass
 
 
+def _player_partition(ctx: Mapping[str, Any]) -> tuple[int, int, int] | None:
+    """Return the player's current (year, x, y) tuple if available."""
+
+    try:
+        return pstate.canonical_player_pos(ctx.get("player_state"))
+    except Exception:
+        return None
+
+
+def _clear_ready_target_if_cross_year(ctx: MutableMapping[str, Any], current_pos: tuple[int, int, int]) -> None:
+    """Clear the active ready target when it refers to a monster in another year."""
+
+    try:
+        ready = pstate.get_ready_target_for_active(ctx.get("player_state"))
+    except Exception:
+        return
+    if not ready:
+        return
+    monsters = ctx.get("monsters")
+    getter = getattr(monsters, "get", None)
+    if not callable(getter):
+        return
+    try:
+        record = getter(ready)
+    except Exception:
+        return
+    if not isinstance(record, Mapping):
+        return
+    pos = record.get("pos") or record.get("position") or ()
+    try:
+        year = int(pos[0])
+    except Exception:
+        return
+    if year != current_pos[0]:
+        cleared = pstate.clear_ready_target_for_active(reason="ready-target-cross-partition")
+        ctx["_ready_target_cleared_partition"] = cleared or ready
+
+
 def render_frame(ctx: Dict[str, Any]) -> None:
     vm = ctx.pop("peek_vm", None)
     is_peek = vm is not None
+    current_pos = _player_partition(ctx)
+    if isinstance(ctx, MutableMapping) and current_pos:
+        _clear_ready_target_if_cross_year(ctx, current_pos)
     if vm is None:
         # Cache is the single read path for monsters; never read directly from the store.
         vm = build_room_vm(
@@ -403,6 +444,16 @@ def render_frame(ctx: Dict[str, Any]) -> None:
         )
     force_show_monsters = bool(ctx.pop("_force_show_monsters", False))
     pre_turn_monsters = ctx.pop("_monsters_were_here", None)
+    pre_turn_monsters_pos = ctx.pop("_monsters_were_here_pos", None)
+    if pre_turn_monsters and current_pos:
+        if tuple(pre_turn_monsters_pos or ()) != tuple(current_pos):
+            LOG.debug(
+                "Dropping cached collocated monsters from different partition: cached=%s current=%s",
+                pre_turn_monsters_pos,
+                current_pos,
+            )
+            pre_turn_monsters = None
+    pre_turn_shadows_pos = ctx.pop("_shadows_before_turn_pos", None)
     if is_peek:
         # Peeking into adjacent tiles should never emit shadows; show the tile as-is.
         vm = dict(vm)
@@ -430,8 +481,18 @@ def render_frame(ctx: Dict[str, Any]) -> None:
         # reuse them so LOOK still shows nearby threats even when they fled this tick.
         pre_turn_shadows = ctx.pop("_shadows_before_turn", None)
         if pre_turn_shadows and not vm.get("shadows"):
-            vm = dict(vm)
-            vm["shadows"] = list(pre_turn_shadows)
+            same_partition = (
+                not current_pos or tuple(pre_turn_shadows_pos or ()) == tuple(current_pos)
+            )
+            if same_partition:
+                vm = dict(vm)
+                vm["shadows"] = list(pre_turn_shadows)
+            else:
+                LOG.debug(
+                    "Dropping cached shadows from different partition: cached=%s current=%s",
+                    pre_turn_shadows_pos,
+                    current_pos,
+                )
         # If monsters were collocated at turn start, prefer showing their presence
         # for this frame and suppress shadows to avoid pre-emptive hints.
         if pre_turn_monsters and not vm.get("monsters_here"):
