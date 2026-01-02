@@ -1,18 +1,21 @@
 {
+  "active_id": "player_warrior",
   "players": [
     {
-      "id": "p1",
+      "id": "player_thief",
+      "name": "Thief",
       "class": "Thief",
+      "is_active": false,
       "pos": [
         2000,
-        0,
+        2,
         0
       ],
-      "inventory": [],
       "ions": 30000,
-      "name": "Thief",
+      "inventory": [
+        "191bfb9376334a32a3ca05898dae8964"
+      ],
       "Ions": 30000,
-      "is_active": false,
       "stats": {
         "str": 15,
         "int": 9,
@@ -84,15 +87,17 @@
       "class": "Warrior",
       "is_active": true,
       "pos": [
-        2000,
-        0,
-        1
+        2100,
+        -4,
+        -5
       ],
-      "ions": 30000,
+      "ions": 191021,
       "inventory": [
-        "39485c40c5304c7f81d66969a1ed384c"
+        "01952792bc6b4d9aa07237b7c395a8e4",
+        "05fbd89f40284076b0dd80b89cd784ac",
+        "23499522e83d4408bb327a29174305f3"
       ],
-      "Ions": 30000,
+      "Ions": 191021,
       "stats": {
         "str": 23,
         "int": 12,
@@ -102,12 +107,12 @@
         "cha": 9
       },
       "hp": {
-        "current": 999999,
-        "max": 999999
+        "current": 2323173,
+        "max": 2323232
       },
-      "riblets": 0,
-      "Riblets": 0,
-      "exp_points": 0
+      "riblets": 76,
+      "Riblets": 76,
+      "exp_points": 115
     },
     {
       "id": "player_mage",
@@ -136,38 +141,61 @@
       }
     }
   ],
-  "active_id": "player_warrior",
+  "ready_target": null,
+  "ready_target_by_class": {
+    "Mutant Warrior": null,
+    "Thief": null,
+    "Priest": null,
+    "Wizard": null,
+    "Warrior": null,
+    "Mage": null
+  },
+  "class": "Warrior",
+  "target_monster_id_by_class": {
+    "Mutant Warrior": null,
+    "Thief": null,
+    "Priest": null,
+    "Wizard": null,
+    "Warrior": null,
+    "Mage": null
+  },
   "ions_by_class": {
     "Thief": 30000,
     "Priest": 30000,
     "Wizard": 30000,
-    "Warrior": 30000,
+    "Warrior": 191021,
     "Mage": 30000
   },
-  "class": "Warrior",
   "name": "Warrior",
   "pos": [
-    2000,
-    0,
-    1
+    2100,
+    -4,
+    -5
   ],
   "bags": {
-    "Thief": [],
+    "Mutant Warrior": [],
+    "Thief": [
+      "191bfb9376334a32a3ca05898dae8964"
+    ],
     "Priest": [],
     "Wizard": [],
     "Warrior": [
-      "39485c40c5304c7f81d66969a1ed384c"
+      "01952792bc6b4d9aa07237b7c395a8e4",
+      "05fbd89f40284076b0dd80b89cd784ac",
+      "23499522e83d4408bb327a29174305f3"
     ],
     "Mage": []
   },
   "inventory": [
-    "39485c40c5304c7f81d66969a1ed384c"
+    "01952792bc6b4d9aa07237b7c395a8e4",
+    "05fbd89f40284076b0dd80b89cd784ac",
+    "23499522e83d4408bb327a29174305f3"
   ],
   "riblets_by_class": {
     "Thief": 0,
     "Priest": 0,
     "Wizard": 0,
-    "Warrior": 0,
+    "Warrior": 76,
     "Mage": 0
   },
   "exhaustion_by_class": {
@@ -181,7 +209,7 @@
     "Thief": 0,
     "Priest": 0,
     "Wizard": 0,
-    "Warrior": 0,
+    "Warrior": 115,
     "Mage": 0
   },
   "level_by_class": {
@@ -205,8 +233,8 @@
       "max": 23
     },
     "Warrior": {
-      "current": 999999,
-      "max": 999999
+      "current": 2323173,
+      "max": 2323232
     },
     "Mage": {
       "current": 28,
@@ -266,25 +294,14 @@
       "armour": null
     },
     "Warrior": {
-      "armour": null
+      "armour": "05fbd89f40284076b0dd80b89cd784ac"
     },
     "Mage": {
       "armour": null
+    },
+    "Mutant Warrior": {
+      "armour": null
     }
-  },
-  "ready_target_by_class": {
-    "Thief": null,
-    "Priest": null,
-    "Wizard": null,
-    "Warrior": null,
-    "Mage": null
-  },
-  "target_monster_id_by_class": {
-    "Thief": null,
-    "Priest": null,
-    "Wizard": null,
-    "Warrior": null,
-    "Mage": null
   },
   "status_effects_by_class": {
     "Thief": [],
@@ -313,6 +330,10 @@
     "Mage": {
       "known": [],
       "prepared": []
+    },
+    "Mutant Warrior": {
+      "known": [],
+      "prepared": []
     }
   },
   "spell_effects_by_class": {
@@ -330,23 +351,26 @@
     },
     "Mage": {
       "personal": {}
+    },
+    "Mutant Warrior": {
+      "personal": {}
     }
   },
   "world_tile_effects": {},
   "armour": {
-    "wearing": null,
-    "armour_class": 2
+    "wearing": "05fbd89f40284076b0dd80b89cd784ac",
+    "armour_class": 1
   },
-  "ions": 30000,
-  "Ions": 30000,
-  "riblets": 0,
-  "Riblets": 0,
+  "ions": 191021,
+  "Ions": 191021,
+  "riblets": 76,
+  "Riblets": 76,
   "exhaustion": 0,
-  "exp_points": 0,
+  "exp_points": 115,
   "level": 1,
   "hp": {
-    "current": 999999,
-    "max": 999999
+    "current": 2323173,
+    "max": 2323232
   },
   "stats": {
     "str": 23,
@@ -357,12 +381,11 @@
     "cha": 9
   },
   "position": [
-    2000,
-    0,
-    1
+    2100,
+    -4,
+    -5
   ],
   "readied_spell": null,
-  "ready_target": null,
   "target_monster_id": null,
   "status_effects": [],
   "carried_weight": 0,

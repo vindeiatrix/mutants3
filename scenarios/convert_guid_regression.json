@@ -1,0 +1,25 @@
+{
+  "name": "convert_guid_regression",
+  "commands": [
+    "theme mono",
+    "bury all",
+    "5",
+    "debug add nuclear-thong",
+    "get nuclear-thong",
+    "con nuclear-thong",
+    "x"
+  ],
+  "expect": [
+    "convert the Nuclear"
+  ],
+  "after_restart_commands": [
+    "5",
+    "stat"
+  ],
+  "after_restart_expect": [
+    "Nothing."
+  ],
+  "timeout_seconds": 120,
+  "stdin_delay_ms": 200,
+  "purge_state": true
+}

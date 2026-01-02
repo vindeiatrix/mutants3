@@ -101,6 +101,43 @@ def _convert_payout(iid: str, item_id: str, catalog: Any) -> int:
     return _convert_value(item_id, catalog, iid if iid else None)
 
 
+def _purge_iid_everywhere(state: dict, iid: str) -> None:
+    """Remove ``iid`` from all inventories/bags/active views in ``state``."""
+
+    if not isinstance(state, dict):
+        return
+    sanitized = str(iid).strip()
+    if not sanitized:
+        return
+
+    def _drop_from_list(lst):
+        if isinstance(lst, list):
+            return [tok for tok in lst if str(tok).strip() != sanitized]
+        return lst
+
+    state["inventory"] = _drop_from_list(state.get("inventory"))
+    active = state.get("active")
+    if isinstance(active, dict):
+        active["inventory"] = _drop_from_list(active.get("inventory"))
+
+    bags = state.get("bags")
+    if isinstance(bags, dict):
+        for key, bag in list(bags.items()):
+            bags[key] = _drop_from_list(bag)
+
+    players = state.get("players")
+    if isinstance(players, list):
+        for pl in players:
+            if not isinstance(pl, dict):
+                continue
+            pl["inventory"] = _drop_from_list(pl.get("inventory"))
+            # Mirror bags if present at player level.
+            pbags = pl.get("bags")
+            if isinstance(pbags, dict):
+                for key, bag in list(pbags.items()):
+                    pbags[key] = _drop_from_list(bag)
+
+
 def _choose_inventory_item(
     player: Dict[str, object],
     prefix: str,
@@ -185,12 +222,10 @@ def convert_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
     except Exception:
         snapshot_state = None
 
+    runtime_cls = klass if isinstance(klass, str) and klass else pstate.get_active_class(player)
     if snapshot_state is not None:
-        klass_from_state = pstate.get_active_class(snapshot_state)
-        if isinstance(klass_from_state, str) and klass_from_state:
-            klass = klass_from_state
         ion_map = snapshot_state.get("ions_by_class")
-        if isinstance(ion_map, dict) and isinstance(klass, str) and klass in ion_map:
+        if isinstance(ion_map, dict) and isinstance(runtime_cls, str) and runtime_cls in ion_map:
             state_before = pstate.get_ions_for_active(snapshot_state)
             if before:
                 before = min(before, state_before)
@@ -202,7 +237,7 @@ def convert_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
                 before = alt
 
     if not isinstance(klass, str) or not klass:
-        klass = pstate.get_active_class(player)
+        klass = runtime_cls or pstate.get_active_class(player)
 
     new_total = max(0, before + value)
 
@@ -212,6 +247,7 @@ def convert_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
     except ValueError:
         pass
     player["inventory"] = inventory
+    _purge_iid_everywhere(player, iid)
 
     player["ions"] = new_total
     player["Ions"] = new_total
@@ -237,21 +273,34 @@ def convert_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
             state = pstate.load_state()
         if not isinstance(state, dict):
             state = {}
+
+        # Force the active identity/class to the current player so persistence does not bleed
+        # into a different class when the on-disk active_id is stale.
+        player_id = player.get("id")
+        if player_id:
+            state["active_id"] = player_id
+        if runtime_cls:
+            state["class"] = runtime_cls
+
         pstate.ensure_class_profiles(state)
         pstate.normalize_player_state_inplace(state)
         # Keep canonical position in sync with runtime.
         if isinstance(runtime_state, dict):
             try:
                 pos = pstate.canonical_player_pos(runtime_state)
-                pstate.update_player_pos(state, pstate.get_active_class(state), pos)
+                pstate.update_player_pos(state, runtime_cls, pos)
             except Exception:
                 pass
 
-        # 1. Persist inventory change
-        active_class = pstate.get_active_class(state)
-        pstate.update_player_inventory(state, active_class, player["inventory"])
+        # 1. Persist inventory change for the current class, not whatever is on disk.
+        target_cls = runtime_cls or pstate.get_active_class(state)
+        pstate.update_player_inventory(state, target_cls, player["inventory"])
+        _purge_iid_everywhere(state, iid)
 
         # 2. Persist ion change (set_ions_for_active saves the full state)
+        # Ensure the active class reflects the target class so ions land in the right bucket.
+        if target_cls:
+            state["class"] = target_cls
         pstate.set_ions_for_active(state, new_total)
 
         # 3. Update runtime context so the game loop sees the changes.
@@ -260,13 +309,18 @@ def convert_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
             ctx.pop("_runtime_player", None)
             player_ctx = pstate.ensure_player_state(ctx)
             if isinstance(player_ctx, dict):
-                player_ctx["_dirty"] = True
+                # Keep the runtime cache aligned with the persisted state to
+                # avoid re-saving a stale inventory via the turn scheduler.
+                player_ctx["inventory"] = list(player.get("inventory") or [])
+                bags_map = player_ctx.setdefault("bags", {})
+                bags_map[str(klass)] = list(player_ctx["inventory"])
+                player_ctx["_dirty"] = False
 
         if pstate._pdbg_enabled():
             pstate._pdbg_setup_file_logging()
             LOG_P.info(
                 "[playersdbg] CONVERT success class=%s ions=%s add=%s",
-                active_class,
+                runtime_cls or klass,
                 new_total,
                 value,
             )

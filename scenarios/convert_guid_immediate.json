@@ -1,0 +1,21 @@
+{
+  "name": "convert_guid_immediate",
+  "commands": [
+    "theme mono",
+    "bury all",
+    "4",
+    "debug add short_sword",
+    "get short_sword",
+    "con short_sword",
+    "stat",
+    "x"
+  ],
+  "expect": [
+    "convert the Short",
+    "Total Weight: 0 LB",
+    "Nothing."
+  ],
+  "timeout_seconds": 120,
+  "stdin_delay_ms": 200,
+  "purge_state": true
+}

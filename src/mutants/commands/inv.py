@@ -32,7 +32,17 @@ def _resolve_weight(inst, tpl) -> int | None:
 def inv_cmd(arg: str, ctx):
     state, player = pstate.get_active_pair()
     pstate.bind_inventory_to_active_class(player)
-    inv = [str(i) for i in (player.get("inventory") or []) if i]
+    raw_inv = [str(i) for i in (player.get("inventory") or []) if i]
+    # Drop any dangling instance ids that no longer exist in the registry to
+    # avoid showing phantom items (e.g., after conversion failures).
+    inv: list[str] = []
+    dangling: list[str] = []
+    for iid in raw_inv:
+        if itemsreg.get_instance(iid):
+            inv.append(iid)
+        else:
+            dangling.append(iid)
+
     equipped = pstate.get_equipped_armour_id(state)
     if not equipped:
         equipped = pstate.get_equipped_armour_id(player)
@@ -70,6 +80,22 @@ def inv_cmd(arg: str, ctx):
         weight = _resolve_weight(inst, tpl or {})
         if weight is not None:
             total_weight += max(0, weight)
+
+    if dangling:
+        try:
+            cls = pstate.get_active_class(state)
+            pstate.update_player_inventory(state, cls, inv)
+            pstate.save_state(state, reason="inv.prune_dangling")
+            if isinstance(ctx, dict):
+                ctx["player_state"] = state
+                ctx.pop(pstate._RUNTIME_PLAYER_KEY, None)  # type: ignore[attr-defined]
+                refreshed = pstate.ensure_player_state(ctx)
+                if isinstance(refreshed, dict):
+                    refreshed["inventory"] = list(inv)
+                    refreshed["_dirty"] = False
+        except Exception:
+            # If cleanup fails, continue rendering without crashing the command.
+            pass
 
     numbered = number_duplicates(names)
     display = [harden_final_display(with_article(n)) for n in numbered]

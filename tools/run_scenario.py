@@ -70,11 +70,45 @@ def write_commands(proc: Popen, commands: list[str], delay_ms: int) -> None:
         time.sleep(max(0, delay_ms) / 1000.0)
 
 
+def _run_phase(commands: list[str], timeout: float, delay_ms: int, env: dict) -> str:
+    proc = Popen(
+        [PY_EXE, "-m", "mutants"],
+        cwd=ROOT,
+        stdin=PIPE,
+        stdout=PIPE,
+        stderr=STDOUT,
+        text=True,
+        env=env,
+    )
+    cmd_text = "\n".join(commands) + "\n"
+    try:
+        out, _ = proc.communicate(input=cmd_text, timeout=timeout)
+    except Exception:
+        try:
+            proc.kill()
+        finally:
+            out = proc.stdout.read() if proc.stdout else ""
+    return out or ""
+
+
+def _check_expect(expect: list[str], output: str, log_path: Path, phase: str) -> int:
+    idx = 0
+    for token in expect:
+        pos = output.find(token, idx)
+        if pos == -1:
+            print(f"[FAIL] missing expected text in {phase}: {token!r}; log saved to {log_path}")
+            return 1
+        idx = pos + len(token)
+    return 0
+
+
 def run_scenario(path: Path) -> int:
     scenario = load_scenario(path)
     name = scenario.get("name") or path.stem
     commands = scenario.get("commands") or []
     expect = scenario.get("expect") or []
+    after_commands = scenario.get("after_restart_commands") or []
+    after_expect = scenario.get("after_restart_expect") or []
     timeout = float(scenario.get("timeout_seconds") or 40)
     delay_ms = int(scenario.get("stdin_delay_ms") or 150)
     purge = bool(scenario.get("purge_state"))
@@ -97,36 +131,20 @@ def run_scenario(path: Path) -> int:
     if not DB_PATH.exists():
         DB_PATH.touch()
 
-    proc = Popen(
-        [PY_EXE, "-m", "mutants"],
-        cwd=ROOT,
-        stdin=PIPE,
-        stdout=PIPE,
-        stderr=STDOUT,
-        text=True,
-        env=env,
-    )
+    # Phase 1
+    out1 = _run_phase(commands, timeout, delay_ms, env)
+    combined = out1
+    log_path.write_text(out1, encoding="utf-8")
+    if _check_expect(expect, out1, log_path, "phase1") != 0:
+        return 1
 
-    cmd_text = "\n".join(commands) + "\n"
-    try:
-        out, _ = proc.communicate(input=cmd_text, timeout=timeout)
-    except Exception:
-        try:
-            proc.kill()
-        finally:
-            out = proc.stdout.read() if proc.stdout else ""
-
-    log_path.write_text(out or "", encoding="utf-8")
-
-    # Simple ordered substring checks.
-    idx = 0
-    joined = out or ""
-    for token in expect:
-        pos = joined.find(token, idx)
-        if pos == -1:
-            print(f"[FAIL] missing expected text: {token!r}; log saved to {log_path}")
+    # Optional restart phase (fresh process, same state)
+    if after_commands:
+        out2 = _run_phase(after_commands, timeout, delay_ms, env)
+        combined = combined + "\n\n[RESTART]\n\n" + out2
+        log_path.write_text(combined, encoding="utf-8")
+        if _check_expect(after_expect, combined, log_path, "after_restart") != 0:
             return 1
-        idx = pos + len(token)
 
     print(f"[OK] Scenario '{name}' passed. Log: {log_path}")
     return 0

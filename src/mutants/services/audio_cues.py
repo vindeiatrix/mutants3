@@ -10,6 +10,7 @@ __all__ = ["emit_sound", "drain", "peek"]
 
 
 _STORE_KEY = "_audio_cues_queue"
+_STORE_POS_KEY = "_audio_cues_queue_pos"
 _MAX_DISTANCE = 4
 
 _SOUND_LABELS: Mapping[str, str] = {
@@ -74,10 +75,10 @@ def _sound_label(kind: Any) -> str:
     return _SOUND_LABELS.get(token, token)
 
 
-def _resolve_store(ctx: Any, *, create: bool) -> Deque[str] | None:
+def _resolve_store(ctx: Any, *, create: bool) -> Deque[tuple[str, tuple[int, int, int] | None]] | None:
     if ctx is None:
         return None
-    queue: Deque[str] | None = None
+    queue: Deque[tuple[str, tuple[int, int, int] | None]] | None = None
     if isinstance(ctx, MutableMapping):
         candidate = ctx.get(_STORE_KEY)
         if isinstance(candidate, deque):
@@ -152,11 +153,12 @@ def emit_sound(
 
     queue = _resolve_store(ctx, create=True)
     if queue is not None:
-        if once_per_frame and message in queue:
+        existing_msgs = [entry[0] for entry in queue]
+        if once_per_frame and message in existing_msgs:
             return message
         # Avoid piling up duplicate cues within the same tick/frame.
-        if not queue or queue[-1] != message:
-            queue.append(message)
+        if not queue or queue[-1][0] != message:
+            queue.append((message, player))
             # When hearing a monster at distance > 1, suppress shadows for the next render
             # so they appear a frame later.
             try:
@@ -175,8 +177,19 @@ def drain(ctx: Any) -> List[str]:
         return []
     items = []
     seen: set[str] = set()
+    current_pos = None
+    if isinstance(ctx, MutableMapping):
+        try:
+            from mutants.services import player_state as pstate
+
+            current_pos = pstate.canonical_player_pos(ctx.get("player_state"))
+        except Exception:
+            current_pos = None
     while queue:
-        msg = queue.popleft()
+        msg, pos = queue.popleft()
+        if current_pos and pos and current_pos[0] != pos[0]:
+            # Drop cross-year cues to avoid stale hints after travel.
+            continue
         if msg in seen:
             continue
         seen.add(msg)
@@ -191,4 +204,4 @@ def peek(ctx: Any) -> List[str]:
     queue = _resolve_store(ctx, create=False)
     if not queue:
         return []
-    return list(queue)
+    return [entry[0] for entry in list(queue)]
