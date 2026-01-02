@@ -1,4 +1,5 @@
 (.venv) PS C:\git\mutants3> .\Run-Mutants.ps1 -Logging
+Creating SQLite database file...
 Repo: C:\git\mutants3
 DB:   C:\git\mutants3\state\mutants.db
 ENV:  MUTANTS_STATE_BACKEND=sqlite; GAME_STATE_ROOT=C:\git\mutants3\state
@@ -9,8 +10,8 @@ Obtaining file:///C:/git/mutants3
   Preparing editable metadata (pyproject.toml) ... done
 Building wheels for collected packages: mutants
   Building editable for mutants (pyproject.toml) ... done
-  Created wheel for mutants: filename=mutants-0.0.0-0.editable-py3-none-any.whl size=2532 sha256=c32bb345cc1b45f6519a6d54230244192201a659329bc92522de6abd73fa912a
-  Stored in directory: C:\Users\micha\AppData\Local\Temp\pip-ephem-wheel-cache-f140wkye\wheels\b4\69\10\ae1882fbb90498758babc0f588fba11f403383ef66d2b42682
+  Created wheel for mutants: filename=mutants-0.0.0-0.editable-py3-none-any.whl size=2532 sha256=077d2485b90fadb794f227bf135f1a1535668e5bfea38435f3c32265a3139e01
+  Stored in directory: C:\Users\micha\AppData\Local\Temp\pip-ephem-wheel-cache-der1oxm5\wheels\b4\69\10\ae1882fbb90498758babc0f588fba11f403383ef66d2b42682
 Successfully built mutants
 Installing collected packages: mutants
   Attempting uninstall: mutants
@@ -19,14 +20,26 @@ Installing collected packages: mutants
       Successfully uninstalled mutants-0.0.0
 Successfully installed mutants-0.0.0
 Schema ensured at C:\git\mutants3\state\mutants.db
-Items catalog present (rows: 45).
+Importing items catalog into SQLite...
+Imported 45 items into C:\git\mutants3\state\mutants.db
 daily_litter: triggered
-Monsters catalog present (rows: 7).
+Importing monsters catalog into SQLite...
+Imported 7 monster(s) into catalog at C:\git\mutants3\state\mutants.db
 Monsters currently present (rows: 0).
 
 Launching game (SQLite backend)...
 Mutants — classic BBS vibes.  Type 'help' for commands; 'theme mono' for no color.
 
+ 1. Mutant Thief    Level: 1   Year: 2000  ( 0  0)
+ 2. Mutant Priest   Level: 1   Year: 2000  ( 0  0)
+ 3. Mutant Wizard   Level: 1   Year: 2000  ( 0  0)
+ 4. Mutant Warrior  Level: 1   Year: 2000  ( 0  0)
+ 5. Mutant Mage     Level: 1   Year: 2000  ( 0  0)
+
+Type BURY [class number] to reset a player. Type X to exit.
+***
+Select (Bury, 1-5, ?) bury all
+Player reset.
  1. Mutant Thief    Level: 1   Year: 2000  ( 0  0)
  2. Mutant Priest   Level: 1   Year: 2000  ( 0  0)
  3. Mutant Wizard   Level: 1   Year: 2000  ( 0  0)
@@ -49,36 +62,12 @@ north - area continues.
 south - area continues.
 east  - area continues.
 west  - area continues.
-> stat
-***
-Name: Warrior / Mutant Warrior
-Exhaustion    : 0
-Str: 23     Int: 12      Wis: 14
-Dex: 20     Con: 19      Cha: 9
-Hit Points    : 40 / 40
-Exp. Points   : 0  Level: 1
-Riblets       : 0
-Ions          : 30000
-Wearing Armor : None  Armour Class: 2
-Ready to Combat: NO ONE
-Readied Spell  : No spell memorized.
-Year A.D.      : 2000
-
-You are carrying the following items:  (Total Weight: 0 LB's)
-Nothing.
-> w
-Graffiti lines the city walls.
-Compass: (-2E : 0N)
-north - area continues.
-south - area continues.
-east  - area continues.
-west  - area continues.
 ***
 On the ground lies:
-A Cigarette‑Butt, A Monster‑Bait.
-> get c
+A Short‑Sword.
+> get sh
 ***
-You pick up the Cigarette‑Butt.
+You pick up the Short‑Sword.
 > stat
 ***
 Name: Warrior / Mutant Warrior
@@ -94,12 +83,12 @@ Ready to Combat: NO ONE
 Readied Spell  : No spell memorized.
 Year A.D.      : 2000
 
-You are carrying the following items:  (Total Weight: 1 LB's)
-A Cigarette‑Butt.
-> con c
+You are carrying the following items:  (Total Weight: 5 LB's)
+A Short‑Sword.
+> con sh
 ***
-The Cigarette‑Butt vanishes with a flash!
-You convert the Cigarette‑Butt into 11000 ions.
+The Short‑Sword vanishes with a flash!
+You convert the Short‑Sword into 15000 ions.
 > stat
 ***
 Name: Warrior / Mutant Warrior
@@ -109,11 +98,21 @@ Dex: 20     Con: 19      Cha: 9
 Hit Points    : 40 / 40
 Exp. Points   : 0  Level: 1
 Riblets       : 0
-Ions          : 41000
+Ions          : 45000
 Wearing Armor : None  Armour Class: 2
 Ready to Combat: NO ONE
 Readied Spell  : No spell memorized.
 Year A.D.      : 2000
 
 You are carrying the following items:  (Total Weight: 0 LB's)
-A 741d7894930b4a0bb8069bf3f412df25.
+An 427a88a1623d4f888044978d57d9ccb8.
+> x
+ 1. Mutant Thief    Level: 1   Year: 2000  ( 0  0)
+ 2. Mutant Priest   Level: 1   Year: 2000  ( 0  0)
+ 3. Mutant Wizard   Level: 1   Year: 2000  ( 0  0)
+ 4. Mutant Warrior  Level: 1   Year: 2000  (‑1  0)
+ 5. Mutant Mage     Level: 1   Year: 2000  ( 0  0)
+
+Type BURY [class number] to reset a player. Type X to exit.
+***
+Select (Bury, 1-5, ?) x

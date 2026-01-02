@@ -101,6 +101,43 @@ def _convert_payout(iid: str, item_id: str, catalog: Any) -> int:
     return _convert_value(item_id, catalog, iid if iid else None)
 
 
+def _purge_iid_everywhere(state: dict, iid: str) -> None:
+    """Remove ``iid`` from all inventories/bags/active views in ``state``."""
+
+    if not isinstance(state, dict):
+        return
+    sanitized = str(iid).strip()
+    if not sanitized:
+        return
+
+    def _drop_from_list(lst):
+        if isinstance(lst, list):
+            return [tok for tok in lst if str(tok).strip() != sanitized]
+        return lst
+
+    state["inventory"] = _drop_from_list(state.get("inventory"))
+    active = state.get("active")
+    if isinstance(active, dict):
+        active["inventory"] = _drop_from_list(active.get("inventory"))
+
+    bags = state.get("bags")
+    if isinstance(bags, dict):
+        for key, bag in list(bags.items()):
+            bags[key] = _drop_from_list(bag)
+
+    players = state.get("players")
+    if isinstance(players, list):
+        for pl in players:
+            if not isinstance(pl, dict):
+                continue
+            pl["inventory"] = _drop_from_list(pl.get("inventory"))
+            # Mirror bags if present at player level.
+            pbags = pl.get("bags")
+            if isinstance(pbags, dict):
+                for key, bag in list(pbags.items()):
+                    pbags[key] = _drop_from_list(bag)
+
+
 def _choose_inventory_item(
     player: Dict[str, object],
     prefix: str,
@@ -210,6 +247,7 @@ def convert_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
     except ValueError:
         pass
     player["inventory"] = inventory
+    _purge_iid_everywhere(player, iid)
 
     player["ions"] = new_total
     player["Ions"] = new_total
@@ -257,6 +295,7 @@ def convert_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
         # 1. Persist inventory change for the current class, not whatever is on disk.
         target_cls = runtime_cls or pstate.get_active_class(state)
         pstate.update_player_inventory(state, target_cls, player["inventory"])
+        _purge_iid_everywhere(state, iid)
 
         # 2. Persist ion change (set_ions_for_active saves the full state)
         # Ensure the active class reflects the target class so ions land in the right bucket.
@@ -281,7 +320,7 @@ def convert_cmd(arg: str, ctx: Dict[str, object]) -> Dict[str, object]:
             pstate._pdbg_setup_file_logging()
             LOG_P.info(
                 "[playersdbg] CONVERT success class=%s ions=%s add=%s",
-                active_class,
+                runtime_cls or klass,
                 new_total,
                 value,
             )

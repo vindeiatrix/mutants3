@@ -1,5 +1,5 @@
 {
-  "active_id": "player_mage",
+  "active_id": "player_warrior",
   "players": [
     {
       "id": "player_thief",
@@ -8,11 +8,13 @@
       "is_active": false,
       "pos": [
         2000,
-        0,
+        2,
         0
       ],
       "ions": 30000,
-      "inventory": [],
+      "inventory": [
+        "191bfb9376334a32a3ca05898dae8964"
+      ],
       "Ions": 30000,
       "stats": {
         "str": 15,
@@ -83,15 +85,19 @@
       "id": "player_warrior",
       "name": "Warrior",
       "class": "Warrior",
-      "is_active": false,
+      "is_active": true,
       "pos": [
-        2000,
-        0,
-        0
+        2100,
+        -4,
+        -5
       ],
-      "ions": 30000,
-      "inventory": [],
-      "Ions": 30000,
+      "ions": 191021,
+      "inventory": [
+        "01952792bc6b4d9aa07237b7c395a8e4",
+        "05fbd89f40284076b0dd80b89cd784ac",
+        "23499522e83d4408bb327a29174305f3"
+      ],
+      "Ions": 191021,
       "stats": {
         "str": 23,
         "int": 12,
@@ -101,23 +107,26 @@
         "cha": 9
       },
       "hp": {
-        "current": 40,
-        "max": 40
-      }
+        "current": 2323173,
+        "max": 2323232
+      },
+      "riblets": 76,
+      "Riblets": 76,
+      "exp_points": 115
     },
     {
       "id": "player_mage",
       "name": "Mage",
       "class": "Mage",
-      "is_active": true,
+      "is_active": false,
       "pos": [
         2000,
         0,
         0
       ],
-      "ions": 43000,
+      "ions": 30000,
       "inventory": [],
-      "Ions": 43000,
+      "Ions": 30000,
       "stats": {
         "str": 18,
         "int": 23,
@@ -129,10 +138,7 @@
       "hp": {
         "current": 28,
         "max": 28
-      },
-      "riblets": 0,
-      "Riblets": 0,
-      "exp_points": 0
+      }
     }
   ],
   "ready_target": null,
@@ -144,7 +150,7 @@
     "Warrior": null,
     "Mage": null
   },
-  "class": "Mage",
+  "class": "Warrior",
   "target_monster_id_by_class": {
     "Mutant Warrior": null,
     "Thief": null,
@@ -157,29 +163,39 @@
     "Thief": 30000,
     "Priest": 30000,
     "Wizard": 30000,
-    "Warrior": 30000,
-    "Mage": 43000
+    "Warrior": 191021,
+    "Mage": 30000
   },
-  "name": "Mage",
+  "name": "Warrior",
   "pos": [
-    2000,
-    0,
-    0
+    2100,
+    -4,
+    -5
   ],
   "bags": {
     "Mutant Warrior": [],
-    "Thief": [],
+    "Thief": [
+      "191bfb9376334a32a3ca05898dae8964"
+    ],
     "Priest": [],
     "Wizard": [],
-    "Warrior": [],
+    "Warrior": [
+      "01952792bc6b4d9aa07237b7c395a8e4",
+      "05fbd89f40284076b0dd80b89cd784ac",
+      "23499522e83d4408bb327a29174305f3"
+    ],
     "Mage": []
   },
-  "inventory": [],
+  "inventory": [
+    "01952792bc6b4d9aa07237b7c395a8e4",
+    "05fbd89f40284076b0dd80b89cd784ac",
+    "23499522e83d4408bb327a29174305f3"
+  ],
   "riblets_by_class": {
     "Thief": 0,
     "Priest": 0,
     "Wizard": 0,
-    "Warrior": 0,
+    "Warrior": 76,
     "Mage": 0
   },
   "exhaustion_by_class": {
@@ -193,7 +209,7 @@
     "Thief": 0,
     "Priest": 0,
     "Wizard": 0,
-    "Warrior": 0,
+    "Warrior": 115,
     "Mage": 0
   },
   "level_by_class": {
@@ -217,8 +233,8 @@
       "max": 23
     },
     "Warrior": {
-      "current": 40,
-      "max": 40
+      "current": 2323173,
+      "max": 2323232
     },
     "Mage": {
       "current": 28,
@@ -278,7 +294,7 @@
       "armour": null
     },
     "Warrior": {
-      "armour": null
+      "armour": "05fbd89f40284076b0dd80b89cd784ac"
     },
     "Mage": {
       "armour": null
@@ -342,32 +358,32 @@
   },
   "world_tile_effects": {},
   "armour": {
-    "wearing": null,
+    "wearing": "05fbd89f40284076b0dd80b89cd784ac",
     "armour_class": 1
   },
-  "ions": 43000,
-  "Ions": 43000,
-  "riblets": 0,
-  "Riblets": 0,
+  "ions": 191021,
+  "Ions": 191021,
+  "riblets": 76,
+  "Riblets": 76,
   "exhaustion": 0,
-  "exp_points": 0,
+  "exp_points": 115,
   "level": 1,
   "hp": {
-    "current": 28,
-    "max": 28
+    "current": 2323173,
+    "max": 2323232
   },
   "stats": {
-    "str": 18,
-    "int": 23,
-    "wis": 20,
-    "dex": 16,
-    "con": 15,
-    "cha": 20
+    "str": 23,
+    "int": 12,
+    "wis": 14,
+    "dex": 20,
+    "con": 19,
+    "cha": 9
   },
   "position": [
-    2000,
-    0,
-    0
+    2100,
+    -4,
+    -5
   ],
   "readied_spell": null,
   "target_monster_id": null,
